@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Sanggala Corridor Project</title>
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+  <style>
+    :root {
+      --color-cream: #FFFAF3;
+      --color-sand: #DCDACC;
+      --color-sage: #B5BBA9;
+      --color-moss: #8C9F8B;
+      --color-fern: #618273;
+      --color-pine: #356760;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      background-color: var(--color-cream);
+    }
+
+    /* NAVBAR (sama seperti index.html) */
+    .navbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 14px 32px;
+      background-color: var(--color-cream);
+      border-bottom: 1px solid var(--color-sand);
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-self: start;
+    }
+    .logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+    .brand-text {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: var(--color-pine);
+    }
+    .navbar-menu {
+      display: flex;
+      gap: 32px;
+      justify-self: center;
+    }
+    .navbar-menu a {
+      text-decoration: none;
+      color: var(--color-fern);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .navbar-menu a:hover,
+    .navbar-menu a.active {
+      color: var(--color-pine);
+    }
+    .navbar-spacer {
+      justify-self: end;
+    }
+
+    /* PAGE HEADING */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #4b5563;
+      margin-bottom: 36px;
+    }
+
+    /* SECTION */
+    .dash-section {
+      margin-bottom: 40px;
+    }
+    .dash-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--color-sand);
+    }
+
+    /* CARD GRID */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .dash-card {
+      background-color: var(--color-sage);
+      border-radius: 6px;
+      padding: 18px 20px;
+      text-decoration: none;
+      display: block;
+      max-width: 320px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .dash-card:hover {
+      background-color: var(--color-moss);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(53, 103, 96, 0.18);
+    }
+    .dash-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    .dash-card p {
+      font-size: 0.78rem;
+      color: #374151;
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+    .dash-card .update {
+      font-size: 0.68rem;
+      color: #4b5563;
+      opacity: 0.75;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+    .status-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+    .status-active {
+      color: #1a5c33;
+    }
+    .status-development {
+      color: #8a6300;
+    }
+    .status-inactive {
+      color: #8a1f1f;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        grid-template-columns: auto auto;
+      }
+      .navbar-menu {
+        gap: 16px;
+        justify-self: end;
+      }
+      .navbar-spacer {
+        display: none;
+      }
+      .page-wrap {
+        padding: 32px 20px 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER / NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project" class="logo">
+      <span class="brand-text">SANGGALA CORRIDOR PROJECT</span>
+    </div>
+    <nav class="navbar-menu">
+      <a href="index.html">Home</a>
+      <a href="activities.html">Activities</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+    </nav>
+    <div class="navbar-spacer"></div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="page-wrap">
+    <h1 class="page-title">List of dashboard monitoring</h1>
+
+    <!-- ILLEGAL ACTIVITIES MONITORING -->
+    <section class="dash-section">
+      <h2 class="dash-section-title">Illegal Activities Monitoring</h2>
+      <div class="card-grid">
+        <a class="dash-card" href="https://datastudio.google.com/u/0/reporting/a8f4934d-3b3f-44c6-b8b3-83542ce78de6/page/14xWF" target="_blank" rel="noopener noreferrer" data-dashboard="fire-monitoring">
+          <h3>Fire monitoring</h3>
+          <p>Pemantauan titik api berdasarkan data satelit NASA dan verifikasi tim patroli.</p>
+          <span class="status-badge status-active">Active</span>
+        </a>
+        <a class="dash-card" href="https://datastudio.google.com/u/0/reporting/96534245-f196-4971-99b7-30bc0ebeb7a6/page/cw1dF" target="_blank" rel="noopener noreferrer" data-dashboard="land-clearing-alert">
+          <h3>Land clearing alert</h3>
+          <p>Pemantauan titik pembukaan lahan, data dari Integrated Disturbance Alert GFW.</p>
+          <span class="status-badge status-active">Active</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- BIODIVERSITY MONITORING -->
+    <section class="dash-section">
+      <h2 class="dash-section-title">Biodiversity Monitoring</h2>
+      <div class="card-grid">
+        <a class="dash-card" href="#" data-dashboard="wildlife-monitoring">
+          <h3>Wildlife Monitoring</h3>
+          <p>Monitoring wildlife through camera trap and Bioacoustic data.</p>
+          <span class="status-badge status-development">On Development</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- PROJECT IMPLEMENTATION -->
+    <section class="dash-section">
+      <h2 class="dash-section-title">Project Implementation</h2>
+      <div class="card-grid">
+        <a class="dash-card" href="https://gis-carbonx.github.io/planting-map/" target="_blank" rel="noopener noreferrer" data-dashboard="planting-monitoring">
+          <h3>Planting Monitoring</h3>
+          <p>Monitoring wildlife through camera trap and Bioacoustic data.</p>
+          <span class="status-badge status-active">Active</span>
+        </a>
+        <a class="dash-card" href="#" data-dashboard="nursery-data">
+          <h3>Nursery Data</h3>
+          <p>Monitoring wildlife through camera trap and Bioacoustic data.</p>
+          <span class="status-badge status-development">On Development</span>
+        </a>
+        <a class="dash-card" href="#" data-dashboard="community-engagement">
+          <h3>Community Engagement</h3>
+          <p>Monitoring wildlife through camera trap and Bioacoustic data.</p>
+          <span class="status-badge status-active">Active</span>
+        </a>
+        <a class="dash-card" href="#" data-dashboard="worker-database">
+          <h3>Worker Database</h3>
+          <p>Monitoring wildlife through camera trap and Bioacoustic data.</p>
+          <span class="status-badge status-inactive">Inactive</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("Dashboard - halaman siap.");
+    });
+  </script>
+</body>
+</html>
