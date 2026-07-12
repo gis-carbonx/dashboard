@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patrol Monitoring | Sanggala Corridor Project</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --color-cream:#FFFAF3;
+      --color-sand:#DCDACC;
+      --color-sage:#B5BBA9;
+      --color-moss:#8C9F8B;
+      --color-fern:#618273;
+      --color-pine:#356760;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
+    body{display:flex;flex-direction:column}
+
+    /* SITE NAVBAR (sama seperti index.html / list.html) */
+    .site-navbar{
+      flex-shrink:0;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      padding:12px 32px;
+      background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);
+      font-family:'Montserrat',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
+
+    /* DASHBOARD ROOT wraps the entire patrol monitoring app below the navbar */
+    #dashboardRoot{position:relative;flex:1;min-height:0;overflow:hidden}
+    .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#356760;border-bottom:1px solid #2a544d;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+    .top-bar-left{display:flex;align-items:center;gap:14px}
+    .logo-img{height:30px;width:auto;display:block}
+    .top-bar-divider{width:1px;height:28px;background:rgba(255,255,255,.28)}
+    .top-bar-title{display:flex;flex-direction:column;gap:1px}
+    .top-bar-title-main{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.1px;line-height:1.2}
+    .top-bar-title-sub{font-size:10px;font-weight:400;color:rgba(255,255,255,.65);letter-spacing:.2px}
+    .top-bar-right{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.10);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);transition:all .15s}
+    .icon-btn:hover{background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.4);color:#fff}
+    .icon-btn.active{background:#618273;border-color:#618273;color:#fff}
+    .icon-btn svg{width:16px;height:16px}
+    #map{position:absolute;top:56px;left:268px;right:0;bottom:0}
+    .sidebar{position:absolute;top:56px;left:0;bottom:0;z-index:1000;width:268px;background:#fff;border-right:1px solid #e8eaed;display:flex;flex-direction:column;overflow:hidden}
+    .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .sidebar-body::-webkit-scrollbar{width:3px}
+    .sidebar-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .sidebar-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;cursor:pointer;border-bottom:1px solid #f3f4f6}
+    .sidebar-section-title{font-size:11px;font-weight:700;color:#374151;letter-spacing:.4px;text-transform:uppercase}
+    .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
+    .sidebar-chevron.open{transform:rotate(180deg)}
+
+    .sub-group-header{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px 16px;cursor:pointer;background:#f9fafb;border-bottom:1px solid #f0f1f3;border-top:1px solid #f0f1f3;user-select:none}
+    .sub-group-header:hover{background:#f3f4f6}
+    .sub-group-title{font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.35px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+    .sub-group-chevron{font-size:9px;color:#9ca3af;transition:transform .18s;flex-shrink:0}
+    .sub-group-chevron.open{transform:rotate(180deg)}
+    .sub-group-body{overflow:hidden}
+
+    .year-sub-header{display:flex;align-items:center;justify-content:space-between;padding:5px 16px 5px 28px;cursor:pointer;background:#fff;border-bottom:1px solid #f9fafb;user-select:none}
+    .year-sub-header:hover{background:#f9fafb}
+    .year-sub-title{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:5px}
+    .year-sub-chevron{font-size:9px;color:#d1d5db;transition:transform .18s;flex-shrink:0}
+    .year-sub-chevron.open{transform:rotate(180deg)}
+
+    .layer-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px}
+    .layer-item.indented{padding-left:28px}
+    .layer-item.deep-indented{padding-left:40px}
+    .layer-item-left{display:flex;align-items:center;gap:10px}
+    .layer-icon-sq{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+    .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
+    .layer-label{font-size:11px;font-weight:500;color:#374151}
+    .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
+    .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
+    .cb-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .cb-wrap input:checked + .cb-box{background:#618273;border-color:#618273}
+    .cb-wrap input:checked + .cb-box::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+    .switch{position:relative;width:34px;height:20px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .sw-track{position:absolute;inset:0;background:#e5e7eb;border-radius:20px;cursor:pointer;transition:background .2s}
+    .sw-track:before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .switch input:checked + .sw-track{background:#618273}
+    .switch input:checked + .sw-track:before{transform:translateX(14px)}
+    .legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
+    .legend-swatch{width:14px;height:14px;border-radius:2px;flex-shrink:0}
+    .finding-row{display:flex;align-items:center;gap:8px;padding:4px 16px;font-size:11px;color:#374151;font-weight:500;cursor:pointer;transition:background .1s}
+    .finding-row:hover{background:#f9fafb}
+    .finding-row.active-cat{background:#FFFAF3}
+    .finding-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .finding-count{margin-left:auto;font-size:10px;color:#9ca3af;font-weight:400}
+    .divider{height:1px;background:#f3f4f6;margin:6px 0}
+    .info-hint{display:flex;align-items:flex-start;gap:8px;background:#FFFAF3;border-radius:8px;margin:10px 12px;padding:9px 11px;font-size:10px;color:#6b7280;line-height:1.5}
+    .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
+    .track-line-swatch{width:22px;height:4px;border-radius:2px;flex-shrink:0}
+    .layer-icon-grid{width:14px;height:14px;flex-shrink:0;background:transparent;border:2px solid #fbbf24;border-radius:2px;box-sizing:border-box}
+    .rkt-label{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;font-family:'Montserrat',sans-serif;font-weight:700;font-size:10px;color:#fff;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 0 4px rgba(0,0,0,.85);white-space:nowrap;pointer-events:none}
+    .rkt-label::before{display:none}
+    .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
+    .filter-panel.open{display:flex}
+    .filter-panel-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
+    .filter-panel-title{font-size:13px;font-weight:700;color:#356760;letter-spacing:-.1px}
+    .filter-panel-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:13px;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .filter-panel-close:hover{background:#e5e7eb}
+    .filter-panel-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .filter-panel-body::-webkit-scrollbar{width:3px}
+    .filter-panel-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .f-group{}
+    .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+    .f-date-row{display:flex;gap:6px}
+    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-input.date-input{background-image:none;padding-right:10px}
+    .f-input:focus{border-color:#618273;background:#fff}
+    .quick-date-row{display:flex;flex-wrap:wrap;gap:4px}
+    .qd-btn{padding:4px 9px;border-radius:6px;border:1.5px solid #e8eaed;background:#fafafa;color:#374151;font-size:10px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .qd-btn:hover{border-color:#618273;color:#618273}
+    .qd-btn.active{background:#618273;border-color:#618273;color:#fff}
+    .f-active-box{background:#FFFAF3;border:1px solid #DCDACC;border-radius:9px;padding:9px 10px}
+    .f-active-label{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .f-pills{display:flex;flex-wrap:wrap;gap:5px}
+    .f-pill{display:inline-flex;align-items:center;gap:4px;background:#DCDACC;border:1px solid #B5BBA9;color:#356760;border-radius:20px;padding:3px 9px 3px 10px;font-size:10px;font-weight:600}
+    .f-pill-rm{cursor:pointer;font-size:12px;line-height:1;opacity:.65;margin-left:1px;font-weight:400}
+    .f-pill-rm:hover{opacity:1}
+    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s}
+    .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
+    .icon-btn-wrap{position:relative}
+    .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
+    .f-section-divider{border-top:1.5px solid #f3f4f6;margin:4px 0 8px;padding-top:10px}
+    .f-section-label{font-size:10px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .f-section-label .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#fff;border-top:1px solid #e8eaed;display:flex;align-items:center;height:72px;overflow:hidden}
+    .bottom-cat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;border-right:1px solid #f3f4f6;cursor:pointer;transition:background .15s;height:100%}
+    .bottom-cat:last-child{border-right:none}
+    .bottom-cat:hover{background:#f9fafb}
+    .bottom-cat.active{background:#FFFAF3}
+    .bottom-cat-top{display:flex;align-items:center;gap:5px}
+    .bottom-cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .bottom-cat-name{font-size:10px;font-weight:600;color:#374151}
+    .bottom-cat-sub{font-size:9px;color:#9ca3af;text-align:center;line-height:1.3}
+    .bottom-cat-count{font-size:9px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:10px;padding:0 5px}
+    .detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:296px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.14);display:none;flex-direction:column;overflow:hidden}
+    .detail-panel.open{display:flex}
+    .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
+    .detail-header-title{font-size:12px;font-weight:700;color:#356760}
+    .detail-close{width:26px;height:26px;border-radius:6px;border:none;background:#f9fafb;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:15px;transition:all .15s}
+    .detail-close:hover{background:#f3f4f6;color:#374151}
+    .detail-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .detail-body::-webkit-scrollbar{width:3px}
+    .detail-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .detail-cat-row{display:flex;align-items:center;gap:8px;padding:12px 16px 0}
+    .detail-cat-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+    .detail-cat-name{font-size:12px;font-weight:600;color:#374151}
+    .detail-row{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 16px;border-bottom:1px solid #f9fafb;gap:12px}
+    .detail-key{font-size:10px;color:#9ca3af;font-weight:500;flex-shrink:0;min-width:76px;padding-top:1px}
+    .detail-val{font-size:11px;color:#374151;font-weight:500;text-align:right;word-break:break-word}
+    .detail-slider{position:relative;overflow:hidden;background:#f3f4f6;margin-top:10px;flex-shrink:0}
+    .detail-slider .slides{display:flex;transition:transform .3s ease}
+    .detail-slider .slide{min-width:100%}
+    .detail-slider .slide img{width:100%;height:160px;object-fit:cover;display:block;cursor:pointer}
+    .ds-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.88);color:#374151;border:none;border-radius:50%;width:26px;height:26px;font-size:15px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+    .ds-btn.prev{left:7px}.ds-btn.next{right:7px}
+    .ds-dots{position:absolute;bottom:5px;width:100%;display:flex;justify-content:center;gap:4px}
+    .ds-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5)}
+    .ds-dots span.active{background:#fff;width:13px;border-radius:4px}
+    .detail-photos-section{padding:10px 16px 6px}
+    .detail-photos-title{font-size:10px;font-weight:700;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+    .detail-photos-count{background:#e5e7eb;border-radius:20px;padding:1px 6px;font-size:9px;font-weight:600;color:#6b7280}
+    .detail-photos-grid{display:flex;gap:5px;flex-wrap:wrap}
+    .detail-thumb{width:76px;height:56px;border-radius:7px;object-fit:cover;cursor:pointer;transition:opacity .15s}
+    .detail-thumb:hover{opacity:.82}
+    .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
+    .zoom-btn:hover{background:#f9fafb}
+    .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.9);justify-content:center;align-items:center}
+    .img-modal img{max-width:90%;max-height:88%;border-radius:12px}
+    .modal-close{position:absolute;top:18px;right:26px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .15s;line-height:1}
+    .modal-close:hover{opacity:1}
+    .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
+    .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
+    .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
+    .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .15s}
+    .bm-pill:hover .bm-thumb-wrap{box-shadow:0 0 0 2px #618273}
+    .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #618273;opacity:1}
+    .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
+    .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+    .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
+    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(239,68,68,.18)!important}
+    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(239,68,68,.72)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
+    .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{transition:transform .3s ease,opacity .3s ease!important}
+    .fire-cluster-small,.fire-cluster-medium,.fire-cluster-large{background:rgba(251,146,60,.18)!important}
+    .fire-cluster div{background:rgba(239,68,68,.85)!important;color:#fff!important;font-family:'Montserrat',sans-serif!important;font-weight:700!important;font-size:10px!important}
+
+    .fire-popup,.gfw-popup{font-family:'Montserrat',sans-serif;width:240px}
+    .fire-popup-head,.gfw-popup-head{display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #f3f4f6}
+    .fire-popup-icon,.gfw-popup-icon{font-size:18px;line-height:1}
+    .fire-popup-title{font-size:12px;font-weight:700;color:#ea580c}
+    .gfw-popup-title{font-size:12px;font-weight:700;color:#dc2626}
+    .fire-popup-date,.gfw-popup-date{font-size:10px;color:#9ca3af;margin-top:1px}
+    .fire-popup-row,.gfw-popup-row{display:flex;align-items:baseline;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f9fafb}
+    .fire-popup-row:last-child,.gfw-popup-row:last-child{border-bottom:none}
+    .fire-popup-key,.gfw-popup-key{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px}
+    .fire-popup-val,.gfw-popup-val{font-size:11px;font-weight:600;color:#374151;text-align:right;max-width:140px;word-break:break-word}
+    .fire-popup-badge,.gfw-popup-badge{display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:4px;font-size:9px;font-weight:700;padding:1px 6px}
+    .gfw-conf-badge{display:inline-block;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:4px;font-size:9px;font-weight:700;padding:1px 6px}
+    .fire-popup-coord,.gfw-popup-coord{font-size:9px;color:#9ca3af;margin-top:6px;padding-top:6px;border-top:1px solid #f3f4f6;text-align:center}
+  </style>
+</head>
+<body>
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div id="dashboardRoot">
+<div id="map"></div>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <img src="assets/logo/Sanggala_color.png" alt="Sanggala Corridor Project" class="logo-img">
+    <div class="top-bar-divider"></div>
+    <div class="top-bar-title">
+      <span class="top-bar-title-main">Field Patrol Monitoring</span>
+      <span class="top-bar-title-sub">PT CMI Monitoring System</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="icon-btn-wrap">
+      <button class="icon-btn" title="Export Data" id="exportToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
+    <div class="icon-btn-wrap">
+      <button class="icon-btn" title="Filter" id="filterToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </button>
+      <span class="filter-badge" id="filterBadge">!</span>
+    </div>
+    <button class="icon-btn" title="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-body">
+
+    <div id="patrolSidebar">
+
+      <div class="sidebar-section-header" onclick="toggleSection('secLayers','chev1')">
+        <span class="sidebar-section-title">Map Layers</span>
+        <span class="sidebar-chevron open" id="chev1">▲</span>
+      </div>
+      <div id="secLayers">
+
+        <div class="layer-item">
+          <div class="layer-item-left"><div class="layer-icon-bd"></div><span class="layer-label">Project Area</span></div>
+          <label class="cb-wrap"><input type="checkbox" id="toggleBoundary" checked><div class="cb-box"></div></label>
+        </div>
+
+        <div class="layer-item">
+          <div class="layer-item-left">
+            <div style="width:12px;height:12px;border-radius:50%;background:#f5a623;flex-shrink:0"></div>
+            <span class="layer-label">Patrol Points</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="togglePoints" checked><span class="sw-track"></span></label>
+        </div>
+
+        <div class="layer-item">
+          <div class="layer-item-left">
+            <div style="width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444;flex-shrink:0"></div>
+            <span class="layer-label">GFW Alert</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggleGfw"><span class="sw-track"></span></label>
+        </div>
+
+        <div class="layer-item">
+          <div class="layer-item-left">
+            <div style="width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px">🔥</div>
+            <span class="layer-label">Fire Event</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggleFire"><span class="sw-track"></span></label>
+        </div>
+
+        <div class="sub-group-header" onclick="toggleSubGroup('sgTrack','sgChevTrack')">
+          <span class="sub-group-title">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Patrol
+          </span>
+          <span class="sub-group-chevron" id="sgChevTrack">▼</span>
+        </div>
+        <div class="sub-group-body" id="sgTrack" style="display:none">
+
+          <div class="layer-item indented">
+            <div class="layer-item-left"><div class="layer-icon-grid"></div><span class="layer-label">Petak RKT</span></div>
+            <label class="switch"><input type="checkbox" id="toggleRkt"><span class="sw-track"></span></label>
+          </div>
+
+          <div class="year-sub-header" onclick="toggleSubGroup('sgTrack2026','sgChev2026')">
+            <span class="year-sub-title">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Patrol track 2026
+            </span>
+            <span class="year-sub-chevron" id="sgChev2026">▼</span>
+          </div>
+          <div class="sub-group-body" id="sgTrack2026" style="display:none">
+            <div class="layer-item deep-indented">
+              <div class="layer-item-left"><div class="track-line-swatch" style="background:#3b82f6"></div><span class="layer-label">February</span></div>
+              <label class="switch"><input type="checkbox" id="trackFeb"><span class="sw-track"></span></label>
+            </div>
+            <div class="layer-item deep-indented">
+              <div class="layer-item-left"><div class="track-line-swatch" style="background:#f97316"></div><span class="layer-label">March</span></div>
+              <label class="switch"><input type="checkbox" id="trackMaret"><span class="sw-track"></span></label>
+            </div>
+            <div class="layer-item deep-indented">
+              <div class="layer-item-left"><div class="track-line-swatch" style="background:#a855f7"></div><span class="layer-label">April</span></div>
+              <label class="switch"><input type="checkbox" id="trackApril"><span class="sw-track"></span></label>
+            </div>
+            <div class="layer-item deep-indented">
+              <div class="layer-item-left"><div class="track-line-swatch" style="background:#22c55e"></div><span class="layer-label">May</span></div>
+              <label class="switch"><input type="checkbox" id="trackMei"><span class="sw-track"></span></label>
+            </div>
+            <div style="padding:2px 16px 6px 40px;font-size:9px;color:#9ca3af">Latest update – 29 May 2026</div>
+          </div>
+
+        </div>
+
+        <div class="sub-group-header" onclick="toggleSubGroup('sgLandcover','sgChevLandcover')">
+          <span class="sub-group-title">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Landcover
+          </span>
+          <span class="sub-group-chevron" id="sgChevLandcover">▼</span>
+        </div>
+        <div class="sub-group-body" id="sgLandcover" style="display:none">
+          <div class="layer-item indented">
+            <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">LULC 2023</span></div>
+            <label class="switch"><input type="checkbox" id="toggleLulc"><span class="sw-track"></span></label>
+          </div>
+          <div class="layer-item indented">
+            <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BCD4"></div><span class="layer-label">LULC 2025</span></div>
+            <label class="switch"><input type="checkbox" id="toggleLulc2025"><span class="sw-track"></span></label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="secLulcLegWrap" style="display:none">
+        <div class="sidebar-section-header" onclick="toggleSection('secLulcLeg','chev2')">
+          <span class="sidebar-section-title">LULC Classification</span>
+          <span class="sidebar-chevron open" id="chev2">▲</span>
+        </div>
+        <div id="secLulcLeg">
+          <div class="legend-item"><div class="legend-swatch" style="background:#ec4040"></div>Building</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#a1a1a1"></div>Cleared / Bare Land</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ecb240"></div>Oil Palm / Newly Planted</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#5c9640"></div>Forest</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ffffce;border:1px solid #ccc"></div>Mixed Dry Agriculture</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#b2ec40"></div>Old Shrubs</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#000"></div>Road</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ddff96"></div>Shrubs</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#b6cce1"></div>Water</div>
+          <div style="height:6px"></div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <div id="secGfwLegend" style="display:none">
+        <div class="sidebar-section-header" onclick="toggleSection('secGfwLegBody','chevGfw')">
+          <span class="sidebar-section-title">GFW Disturbance Alert</span>
+          <span class="sidebar-chevron open" id="chevGfw">▲</span>
+        </div>
+        <div id="secGfwLegBody">
+          <div class="legend-item">
+            <div style="width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1px #ef4444;flex-shrink:0"></div>
+            <span>Disturbance Point</span>
+          </div>
+          <div style="padding:4px 16px 2px;font-size:9px;color:#9ca3af">Source: Integrated Disturbance Alert GFW</div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <div id="secFireLegend" style="display:none">
+        <div class="sidebar-section-header" onclick="toggleSection('secFireLegBody','chevFire')">
+          <span class="sidebar-section-title">Fire Event</span>
+          <span class="sidebar-chevron open" id="chevFire">▲</span>
+        </div>
+        <div id="secFireLegBody">
+          <div class="legend-item"><span style="font-size:13px;line-height:1">🔥</span><span>Fire Detection Point</span></div>
+          <div style="padding:3px 16px 2px;font-size:9px;color:#9ca3af">Source: NASA FIRMS detection</div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <div id="secRktLegend">
+        <div class="sidebar-section-header" onclick="toggleSection('secRktLegBody','chevRkt')">
+          <span class="sidebar-section-title">Petak RKT</span>
+          <span class="sidebar-chevron open" id="chevRkt">▲</span>
+        </div>
+        <div id="secRktLegBody">
+          <div class="legend-item">
+            <div style="width:14px;height:14px;border:2px solid #fbbf24;border-radius:2px;flex-shrink:0;box-sizing:border-box"></div>
+            <span>Batas Petak Kerja</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="sidebar-section-header" onclick="toggleSection('secFindings','chev3')">
+        <span class="sidebar-section-title">Patrol Findings</span>
+        <span class="sidebar-chevron open" id="chev3">▲</span>
+      </div>
+      <div id="secFindings" style="padding:4px 0"><div id="findingsLegend"></div></div>
+      <div class="info-hint">
+        <div class="info-hint-icon">i</div>
+        <span>Click on a point to view details. Click a category to highlight.</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-panel-head">
+    <span class="filter-panel-title">Filter Data</span>
+    <button class="filter-panel-close" id="filterClose">✕</button>
+  </div>
+  <div class="filter-panel-body">
+    <div id="patrolFilters">
+      <div class="f-group">
+        <div class="f-label">Patrol — Quick Date</div>
+        <div class="quick-date-row" id="patrolQuickDates">
+          <button class="qd-btn" data-preset="today" onclick="applyPatrolQuickDate(this)">Today</button>
+          <button class="qd-btn" data-preset="1w" onclick="applyPatrolQuickDate(this)">1W</button>
+          <button class="qd-btn active" data-preset="1m" onclick="applyPatrolQuickDate(this)">1M</button>
+          <button class="qd-btn" data-preset="3m" onclick="applyPatrolQuickDate(this)">3M</button>
+          <button class="qd-btn" data-preset="6m" onclick="applyPatrolQuickDate(this)">6M</button>
+          <button class="qd-btn" data-preset="ytd" onclick="applyPatrolQuickDate(this)">YTD</button>
+          <button class="qd-btn" data-preset="1y" onclick="applyPatrolQuickDate(this)">1Y</button>
+          <button class="qd-btn" data-preset="all" onclick="applyPatrolQuickDate(this)">All</button>
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Patrol — Custom Range</div>
+        <div class="f-date-row">
+          <input type="date" class="f-input date-input" id="startDate" placeholder="From">
+          <input type="date" class="f-input date-input" id="endDate" placeholder="To">
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Officer</div>
+        <select class="f-input" id="filterOfficer"><option value="">All Officers</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Category</div>
+        <select class="f-input" id="filterCategory"><option value="">All Categories</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Finding</div>
+        <select class="f-input" id="filterFinding"><option value="">All Findings</option></select>
+      </div>
+
+      <div class="f-section-divider">
+        <div class="f-section-label"><span class="dot" style="background:#ef4444"></span>GFW Disturbance Alert</div>
+        <div class="f-group">
+          <div class="f-label">Quick Date</div>
+          <div class="quick-date-row" id="gfwQuickDates">
+            <button class="qd-btn" data-preset="today" onclick="applyGfwQuickDate(this)">Today</button>
+            <button class="qd-btn" data-preset="1w" onclick="applyGfwQuickDate(this)">1W</button>
+            <button class="qd-btn active" data-preset="1m" onclick="applyGfwQuickDate(this)">1M</button>
+            <button class="qd-btn" data-preset="3m" onclick="applyGfwQuickDate(this)">3M</button>
+            <button class="qd-btn" data-preset="6m" onclick="applyGfwQuickDate(this)">6M</button>
+            <button class="qd-btn" data-preset="1y" onclick="applyGfwQuickDate(this)">1Y</button>
+            <button class="qd-btn" data-preset="all" onclick="applyGfwQuickDate(this)">All</button>
+          </div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Custom Range</div>
+          <div class="f-date-row">
+            <input type="date" class="f-input date-input" id="gfwStartDate">
+            <input type="date" class="f-input date-input" id="gfwEndDate">
+          </div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Confidence</div>
+          <select class="f-input" id="filterGfwConf"><option value="">All Confidence</option></select>
+        </div>
+      </div>
+
+      <div class="f-section-divider">
+        <div class="f-section-label"><span style="font-size:12px;line-height:1">🔥</span>Fire Event</div>
+        <div class="f-group">
+          <div class="f-label">Quick Date</div>
+          <div class="quick-date-row" id="fireQuickDates">
+            <button class="qd-btn" data-preset="today" onclick="applyFireQuickDate(this)">Today</button>
+            <button class="qd-btn" data-preset="1w" onclick="applyFireQuickDate(this)">1W</button>
+            <button class="qd-btn active" data-preset="1m" onclick="applyFireQuickDate(this)">1M</button>
+            <button class="qd-btn" data-preset="3m" onclick="applyFireQuickDate(this)">3M</button>
+            <button class="qd-btn" data-preset="6m" onclick="applyFireQuickDate(this)">6M</button>
+            <button class="qd-btn" data-preset="1y" onclick="applyFireQuickDate(this)">1Y</button>
+            <button class="qd-btn" data-preset="all" onclick="applyFireQuickDate(this)">All</button>
+          </div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Custom Range</div>
+          <div class="f-date-row">
+            <input type="date" class="f-input date-input" id="fireStartDate">
+            <input type="date" class="f-input date-input" id="fireEndDate">
+          </div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Satellite</div>
+          <select class="f-input" id="filterFireSatellite"><option value="">All Satellites</option></select>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Owner</div>
+          <select class="f-input" id="filterFireOwner"><option value="">All Owners</option></select>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Desa</div>
+          <select class="f-input" id="filterFireDesa"><option value="">All Desa</option></select>
+        </div>
+        <div class="f-group">
+          <div class="f-label">Penutup Lahan</div>
+          <select class="f-input" id="filterFireLahan"><option value="">All Land Cover</option></select>
+        </div>
+      </div>
+
+      <div class="f-active-box" id="patrolActivePills" style="display:none">
+        <div class="f-active-label">Active Filters</div>
+        <div class="f-pills" id="patrolPillsWrap"></div>
+      </div>
+      <button class="btn-clear-f" id="clearFilters">Clear All Filters</button>
+    </div>
+  </div>
+</div>
+
+<div class="filter-panel" id="exportPanel" style="width:290px">
+  <div class="filter-panel-head">
+    <span class="filter-panel-title">Export Data</span>
+    <button class="filter-panel-close" id="exportClose">✕</button>
+  </div>
+  <div class="filter-panel-body">
+
+    <div class="f-section-divider" style="border-top:none;margin-top:0;padding-top:0">
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer;margin-bottom:8px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="width:9px;height:9px;border-radius:50%;background:#f5a623;flex-shrink:0"></span>
+          Patrol Findings
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportPatrolCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportPatrol" checked>
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer;margin-bottom:8px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>
+          GFW Disturbance Alert
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportGfwCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportGfw">
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1.5px solid #e8eaed;border-radius:9px;cursor:pointer">
+        <span style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#374151">
+          <span style="font-size:12px;line-height:1">🔥</span>
+          Fire Event
+        </span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="exportFireCount" style="font-size:10px;color:#9ca3af;font-weight:600">0</span>
+          <input type="checkbox" id="exportFire">
+        </span>
+      </label>
+    </div>
+
+    <button class="btn-clear-f" id="btnDoExport" style="background:#618273;border-color:#618273;color:#fff">⬇ Download CSV</button>
+    <div id="exportEmptyNote" style="display:none;font-size:10px;color:#ef4444;text-align:center">Pilih minimal satu jenis data untuk diekspor.</div>
+  </div>
+</div>
+
+<div class="basemap-panel" id="basemapPanel">
+  <div class="basemap-label-row">Basemap</div>
+  <div class="basemap-pills">
+    <div class="bm-pill active" id="bm_esri_imagery" onclick="switchBasemap('esri_imagery')" title="ESRI Satellite">
+      <div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/16/26" alt=""></div>
+      <div class="bm-name">ESRI St</div>
+    </div>
+    <div class="bm-pill" id="bm_google_satellite" onclick="switchBasemap('google_satellite')" title="Google Satellite">
+      <div class="bm-thumb-wrap"><img src="https://mt1.google.com/vt/lyrs=s&x=26&y=16&z=5" alt=""></div>
+      <div class="bm-name">Google</div>
+    </div>
+    <div class="bm-pill" id="bm_esri_topo" onclick="switchBasemap('esri_topo')" title="ESRI Topo">
+      <div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/5/16/26" alt=""></div>
+      <div class="bm-name">Topo</div>
+    </div>
+    <div class="bm-pill" id="bm_osm" onclick="switchBasemap('osm')" title="OpenStreetMap">
+      <div class="bm-thumb-wrap"><img src="https://tile.openstreetmap.org/5/26/16.png" alt=""></div>
+      <div class="bm-name">Streets</div>
+    </div>
+    <div class="bm-pill" id="bm_carto_dark" onclick="switchBasemap('carto_dark')" title="Dark">
+      <div class="bm-thumb-wrap" style="background:#1a1a2e"><img src="https://basemaps.cartocdn.com/dark_all/5/26/16.png" alt=""></div>
+      <div class="bm-name">Dark</div>
+    </div>
+  </div>
+</div>
+
+<div class="map-zoom">
+  <button class="zoom-btn" onclick="map.zoomIn()">+</button>
+  <button class="zoom-btn" onclick="map.zoomOut()">−</button>
+  <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
+</div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <span class="detail-header-title" id="detailPanelTitle">Patrol Finding</span>
+    <button class="detail-close" id="detailClose">✕</button>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<div class="bottom-bar" id="bottomBar"></div>
+
+<div id="imageModal" class="img-modal">
+  <span class="modal-close" id="closeModal">&times;</span>
+  <img id="modalImage">
+</div>
+</div><!-- /#dashboardRoot -->
+
+<script>
+const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
+const catColorMap={};
+function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
+
+function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+function convert(url){if(!url||!url.trim())return null;const id=url.match(/[-\w]{25,}/);return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;}
+function toMidnight(y,m,d){return new Date(y,m,d);}
+
+function parseDateStr(s,fmt){
+  if(!s||!s.trim())return null;
+  s=s.trim();s=s.split('T')[0].split(' ')[0];
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if(m&&MON[m[2]]!==undefined)return toMidnight(+m[3],MON[m[2]],+m[1]);
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){if(fmt==='mdy')return toMidnight(+m[3],+m[1]-1,+m[2]);if(fmt==='dmy')return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[2]-1,+m[1]);}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(m){const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];if(fmt==='mdy')return toMidnight(yyyy,+m[1]-1,+m[2]);if(fmt==='dmy')return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[1]>12)return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(yyyy,+m[1]-1,+m[2]);return toMidnight(yyyy,+m[1]-1,+m[2]);}
+  const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
+  return null;
+}
+function parseInputDate(s){if(!s)return null;const p=s.split('-');return p.length===3?toMidnight(+p[0],+p[1]-1,+p[2]):null;}
+function fmtDate(d){return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-';}
+function toInputStr(d){if(!d)return'';const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${mo}-${dd}`;}
+
+function getPresetRange(preset){
+  const now=new Date(),today=toMidnight(now.getFullYear(),now.getMonth(),now.getDate());
+  if(preset==='all')return{start:null,end:null};
+  if(preset==='today')return{start:today,end:today};
+  if(preset==='1w'){const s=new Date(today);s.setDate(s.getDate()-6);return{start:s,end:today};}
+  if(preset==='1m'){const s=new Date(today);s.setMonth(s.getMonth()-1);return{start:s,end:today};}
+  if(preset==='3m'){const s=new Date(today);s.setMonth(s.getMonth()-3);return{start:s,end:today};}
+  if(preset==='6m'){const s=new Date(today);s.setMonth(s.getMonth()-6);return{start:s,end:today};}
+  if(preset==='ytd'){const s=toMidnight(today.getFullYear(),0,1);return{start:s,end:today};}
+  if(preset==='1y'){const s=new Date(today);s.setFullYear(s.getFullYear()-1);return{start:s,end:today};}
+  return{start:null,end:null};
+}
+function setActiveQuickBtn(container,preset){container.querySelectorAll('.qd-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));}
+
+function toggleSubGroup(bodyId, chevId){
+  const body=document.getElementById(bodyId);
+  const chev=document.getElementById(chevId);
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'block':'none';
+  chev.classList.toggle('open', hidden);
+  chev.textContent=hidden?'▲':'▼';
+}
+
+const basemaps={
+  esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
+  esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
+  google_satellite: L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{opacity:1,maxZoom:21}),
+  osm:         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:1}),
+  carto_dark:  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{opacity:1})
+};
+let currentBasemap='esri_imagery';
+function switchBasemap(id){
+  if(currentBasemap===id)return;
+  map.removeLayer(basemaps[currentBasemap]);
+  currentBasemap=id;
+  basemaps[id].addTo(map);
+  basemaps[id].bringToBack();
+  document.querySelectorAll('.bm-pill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bm_'+id).classList.add('active');
+}
+
+const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
+basemaps['esri_imagery'].addTo(map);
+
+const lulc    =L.tileLayer('./assets/tiles/lulc_23/{z}/{x}/{y}.png',{opacity:1});
+const lulc2025=L.tileLayer('./assets/tiles/lulc_25/{z}/{x}/{y}.png',{opacity:1});
+let boundaryLayer,mapBounds;
+const pointLayer  =L.layerGroup().addTo(map);
+
+const RKT_LABEL_MIN_ZOOM=14,RKT_LABEL_MAX_ZOOM=20;
+const rktLayer=L.layerGroup();
+let rktLoaded=false,rktGeoJsonLayer=null;
+function updateRktLabelsVisibility(){
+  if(!rktGeoJsonLayer)return;
+  const z=map.getZoom();
+  const show=z>=RKT_LABEL_MIN_ZOOM&&z<=RKT_LABEL_MAX_ZOOM;
+  rktGeoJsonLayer.eachLayer(featureLayer=>{
+    if(!featureLayer.getTooltip())return;
+    if(show)featureLayer.openTooltip();else featureLayer.closeTooltip();
+  });
+}
+function loadRktLayer(){
+  if(rktLoaded)return Promise.resolve();
+  return fetch('./assets/json/rkt_baru.geojson')
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(geojson=>{
+      rktGeoJsonLayer=L.geoJSON(geojson,{
+        style:{color:'#fbbf24',weight:1.5,opacity:0.9,fillColor:'#fbbf24',fillOpacity:0.05},
+        onEachFeature:(feature,layer)=>{
+          const label=(feature.properties&&(feature.properties['PETAKKERJA']??feature.properties['PETAKKERJA'.toLowerCase()]))||'';
+          if(label!==''&&label!==null&&label!==undefined){
+            layer.bindTooltip(String(label),{permanent:true,direction:'center',className:'rkt-label'});
+          }
+        }
+      }).addTo(rktLayer);
+      rktLoaded=true;
+      updateRktLabelsVisibility();
+    })
+    .catch(err=>{console.warn('Petak RKT not loaded (assets/json/rkt_baru.geojson):',err);rktLoaded=true;});
+}
+loadRktLayer().then(()=>{if(document.getElementById('toggleRkt').checked)map.addLayer(rktLayer);});
+document.getElementById('toggleRkt').addEventListener('change',async function(){
+  if(this.checked){await loadRktLayer();map.addLayer(rktLayer);updateRktLabelsVisibility();}
+  else{map.removeLayer(rktLayer);}
+});
+map.on('zoomend',updateRktLabelsVisibility);
+
+const TRACK_CONFIG=[
+  {id:'trackFeb',  file:'track_feb.geojson',   color:'#3b82f6'},
+  {id:'trackMaret',file:'track_maret.geojson', color:'#f97316'},
+  {id:'trackApril',file:'track_april.geojson', color:'#a855f7'},
+  {id:'trackMei',  file:'track_mei.geojson',   color:'#22c55e'},
+];
+const trackLayers={},trackLoaded={};
+function loadTrackLayer(cfg){
+  return new Promise(resolve=>{
+    if(trackLoaded[cfg.id]){resolve();return;}
+    fetch(`./assets/json/track/${cfg.file}`)
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(geojson=>{
+        const lg=L.layerGroup();
+        L.geoJSON(geojson,{style:{color:cfg.color,weight:2.5,opacity:0.85,fillOpacity:0},pointToLayer:()=>null}).addTo(lg);
+        trackLayers[cfg.id]=lg;trackLoaded[cfg.id]=true;resolve();
+      }).catch(err=>{console.warn(`Track not loaded (${cfg.file}):`,err);trackLoaded[cfg.id]=true;resolve();});
+  });
+}
+function bindTrackToggle(cfg){
+  document.getElementById(cfg.id).addEventListener('change',async function(){
+    if(this.checked){await loadTrackLayer(cfg);if(trackLayers[cfg.id])map.addLayer(trackLayers[cfg.id]);}
+    else{if(trackLayers[cfg.id])map.removeLayer(trackLayers[cfg.id]);}
+  });
+}
+TRACK_CONFIG.forEach(bindTrackToggle);
+
+const gfwCluster=L.markerClusterGroup({
+  maxClusterRadius:25,disableClusteringAtZoom:16,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
+  iconCreateFunction:function(cluster){
+    const n=cluster.getChildCount(),sz=n<10?28:n<50?34:38;
+    return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(239,68,68,.8);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3)">${n}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+  }
+});
+
+const fireCluster=L.markerClusterGroup({
+  maxClusterRadius:30,disableClusteringAtZoom:15,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
+  iconCreateFunction:function(cluster){
+    const n=cluster.getChildCount(),sz=n<10?28:n<50?34:38;
+    return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(234,88,12,.88);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'Montserrat',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3)">🔥${n}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+  }
+});
+
+fetch('assets/json/CMI.json').then(r=>r.json()).then(j=>{
+  boundaryLayer=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'8 4'}}).addTo(map);
+  mapBounds=boundaryLayer.getBounds();
+  map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});
+});
+function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
+
+const filterToggleBtn=document.getElementById('filterToggleBtn');
+const filterPanel=document.getElementById('filterPanel');
+filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.classList.toggle('open');filterToggleBtn.classList.toggle('active',filterPanel.classList.contains('open'));});
+document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
+document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
+
+const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
+let gfwRawData=[],allGfwConf=[];
+const{start:gfw1mStart,end:gfw1mEnd}=getPresetRange('1m');
+const GFW={start:gfw1mStart,end:gfw1mEnd,conf:''};
+document.getElementById('gfwStartDate').value=gfw1mStart?toInputStr(gfw1mStart):'';
+document.getElementById('gfwEndDate').value=gfw1mEnd?toInputStr(gfw1mEnd):'';
+
+function applyGfwQuickDate(btn){
+  const{start,end}=getPresetRange(btn.dataset.preset);
+  GFW.start=start;GFW.end=end;
+  document.getElementById('gfwStartDate').value=start?toInputStr(start):'';
+  document.getElementById('gfwEndDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('gfwQuickDates'),btn.dataset.preset);
+  updateGfwLayer();updatePatrolFilterUI();
+}
+
+function buildGfwPopup(r, lat, lon){
+  const date=(r['Date']||r['date']||'-').trim();
+  const conf=(r['Conf_Integrated']||'-').trim();
+  const coord=`${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+  return `<div class="gfw-popup">
+    <div class="gfw-popup-head">
+      <div>
+        <div class="gfw-popup-title">GFW Disturbance Alert</div>
+        <div class="gfw-popup-date">${date}</div>
+      </div>
+    </div>
+    <div class="gfw-popup-row">
+      <span class="gfw-popup-key">Confidence</span>
+      <span class="gfw-popup-val"><span class="gfw-conf-badge">${conf}</span></span>
+    </div>
+    <div class="gfw-popup-coord">${coord}</div>
+  </div>`;
+}
+
+Papa.parse(GFW_SHEET_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  gfwRawData=res.data.filter(r=>(r['Note']||'').trim()==='Titik'&&r['latitude']&&r['longitude']);
+  const confSet=new Set();
+  gfwRawData.forEach(r=>{const c=(r['Conf_Integrated']||'').trim();if(c)confSet.add(c);});
+  allGfwConf=[...confSet].sort();
+  const sel=document.getElementById('filterGfwConf');
+  sel.innerHTML='<option value="">All Confidence</option>';
+  allGfwConf.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  updateGfwLayer();
+}});
+
+function getGfwFiltered(){
+  return gfwRawData.filter(r=>{
+    const rawDate=(r['Date']||r['date']||'').trim();
+    if(rawDate&&(GFW.start||GFW.end)){const d=parseDateStr(rawDate,'ymd');if(GFW.start&&d&&d<GFW.start)return false;if(GFW.end&&d&&d>GFW.end)return false;}
+    if(GFW.conf&&(r['Conf_Integrated']||'').trim()!==GFW.conf)return false;
+    return true;
+  });
+}
+
+function updateGfwLayer(){
+  gfwCluster.clearLayers();
+  const filtered=getGfwFiltered();
+  const markers=[];
+  filtered.forEach(r=>{
+    const lat=parseFloat(r['latitude']),lon=parseFloat(r['longitude']);
+    if(isNaN(lat)||isNaN(lon))return;
+    const mk=L.marker([lat,lon],{icon:L.divIcon({
+      html:`<div style="width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 0 1.5px #ef4444"></div>`,
+      className:'',iconSize:[12,12],iconAnchor:[6,6]
+    })});
+    mk.bindPopup(buildGfwPopup(r,lat,lon),{maxWidth:280});
+    markers.push(mk);
+  });
+  gfwCluster.addLayers(markers);
+}
+
+const FIRE_SHEET_URL='https://docs.google.com/spreadsheets/d/1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk/export?format=csv&gid=0';
+let fireRawData=[];
+
+const{start:fire1mStart,end:fire1mEnd}=getPresetRange('1m');
+const FIRE={start:fire1mStart,end:fire1mEnd,satellite:'',owner:'',desa:'',lahan:''};
+document.getElementById('fireStartDate').value=fire1mStart?toInputStr(fire1mStart):'';
+document.getElementById('fireEndDate').value=fire1mEnd?toInputStr(fire1mEnd):'';
+setActiveQuickBtn(document.getElementById('fireQuickDates'),'1m');
+
+function applyFireQuickDate(btn){
+  const{start,end}=getPresetRange(btn.dataset.preset);
+  FIRE.start=start;FIRE.end=end;
+  document.getElementById('fireStartDate').value=start?toInputStr(start):'';
+  document.getElementById('fireEndDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('fireQuickDates'),btn.dataset.preset);
+  updateFireLayer();updatePatrolFilterUI();
+}
+
+Papa.parse(FIRE_SHEET_URL,{
+  download:true,
+  header:false,
+  skipEmptyLines:true,
+  complete:(res)=>{
+    const rows=res.data;
+    const headerRow=rows[0]||[];
+    const colIdx={};
+    headerRow.forEach((h,i)=>{colIdx[h.trim().toLowerCase()]=i;});
+    function getCol(row,name){
+      if(colIdx[name.toLowerCase()]!==undefined)return(row[colIdx[name.toLowerCase()]]||'').trim();
+      for(const k of Object.keys(colIdx)){if(k.includes(name.toLowerCase()))return(row[colIdx[k]]||'').trim();}
+      return'';
+    }
+    const slicedRows=rows.slice(3292);
+    fireRawData=slicedRows.filter(row=>{
+      const lat=parseFloat(getCol(row,'latitude'));
+      const lon=parseFloat(getCol(row,'longitude'));
+      return !isNaN(lat)&&!isNaN(lon)&&lat!==0&&lon!==0;
+    }).map(row=>({
+      _raw:row,
+      Tanggal: getCol(row,'tanggal')||getCol(row,'date'),
+      Jam:     getCol(row,'jam')||getCol(row,'time'),
+      Satellite:getCol(row,'satellite'),
+      Instrument:getCol(row,'instrument'),
+      Owner:   getCol(row,'owner'),
+      Desa:    getCol(row,'desa'),
+      Lahan:   getCol(row,'penutup lahan')||getCol(row,'penutup_lahan'),
+      Blok:    getCol(row,'blok'),
+      Ket:     getCol(row,'ket')||getCol(row,'keterangan'),
+      Latitude: parseFloat(getCol(row,'latitude')),
+      Longitude:parseFloat(getCol(row,'longitude')),
+    }));
+    const satSet=new Set(),ownerSet=new Set(),desaSet=new Set(),lahanSet=new Set();
+    fireRawData.forEach(r=>{
+      if(r.Satellite)satSet.add(r.Satellite);
+      if(r.Owner)ownerSet.add(r.Owner);
+      if(r.Desa)desaSet.add(r.Desa);
+      if(r.Lahan)lahanSet.add(r.Lahan);
+    });
+    function fillSel(id,set,placeholder){
+      const sel=document.getElementById(id);
+      sel.innerHTML=`<option value="">${placeholder}</option>`;
+      [...set].sort().forEach(v=>{if(!v)return;const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    }
+    fillSel('filterFireSatellite',satSet,'All Satellites');
+    fillSel('filterFireOwner',ownerSet,'All Owners');
+    fillSel('filterFireDesa',desaSet,'All Desa');
+    fillSel('filterFireLahan',lahanSet,'All Land Cover');
+  }
+});
+
+function getFireFiltered(){
+  return fireRawData.filter(r=>{
+    if(FIRE.start||FIRE.end){
+      const d=parseDateStr(r.Tanggal,'ymd');
+      if(FIRE.start&&d&&d<FIRE.start)return false;
+      if(FIRE.end&&d&&d>FIRE.end)return false;
+    }
+    if(FIRE.satellite&&r.Satellite!==FIRE.satellite)return false;
+    if(FIRE.owner&&r.Owner!==FIRE.owner)return false;
+    if(FIRE.desa&&r.Desa!==FIRE.desa)return false;
+    if(FIRE.lahan&&r.Lahan!==FIRE.lahan)return false;
+    return true;
+  });
+}
+
+function buildFirePopup(r){
+  const tanggal=r.Tanggal||'-';
+  const jam=r.Jam||'';
+  const satellite=r.Satellite||'-';
+  const instrument=r.Instrument||'-';
+  const owner=r.Owner||'-';
+  const desa=r.Desa||'-';
+  const lahan=r.Lahan||'-';
+  const blok=r.Blok||'-';
+  const ket=r.Ket||'';
+  const coord=`${r.Latitude.toFixed(5)}, ${r.Longitude.toFixed(5)}`;
+  const rows=[
+    ['Satellite', `${satellite}${instrument&&instrument!=='-'?' / '+instrument:''}`],
+    ['Owner',     owner],
+    ['Desa',      desa],
+    ['Land Cover',lahan],
+    blok&&blok!=='-'?['Blok', blok]:null,
+    ket?['Keterangan', ket]:null,
+  ].filter(Boolean);
+  return `<div class="fire-popup">
+    <div class="fire-popup-head">
+      <div>
+        <div class="fire-popup-title">Fire Detection</div>
+        <div class="fire-popup-date">${tanggal}${jam?' · '+jam:''}</div>
+      </div>
+    </div>
+    ${rows.map(([k,v])=>`<div class="fire-popup-row"><span class="fire-popup-key">${k}</span><span class="fire-popup-val">${v}</span></div>`).join('')}
+    <div class="fire-popup-coord">${coord}</div>
+  </div>`;
+}
+
+function updateFireLayer(){
+  fireCluster.clearLayers();
+  if(!document.getElementById('toggleFire').checked)return;
+  const filtered=getFireFiltered();
+  const markers=[];
+  filtered.forEach(r=>{
+    const mk=L.marker([r.Latitude,r.Longitude],{icon:L.divIcon({
+      html:`<div style="font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))">🔥</div>`,
+      className:'',iconSize:[18,18],iconAnchor:[9,9]
+    })});
+    mk.bindPopup(buildFirePopup(r),{maxWidth:280,className:'fire-leaflet-popup'});
+    markers.push(mk);
+  });
+  fireCluster.addLayers(markers);
+}
+
+function updateFireLegendVisibility(){
+  document.getElementById('secFireLegend').style.display=document.getElementById('toggleFire').checked?'':'none';
+}
+
+const PATROL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjzBR_BgGYWpnWUvGYzmo4rLbT2iGm2oI1fzjs1wJdPguDpw2UPZXrZQqcXPrGxwJ7PBeDCzHazAj/pub?output=csv";
+let rawData=[],highlightCat=null;
+const{start:p1mStart,end:p1mEnd}=getPresetRange('1m');
+const PF={start:p1mStart,end:p1mEnd,officer:'',category:'',finding:''};
+document.getElementById('startDate').value=p1mStart?toInputStr(p1mStart):'';
+document.getElementById('endDate').value=p1mEnd?toInputStr(p1mEnd):'';
+
+Papa.parse(PATROL_URL,{download:true,header:true,complete:(res)=>{
+  rawData=res.data.filter(r=>r['data-coordinate']&&r['data-coordinate'].trim());
+  rawData.forEach(r=>{if(r['data-survey-categ'])catColor(r['data-survey-categ']);});
+  initPatrolDropdowns();updateMap();
+}});
+
+function applyPatrolQuickDate(btn){
+  const{start,end}=getPresetRange(btn.dataset.preset);
+  PF.start=start;PF.end=end;
+  document.getElementById('startDate').value=start?toInputStr(start):'';
+  document.getElementById('endDate').value=end?toInputStr(end):'';
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),btn.dataset.preset);
+  applyPatrolFilters();
+}
+function patrolSubset(excludeField){
+  return rawData.filter(r=>{
+    if(!r['data-coordinate']||!r['data-coordinate'].trim())return false;
+    if(PF.start!==null||PF.end!==null){const rd=parseDateStr(r['data-start_date'],'dmy');if(!rd)return false;if(PF.start!==null&&rd<PF.start)return false;if(PF.end!==null&&rd>PF.end)return false;}
+    if(excludeField!=='officer'  &&PF.officer  &&r['data-base_info-nama']!==PF.officer)return false;
+    if(excludeField!=='category' &&PF.category &&r['data-survey-categ']  !==PF.category)return false;
+    if(excludeField!=='finding'  &&PF.finding  &&r['data-survey-finding']!==PF.finding)return false;
+    return true;
+  });
+}
+function getActiveFiltered(){return patrolSubset(null);}
+let allOfficers=[],allCategories=[],allFindings=[];
+function initPatrolDropdowns(){
+  const o=new Set(),c=new Set(),f=new Set();
+  rawData.forEach(r=>{if(r['data-base_info-nama'])o.add(r['data-base_info-nama']);if(r['data-survey-categ'])c.add(r['data-survey-categ']);if(r['data-survey-finding'])f.add(r['data-survey-finding']);});
+  allOfficers=[...o].sort();allCategories=[...c].sort();allFindings=[...f].sort();
+  rebuildPatrolSelects();
+}
+function rebuildPatrolSelects(){
+  const av=new Set(patrolSubset('officer').map(r=>r['data-base_info-nama']).filter(Boolean));
+  const ac=new Set(patrolSubset('category').map(r=>r['data-survey-categ']).filter(Boolean));
+  const af=new Set(patrolSubset('finding').map(r=>r['data-survey-finding']).filter(Boolean));
+  fillCascadeSelect('filterOfficer',allOfficers,av,PF.officer,'All Officers');
+  fillCascadeSelect('filterCategory',allCategories,ac,PF.category,'All Categories');
+  fillCascadeSelect('filterFinding',allFindings,af,PF.finding,'All Findings');
+}
+function fillCascadeSelect(id,allVals,availSet,currentVal,placeholder){
+  const el=document.getElementById(id);const st=el.scrollTop;
+  el.innerHTML=`<option value="">${placeholder}</option>`;
+  const available=[],unavailable=[];
+  allVals.forEach(v=>{if(v===currentVal)return;if(availSet.has(v))available.push(v);else unavailable.push(v);});
+  if(currentVal){const o=document.createElement('option');o.value=currentVal;o.textContent=fmtLabel(currentVal)+(availSet.has(currentVal)?'':' (0)');o.selected=true;el.appendChild(o);}
+  available.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);el.appendChild(o);});
+  if(unavailable.length){const d=document.createElement('option');d.disabled=true;d.textContent='── not available ──';d.style.color='#ccc';el.appendChild(d);unavailable.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);o.disabled=true;o.style.color='#bbb';el.appendChild(o);});}
+  el.scrollTop=st;
+}
+function applyPatrolFilters(){rebuildPatrolSelects();updateMap();updatePatrolFilterUI();}
+
+function buildPills(pills,wrapId,boxId){
+  const wrap=document.getElementById(wrapId),box=document.getElementById(boxId);
+  if(!pills.length){box.style.display='none';return;}
+  box.style.display='block';
+  wrap.innerHTML=pills.map(p=>`<span class="f-pill">${p.label}<span class="f-pill-rm" onclick="${p.clear}">✕</span></span>`).join('');
+}
+function updatePatrolFilterUI(){
+  const pills=[];
+  if(PF.start||PF.end)pills.push({label:`Patrol: ${fmtDate(PF.start)} – ${fmtDate(PF.end)}`,clear:`clearPatrolDateFilter()`});
+  if(PF.officer) pills.push({label:fmtLabel(PF.officer), clear:`clearPatrolField('officer')`});
+  if(PF.category)pills.push({label:fmtLabel(PF.category),clear:`clearPatrolField('category')`});
+  if(PF.finding) pills.push({label:fmtLabel(PF.finding), clear:`clearPatrolField('finding')`});
+  if(GFW.start||GFW.end)pills.push({label:`GFW: ${fmtDate(GFW.start)} – ${fmtDate(GFW.end)}`,clear:`clearGfwDateFilter()`});
+  if(GFW.conf)   pills.push({label:`GFW Conf: ${GFW.conf}`,clear:`clearGfwField('conf')`});
+  if(FIRE.start||FIRE.end)pills.push({label:`Fire: ${fmtDate(FIRE.start)} – ${fmtDate(FIRE.end)}`,clear:`clearFireDateFilter()`});
+  if(FIRE.satellite)pills.push({label:`Sat: ${FIRE.satellite}`,clear:`clearFireField('satellite')`});
+  if(FIRE.owner)    pills.push({label:`Owner: ${FIRE.owner}`,clear:`clearFireField('owner')`});
+  if(FIRE.desa)     pills.push({label:`Desa: ${FIRE.desa}`,clear:`clearFireField('desa')`});
+  if(FIRE.lahan)    pills.push({label:`Lahan: ${FIRE.lahan}`,clear:`clearFireField('lahan')`});
+  buildPills(pills,'patrolPillsWrap','patrolActivePills');
+  document.getElementById('filterBadge').style.display=pills.length?'flex':'none';
+}
+function clearPatrolDateFilter(){PF.start=null;PF.end=null;document.getElementById('startDate').value='';document.getElementById('endDate').value='';setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');applyPatrolFilters();}
+function clearPatrolField(f){if(f==='officer'){PF.officer='';document.getElementById('filterOfficer').value='';}if(f==='category'){PF.category='';document.getElementById('filterCategory').value='';}if(f==='finding'){PF.finding='';document.getElementById('filterFinding').value='';}applyPatrolFilters();}
+function clearGfwDateFilter(){GFW.start=null;GFW.end=null;document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');updateGfwLayer();updatePatrolFilterUI();}
+function clearGfwField(f){if(f==='conf'){GFW.conf='';document.getElementById('filterGfwConf').value='';}updateGfwLayer();updatePatrolFilterUI();}
+function clearFireDateFilter(){FIRE.start=null;FIRE.end=null;document.getElementById('fireStartDate').value='';document.getElementById('fireEndDate').value='';setActiveQuickBtn(document.getElementById('fireQuickDates'),'all');updateFireLayer();updatePatrolFilterUI();}
+function clearFireField(f){FIRE[f]='';document.getElementById({satellite:'filterFireSatellite',owner:'filterFireOwner',desa:'filterFireDesa',lahan:'filterFireLahan'}[f]).value='';updateFireLayer();updatePatrolFilterUI();}
+
+function makeIcon(color,faded=false){return L.divIcon({html:`<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);opacity:${faded?0.18:1}"></div>`,className:'',iconSize:[12,12],iconAnchor:[6,6]});}
+function updateMap(){
+  pointLayer.clearLayers();
+  const filtered=getActiveFiltered();const allMarkers=[];const catCounts={};
+  filtered.forEach(r=>{
+    const parts=r['data-coordinate'].split(',');if(parts.length<2)return;
+    const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]);if(isNaN(lat)||isNaN(lon))return;
+    const cat=r['data-survey-categ']||'Unknown';catCounts[cat]=(catCounts[cat]||0)+1;
+    const mk=L.marker([lat,lon],{icon:makeIcon(catColor(cat))});
+    mk.category=cat;
+    mk.on('click',()=>{document.getElementById('detailPanelTitle').textContent='Patrol Finding';openDetail(r);});
+    allMarkers.push(mk);pointLayer.addLayer(mk);
+  });
+  if(highlightCat)allMarkers.forEach(mk=>mk.setIcon(makeIcon(catColor(mk.category),mk.category!==highlightCat)));
+  buildBottomBar(catCounts);buildFindingsLegend(catCounts);
+}
+function buildBottomBar(catCounts){
+  const bar=document.getElementById('bottomBar');
+  const sub={};rawData.forEach(r=>{const c=r['data-survey-categ'],f=r['data-survey-finding'];if(c&&f){if(!sub[c])sub[c]=new Set();sub[c].add(fmtLabel(f));}});
+  bar.innerHTML=Object.keys(catColorMap).map(cat=>{
+    const col=catColor(cat),count=catCounts[cat]||0;
+    const s=[...(sub[cat]||[])].slice(0,2).join(', ');const st=s.length>30?s.slice(0,30)+'…':s;
+    return`<div class="bottom-cat${highlightCat===cat?' active':''}" onclick="filterByCat('${cat}')"><div class="bottom-cat-top"><div class="bottom-cat-dot" style="background:${col}"></div><span class="bottom-cat-name">${fmtLabel(cat)}</span>${count?`<span class="bottom-cat-count">${count}</span>`:''}</div>${st?`<div class="bottom-cat-sub">${st}</div>`:''}</div>`;
+  }).join('');
+}
+function buildFindingsLegend(catCounts){
+  document.getElementById('findingsLegend').innerHTML=Object.keys(catColorMap).map(cat=>`<div class="finding-row${highlightCat===cat?' active-cat':''}" onclick="filterByCat('${cat}')"><div class="finding-dot" style="background:${catColor(cat)}"></div><span>${fmtLabel(cat)}</span><span class="finding-count">${catCounts[cat]||0}</span></div>`).join('');
+}
+function filterByCat(cat){highlightCat=(highlightCat===cat)?null:cat;updateMap();}
+
+const dsIndex={};
+function buildDetailSlider(imgs,uid){
+  if(!imgs.length)return`<div style="height:70px;background:#f9fafb;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:26px;margin-top:10px">📷</div>`;
+  if(imgs.length===1)return`<div class="detail-slider"><div class="slides"><div class="slide"><img src="${imgs[0]}" onclick="openModal('${imgs[0]}')"></div></div></div>`;
+  return`<div class="detail-slider" id="${uid}"><div class="slides">${imgs.map(s=>`<div class="slide"><img src="${s}" onclick="openModal('${s}')"></div>`).join('')}</div><button class="ds-btn prev" onclick="dsMv('${uid}',-1)">‹</button><button class="ds-btn next" onclick="dsMv('${uid}',1)">›</button><div class="ds-dots">${imgs.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('')}</div></div>`;
+}
+function dsMv(uid,dir){const c=document.getElementById(uid);if(!c)return;const n=c.querySelectorAll('.slide').length;let idx=((dsIndex[uid]||0)+dir+n)%n;dsIndex[uid]=idx;c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;c.querySelectorAll('.ds-dots span').forEach((d,i)=>d.classList.toggle('active',i===idx));}
+function openDetail(r){
+  const cat=r['data-survey-categ']||'Unknown',finding=r['data-survey-finding']||'-',col=catColor(cat);
+  const imgs=[convert(r['data-documentation-image_1']),convert(r['data-documentation-image_2'])].filter(Boolean);
+  const uid='ds_'+Math.random().toString(36).slice(2,7);
+  const pts=(r['data-coordinate']||'').split(',');
+  const coord=(pts[0]&&pts[1])?`${parseFloat(pts[0]).toFixed(5)}, ${parseFloat(pts[1]).toFixed(5)}`:'-';
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-cat-row"><div class="detail-cat-dot" style="background:${col}"></div><span class="detail-cat-name">${fmtLabel(cat)}</span></div>
+    ${buildDetailSlider(imgs,uid)}<div style="height:6px"></div>
+    <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${fmtLabel(finding)}</span></div>
+    <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${r['data-start_date']||'-'}</span></div>
+    <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
+    <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
+    ${r['data-survey-description']?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>`:''}
+    <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-size:9px">${coord}</span></div>
+    ${imgs.length?`<div class="detail-photos-section"><div class="detail-photos-title">Photos <span class="detail-photos-count">${imgs.length}</span></div><div class="detail-photos-grid">${imgs.map(s=>`<img class="detail-thumb" src="${s}" onclick="openModal('${s}')">`).join('')}</div></div>`:''}
+    <div style="height:10px"></div>`;
+  document.getElementById('detailPanel').classList.add('open');
+}
+document.getElementById('detailClose').onclick=()=>document.getElementById('detailPanel').classList.remove('open');
+
+function updateLulcLegendVisibility(){
+  const on=document.getElementById('toggleLulc').checked||document.getElementById('toggleLulc2025').checked;
+  document.getElementById('secLulcLegWrap').style.display=on?'':'none';
+}
+function updateGfwLegendVisibility(){
+  document.getElementById('secGfwLegend').style.display=document.getElementById('toggleGfw').checked?'':'none';
+}
+function updateFindingsLegendVisibility(){
+  const on=document.getElementById('togglePoints').checked;
+  document.getElementById('secFindings').previousElementSibling.style.display=on?'':'none';
+  document.getElementById('secFindings').style.display=on?'':'none';
+  document.querySelector('#patrolSidebar .info-hint').style.display=on?'':'none';
+}
+
+document.getElementById('toggleLulc').onchange=e=>{e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);updateLulcLegendVisibility();};
+document.getElementById('toggleLulc2025').onchange=e=>{e.target.checked?map.addLayer(lulc2025):map.removeLayer(lulc2025);updateLulcLegendVisibility();};
+document.getElementById('toggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+document.getElementById('togglePoints').onchange=e=>{e.target.checked?map.addLayer(pointLayer):map.removeLayer(pointLayer);updateFindingsLegendVisibility();};
+document.getElementById('toggleGfw').onchange=e=>{
+  if(e.target.checked){map.addLayer(gfwCluster);}else{map.removeLayer(gfwCluster);}
+  updateGfwLegendVisibility();
+};
+document.getElementById('toggleFire').onchange=e=>{
+  if(e.target.checked){map.addLayer(fireCluster);updateFireLayer();}
+  else{map.removeLayer(fireCluster);}
+  updateFireLegendVisibility();
+};
+
+document.getElementById('startDate').addEventListener('change',e=>{PF.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
+document.getElementById('endDate').addEventListener('change',e=>{PF.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('patrolQuickDates'),'');applyPatrolFilters();});
+document.getElementById('filterOfficer').addEventListener('change',e=>{PF.officer=e.target.value;applyPatrolFilters();});
+document.getElementById('filterCategory').addEventListener('change',e=>{PF.category=e.target.value;applyPatrolFilters();});
+document.getElementById('filterFinding').addEventListener('change',e=>{PF.finding=e.target.value;applyPatrolFilters();});
+document.getElementById('clearFilters').onclick=()=>{
+  PF.start=null;PF.end=null;PF.officer='';PF.category='';PF.finding='';
+  document.getElementById('startDate').value='';document.getElementById('endDate').value='';
+  GFW.start=null;GFW.end=null;GFW.conf='';
+  document.getElementById('gfwStartDate').value='';document.getElementById('gfwEndDate').value='';
+  document.getElementById('filterGfwConf').value='';
+  FIRE.start=null;FIRE.end=null;FIRE.satellite='';FIRE.owner='';FIRE.desa='';FIRE.lahan='';
+  document.getElementById('fireStartDate').value='';document.getElementById('fireEndDate').value='';
+  ['filterFireSatellite','filterFireOwner','filterFireDesa','filterFireLahan'].forEach(id=>document.getElementById(id).value='');
+  highlightCat=null;
+  setActiveQuickBtn(document.getElementById('patrolQuickDates'),'all');
+  setActiveQuickBtn(document.getElementById('gfwQuickDates'),'all');
+  setActiveQuickBtn(document.getElementById('fireQuickDates'),'all');
+  updateGfwLayer();updateFireLayer();applyPatrolFilters();
+};
+
+document.getElementById('gfwStartDate').addEventListener('change',e=>{GFW.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
+document.getElementById('gfwEndDate').addEventListener('change',e=>{GFW.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('gfwQuickDates'),'');updateGfwLayer();updatePatrolFilterUI();});
+document.getElementById('filterGfwConf').addEventListener('change',e=>{GFW.conf=e.target.value;updateGfwLayer();updatePatrolFilterUI();});
+
+document.getElementById('fireStartDate').addEventListener('change',e=>{FIRE.start=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
+document.getElementById('fireEndDate').addEventListener('change',e=>{FIRE.end=parseInputDate(e.target.value);setActiveQuickBtn(document.getElementById('fireQuickDates'),'');updateFireLayer();updatePatrolFilterUI();});
+document.getElementById('filterFireSatellite').addEventListener('change',e=>{FIRE.satellite=e.target.value;updateFireLayer();updatePatrolFilterUI();});
+document.getElementById('filterFireOwner').addEventListener('change',e=>{FIRE.owner=e.target.value;updateFireLayer();updatePatrolFilterUI();});
+document.getElementById('filterFireDesa').addEventListener('change',e=>{FIRE.desa=e.target.value;updateFireLayer();updatePatrolFilterUI();});
+document.getElementById('filterFireLahan').addEventListener('change',e=>{FIRE.lahan=e.target.value;updateFireLayer();updatePatrolFilterUI();});
+
+function toggleSection(id,chevId){const el=document.getElementById(id),ch=document.getElementById(chevId);const hidden=el.style.display==='none';el.style.display=hidden?'':'none';ch.classList.toggle('open',hidden);ch.textContent=hidden?'▲':'▼';}
+function openModal(src){imageModal.style.display='flex';modalImage.src=src;}
+document.getElementById('closeModal').onclick=()=>imageModal.style.display='none';
+imageModal.onclick=e=>{if(e.target===imageModal)imageModal.style.display='none';};
+
+updateLulcLegendVisibility();
+updateGfwLegendVisibility();
+updateFireLegendVisibility();
+updateFindingsLegendVisibility();
+
+/* ===================== EXPORT ===================== */
+const exportToggleBtn=document.getElementById('exportToggleBtn');
+const exportPanel=document.getElementById('exportPanel');
+exportToggleBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');
+  exportPanel.classList.toggle('open');
+  exportToggleBtn.classList.toggle('active',exportPanel.classList.contains('open'));
+  if(exportPanel.classList.contains('open'))updateExportCounts();
+});
+document.getElementById('exportClose').addEventListener('click',()=>{exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');});
+document.addEventListener('click',e=>{if(exportPanel.classList.contains('open')&&!exportPanel.contains(e.target)&&e.target!==exportToggleBtn){exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');}});
+filterToggleBtn.addEventListener('click',()=>{exportPanel.classList.remove('open');exportToggleBtn.classList.remove('active');});
+
+function updateExportCounts(){
+  document.getElementById('exportPatrolCount').textContent=getActiveFiltered().length;
+  document.getElementById('exportGfwCount').textContent=getGfwFiltered().length;
+  document.getElementById('exportFireCount').textContent=getFireFiltered().length;
+}
+
+function todayStamp(){
+  const d=new Date();
+  return`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function downloadCSV(filename,rows){
+  if(!rows.length){alert('Tidak ada data untuk diekspor pada filter saat ini.');return;}
+  const csv=Papa.unparse(rows);
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildPatrolExportRows(){
+  return getActiveFiltered().map(r=>{
+    const pts=(r['data-coordinate']||'').split(',');
+    const lat=pts[0]?parseFloat(pts[0]):'',lon=pts[1]?parseFloat(pts[1]):'';
+    return{
+      'Patrol ID': r['_id']||r['id']||'',
+      'Date': r['data-start_date']||'',
+      'Officer': r['data-base_info-nama']||'',
+      'Category': fmtLabel(r['data-survey-categ']||''),
+      'Finding': fmtLabel(r['data-survey-finding']||''),
+      'Notes': r['data-survey-description']||'',
+      'Latitude': lat,
+      'Longitude': lon,
+      'Photo 1': convert(r['data-documentation-image_1'])||'',
+      'Photo 2': convert(r['data-documentation-image_2'])||''
+    };
+  });
+}
+function buildGfwExportRows(){
+  return getGfwFiltered().map(r=>({
+    'Date': (r['Date']||r['date']||'').trim(),
+    'Confidence': (r['Conf_Integrated']||'').trim(),
+    'Latitude': parseFloat(r['latitude'])||'',
+    'Longitude': parseFloat(r['longitude'])||''
+  }));
+}
+function buildFireExportRows(){
+  return getFireFiltered().map(r=>({
+    'Date': r.Tanggal||'',
+    'Time': r.Jam||'',
+    'Satellite': r.Satellite||'',
+    'Instrument': r.Instrument||'',
+    'Owner': r.Owner||'',
+    'Desa': r.Desa||'',
+    'Land Cover': r.Lahan||'',
+    'Blok': r.Blok||'',
+    'Keterangan': r.Ket||'',
+    'Latitude': r.Latitude,
+    'Longitude': r.Longitude
+  }));
+}
+
+document.getElementById('btnDoExport').addEventListener('click',()=>{
+  const doPatrol=document.getElementById('exportPatrol').checked;
+  const doGfw=document.getElementById('exportGfw').checked;
+  const doFire=document.getElementById('exportFire').checked;
+  const note=document.getElementById('exportEmptyNote');
+  if(!doPatrol&&!doGfw&&!doFire){note.style.display='block';return;}
+  note.style.display='none';
+  const stamp=todayStamp();
+  if(doPatrol)downloadCSV(`patrol_findings_${stamp}.csv`,buildPatrolExportRows());
+  if(doGfw)downloadCSV(`gfw_disturbance_alert_${stamp}.csv`,buildGfwExportRows());
+  if(doFire)downloadCSV(`fire_event_${stamp}.csv`,buildFireExportRows());
+});
+</script>
+</body>
+</html>
