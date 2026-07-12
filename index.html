@@ -4,60 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sanggala Corridor Project</title>
-  <link rel="icon" type="image/png" href="assets/logo/sanggala.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
   <style>
+    :root {
+      --color-cream: #FFFAF3;
+      --color-sand: #DCDACC;
+      --color-sage: #B5BBA9;
+      --color-moss: #8C9F8B;
+      --color-fern: #618273;
+      --color-pine: #356760;
+    }
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: Arial, Helvetica, sans-serif;
     }
-
     body {
-      background-color: #fdf9f3;
+      background-color: var(--color-cream);
     }
 
     /* NAVBAR */
     .navbar {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      justify-content: space-between;
       padding: 14px 32px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e5e0d8;
+      background-color: var(--color-cream);
+      border-bottom: 1px solid var(--color-sand);
     }
-
     .navbar-brand {
       display: flex;
       align-items: center;
       gap: 10px;
+      justify-self: start;
     }
-
     .logo {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
     }
-
     .brand-text {
       font-weight: 700;
       font-size: 14px;
       letter-spacing: 0.5px;
-      color: #1f2937;
+      color: var(--color-pine);
     }
-
     .navbar-menu {
       display: flex;
       gap: 32px;
+      justify-self: center;
     }
-
     .navbar-menu a {
       text-decoration: none;
-      color: #374151;
+      color: var(--color-fern);
       font-size: 14px;
+      font-weight: 500;
     }
-
     .navbar-menu a:hover {
-      color: #d97757;
+      color: var(--color-pine);
+    }
+    .navbar-spacer {
+      justify-self: end;
     }
 
     /* HERO SECTION */
@@ -70,7 +78,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .hero-video {
       position: absolute;
       top: 50%;
@@ -83,29 +90,78 @@
       object-fit: cover;
       z-index: 0;
     }
-
     .hero-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(253, 249, 243, 0.55);
+      background: rgba(255, 250, 243, 0.55);
       z-index: 1;
     }
-
     .hero-content {
       position: relative;
       z-index: 2;
       text-align: center;
     }
-
     .hero-content h1 {
       font-size: 2.75rem;
       font-weight: 800;
-      color: #1f2937;
+      color: var(--color-pine);
+    }
+
+    /* SCROLL DOWN HINT */
+    .scroll-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-pine);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint svg {
+      width: 20px;
+      height: 20px;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, 8px); }
+    }
+
+    /* FOOTER STRIP (muncul saat discroll sedikit, seperti footer ArcGIS) */
+    .footer-strip {
+      width: 100%;
+      height: 3cm;
+      background-color: var(--color-sand);
+      border-top: 1px solid var(--color-sage);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-strip a {
+      color: var(--color-pine);
+      text-decoration: underline;
+      font-size: 14px;
+    }
+    .footer-strip a:hover {
+      color: var(--color-fern);
     }
 
     @media (max-width: 768px) {
+      .navbar {
+        grid-template-columns: auto auto;
+      }
       .navbar-menu {
         gap: 16px;
+        justify-self: end;
+      }
+      .navbar-spacer {
+        display: none;
       }
       .hero-content h1 {
         font-size: 1.75rem;
@@ -115,11 +171,10 @@
   </style>
 </head>
 <body>
-
   <!-- HEADER / NAVBAR -->
   <header class="navbar">
     <div class="navbar-brand">
-      <img src="assets/logo/sanggala.png" alt="Logo Sanggala Corridor Project" class="logo">
+      <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project" class="logo">
       <span class="brand-text">SANGGALA CORRIDOR PROJECT</span>
     </div>
     <nav class="navbar-menu">
@@ -127,6 +182,7 @@
       <a href="activities.html">Activities</a>
       <a href="dashboard.html">Dashboard</a>
     </nav>
+    <div class="navbar-spacer"></div>
   </header>
 
   <!-- HERO SECTION DENGAN VIDEO BACKGROUND -->
@@ -137,7 +193,7 @@
       muted
       loop
       playsinline
-      poster="assets/logo/sanggala.png">
+      poster="assets/images/hero-poster.jpg">
       <source src="assets/video/hero-bg.mp4" type="video/mp4">
       Browser Anda tidak mendukung video HTML5.
     </video>
@@ -145,6 +201,16 @@
     <div class="hero-content">
       <h1>Sanggala Corridor Project</h1>
     </div>
+    <a href="#embed" class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </a>
+  </section>
+
+  <!-- FOOTER STRIP -->
+  <section class="footer-strip" id="embed">
+    <a href="https://sanggala.id/" target="_blank" rel="noopener noreferrer">https://sanggala.id/</a>
   </section>
 
   <script>
