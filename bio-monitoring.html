@@ -221,7 +221,7 @@
           <label class="cb-wrap"><input type="checkbox" id="ctToggleBoundary" checked><div class="cb-box"></div></label>
         </div>
         <div class="layer-item">
-          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">Landcover (LULC 2023)</span></div>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">Landcover (LULC 2025)</span></div>
           <label class="switch"><input type="checkbox" id="ctToggleLulc" checked><span class="sw-track"></span></label>
         </div>
         <div class="layer-item">
@@ -439,7 +439,7 @@ function switchBasemap(id){
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
 
-const lulc=L.tileLayer('./assets/tiles/lulc_23/{z}/{x}/{y}.png',{opacity:1});
+const lulc=L.tileLayer('./assets/tiles/lulc_25/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const ctGridLayer =L.layerGroup().addTo(map);
 const ctPointLayer=L.layerGroup().addTo(map);
