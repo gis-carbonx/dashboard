@@ -1080,7 +1080,7 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+"
     if(fuTxt)parseFollowUp(fuTxt);
     populateYearDropdowns();
     setLoad('Memuat GeoJSON...');
-    const [agroJ,cmiJ]=await Promise.all([getJSON('assets/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
+    const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
     setLoad('Merender peta...');
     renderCMI(cmiJ);renderAgro(agroJ);
     setPreset('ytd');fitAll();hideLoad();updatePotCard();
