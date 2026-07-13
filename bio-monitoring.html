@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Trap Monitoring | Sanggala Corridor Project</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --color-cream:#FFFAF3;
+      --color-sand:#DCDACC;
+      --color-sage:#B5BBA9;
+      --color-moss:#8C9F8B;
+      --color-fern:#618273;
+      --color-pine:#356760;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
+    body{display:flex;flex-direction:column}
+
+    /* SITE NAVBAR (sama seperti index.html / list.html) */
+    .site-navbar{
+      flex-shrink:0;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      padding:12px 32px;
+      background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);
+      font-family:'Montserrat',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
+
+    /* DASHBOARD ROOT wraps the entire camera trap monitoring app below the navbar */
+    #dashboardRoot{position:relative;flex:1;min-height:0;overflow:hidden}
+    .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#3A342C;border-bottom:1px solid #4a4238;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+    .top-bar-left{display:flex;align-items:center;gap:14px}
+    .logo-img{height:30px;width:auto;display:block}
+    .top-bar-divider{width:1px;height:28px;background:rgba(255,255,255,.28)}
+    .top-bar-title{display:flex;flex-direction:column;gap:1px}
+    .top-bar-title-main{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.1px;line-height:1.2}
+    .top-bar-title-sub{font-size:10px;font-weight:400;color:rgba(255,255,255,.65);letter-spacing:.2px}
+    .top-bar-right{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.10);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);transition:all .15s}
+    .icon-btn:hover{background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.4);color:#fff}
+    .icon-btn.active{background:#618273;border-color:#618273;color:#fff}
+    .icon-btn svg{width:16px;height:16px}
+    #map{position:absolute;top:56px;left:268px;right:0;bottom:0}
+    .sidebar{position:absolute;top:56px;left:0;bottom:0;z-index:1000;width:268px;background:#fff;border-right:1px solid #e8eaed;display:flex;flex-direction:column;overflow:hidden}
+    .sidebar-body{flex:1;overflow-y:auto;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .sidebar-body::-webkit-scrollbar{width:3px}
+    .sidebar-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .sidebar-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;cursor:pointer;border-bottom:1px solid #f3f4f6}
+    .sidebar-section-title{font-size:11px;font-weight:700;color:#374151;letter-spacing:.4px;text-transform:uppercase}
+    .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
+    .sidebar-chevron.open{transform:rotate(180deg)}
+    .layer-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px}
+    .layer-item-left{display:flex;align-items:center;gap:10px}
+    .layer-icon-sq{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+    .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
+    .layer-label{font-size:11px;font-weight:500;color:#374151}
+    .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
+    .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
+    .cb-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .cb-wrap input:checked + .cb-box{background:#618273;border-color:#618273}
+    .cb-wrap input:checked + .cb-box::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+    .switch{position:relative;width:34px;height:20px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .sw-track{position:absolute;inset:0;background:#e5e7eb;border-radius:20px;cursor:pointer;transition:background .2s}
+    .sw-track:before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .switch input:checked + .sw-track{background:#618273}
+    .switch input:checked + .sw-track:before{transform:translateX(14px)}
+    .divider{height:1px;background:#f3f4f6;margin:6px 0}
+    .info-hint{display:flex;align-items:flex-start;gap:8px;background:#FFFAF3;border-radius:8px;margin:10px 12px;padding:9px 11px;font-size:10px;color:#6b7280;line-height:1.5}
+    .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
+    .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
+    .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
+    .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
+    .filter-panel.open{display:flex}
+    .filter-panel-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
+    .filter-panel-title{font-size:13px;font-weight:700;color:#356760;letter-spacing:-.1px}
+    .filter-panel-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:13px;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .filter-panel-close:hover{background:#e5e7eb}
+    .filter-panel-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .filter-panel-body::-webkit-scrollbar{width:3px}
+    .filter-panel-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .f-group{}
+    .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-input:focus{border-color:#618273;background:#fff}
+    .f-active-box{background:#FFFAF3;border:1px solid #DCDACC;border-radius:9px;padding:9px 10px}
+    .f-active-label{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .f-pills{display:flex;flex-wrap:wrap;gap:5px}
+    .f-pill{display:inline-flex;align-items:center;gap:4px;background:#DCDACC;border:1px solid #B5BBA9;color:#356760;border-radius:20px;padding:3px 9px 3px 10px;font-size:10px;font-weight:600}
+    .f-pill-rm{cursor:pointer;font-size:12px;line-height:1;opacity:.65;margin-left:1px;font-weight:400}
+    .f-pill-rm:hover{opacity:1}
+    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s}
+    .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
+    .icon-btn-wrap{position:relative}
+    .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
+    .ct-bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#3A342C;border-top:1px solid #4a4238;display:flex;align-items:stretch;height:72px;overflow:hidden}
+    .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px;border-right:1px solid #2a544d}
+    .ct-stat:last-child{border-right:none}
+    .ct-stat-val{font-size:17px;font-weight:700;color:#fff;line-height:1}
+    .ct-stat-label{font-size:9px;color:#6b7280;text-align:center;line-height:1.3}
+    .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
+    .grid-detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:320px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden}
+    .grid-detail-panel.open{display:flex}
+    .gdp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#0f172a}
+    .gdp-title{font-size:12px;font-weight:700;color:#fff}
+    .gdp-close{width:26px;height:26px;border-radius:6px;border:none;background:#1e293b;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;transition:all .15s}
+    .gdp-close:hover{background:#334155;color:#fff}
+    .gdp-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .gdp-body::-webkit-scrollbar{width:3px}
+    .gdp-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .gdp-big-count{display:flex;align-items:flex-end;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #f3f4f6}
+    .gdp-count-num{font-size:44px;font-weight:800;color:#0ea5e9;line-height:1}
+    .gdp-count-right{display:flex;flex-direction:column;gap:3px;padding-bottom:6px}
+    .gdp-count-label{font-size:11px;color:#6b7280;font-weight:500}
+    .gdp-count-badge{display:inline-block;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
+    .gdp-meta{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .gdp-meta-item{padding:10px 16px;border-right:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6}
+    .gdp-meta-item:nth-child(even){border-right:none}
+    .gdp-meta-key{font-size:9px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+    .gdp-meta-val{font-size:12px;color:#374151;font-weight:600}
+    .gdp-section-title{font-size:10px;font-weight:700;color:#374151;padding:12px 16px 6px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f9fafb}
+    .gdp-class-row{display:flex;align-items:center;gap:8px;padding:7px 16px;border-bottom:1px solid #f9fafb}
+    .gdp-class-icon{width:26px;height:26px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#374151}
+    .gdp-class-name{font-size:11px;color:#374151;font-weight:500;min-width:60px}
+    .gdp-class-bar-wrap{flex:1;background:#f3f4f6;border-radius:4px;height:6px;overflow:hidden}
+    .gdp-class-bar{height:100%;border-radius:4px;background:#0ea5e9}
+    .gdp-class-count{font-size:11px;font-weight:700;color:#374151;min-width:24px;text-align:right}
+    .gdp-class-pct{font-size:10px;color:#9ca3af;min-width:34px;text-align:right}
+    .gdp-species-section{padding:0 16px 8px}
+    .gdp-sp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f9fafb;font-size:11px}
+    .gdp-sp-name{color:#374151;font-style:italic;flex:1}
+    .gdp-sp-local{color:#9ca3af;font-size:10px;flex:1;text-align:center}
+    .gdp-sp-count{font-weight:700;color:#0ea5e9;min-width:24px;text-align:right}
+    .gdp-sp-iucn{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px}
+    .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
+    .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
+    .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
+    .zoom-btn:hover{background:#f9fafb}
+    .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
+    .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
+    .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
+    .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
+    .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .15s}
+    .bm-pill:hover .bm-thumb-wrap{box-shadow:0 0 0 2px #618273}
+    .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #618273;opacity:1}
+    .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
+    .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+    .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
+  </style>
+</head>
+<body>
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div id="dashboardRoot">
+<div id="map"></div>
+<div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="top-bar-title">
+      <span class="top-bar-title-main">Camera Trap Monitoring</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="icon-btn-wrap">
+      <button class="icon-btn" title="Filter" id="filterToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </button>
+      <span class="filter-badge" id="filterBadge">!</span>
+    </div>
+    <button class="icon-btn" title="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-body">
+
+    <div id="cameraSidebar">
+      <div class="sidebar-section-header" onclick="toggleSection('secCtLayers','chevCt1')">
+        <span class="sidebar-section-title">Map Layers</span>
+        <span class="sidebar-chevron open" id="chevCt1">▲</span>
+      </div>
+      <div id="secCtLayers">
+        <div class="layer-item">
+          <div class="layer-item-left"><div class="layer-icon-bd"></div><span class="layer-label">Project Area</span></div>
+          <label class="cb-wrap"><input type="checkbox" id="ctToggleBoundary" checked><div class="cb-box"></div></label>
+        </div>
+        <div class="layer-item">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">Landcover (LULC 2023)</span></div>
+          <label class="switch"><input type="checkbox" id="ctToggleLulc" checked><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:transparent;border:1px solid #808080;border-radius:2px"></div><span class="layer-label">Camera Trap Grid</span></div>
+          <label class="switch"><input type="checkbox" id="ctToggleGrid" checked><span class="sw-track"></span></label>
+        </div>
+        <div class="layer-item">
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BFFF;border-radius:50%"></div><span class="layer-label">Camera Locations</span></div>
+          <label class="switch"><input type="checkbox" id="ctTogglePoints" checked><span class="sw-track"></span></label>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sidebar-section-header" onclick="toggleSection('secGridLeg','chevCt2')">
+        <span class="sidebar-section-title">Detection Intensity</span>
+        <span class="sidebar-chevron open" id="chevCt2">▲</span>
+      </div>
+      <div id="secGridLeg">
+        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Independent Events (per grid cell)</div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:transparent;border:1px solid #555"></div><span>0 — no detections</span></div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFFF00;opacity:.6"></div><span>1 – 5</span></div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFA500;opacity:.72"></div><span>6 – 15</span></div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FF4500;opacity:.75"></div><span>16 – 30</span></div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#CC0000;opacity:.8"></div><span>31 – 60</span></div>
+        <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#7B0000;opacity:.9"></div><span>&gt; 60</span></div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 16px 2px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#00BFFF;flex-shrink:0"></div>
+          <span style="font-size:11px;color:#374151">Camera Trap Location</span>
+        </div>
+        <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Grid 2 km × 2 km · Click grid to view details</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sidebar-section-header" onclick="toggleSection('secCtSummary','chevCt3')">
+        <span class="sidebar-section-title">Summary</span>
+        <span class="sidebar-chevron open" id="chevCt3">▲</span>
+      </div>
+      <div id="secCtSummary">
+        <div id="ctSummaryBody" style="padding:10px 16px;font-size:11px;color:#9ca3af">Loading…</div>
+      </div>
+      <div class="info-hint">
+        <div class="info-hint-icon">i</div>
+        <span>Click a grid cell to view detections. Click a camera point to see species list.</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-panel-head">
+    <span class="filter-panel-title">Filter Data</span>
+    <button class="filter-panel-close" id="filterClose">✕</button>
+  </div>
+  <div class="filter-panel-body">
+    <div id="cameraFilters">
+      <div class="f-group">
+        <div class="f-label">Batch</div>
+        <select class="f-input" id="ctFilterBatch"><option value="">All Batches</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Site</div>
+        <select class="f-input" id="ctFilterSite"><option value="">All Sites</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Class</div>
+        <select class="f-input" id="ctFilterClass"><option value="">All Classes</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">Species</div>
+        <select class="f-input" id="ctFilterSpecies"><option value="">All Species</option></select>
+      </div>
+      <div class="f-group">
+        <div class="f-label">IUCN Status</div>
+        <select class="f-input" id="ctFilterIucn"><option value="">All Statuses</option></select>
+      </div>
+      <div class="f-active-box" id="ctActivePills" style="display:none">
+        <div class="f-active-label">Active Filters</div>
+        <div class="f-pills" id="ctPillsWrap"></div>
+      </div>
+      <button class="btn-clear-f" id="ctClearFilters">Clear All Filters</button>
+    </div>
+  </div>
+</div>
+
+<div class="basemap-panel" id="basemapPanel">
+  <div class="basemap-label-row">Basemap</div>
+  <div class="basemap-pills">
+    <div class="bm-pill active" id="bm_esri_imagery" onclick="switchBasemap('esri_imagery')" title="ESRI Satellite">
+      <div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/16/26" alt=""></div>
+      <div class="bm-name">ESRI St</div>
+    </div>
+    <div class="bm-pill" id="bm_google_satellite" onclick="switchBasemap('google_satellite')" title="Google Satellite">
+      <div class="bm-thumb-wrap"><img src="https://mt1.google.com/vt/lyrs=s&x=26&y=16&z=5" alt=""></div>
+      <div class="bm-name">Google</div>
+    </div>
+    <div class="bm-pill" id="bm_esri_topo" onclick="switchBasemap('esri_topo')" title="ESRI Topo">
+      <div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/5/16/26" alt=""></div>
+      <div class="bm-name">Topo</div>
+    </div>
+    <div class="bm-pill" id="bm_osm" onclick="switchBasemap('osm')" title="OpenStreetMap">
+      <div class="bm-thumb-wrap"><img src="https://tile.openstreetmap.org/5/26/16.png" alt=""></div>
+      <div class="bm-name">Streets</div>
+    </div>
+    <div class="bm-pill" id="bm_carto_dark" onclick="switchBasemap('carto_dark')" title="Dark">
+      <div class="bm-thumb-wrap" style="background:#1a1a2e"><img src="https://basemaps.cartocdn.com/dark_all/5/26/16.png" alt=""></div>
+      <div class="bm-name">Dark</div>
+    </div>
+  </div>
+</div>
+
+<div class="map-zoom">
+  <button class="zoom-btn" onclick="map.zoomIn()">+</button>
+  <button class="zoom-btn" onclick="map.zoomOut()">−</button>
+  <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
+</div>
+
+<div class="grid-detail-panel" id="gridDetailPanel">
+  <div class="gdp-header">
+    <span class="gdp-title">Grid Details</span>
+    <button class="gdp-close" id="gridDetailClose">✕</button>
+  </div>
+  <div class="gdp-body" id="gridDetailBody"></div>
+</div>
+
+<div class="ct-bottom-bar" id="ctBottomBar">
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Number of individuals recorded</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatSpecies">–</div><div class="ct-stat-label">Species Recorded</div><div class="ct-stat-sub" id="ctStatSpeciesSub"></div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatTopGrid">–</div><div class="ct-stat-label">Highest Activity Grid</div><div class="ct-stat-sub" id="ctStatTopSub"></div></div>
+  <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
+</div>
+</div><!-- /#dashboardRoot -->
+
+<script>
+const GRID_BREAKS=[0,5,15,30,60];
+const GRID_COLORS=['transparent','#FFFF00','#FFA500','#FF4500','#CC0000','#7B0000'];
+const GRID_OPAC=[0,0.45,0.60,0.68,0.75,0.88];
+function gridStyle(n){for(let i=0;i<GRID_BREAKS.length;i++)if(n<=GRID_BREAKS[i])return{color:GRID_COLORS[i],opacity:GRID_OPAC[i]};return{color:GRID_COLORS[GRID_COLORS.length-1],opacity:GRID_OPAC[GRID_OPAC.length-1]};}
+
+const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
+function classIcon(k){if(!k)return'?';return k.trim().charAt(0).toUpperCase();}
+function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+function toMidnight(y,m,d){return new Date(y,m,d);}
+
+function parseDateStr(s,fmt){
+  if(!s||!s.trim())return null;
+  s=s.trim();s=s.split('T')[0].split(' ')[0];
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if(m&&MON[m[2]]!==undefined)return toMidnight(+m[3],MON[m[2]],+m[1]);
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){if(fmt==='mdy')return toMidnight(+m[3],+m[1]-1,+m[2]);if(fmt==='dmy')return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[2]-1,+m[1]);}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(m){const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];if(fmt==='mdy')return toMidnight(yyyy,+m[1]-1,+m[2]);if(fmt==='dmy')return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[1]>12)return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(yyyy,+m[1]-1,+m[2]);return toMidnight(yyyy,+m[1]-1,+m[2]);}
+  const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
+  return null;
+}
+function fmtDate(d){return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-';}
+
+function parseBatchLabel(label){
+  if(!label||!label.trim())return null;
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const parts=label.trim().split(/\s*[-–]+\s*/);
+  if(parts.length<2)return null;
+  function parseToken(tok){tok=tok.trim();const m=tok.match(/^([A-Za-z]{3})\s*(\d{2,4})$/);if(!m)return null;const mon=MON[m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()];if(mon===undefined)return null;const yr=m[2].length===2?(+m[2]<=50?2000+ +m[2]:1900+ +m[2]):+m[2];return{mon,yr};}
+  const s=parseToken(parts[0]),e=parseToken(parts[parts.length-1]);
+  if(!s||!e)return null;
+  const startDate=toMidnight(s.yr,s.mon,1),endDate=toMidnight(e.yr,e.mon+1,0);
+  const days=Math.round((endDate-startDate)/(1000*60*60*24))+1;
+  return{start:startDate,end:endDate,days};
+}
+function calcTrapNights(filteredRows){
+  const batchCams={};
+  filteredRows.forEach(r=>{if(!r.Batch)return;if(!batchCams[r.Batch])batchCams[r.Batch]=new Set();if(r.CameraID)batchCams[r.Batch].add(r.CameraID);});
+  let total=0;const detail=[];
+  Object.entries(batchCams).forEach(([batch,cams])=>{const parsed=parseBatchLabel(batch);if(!parsed)return;const nights=parsed.days*cams.size;total+=nights;detail.push({batch,days:parsed.days,cams:cams.size,nights});});
+  return{total,detail};
+}
+
+function fillCascadeSelect(id,allVals,availSet,currentVal,placeholder){
+  const el=document.getElementById(id);const st=el.scrollTop;
+  el.innerHTML=`<option value="">${placeholder}</option>`;
+  const available=[],unavailable=[];
+  allVals.forEach(v=>{if(v===currentVal)return;if(availSet.has(v))available.push(v);else unavailable.push(v);});
+  if(currentVal){const o=document.createElement('option');o.value=currentVal;o.textContent=fmtLabel(currentVal)+(availSet.has(currentVal)?'':' (0)');o.selected=true;el.appendChild(o);}
+  available.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);el.appendChild(o);});
+  if(unavailable.length){const d=document.createElement('option');d.disabled=true;d.textContent='── not available ──';d.style.color='#ccc';el.appendChild(d);unavailable.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=fmtLabel(v);o.disabled=true;o.style.color='#bbb';el.appendChild(o);});}
+  el.scrollTop=st;
+}
+function buildPills(pills,wrapId,boxId){
+  const wrap=document.getElementById(wrapId),box=document.getElementById(boxId);
+  if(!pills.length){box.style.display='none';return;}
+  box.style.display='block';
+  wrap.innerHTML=pills.map(p=>`<span class="f-pill">${p.label}<span class="f-pill-rm" onclick="${p.clear}">✕</span></span>`).join('');
+}
+
+const basemaps={
+  esri_imagery:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{opacity:0.85}),
+  esri_topo:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{opacity:1}),
+  google_satellite: L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{opacity:1,maxZoom:21}),
+  osm:         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:1}),
+  carto_dark:  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{opacity:1})
+};
+let currentBasemap='esri_imagery';
+function switchBasemap(id){
+  if(currentBasemap===id)return;
+  map.removeLayer(basemaps[currentBasemap]);
+  currentBasemap=id;
+  basemaps[id].addTo(map);
+  basemaps[id].bringToBack();
+  document.querySelectorAll('.bm-pill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bm_'+id).classList.add('active');
+}
+
+const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
+basemaps['esri_imagery'].addTo(map);
+
+const lulc=L.tileLayer('./assets/tiles/lulc_23/{z}/{x}/{y}.png',{opacity:1});
+let boundaryLayer,mapBounds;
+const ctGridLayer =L.layerGroup().addTo(map);
+const ctPointLayer=L.layerGroup().addTo(map);
+
+fetch('assets/json/CMI.json').then(r=>r.json()).then(j=>{
+  boundaryLayer=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'8 4'}}).addTo(map);
+  mapBounds=boundaryLayer.getBounds();
+  map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});
+});
+map.addLayer(lulc);
+function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
+
+const filterToggleBtn=document.getElementById('filterToggleBtn');
+const filterPanel=document.getElementById('filterPanel');
+filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.classList.toggle('open');filterToggleBtn.classList.toggle('active',filterPanel.classList.contains('open'));});
+document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
+document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
+
+const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const CT_GRID_URL='./assets/json/Grid.json';
+let ctData=[],ctGridGeo=null,ctLoaded=false;
+const CTF={batch:'',site:'',kelas:'',spesies:'',iucn:''};
+let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
+
+function loadCameraData(){
+  if(ctLoaded)return;
+  document.getElementById('loadingOverlay').style.display='block';
+  const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ctGridGeo=j;}).catch(e=>console.warn('Grid fail:',e));
+  const p2=new Promise(resolve=>{
+    Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
+      const rows=res.data;
+      ctData=rows.slice(1).map(r=>({
+        Batch:r[0]||'',StartDate:r[1]||'',EndDate:r[2]||'',Site:r[3]||'',
+        Latitude:parseFloat(r[4]),Longitude:parseFloat(r[5]),CameraID:r[6]||'',
+        Date:r[7]||'',Time:r[8]||'',Class:r[9]||'',Species:r[10]||'',
+        LocalName:r[11]||'',IUCN:r[12]||'',
+        Indep:Math.max(0,parseInt(r[13])||0),Count:Math.max(0,parseInt(r[14])||0),
+        FileType:r[15]||'',FileName:r[16]||'',Behavior:r[17]||'',Note:r[18]||''
+      })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
+      resolve();
+    }});
+  });
+  Promise.all([p1,p2]).then(()=>{
+    ctLoaded=true;
+    document.getElementById('loadingOverlay').style.display='none';
+    initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();
+  });
+}
+function ctSubset(ex){
+  return ctData.filter(r=>{
+    if(ex!=='batch'  &&CTF.batch  &&r.Batch  !==CTF.batch)  return false;
+    if(ex!=='site'   &&CTF.site   &&r.Site   !==CTF.site)   return false;
+    if(ex!=='kelas'  &&CTF.kelas  &&r.Class  !==CTF.kelas)  return false;
+    if(ex!=='spesies'&&CTF.spesies&&r.Species!==CTF.spesies)return false;
+    if(ex!=='iucn'   &&CTF.iucn   &&r.IUCN   !==CTF.iucn)   return false;
+    return true;
+  });
+}
+function getCtFiltered(){return ctSubset(null);}
+function initCtDropdowns(){
+  const batches=new Set(),sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
+  ctData.forEach(r=>{if(r.Batch)batches.add(r.Batch);if(r.Site)sites.add(r.Site);if(r.Class)classes.add(r.Class);if(r.Species)species.add(r.Species);if(r.IUCN)iucns.add(r.IUCN);});
+  allCtBatches=[...batches].sort();allCtSites=[...sites].sort();allCtClasses=[...classes].sort();allCtSpecies=[...species].sort();allCtIucns=[...iucns].sort();
+  rebuildCtSelects();
+}
+function rebuildCtSelects(){
+  fillCascadeSelect('ctFilterBatch',  allCtBatches, new Set(ctSubset('batch').map(r=>r.Batch).filter(Boolean)),    CTF.batch,  'All Batches');
+  fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),      CTF.site,   'All Sites');
+  fillCascadeSelect('ctFilterClass',  allCtClasses, new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean)),    CTF.kelas,  'All Classes');
+  fillCascadeSelect('ctFilterSpecies',allCtSpecies, new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean)),CTF.spesies,'All Species');
+  fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),      CTF.iucn,  'All Statuses');
+}
+function updateCtFilterUI(){
+  const pills=[];
+  if(CTF.batch)  pills.push({label:CTF.batch,   clear:`clearCtField('batch')`});
+  if(CTF.site)   pills.push({label:CTF.site,     clear:`clearCtField('site')`});
+  if(CTF.kelas)  pills.push({label:CTF.kelas,    clear:`clearCtField('kelas')`});
+  if(CTF.spesies)pills.push({label:CTF.spesies,  clear:`clearCtField('spesies')`});
+  if(CTF.iucn)   pills.push({label:CTF.iucn,     clear:`clearCtField('iucn')`});
+  buildPills(pills,'ctPillsWrap','ctActivePills');
+  document.getElementById('filterBadge').style.display=pills.length?'flex':'none';
+}
+function clearCtField(f){
+  if(f==='batch'){CTF.batch='';document.getElementById('ctFilterBatch').value='';}
+  if(f==='site'){CTF.site='';document.getElementById('ctFilterSite').value='';}
+  if(f==='kelas'){CTF.kelas='';document.getElementById('ctFilterClass').value='';}
+  if(f==='spesies'){CTF.spesies='';document.getElementById('ctFilterSpecies').value='';}
+  if(f==='iucn'){CTF.iucn='';document.getElementById('ctFilterIucn').value='';}
+  applyCtFilters();
+}
+
+function pip(lat,lon,ring){
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+    if(((yi>lat)!==(yj>lat))&&(lon<(xj-xi)*(lat-yi)/(yj-yi)+xi))inside=!inside;
+  }
+  return inside;
+}
+function inFeature(lat,lon,feature){
+  const g=feature.geometry;
+  const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+  for(const poly of polys)if(pip(lat,lon,poly[0]))return true;
+  return false;
+}
+function buildCtGrid(){
+  ctGridLayer.clearLayers();if(!ctGridGeo)return;
+  const filtered=getCtFiltered();
+  ctGridGeo.features.forEach((feat,fi)=>{
+    let totalCount=0;
+    const klassCounts={},speciesCounts={},camsInCell=new Set(),datesInCell=[];
+    filtered.forEach(r=>{
+      if(inFeature(r.Latitude,r.Longitude,feat)){
+        totalCount+=r.Indep;
+        if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;
+        if(r.Species){if(!speciesCounts[r.Species])speciesCounts[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};speciesCounts[r.Species].count+=r.Indep;}
+        if(r.CameraID)camsInCell.add(r.CameraID);
+        const d=parseDateStr(r.Date,'mdy');if(d)datesInCell.push(d);
+      }
+    });
+    const{color,opacity}=gridStyle(totalCount);
+    const layer=L.geoJSON(feat,{style:{fillColor:totalCount>0?color:'transparent',fillOpacity:opacity,color:totalCount>0?color:'rgba(255,255,255,.4)',weight:totalCount>0?1.5:0.8,opacity:0.9}});
+    if(totalCount>0){
+      const center=layer.getBounds().getCenter();
+      const numCams=camsInCell.size,avgPerCam=numCams>1?Math.round(totalCount/numCams):null;
+      const labelHtml=avgPerCam!==null
+        ?`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center;line-height:1.3">${totalCount}<br><span style="font-size:8px;font-weight:600;opacity:.9">${avgPerCam}/cam</span></div>`
+        :`<div style="font-size:10px;font-weight:800;color:#fff;text-shadow:0 0 4px rgba(0,0,0,1);pointer-events:none;white-space:nowrap;text-align:center">${totalCount}</div>`;
+      L.marker(center,{icon:L.divIcon({html:labelHtml,className:'',iconSize:[44,avgPerCam?22:14],iconAnchor:[22,avgPerCam?11:7]}),interactive:false}).addTo(ctGridLayer);
+    }
+    layer.on('click',()=>openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,datesInCell));
+    layer.addTo(ctGridLayer);
+  });
+}
+function buildCtPoints(){
+  ctPointLayer.clearLayers();
+  const filtered=getCtFiltered();
+  const locMap={};
+  filtered.forEach(r=>{
+    const key=`${r.Latitude.toFixed(5)}_${r.Longitude.toFixed(5)}`;
+    if(!locMap[key])locMap[key]={lat:r.Latitude,lon:r.Longitude,rows:[]};
+    locMap[key].rows.push(r);
+  });
+  Object.values(locMap).forEach(loc=>{
+    const rows=loc.rows;
+    const totalCount=rows.reduce((s,r)=>s+r.Indep,0);
+    const sites=[...new Set(rows.map(r=>r.Site).filter(Boolean))].join(' / ');
+    const cameras=[...new Set(rows.map(r=>r.CameraID).filter(Boolean))];
+    const spMap={};
+    rows.forEach(r=>{if(r.Species&&r.Indep>0){if(!spMap[r.Species])spMap[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};spMap[r.Species].count+=r.Indep;}});
+    const spRows=Object.entries(spMap).sort((a,b)=>b[1].count-a[1].count)
+      .map(([sp,d])=>`<tr><td style="padding:4px 7px;font-style:italic;font-size:12px">${sp}</td><td style="padding:4px 7px;font-size:11px">${d.local||'-'}</td><td style="padding:4px 7px;text-align:center"><span style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">${d.iucn||'-'}</span></td><td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
+    const uid='ct_'+Math.random().toString(36).slice(2,6);
+    const avgLine=cameras.length>1?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
+    const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px"><b style="font-size:14px">${sites||'Camera Location'}</b><hr style="margin:5px 0;border-color:#e5e7eb"><div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px"><div><span style="color:#9ca3af">Individuals recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div><div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>${avgLine}</div><b>Species List</b><a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a><div id="${uid}" style="display:none;margin-top:6px;max-height:200px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f3f4f6;position:sticky;top:0"><th style="text-align:left;padding:4px 7px;font-size:11px">Species</th><th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th><th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th><th style="text-align:center;padding:4px 7px;font-size:11px">Indep</th></tr></thead><tbody>${spRows||'<tr><td colspan="4" style="padding:8px;text-align:center;color:#9ca3af">No detections recorded</td></tr>'}</tbody></table></div></div>`;
+    L.marker([loc.lat,loc.lon],{icon:L.divIcon({html:`<div style="width:14px;height:14px;border-radius:50%;background:#00BFFF;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})})
+      .bindPopup(popup,{maxWidth:400}).addTo(ctPointLayer);
+  });
+}
+function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,datesInCell){
+  const gridId=`G-${String(fi).padStart(3,'0')}`;
+  const sorted=datesInCell.sort((a,b)=>a-b);
+  const dateRangeStr=sorted.length?`${fmtDate(sorted[0])} – ${fmtDate(sorted[sorted.length-1])}`:'-';
+  const level=totalCount>60?'Very High':totalCount>30?'High':totalCount>15?'Medium':totalCount>5?'Low':'Minimal';
+  const levelCol=totalCount>60?'#7B0000':totalCount>30?'#CC0000':totalCount>15?'#FF4500':totalCount>5?'#FFA500':'#94a3b8';
+  const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
+  const numCams=camsInCell.size,avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
+  const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="gdp-class-row"><div class="gdp-class-icon">${classIcon(k)}</div><span class="gdp-class-name">${k}</span><div class="gdp-class-bar-wrap"><div class="gdp-class-bar" style="width:${totalInCell?Math.round(v/totalInCell*100):0}%"></div></div><span class="gdp-class-count">${v}</span><span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span></div>`).join('');
+  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
+  document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total individuals recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Cameras Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
+  document.getElementById('gridDetailPanel').classList.add('open');
+}
+document.getElementById('gridDetailClose').onclick=()=>document.getElementById('gridDetailPanel').classList.remove('open');
+
+function updateCtStats(){
+  const filtered=getCtFiltered();
+  const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
+  const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
+  const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
+  const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
+  const klassCounts={};
+  filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
+  const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
+  const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
+  const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
+  let topGrid='–',topCount=0;
+  if(ctGridGeo){
+    ctGridGeo.features.forEach((feat,fi)=>{
+      let det=0;filtered.forEach(r=>{if(inFeature(r.Latitude,r.Longitude,feat))det+=r.Indep;});
+      if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
+    });
+  }
+  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+  document.getElementById('ctStatCameras').textContent=totalCam;
+  document.getElementById('ctStatDetections').textContent=totalDet;
+  document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
+  document.getElementById('ctStatSpecies').textContent=totalSp;
+  document.getElementById('ctStatSpeciesSub').textContent=`across ${totalCam} cameras`;
+  document.getElementById('ctStatTopGrid').textContent=topGrid;
+  document.getElementById('ctStatTopSub').textContent=topCount?`${topCount} Events`:'';
+  document.getElementById('ctStatTrapNights').textContent=trapNights||'–';
+  document.getElementById('ctStatTrapNightsSub').textContent=tnSub;
+}
+function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
+
+document.getElementById('ctToggleBoundary').onchange=e=>boundaryLayer&&(e.target.checked?map.addLayer(boundaryLayer):map.removeLayer(boundaryLayer));
+document.getElementById('ctToggleLulc').onchange=e=>e.target.checked?map.addLayer(lulc):map.removeLayer(lulc);
+document.getElementById('ctToggleGrid').onchange=e=>{
+  e.target.checked?map.addLayer(ctGridLayer):map.removeLayer(ctGridLayer);
+  const sec=document.getElementById('secGridLeg');
+  sec.style.opacity=e.target.checked?'':'0.35';sec.style.pointerEvents=e.target.checked?'':'none';
+  sec.previousElementSibling.style.opacity=e.target.checked?'':'0.35';
+};
+document.getElementById('ctTogglePoints').onchange=e=>e.target.checked?map.addLayer(ctPointLayer):map.removeLayer(ctPointLayer);
+
+document.getElementById('ctFilterBatch').addEventListener('change',e=>{CTF.batch=e.target.value;applyCtFilters();});
+document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e.target.value;applyCtFilters();});
+document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
+document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
+document.getElementById('ctFilterIucn').addEventListener('change',e=>{CTF.iucn=e.target.value;applyCtFilters();});
+document.getElementById('ctClearFilters').onclick=()=>{
+  CTF.batch='';CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
+  ['ctFilterBatch','ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
+  applyCtFilters();
+};
+
+function toggleSection(id,chevId){const el=document.getElementById(id),ch=document.getElementById(chevId);const hidden=el.style.display==='none';el.style.display=hidden?'':'none';ch.classList.toggle('open',hidden);ch.textContent=hidden?'▲':'▼';}
+
+loadCameraData();
+</script>
+</body>
+</html>
