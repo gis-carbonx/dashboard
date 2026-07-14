@@ -19,12 +19,25 @@
 :root{
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
   --c-agro:#1a6b3a;--c-bpo:#0d5c8a;--c-temb:#b84c00;--c-mtl:#7b1fa2;
-  --bg:#eef1f6;--surface:#fff;--border:#e2e8f0;--border-lt:#f1f5f9;
+  --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
   --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
   --site-nav-h:56px;--hdr-h:54px;--filter-h:48px;--stats-h:162px;--sb-w:300px;--detail-w:268px;
   --shadow-sm:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.2);
 }
 html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg);overflow:hidden}
+body{display:flex;flex-direction:column}
+
+/* DASHBOARD FRAME — kotak siku (90°) dengan margin di kiri/kanan/bawah, rata di atas dengan navbar */
+.dashboard-frame{
+  flex:1;min-height:0;
+  margin:0 28px 28px 28px;
+  border-radius:0;
+  border:1px solid var(--border);
+  overflow:hidden;
+  box-shadow:0 6px 22px rgba(0,0,0,.10);
+  display:flex;flex-direction:column;
+  background:var(--bg);
+}
 
 /* SITE NAVBAR (sama seperti index.html / list.html / patrol.html) */
 .site-navbar{
@@ -116,7 +129,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;co
 .sc-pot-row-petani{font-size:9.5px;color:var(--text-3)}
 .btn-detail-pot{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:10px;font-weight:700;color:var(--text-2);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
 .btn-detail-pot:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
-.app-body{height:calc(100vh - var(--site-nav-h) - var(--hdr-h) - var(--filter-h) - var(--stats-h));display:flex;overflow:hidden;gap:8px;padding:0 12px 10px 12px}
+.app-body{flex:1;min-height:0;display:flex;overflow:hidden;gap:8px;padding:0 12px 10px 12px}
 .sb{width:var(--sb-w);flex-shrink:0;display:flex;flex-direction:column;gap:0;overflow:hidden}
 .sb-unified-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .sb-header-inner{padding:12px 14px;border-bottom:1px solid var(--border-lt);flex-shrink:0}
@@ -173,7 +186,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;co
 .basemap-pills-wrap.open{max-height:200px;margin-top:6px}
 .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
 .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
-.bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #2d6a2d;opacity:1}
+.bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #618273;opacity:1}
 .bm-thumb-wrap{width:40px;height:32px;border-radius:7px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82}
 .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
 .bm-name{font-size:7px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:1px 4px;border-radius:4px;text-align:center;max-width:42px}
@@ -224,7 +237,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;co
 .row-count{font-size:12px;color:var(--text-2);font-weight:600;white-space:nowrap}
 .btn-dl{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--primary-md);cursor:pointer;display:flex;align-items:center;gap:6px}
 .btn-dl:hover,.btn-dl-sm:hover{background:var(--primary-bg);border-color:var(--primary-bg)}
-.btn-dl-sm{padding:5px 12px;border-radius:7px;border:1px solid #f0fdf4;background:#f0fdf4;font-size:11px;font-weight:600;color:var(--c-agro);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;white-space:nowrap}
+.btn-dl-sm{padding:5px 12px;border-radius:7px;border:1px solid #FFFAF3;background:#FFFAF3;font-size:11px;font-weight:600;color:var(--primary-md);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;white-space:nowrap}
 .dl-dropdown-wrap{position:relative;display:inline-block}
 .dl-dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:150px;z-index:2000;display:none;overflow:hidden}
 .dl-dropdown-menu.open{display:block}
@@ -327,6 +340,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;co
   <div class="site-navbar-spacer"></div>
 </header>
 
+<div class="dashboard-frame">
 <header class="hdr">
   <div class="hdr-left">
     <img src="assets/logo/Sanggala_color.png" class="hdr-logo" alt="Sanggala Corridor Project"
@@ -566,6 +580,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;co
     </div>
   </aside>
 </div>
+</div><!-- /.dashboard-frame -->
 
 <!-- KTH MODAL -->
 <div class="modal-overlay" id="kthModal" style="display:none" onclick="if(event.target===this)closeModal('kthModal')">
@@ -1499,7 +1514,7 @@ function makePDF(orient,hdr,body,title,sub,fname){
   if(!window.jspdf){alert('Library PDF belum dimuat.');return;}
   const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:orient,unit:'pt',format:'a4'});
   pdfHeader(doc,title,sub);
-  doc.autoTable({head:[hdr],body,startY:60,styles:{fontSize:8,cellPadding:4},headStyles:{fillColor:[27,94,64],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[248,250,252]}});
+  doc.autoTable({head:[hdr],body,startY:60,styles:{fontSize:8,cellPadding:4},headStyles:{fillColor:[53,103,96],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[248,250,252]}});
   doc.save(fname);
 }
 
@@ -1512,7 +1527,7 @@ async function makeWord(orient,title,sub,hdr,body,fname){
   const doc=new Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{
     ...(isLandscape?{properties:sectionProps}:sectionProps),
     children:[
-      new Paragraph({children:[new TextRun({text:title,bold:true,size:32,color:'1B5E40',font:'Arial'})]}),
+      new Paragraph({children:[new TextRun({text:title,bold:true,size:32,color:'356760',font:'Arial'})]}),
       new Paragraph({children:[new TextRun({text:sub,size:18,color:'64748B',font:'Arial'})]}),
       new Paragraph({children:[new TextRun({text:''})]}),
       wordTable(libObj,hdr,body)
@@ -2161,7 +2176,7 @@ function dlCSV(rows,name){
   dlBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),name);
 }
 function pdfHeader(doc,title,sub){
-  doc.setFontSize(14);doc.setTextColor(27,94,64);doc.text(title,40,32);
+  doc.setFontSize(14);doc.setTextColor(53,103,96);doc.text(title,40,32);
   doc.setFontSize(9);doc.setTextColor(100,116,139);
   const subTxt=typeof sub==='number'?`PT Citra Mulia Inti | ${sub} baris | ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`:sub;
   doc.text(subTxt,40,48);
@@ -2174,7 +2189,7 @@ function wordTable(lib,headers,rows){
       shading:bg?{fill:bg,type:ShadingType.CLEAR,color:'auto'}:undefined,
       margins:{top:60,bottom:60,left:100,right:100},
       children:[new Paragraph({alignment:align,children:[new TextRun({text:String(text??'—'),bold,color,size,font:'Arial'})]})]});
-  const hdrRow=new TableRow({tableHeader:true,children:headers.map(h=>mkC(h,{bg:'1B5E40',bold:true,color:'FFFFFF',size:16}))});
+  const hdrRow=new TableRow({tableHeader:true,children:headers.map(h=>mkC(h,{bg:'356760',bold:true,color:'FFFFFF',size:16}))});
   const dataRows=rows.map((r,i)=>new TableRow({children:r.map(v=>mkC(v,{bg:i%2===0?'F8FAFC':'FFFFFF',size:16}))}));
   return new Table({width:{size:9500,type:WidthType.DXA},rows:[hdrRow,...dataRows]});
 }
