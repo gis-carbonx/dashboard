@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Satellite Tracker | Sanggala Corridor Project</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png">
+<style>
+  :root{
+    --color-cream:#FFFAF3;
+    --color-sand:#DCDACC;
+    --color-sage:#B5BBA9;
+    --color-moss:#8C9F8B;
+    --color-fern:#618273;
+    --color-pine:#356760;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--color-cream)}
+  body{display:flex;flex-direction:column}
+
+  /* SITE NAVBAR (sama seperti index.html / list.html / patrol.html) */
+  .site-navbar{
+    flex-shrink:0;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    padding:12px 32px;
+    background-color:var(--color-cream);
+    border-bottom:1px solid var(--color-sand);
+  }
+  .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+  .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+  .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+  .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+  .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+  .site-navbar-spacer{justify-self:end}
+  @media (max-width:768px){
+    .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+    .site-navbar-menu{gap:14px;justify-self:end}
+    .site-navbar-spacer{display:none}
+  }
+
+  /* DASHBOARD FRAME — kotak siku (90°) dengan margin di kiri/kanan/bawah, rata di atas dengan navbar */
+  .dashboard-frame{
+    flex:1;min-height:0;
+    margin:0 28px 28px 28px;
+    border-radius:0;
+    border:1px solid var(--color-sand);
+    overflow:hidden;
+    box-shadow:0 6px 22px rgba(0,0,0,.10);
+    display:flex;flex-direction:column;
+    background:#fff;
+    position:relative;
+  }
+
+  .frame-header{
+    flex-shrink:0;
+    padding:14px 20px;
+    border-bottom:1px solid var(--color-sand);
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;
+  }
+  .frame-title{font-size:14px;font-weight:700;color:var(--color-pine)}
+  .frame-sub{font-size:11px;color:var(--color-fern);margin-top:2px}
+  .frame-open-link{
+    font-size:11px;font-weight:600;color:var(--color-fern);text-decoration:none;
+    border:1px solid var(--color-sand);padding:6px 12px;border-radius:6px;white-space:nowrap;
+    transition:background .15s,color .15s;flex-shrink:0;
+  }
+  .frame-open-link:hover{background:var(--color-cream);color:var(--color-pine)}
+
+  .iframe-wrap{flex:1;min-height:0;position:relative;background:var(--color-cream)}
+  .iframe-wrap iframe{width:100%;height:100%;border:none;display:block}
+
+  .iframe-loading{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;background:var(--color-cream);color:var(--color-fern);font-size:12px;
+  }
+  .spinner{
+    width:28px;height:28px;border:3px solid var(--color-sand);border-top-color:var(--color-fern);
+    border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="frame-header">
+    <div>
+      <div class="frame-title">Satellite Tracker — Kalimantan Barat</div>
+      <div class="frame-sub">Pemantauan titik panas (hotspot) satelit di wilayah Kalimantan Barat</div>
+    </div>
+    <a class="frame-open-link"
+       href="https://g-adzan.github.io/hotspot_sattrack/"
+       target="_blank" rel="noopener noreferrer">Buka di Tab Baru ↗</a>
+  </div>
+  <div class="iframe-wrap">
+    <div class="iframe-loading" id="loadingOverlay">
+      <div class="spinner"></div>
+      <span>Memuat Satellite Tracker…</span>
+    </div>
+    <iframe
+      src="https://g-adzan.github.io/hotspot_sattrack/"
+      title="Satellite Tracker - Kalimantan Barat"
+      allowfullscreen
+      onload="document.getElementById('loadingOverlay').style.display='none'">
+    </iframe>
+  </div>
+</div>
+
+</body>
+</html>
