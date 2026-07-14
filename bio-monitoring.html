@@ -48,7 +48,17 @@
     }
 
     /* DASHBOARD ROOT wraps the entire camera trap monitoring app below the navbar */
-    #dashboardRoot{position:relative;flex:1;min-height:0;overflow:hidden}
+    /* DASHBOARD FRAME wraps the dashboard app with margin on left/right/bottom,
+       flush with the navbar on top — memberi efek seperti panel yang ter-embed */
+    .dashboard-frame{
+      flex:1;min-height:0;
+      margin:0 28px 28px 28px;
+      border-radius:0;
+      overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.14);
+      position:relative;
+    }
+    #dashboardRoot{position:absolute;inset:0;overflow:hidden}
     .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#3A342C;border-bottom:1px solid #4a4238;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
     .top-bar-left{display:flex;align-items:center;gap:14px}
     .logo-img{height:30px;width:auto;display:block}
@@ -184,6 +194,7 @@
   <div class="site-navbar-spacer"></div>
 </header>
 
+<div class="dashboard-frame">
 <div id="dashboardRoot">
 <div id="map"></div>
 <div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
@@ -221,7 +232,7 @@
           <label class="cb-wrap"><input type="checkbox" id="ctToggleBoundary" checked><div class="cb-box"></div></label>
         </div>
         <div class="layer-item">
-          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">Landcover (LULC 2025)</span></div>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#4CAF50"></div><span class="layer-label">Landcover (LULC 2023)</span></div>
           <label class="switch"><input type="checkbox" id="ctToggleLulc" checked><span class="sw-track"></span></label>
         </div>
         <div class="layer-item">
@@ -353,6 +364,7 @@
   <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
 </div>
 </div><!-- /#dashboardRoot -->
+</div><!-- /.dashboard-frame -->
 
 <script>
 const GRID_BREAKS=[0,5,15,30,60];
@@ -439,7 +451,7 @@ function switchBasemap(id){
 const map=L.map('map',{center:[0.8,110.325],zoom:13,zoomControl:false,attributionControl:false});
 basemaps['esri_imagery'].addTo(map);
 
-const lulc=L.tileLayer('./assets/tiles/lulc_25/{z}/{x}/{y}.png',{opacity:1});
+const lulc=L.tileLayer('./assets/tiles/lulc_23/{z}/{x}/{y}.png',{opacity:1});
 let boundaryLayer,mapBounds;
 const ctGridLayer =L.layerGroup().addTo(map);
 const ctPointLayer=L.layerGroup().addTo(map);
