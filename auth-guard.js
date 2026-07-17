@@ -24,7 +24,7 @@
   "use strict";
 
   /* ============ KONFIGURASI — edit di sini saja, berlaku di semua halaman ============ */
-  const WEBAPP_URL = "PASTE_URL_WEB_APP_ANDA_DI_SINI"; // URL hasil deploy Google Apps Script
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxhoWGA_hohFdDA8Coctr8eVdJ3e6NKy_wp9El1MBID1Sqz8eiu-ylK5Fa2BE-pYeTi/exec"; // URL hasil deploy Google Apps Script
   const MASTER_USER = "admin";
   const MASTER_PASS = "sanggala25";
   const CONTACT_EMAIL = "gis@carbonxco.com";
