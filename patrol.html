@@ -60,16 +60,6 @@
       position:relative;
     }
     #dashboardRoot{position:absolute;inset:0;overflow:hidden}
-
-    /* Dropdown menu kecil di top-bar (tetap ada sebagai akses cepat tambahan) */
-    .menu-dropdown{position:absolute;top:calc(100% + 8px);right:16px;background:#fff;border:1px solid #e8eaed;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.16);min-width:200px;z-index:1301;display:none;overflow:hidden}
-    .menu-dropdown.open{display:block}
-    .menu-dropdown-item{display:flex;align-items:center;padding:11px 16px;font-size:13px;font-weight:500;color:var(--color-fern);text-decoration:none}
-    .menu-dropdown-item:hover{background:var(--color-cream);color:var(--color-pine)}
-    .menu-dropdown-item.active{color:var(--color-pine);font-weight:700;background:var(--color-cream)}
-    .menu-dropdown-divider{height:1px;background:#f3f4f6}
-
-    #dashboardRoot{position:relative;height:100%;overflow:hidden}
     .top-bar{position:absolute;top:0;left:0;right:0;z-index:1200;height:56px;background:#3A342C;border-bottom:1px solid #4a4238;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
     .top-bar-left{display:flex;align-items:center;gap:14px}
     .logo-img{height:30px;width:auto;display:block}
@@ -210,6 +200,10 @@
     .detail-thumb{width:76px;height:56px;border-radius:7px;object-fit:cover;cursor:pointer;transition:opacity .15s}
     .detail-thumb:hover{opacity:.82}
     .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .measure-result{position:absolute;top:68px;left:284px;z-index:900;background:#fff;border:1px solid #e8eaed;border-radius:8px;padding:8px 14px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-family:'Montserrat',sans-serif;font-size:12px;color:#374151;display:none}
+    .measure-result.show{display:block}
+    .measure-result b{color:var(--color-pine);font-size:14px}
+    .measure-hint{font-size:10px;color:#9ca3af;margin-top:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
     .img-modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.9);justify-content:center;align-items:center}
@@ -283,14 +277,9 @@
       <span class="filter-badge" id="filterBadge">!</span>
     </div>
     <div class="icon-btn-wrap">
-      <button class="icon-btn" title="Menu" id="siteMenuToggleBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <button class="icon-btn" title="Ukur Jarak" id="measureToggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 15.3 2.7a1 1 0 0 0-1.4 0L2.7 13.9a1 1 0 0 0 0 1.4l6 6a1 1 0 0 0 1.4 0L21.3 10.1a1 1 0 0 0 0-1.4Z"/><path d="m7.5 10.5 2 2"/><path d="m10.5 7.5 2 2"/><path d="m13.5 4.5 2 2"/><path d="m4.5 13.5 2 2"/></svg>
       </button>
-      <div class="menu-dropdown" id="siteMenuDropdown">
-        <a class="menu-dropdown-item" href="/dashboard/">Home</a>
-        <a class="menu-dropdown-item" href="activities.html">Activities</a>
-        <a class="menu-dropdown-item active" href="list.html">Dashboard</a>
-      </div>
     </div>
   </div>
 </div>
@@ -669,6 +658,11 @@
   <button class="zoom-btn" onclick="resetView()" style="font-size:12px">⌂</button>
 </div>
 
+<div class="measure-result" id="measureResult">
+  <b id="measureDistance">0 m</b>
+  <div class="measure-hint">Klik peta untuk menambah titik · klik kanan/Esc untuk selesai</div>
+</div>
+
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <span class="detail-header-title" id="detailPanelTitle">Patrol Finding</span>
@@ -850,16 +844,76 @@ fetch('assets/json/CMI.json').then(r=>r.json()).then(j=>{
 });
 function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
 
+/* ===== UKUR JARAK (sederhana) ===== */
+(function(){
+  let measuring=false,points=[],markers=[],line=null;
+  const btn=document.getElementById('measureToggleBtn');
+  const resultBox=document.getElementById('measureResult');
+  const distEl=document.getElementById('measureDistance');
+
+  function fmtDistance(m){
+    return m>=1000 ? (m/1000).toFixed(2)+' km' : Math.round(m)+' m';
+  }
+  function totalDistance(){
+    let total=0;
+    for(let i=1;i<points.length;i++) total+=points[i-1].distanceTo(points[i]);
+    return total;
+  }
+  function redraw(){
+    if(line){map.removeLayer(line);line=null;}
+    if(points.length>1){
+      line=L.polyline(points,{color:'#618273',weight:3,dashArray:'6 6'}).addTo(map);
+    }
+    distEl.textContent=fmtDistance(totalDistance());
+    resultBox.classList.toggle('show',points.length>0);
+  }
+  function addPoint(latlng){
+    const mk=L.circleMarker(latlng,{radius:5,color:'#fff',weight:2,fillColor:'#618273',fillOpacity:1}).addTo(map);
+    markers.push(mk);
+    points.push(latlng);
+    redraw();
+  }
+  function clearMeasure(){
+    points=[];
+    markers.forEach(m=>map.removeLayer(m));markers=[];
+    if(line){map.removeLayer(line);line=null;}
+    resultBox.classList.remove('show');
+  }
+  function stopMeasuring(){
+    measuring=false;
+    btn.classList.remove('active');
+    map.getContainer().style.cursor='';
+    clearMeasure();
+  }
+  function onMapClick(e){ addPoint(e.latlng); }
+  function onMapRightClick(){ stopMeasuring(); }
+  function onKeyDown(e){ if(e.key==='Escape'&&measuring) stopMeasuring(); }
+
+  btn.addEventListener('click',()=>{
+    measuring=!measuring;
+    btn.classList.toggle('active',measuring);
+    map.getContainer().style.cursor=measuring?'crosshair':'';
+    if(measuring){
+      clearMeasure();
+      map.on('click',onMapClick);
+      map.on('contextmenu',onMapRightClick);
+      document.addEventListener('keydown',onKeyDown);
+    }else{
+      map.off('click',onMapClick);
+      map.off('contextmenu',onMapRightClick);
+      document.removeEventListener('keydown',onKeyDown);
+      clearMeasure();
+    }
+  });
+})();
+
 const filterToggleBtn=document.getElementById('filterToggleBtn');
 const filterPanel=document.getElementById('filterPanel');
 filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.classList.toggle('open');filterToggleBtn.classList.toggle('active',filterPanel.classList.contains('open'));});
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-const siteMenuToggleBtn=document.getElementById('siteMenuToggleBtn');
-const siteMenuDropdown=document.getElementById('siteMenuDropdown');
-siteMenuToggleBtn.addEventListener('click',e=>{e.stopPropagation();siteMenuDropdown.classList.toggle('open');siteMenuToggleBtn.classList.toggle('active',siteMenuDropdown.classList.contains('open'));});
-document.addEventListener('click',e=>{if(siteMenuDropdown.classList.contains('open')&&!siteMenuDropdown.contains(e.target)&&e.target!==siteMenuToggleBtn){siteMenuDropdown.classList.remove('open');siteMenuToggleBtn.classList.remove('active');}});
+
 
 const GFW_SHEET_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/export?format=csv&gid=0';
 let gfwRawData=[],allGfwConf=[];
