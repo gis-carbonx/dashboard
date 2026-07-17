@@ -24,8 +24,44 @@
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
+    body{display:flex;flex-direction:column}
 
-    /* MENU DROPDOWN (link Home/Activities/Dashboard dipindah ke sini, navbar situs disembunyikan) */
+    /* SITE NAVBAR (sama seperti index.html / list.html / dashboard lain) */
+    .site-navbar{
+      flex-shrink:0;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      padding:12px 32px;
+      background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);
+      font-family:'Montserrat',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
+
+    /* DASHBOARD FRAME — kotak siku 90°, margin di kiri/kanan/bawah, rata di atas dengan navbar */
+    .dashboard-frame{
+      flex:1;min-height:0;
+      margin:0 28px 28px 28px;
+      border-radius:0;
+      overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.14);
+      position:relative;
+    }
+    #dashboardRoot{position:absolute;inset:0;overflow:hidden}
+
+    /* Dropdown menu kecil di top-bar (tetap ada sebagai akses cepat tambahan) */
     .menu-dropdown{position:absolute;top:calc(100% + 8px);right:16px;background:#fff;border:1px solid #e8eaed;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.16);min-width:200px;z-index:1301;display:none;overflow:hidden}
     .menu-dropdown.open{display:block}
     .menu-dropdown-item{display:flex;align-items:center;padding:11px 16px;font-size:13px;font-weight:500;color:var(--color-fern);text-decoration:none}
@@ -211,6 +247,20 @@
   </style>
 </head>
 <body>
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
 <div id="dashboardRoot">
 <div id="map"></div>
 
@@ -634,6 +684,7 @@
   <img id="modalImage">
 </div>
 </div><!-- /#dashboardRoot -->
+</div><!-- /.dashboard-frame -->
 
 <script>
 const PALETTE=['#3b82f6','#22c55e','#ef4444','#f59e0b','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
