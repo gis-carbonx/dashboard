@@ -2198,5 +2198,6 @@ function toggleDlMenu(wrapId){
 function closeDlOut(e){if(!e.target.closest('.dl-dropdown-wrap'))closeAllDlMenus();}
 function closeAllDlMenus(){document.querySelectorAll('.dl-dropdown-menu').forEach(m=>m.classList.remove('open'));document.removeEventListener('click',closeDlOut);}
 </script>
+<script src="auth-guard.js"></script>
 </body>
 </html>
