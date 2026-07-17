@@ -147,7 +147,7 @@
           </form>
           <div class="authg-switch"><a href="#" id="authgShowChangePass">Ganti password</a></div>
           <div class="authg-contact">
-            kontak <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> untuk pengguna baru
+            kontak <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> untuk akses
           </div>
         </div>
 
