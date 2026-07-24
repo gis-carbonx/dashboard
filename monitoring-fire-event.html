@@ -49,7 +49,7 @@
     overflow-y:auto;overflow-x:hidden;box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;
   }
 
-  .grid{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;padding:14px;align-items:start;min-height:100%}
+  .grid{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;padding:14px;align-items:stretch;min-height:100%}
   @media (max-width:1300px){ .grid{grid-template-columns:220px 1fr} }
 
   .card{background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
@@ -143,7 +143,8 @@
   .pg-btn:disabled{opacity:.4;cursor:not-allowed}
 
   /* RIGHT COLUMN — WEATHER */
-  .col-right{display:flex;flex-direction:column;gap:12px}
+  .col-right{display:flex;flex-direction:column;gap:12px;height:100%}
+  .col-right .card{flex:1;display:flex;flex-direction:column;min-height:0}
   .weather-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1px}
   .weather-toggle{display:flex;gap:4px;background:var(--chip-bg);border-radius:6px;padding:2px}
   .wt-btn{padding:3px 8px;border:none;border-radius:5px;background:transparent;font-size:9px;font-weight:700;color:#6b7280;cursor:pointer;font-family:inherit}
@@ -151,7 +152,7 @@
   .weather-follow{font-size:9px;color:#c2c9d1;font-style:italic}
   .weather-current{font-size:20px;font-weight:800;color:#374151;line-height:1}
   .weather-current span{font-size:11px;font-weight:600;color:#9ca3af}
-  .weather-chart-wrap{position:relative;height:65px;margin-top:6px}
+  .weather-chart-wrap{position:relative;flex:1;min-height:50px;margin-top:6px}
 
   .loading-msg{padding:20px;text-align:center;color:var(--color-fern);font-size:11px}
 </style>
@@ -483,7 +484,7 @@ document.getElementById('customApplyBtn').addEventListener('click',()=>{
   currentPreset='custom';
   applyFilter();
 });
-document.querySelectorAll('.qd-btn').forEach(btn=>{
+document.querySelectorAll('.qd-btn[data-preset]').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.qd-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
