@@ -79,19 +79,23 @@
   .fdrs-panel-blok{text-align:center}
   .fdrs-blok-label{font-size:10px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
   .fdrs-badge{padding:9px 22px;border-radius:6px;font-size:14px;font-weight:800;letter-spacing:.5px;text-align:center}
-  .fdrs-low{background:#E4EFE3;color:#3d6b3a}
-  .fdrs-medium{background:#F7EFCB;color:#8a6a1f}
-  .fdrs-high{background:#F5DCC6;color:#a05a26}
-  .fdrs-extreme{background:#F6D9D3;color:#a5382c}
+  .fdrs-low{background:#DCEEDD;color:#1a5c33}
+  .fdrs-medium{background:#FDF0B0;color:#8a6300}
+  .fdrs-high{background:#FCE0C4;color:#9a4b0c}
+  .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
   /* FIRE KPI PANEL */
-  .fire-kpi-panel{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .fire-kpi-panel{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;width:100%}
   .fire-kpi-left{flex-shrink:0}
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:44px;color:var(--color-pine);line-height:1.1;margin-top:4px}
   .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
   .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:1}
   .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
+  @media (max-width:760px){
+    .fire-kpi-panel{flex-direction:column;align-items:stretch}
+    .fire-kpi-filters{justify-content:flex-start}
+  }
 
   .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Inter',sans-serif}
   .chip-btn.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
@@ -133,14 +137,13 @@
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
   /* WEATHER ROW */
-  .weather-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}
-  @media (max-width:900px){ .weather-row{grid-template-columns:1fr 1fr} }
-  @media (max-width:520px){ .weather-row{grid-template-columns:1fr} }
+  .weather-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+  @media (max-width:600px){ .weather-row{grid-template-columns:1fr} }
   .weather-panel-title{font-size:12px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
   .weather-current{font-size:22px;font-weight:800;color:var(--color-pine);margin-top:6px;font-family:'Source Serif 4',Georgia,serif}
   .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif}
   .weather-row .panel{display:flex;flex-direction:column}
-  .weather-chart-wrap{position:relative;flex:1;min-height:55px;margin-top:12px;overflow:hidden}
+  .weather-chart-wrap{position:relative;flex:1;min-height:90px;margin-top:12px;overflow:hidden}
 
   /* FORECAST ROW */
   .forecast-row-wrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
@@ -207,6 +210,7 @@
         <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
       </div>
       <div class="fire-kpi-filters">
+        <button class="chip-btn" data-preset="today">Hari Ini</button>
         <button class="chip-btn active" data-preset="7d">7 Hari</button>
         <button class="chip-btn" data-preset="30d">30 Hari</button>
         <button class="chip-btn" data-preset="all">Semua</button>
@@ -418,6 +422,11 @@ function applyFilter(){
     filteredFire=allFire.slice();
     const withDate=allFire.filter(r=>r.dateObj);
     if(withDate.length){rangeStart=withDate.reduce((a,b)=>a.dateObj<b.dateObj?a:b).dateObj;rangeEnd=maxFireDate;}
+  }else if(currentPreset==='today'){
+    const today=new Date();
+    rangeStart=new Date(today);rangeStart.setHours(0,0,0,0);
+    rangeEnd=new Date(today);rangeEnd.setHours(23,59,59,999);
+    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
   }else{
     const days=currentPreset==='7d'?7:30;
     const today=new Date();today.setHours(23,59,59,999);
@@ -427,7 +436,7 @@ function applyFilter(){
   }
   filteredFire.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
   filterRangeStart=rangeStart;filterRangeEnd=rangeEnd;
-  const labelMap={'7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua Data','custom':'Rentang Kustom'};
+  const labelMap={'today':'Hari Ini','7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua Data','custom':'Rentang Kustom'};
   document.getElementById('fireDateRange').textContent = (rangeStart&&rangeEnd)
     ? `${labelMap[currentPreset]} · ${fmtDateShort(rangeStart)} – ${fmtDateShort(rangeEnd)}` : labelMap[currentPreset]||'–';
   currentPage=1;
