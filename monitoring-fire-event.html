@@ -58,8 +58,9 @@
   /* HEADER */
   .fire-topbar{
     background:#3A342C;border-bottom:1px solid #4a4238;
-    padding:14px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    padding:14px 36px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;
   }
+  .fire-topbar-title-block{text-align:center;justify-self:center}
   .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
   .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
   .update-chip{border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px 14px;text-align:right;background:rgba(255,255,255,.06);flex-shrink:0}
@@ -67,7 +68,7 @@
   .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
   /* SECTION TITLES */
-  .section-title{font-size:17px;color:var(--color-ink);margin:38px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--color-sand)}
+  .section-title{font-size:17px;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
   .section-title:first-of-type{margin-top:0}
 
   /* GENERIC PANEL */
@@ -87,18 +88,20 @@
   .fdrs-high{background:#FCE0C4;color:#9a4b0c}
   .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
-  /* FIRE KPI PANEL */
-  .fire-kpi-panel{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;width:100%}
-  .fire-kpi-left{flex-shrink:0}
+  /* FIRE KPI PANEL + TREND ROW */
+  .kpi-trend-row{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:stretch}
+  @media (max-width:900px){ .kpi-trend-row{grid-template-columns:1fr} }
+
+  .fire-kpi-panel{display:flex;flex-direction:column}
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:44px;color:var(--color-pine);line-height:1.1;margin-top:4px}
   .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
-  .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:1}
+  .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:18px}
   .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
-  @media (max-width:760px){
-    .fire-kpi-panel{flex-direction:column;align-items:stretch}
-    .fire-kpi-filters{justify-content:flex-start}
-  }
+
+  .trend-panel{display:flex;flex-direction:column}
+  .trend-granularity{font-size:10px;font-weight:600;color:var(--color-muted);text-transform:none;font-family:'Inter',sans-serif}
+  .trend-chart-wrap{position:relative;flex:1;min-height:150px;margin-top:6px}
 
   .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Inter',sans-serif}
   .chip-btn.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
@@ -176,11 +179,12 @@
 
 <div class="dashboard-frame">
   <div class="fire-topbar">
-    <div>
+    <div></div>
+    <div class="fire-topbar-title-block">
       <h1 class="report-title">Monitoring Fire Event</h1>
       <div class="report-subtitle">Ringkasan Hari Ini &bull; <span id="reportDateToday">&ndash;</span></div>
     </div>
-    <div class="update-chip">
+    <div class="update-chip" style="justify-self:end">
       <div class="update-chip-label">Terakhir diperbarui</div>
       <div class="update-chip-value" id="lastUpdate">&ndash;</div>
     </div>
@@ -203,23 +207,27 @@
       </div>
     </div>
 
-    <!-- TITIK API KPI -->
-    <div class="panel fire-kpi-panel" style="margin-top:16px">
-      <div class="fire-kpi-left">
+    <!-- TITIK API KPI + TREN -->
+    <div class="two-col-row kpi-trend-row" style="margin-top:16px">
+      <div class="panel fire-kpi-panel">
         <div class="fire-kpi-label">Titik Api</div>
         <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
         <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
+        <div class="fire-kpi-filters">
+          <button class="chip-btn" data-preset="today">Hari Ini</button>
+          <button class="chip-btn active" data-preset="7d">7 Hari</button>
+          <button class="chip-btn" data-preset="30d">30 Hari</button>
+          <button class="chip-btn" data-preset="all">Semua</button>
+          <span class="filter-divider"></span>
+          <input type="date" class="date-input-sm" id="customStart">
+          <span style="color:var(--color-muted);font-size:11px">&ndash;</span>
+          <input type="date" class="date-input-sm" id="customEnd">
+          <button class="chip-btn chip-btn-accent" id="customApplyBtn">Terapkan</button>
+        </div>
       </div>
-      <div class="fire-kpi-filters">
-        <button class="chip-btn" data-preset="today">Hari Ini</button>
-        <button class="chip-btn active" data-preset="7d">7 Hari</button>
-        <button class="chip-btn" data-preset="30d">30 Hari</button>
-        <button class="chip-btn" data-preset="all">Semua</button>
-        <span class="filter-divider"></span>
-        <input type="date" class="date-input-sm" id="customStart">
-        <span style="color:var(--color-muted);font-size:11px">&ndash;</span>
-        <input type="date" class="date-input-sm" id="customEnd">
-        <button class="chip-btn chip-btn-accent" id="customApplyBtn">Terapkan</button>
+      <div class="panel trend-panel">
+        <div class="panel-heading">Tren Kejadian Titik Api <span class="trend-granularity" id="trendGranularity"></span></div>
+        <div class="trend-chart-wrap"><canvas id="chartFireTrend"></canvas></div>
       </div>
     </div>
 
@@ -403,6 +411,72 @@ function renderBlokSummary(rows){
     </div>`).join('') : '<div class="loading-msg">Tidak ada data</div>';
 }
 
+/* ============ TREN KEJADIAN TITIK API (granularitas otomatis) ============ */
+let fireTrendChartInst=null;
+function isoWeekKey(d){
+  // Kunci minggu berdasarkan hari Senin sebagai awal minggu
+  const dt=new Date(d);const day=(dt.getDay()+6)%7; // 0=Senin
+  dt.setDate(dt.getDate()-day);dt.setHours(0,0,0,0);
+  return dateKey(dt);
+}
+function renderFireTrendChart(){
+  const rows=filteredFire;
+  const canvas=document.getElementById('chartFireTrend');
+  if(!canvas)return;
+
+  // Tentukan granularitas dari rentang tanggal yang sedang aktif
+  let spanDays=7;
+  if(filterRangeStart&&filterRangeEnd){
+    spanDays=Math.max(1,Math.round((filterRangeEnd-filterRangeStart)/(1000*60*60*24))+1);
+  }else if(rows.length){
+    const dates=rows.map(r=>r.dateObj).filter(Boolean);
+    if(dates.length){
+      const mn=new Date(Math.min(...dates)),mx=new Date(Math.max(...dates));
+      spanDays=Math.max(1,Math.round((mx-mn)/(1000*60*60*24))+1);
+    }
+  }
+
+  let granularity,granLabel;
+  if(spanDays<=31){granularity='day';granLabel='Harian';}
+  else if(spanDays<=180){granularity='week';granLabel='Mingguan';}
+  else{granularity='month';granLabel='Bulanan';}
+  document.getElementById('trendGranularity').textContent='· '+granLabel;
+
+  const buckets={};
+  rows.forEach(r=>{
+    if(!r.dateObj)return;
+    let key,sortKey,label;
+    if(granularity==='day'){
+      key=dateKey(r.dateObj);sortKey=r.dateObj.getTime();label=fmtDateShort(r.dateObj);
+    }else if(granularity==='week'){
+      key=isoWeekKey(r.dateObj);
+      const wkStart=new Date(key);sortKey=wkStart.getTime();
+      label=fmtDateShort(wkStart);
+    }else{
+      key=r.dateObj.getFullYear()+'-'+String(r.dateObj.getMonth()+1).padStart(2,'0');
+      sortKey=new Date(r.dateObj.getFullYear(),r.dateObj.getMonth(),1).getTime();
+      label=MN_SHORT[r.dateObj.getMonth()]+' '+r.dateObj.getFullYear();
+    }
+    if(!buckets[key])buckets[key]={sortKey,label,count:0};
+    buckets[key].count++;
+  });
+  const sorted=Object.values(buckets).sort((a,b)=>a.sortKey-b.sortKey);
+  const labels=sorted.map(b=>b.label);
+  const data=sorted.map(b=>b.count);
+
+  if(fireTrendChartInst)fireTrendChartInst.destroy();
+  fireTrendChartInst=new Chart(canvas,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:'#c2703f',borderRadius:3,barPercentage:.6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:true}},
+      scales:{
+        x:{ticks:{font:{size:9},color:'#9a9a90',maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}}
+      }}
+  });
+}
+
 /* ============ FILTER ============ */
 let currentPreset='7d';
 let maxFireDate=null;
@@ -448,6 +522,7 @@ function renderAll(){
   renderFireMarkers(filteredFire);
   renderBlokSummary(filteredFire);
   renderTable();
+  renderFireTrendChart();
   if(typeof renderAllWeather==='function') renderAllWeather();
 }
 document.getElementById('customApplyBtn').addEventListener('click',()=>{
