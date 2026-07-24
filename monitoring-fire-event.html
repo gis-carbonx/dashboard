@@ -85,11 +85,13 @@
   .fdrs-extreme{background:#F6D9D3;color:#a5382c}
 
   /* FIRE KPI PANEL */
-  .fire-kpi-panel{max-width:420px}
+  .fire-kpi-panel{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .fire-kpi-left{flex-shrink:0}
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:44px;color:var(--color-pine);line-height:1.1;margin-top:4px}
   .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
-  .fire-kpi-filters{display:flex;align-items:center;gap:6px;margin-top:16px;flex-wrap:wrap}
+  .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:1}
+  .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
 
   .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Inter',sans-serif}
   .chip-btn.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
@@ -108,7 +110,7 @@
   .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 
   .loc-panel{display:flex;flex-direction:column}
-  .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f1efe6}
+  .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #EDE7D8}
   .blok-row:last-child{border-bottom:none}
   .blok-name{font-size:13px;font-weight:700;color:var(--color-ink)}
   .blok-desa{font-size:10.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
@@ -118,9 +120,9 @@
   .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:hidden}
   table.data-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:'Inter',sans-serif}
   table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 16px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--color-sand)}
-  table.data-tbl tbody td{padding:10px 16px;border-bottom:1px solid #f1efe6;color:var(--color-ink);vertical-align:middle}
+  table.data-tbl tbody td{padding:10px 16px;border-bottom:1px solid #EDE7D8;color:var(--color-ink);vertical-align:middle}
   table.data-tbl tbody tr:last-child td{border-bottom:none}
-  table.data-tbl tbody tr:hover td{background:#fbfaf5}
+  table.data-tbl tbody tr:hover td{background:#FFFAF3}
   .tbl-time{font-weight:600;color:var(--color-ink);white-space:nowrap}
   .tbl-time-sub{font-size:10px;color:var(--color-muted)}
   .tbl-coord{font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--color-muted);white-space:nowrap}
@@ -131,13 +133,14 @@
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
   /* WEATHER ROW */
-  .weather-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .weather-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}
   @media (max-width:900px){ .weather-row{grid-template-columns:1fr 1fr} }
   @media (max-width:520px){ .weather-row{grid-template-columns:1fr} }
   .weather-panel-title{font-size:12px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
   .weather-current{font-size:22px;font-weight:800;color:var(--color-pine);margin-top:6px;font-family:'Source Serif 4',Georgia,serif}
   .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif}
-  .weather-chart-wrap{position:relative;height:60px;margin-top:12px}
+  .weather-row .panel{display:flex;flex-direction:column}
+  .weather-chart-wrap{position:relative;flex:1;min-height:55px;margin-top:12px;overflow:hidden}
 
   /* FORECAST ROW */
   .forecast-row-wrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
@@ -198,13 +201,16 @@
 
     <!-- TITIK API KPI -->
     <div class="panel fire-kpi-panel" style="margin-top:16px">
-      <div class="fire-kpi-label">Titik Api</div>
-      <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
-      <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
+      <div class="fire-kpi-left">
+        <div class="fire-kpi-label">Titik Api</div>
+        <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
+        <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
+      </div>
       <div class="fire-kpi-filters">
         <button class="chip-btn active" data-preset="7d">7 Hari</button>
         <button class="chip-btn" data-preset="30d">30 Hari</button>
         <button class="chip-btn" data-preset="all">Semua</button>
+        <span class="filter-divider"></span>
         <input type="date" class="date-input-sm" id="customStart">
         <span style="color:var(--color-muted);font-size:11px">&ndash;</span>
         <input type="date" class="date-input-sm" id="customEnd">
@@ -506,7 +512,9 @@ function buildChart(canvasId,labels,data,color){
       data,borderColor:color,backgroundColor:color+'1a',fill:true,tension:.3,
       pointRadius:2,pointBackgroundColor:color,borderWidth:2
     }]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true}},
+    options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{left:2,right:2,top:4,bottom:0}},
+      plugins:{legend:{display:false},tooltip:{enabled:true}},
       scales:{x:{ticks:{font:{size:8.5},color:'#9a9a90',maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{display:false}},
         y:{display:false,beginAtZero:true}}}
   });
@@ -524,7 +532,7 @@ function renderWeather(metric){
   if(!last.length)last=src.slice(-1);
   const labels=last.map(d=>fmtDateShort(d.dateObj));
   const fieldMap={rain:'rain',wind:'wind',temp:'temp',hum:'hum'};
-  const colorMap={rain:'#8fa6c9',wind:'#618273',temp:'#c2703f',hum:'#356760'};
+  const colorMap={rain:'#B5BBA9',wind:'#618273',temp:'#c2703f',hum:'#356760'};
   const values=last.map(d=>d[fieldMap[metric]]);
   const canvasIdMap={rain:'chartRain',wind:'chartWind',temp:'chartTemp',hum:'chartHum'};
   buildChart(canvasIdMap[metric],labels,values,colorMap[metric]);
