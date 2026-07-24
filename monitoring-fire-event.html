@@ -248,10 +248,6 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Curah Hujan (mm)</div>
-          <div class="weather-toggle" id="weatherToggleMaster">
-            <button class="wt-btn active" data-mode="history">History</button>
-            <button class="wt-btn" data-mode="forecast">Prediksi</button>
-          </div>
         </div>
         <div class="weather-current" id="rainCurrent">– <span>mm</span></div>
         <div class="weather-chart-wrap"><canvas id="chartRain"></canvas></div>
@@ -260,7 +256,6 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Kecepatan Angin (km/jam)</div>
-          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="windCurrent">– <span>km/jam</span></div>
         <div class="weather-chart-wrap"><canvas id="chartWind"></canvas></div>
@@ -269,7 +264,6 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Suhu Udara (°C)</div>
-          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="tempCurrent">– <span>°C</span></div>
         <div class="weather-chart-wrap"><canvas id="chartTemp"></canvas></div>
@@ -278,7 +272,6 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Kelembaban Udara (%)</div>
-          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="humCurrent">– <span>%</span></div>
         <div class="weather-chart-wrap"><canvas id="chartHum"></canvas></div>
@@ -291,9 +284,8 @@
 
 <script>
 'use strict';
-const CACHE_BUST='?v='+Date.now();
 const FIRE_SHEET_ID='1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk';
-const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/export?format=csv&gid=0`+CACHE_BUST;
+const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/export?format=csv&gid=0&v=${Date.now()}`;
 const RUNTIME_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RunTime`+'&'+Date.now();
 const WEATHER_ID='1gB7UT1ukBvMw36Nq--o1bQOHwlvKHDXB8x949EtQO4k';
 const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_History_Daily`+'&'+Date.now();
@@ -422,6 +414,7 @@ function renderAll(){
   renderFireMarkers(filteredFire);
   renderBlokSummary(filteredFire);
   renderTable();
+  if(typeof renderAllWeather==='function') renderAllWeather();
 }
 document.querySelectorAll('.qd-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -474,7 +467,6 @@ const WEATHER_ICON=(w)=>{
 
 let historyData=[],forecastDaily=[];
 const charts={};
-let weatherMode='history';
 
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
@@ -483,15 +475,23 @@ function buildChart(canvasId,labels,data,color){
     type:'bar',
     data:{labels,datasets:[{data,backgroundColor:color,borderRadius:3,barPercentage:.6}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true}},
-      scales:{x:{ticks:{font:{size:9},color:'#9ca3af'},grid:{display:false}},
+      scales:{x:{ticks:{font:{size:8.5},color:'#9ca3af',maxRotation:0,autoSkip:true,maxTicksLimit:currentPreset==='7d'?7:10},grid:{display:false}},
         y:{display:false,beginAtZero:true}}}
   });
 }
 
+function weatherDayCount(){
+  // Ikuti preset filter titik api: 7 Hari -> 7 hari, 30 Hari -> 30 hari, Semua -> semua data history yang ada
+  if(currentPreset==='7d')return 7;
+  if(currentPreset==='30d')return 30;
+  return historyData.length;
+}
+
 function renderWeather(metric){
-  const src = weatherMode==='history' ? historyData : forecastDaily;
+  const src=historyData;
   if(!src.length)return;
-  const last = src.slice(-6);
+  const n=Math.min(weatherDayCount(),src.length);
+  const last=src.slice(-n);
   const labels=last.map(d=>fmtDateShort(d.dateObj));
   const fieldMap={rain:'rain',wind:'wind',temp:'temp',hum:'hum'};
   const colorMap={rain:'#3b82f6',wind:'#618273',temp:'#f97316',hum:'#356760'};
@@ -505,15 +505,6 @@ function renderWeather(metric){
     (cur?cur[fieldMap[metric]].toFixed(1):'–')+` <span>${unitMap[metric]}</span>`;
 }
 function renderAllWeather(){ ['rain','wind','temp','hum'].forEach(renderWeather); }
-
-document.querySelectorAll('#weatherToggleMaster .wt-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('#weatherToggleMaster .wt-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    weatherMode=btn.dataset.mode;
-    renderAllWeather();
-  });
-});
 
 Papa.parse(WEATHER_HISTORY_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   historyData=res.data.map(row=>{
@@ -552,9 +543,9 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
     weather: g.weathers.length ? g.weathers.sort((a,b)=>g.weathers.filter(w=>w===a).length-g.weathers.filter(w=>w===b).length).pop() : ''
   })).sort((a,b)=>a.dateObj-b.dateObj);
 
-  // Prakiraan 6 Hari (sidebar)
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=forecastDaily.filter(d=>d.dateObj>=now).slice(0,6);
+  // Prakiraan 6 Hari (sidebar) — ambil 6 hari data terbaru yang tersedia di sheet
+  // (tidak dibatasi ketat oleh tanggal hari ini di kalender, karena data bisa berupa data historis/contoh)
+  const upcoming=forecastDaily.slice(-6);
   const listEl=document.getElementById('forecastList');
   listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
     <div class="forecast-row">
@@ -566,7 +557,6 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
       <div class="forecast-temp">${Math.round(d.tempMax)}°/${Math.round(d.tempMin)}°C</div>
     </div>`).join('') : '<div class="loading-msg">Tidak ada data prakiraan</div>';
 
-  if(weatherMode==='forecast') renderAllWeather();
 }, error:()=>{
   document.getElementById('forecastList').innerHTML='<div class="loading-msg" style="color:#b91c1c">Gagal memuat prakiraan.</div>';
 }});
