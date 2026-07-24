@@ -91,7 +91,7 @@
 
   .legend-line{display:inline-block;width:16px;height:2px;background:#356760;margin-right:4px;vertical-align:middle}
   .kpi-val{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1}
-  .kpi-sub{font-size:11px;color:#9ca3af;margin-top:6px}
+  .kpi-sub{font-size:10.5px;color:#9ca3af;margin-top:4px}
   .kpi-filter-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
   .filter-divider{width:1px;height:18px;background:var(--color-sand);margin:0 2px}
   .date-input{padding:5px 7px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:#374151;background:#fff;font-family:inherit}
@@ -124,12 +124,21 @@
 
   .map-table-row{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
 
-  table.data-tbl{width:100%;border-collapse:collapse;font-size:11px}
-  table.data-tbl thead th{background:var(--color-fire);color:#fff;padding:7px 8px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
-  table.data-tbl tbody td{padding:6px 8px;border-bottom:1px solid var(--color-sand);color:#374151}
-  table.data-tbl tbody tr:nth-child(even){background:var(--color-cream)}
-  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:8px;font-size:11px;color:#6b7280}
-  .pg-btn{width:22px;height:22px;border-radius:5px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#374151}
+  .tbl-wrap{border:1px solid var(--color-sand);border-radius:10px;overflow:hidden}
+  table.data-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 14px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;border-bottom:2px solid var(--color-sand)}
+  table.data-tbl tbody td{padding:10px 14px;border-bottom:1px solid #f1f1ec;color:#374151;vertical-align:middle}
+  table.data-tbl tbody tr:last-child td{border-bottom:none}
+  table.data-tbl tbody tr:hover td{background:var(--color-cream)}
+  table.data-tbl tbody tr:nth-child(even) td{background:#fbfaf6}
+  table.data-tbl tbody tr:nth-child(even):hover td{background:var(--color-cream)}
+  .tbl-time{font-weight:600;color:#374151;white-space:nowrap}
+  .tbl-time-sub{font-size:10px;color:#9ca3af}
+  .tbl-coord{font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:#6b7280;white-space:nowrap}
+  .blok-badge{display:inline-block;padding:2px 9px;border-radius:20px;background:var(--color-sand);color:var(--color-pine);font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:12px;font-size:11px;color:#6b7280}
+  .pg-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#374151;transition:background .15s}
+  .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
   .pg-btn:hover{background:var(--chip-bg)}
   .pg-btn:disabled{opacity:.4;cursor:not-allowed}
 
@@ -200,6 +209,7 @@
         <div class="card">
           <div class="card-title" id="fireTodayLabel">Titik Api (7 Hari Terakhir)</div>
           <div class="kpi-val" id="fireTodayCount">–</div>
+          <div class="kpi-sub" id="fireDateRange">–</div>
           <div class="kpi-filter-row">
             <button class="qd-btn active" data-preset="7d">7 Hari</button>
             <button class="qd-btn" data-preset="30d">30 Hari</button>
@@ -244,7 +254,7 @@
 
       <div class="card">
         <div class="card-title">Data Titik Api Terbaru</div>
-        <div style="overflow-x:auto">
+        <div class="tbl-wrap" style="overflow-x:auto">
           <table class="data-tbl">
             <thead><tr>
               <th>Waktu Deteksi</th><th>Koordinat</th><th>Desa</th><th>Blok</th><th>Satelit</th><th>Owner</th><th>Penutup Lahan</th>
@@ -376,15 +386,15 @@ function renderTable(){
   const pageRows=filteredFire.slice(start,start+PAGE_SIZE);
   const tbody=document.getElementById('tblBody');
   tbody.innerHTML = pageRows.length ? pageRows.map(r=>`<tr>
-      <td>${fmtDateID(r.dateObj)}${r.jam?' · '+r.jam:''}</td>
-      <td>${r.lat!==null?r.lat.toFixed(5):'–'}, ${r.lon!==null?r.lon.toFixed(5):'–'}</td>
+      <td><div class="tbl-time">${fmtDateID(r.dateObj)}</div>${r.jam?`<div class="tbl-time-sub">${r.jam}</div>`:''}</td>
+      <td class="tbl-coord">${r.lat!==null?r.lat.toFixed(5):'–'}, ${r.lon!==null?r.lon.toFixed(5):'–'}</td>
       <td>${r.desa||'–'}</td>
-      <td>${r.blok||'–'}</td>
+      <td>${r.blok?`<span class="blok-badge">${r.blok}</span>`:'–'}</td>
       <td>${r.satellite||'–'}${r.instrument?' / '+r.instrument:''}</td>
       <td>${r.owner||'–'}</td>
       <td>${r.lahan||'–'}</td>
     </tr>`).join('')
-    : '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:20px">Tidak ada data</td></tr>';
+    : '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Tidak ada data</td></tr>';
   const totalPages=Math.max(1,Math.ceil(filteredFire.length/PAGE_SIZE));
   document.getElementById('pgInfo').textContent=`${filteredFire.length?start+1:0}-${Math.min(start+PAGE_SIZE,filteredFire.length)} / ${filteredFire.length}`;
   document.getElementById('pgPrev').disabled=currentPage<=1;
@@ -420,19 +430,28 @@ let customStart=null,customEnd=null;
 
 function applyFilter(){
   if(!maxFireDate){filteredFire=[];renderAll();return;}
+  let rangeStart=null,rangeEnd=null;
   if(currentPreset==='custom'){
     if(customStart&&customEnd){
-      filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=customStart&&r.dateObj<=customEnd);
+      rangeStart=customStart;rangeEnd=customEnd;
+      filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
     }else{
       filteredFire=[];
     }
   }else if(currentPreset==='all'){
     filteredFire=allFire.slice();
+    const withDate=allFire.filter(r=>r.dateObj);
+    if(withDate.length){rangeStart=withDate.reduce((a,b)=>a.dateObj<b.dateObj?a:b).dateObj;rangeEnd=maxFireDate;}
   }else{
     const days=currentPreset==='7d'?7:30;
-    const start=new Date(maxFireDate);start.setDate(start.getDate()-(days-1));
-    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=start&&r.dateObj<=maxFireDate);
+    rangeStart=new Date(maxFireDate);rangeStart.setDate(rangeStart.getDate()-(days-1));
+    rangeEnd=maxFireDate;
+    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
   }
+  // Urutkan dari yang TERBARU dulu (untuk tabel "Data Titik Api Terbaru")
+  filteredFire.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
+  document.getElementById('fireDateRange').textContent = (rangeStart&&rangeEnd)
+    ? `${fmtDateShort(rangeStart)} – ${fmtDateShort(rangeEnd)}` : '–';
   currentPage=1;
   renderAll();
 }
