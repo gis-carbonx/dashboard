@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>1</title>
+<title>Monitoring Fire Event | Sanggala Corridor Project</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -49,14 +49,14 @@
     overflow-y:auto;overflow-x:hidden;box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;
   }
 
-  .grid{display:grid;grid-template-columns:210px 1fr 270px;gap:8px;padding:8px;align-items:start;min-height:100%}
+  .grid{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;padding:14px;align-items:start;min-height:100%}
   @media (max-width:1300px){ .grid{grid-template-columns:220px 1fr} }
 
-  .card{background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .card{background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .card-title{font-size:10px;font-weight:700;color:var(--color-pine);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
 
   /* LEFT COLUMN */
-  .col-left{display:flex;flex-direction:column;gap:8px}
+  .col-left{display:flex;flex-direction:column;gap:12px}
   .brand-block{display:flex;flex-direction:column;gap:1px}
   .brand-title{font-size:14px;font-weight:800;color:var(--color-pine);line-height:1.2}
   .brand-sub{font-size:10px;color:var(--color-fern);font-weight:600}
@@ -65,7 +65,7 @@
   .side-nav-item.active{background:var(--chip-bg);color:var(--color-pine);border-left:3px solid var(--color-fire)}
 
   .forecast-list{display:flex;flex-direction:column;gap:2px}
-  .forecast-row{display:flex;align-items:center;gap:6px;padding:4px 4px;border-bottom:1px solid #f3f4f6}
+  .forecast-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f3f4f6}
   .forecast-row:last-child{border-bottom:none}
   .forecast-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
   .forecast-info{flex:1;min-width:0}
@@ -80,17 +80,17 @@
   .refresh-btn:hover{background:var(--color-sage);color:#fff}
 
   /* CENTER COLUMN */
-  .col-center{display:flex;flex-direction:column;gap:8px;min-width:0}
-  .top-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .col-center{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .top-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .top-row-2{grid-template-columns:1fr 1fr}
   .top-row-3{grid-template-columns:1fr 1fr 1fr}
   @media (max-width:1300px){ .top-row-3,.top-row-2{grid-template-columns:1fr} }
 
-  .map-loc-row{display:grid;grid-template-columns:1.6fr 1fr;gap:8px}
+  .map-loc-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}
   @media (max-width:1100px){ .map-loc-row{grid-template-columns:1fr} }
 
   .legend-line{display:inline-block;width:16px;height:2px;background:#356760;margin-right:4px;vertical-align:middle}
-  .kpi-val{font-size:22px;font-weight:800;color:var(--color-pine);line-height:1}
+  .kpi-val{font-size:28px;font-weight:800;color:var(--color-pine);line-height:1}
   .kpi-sub{font-size:9.5px;color:#9ca3af;margin-top:2px}
   .kpi-filter-row{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
   .filter-divider{width:1px;height:16px;background:var(--color-sand);margin:0 2px}
@@ -106,19 +106,19 @@
   .blok-row:last-child{border-bottom:none}
   .blok-name{font-size:11px;font-weight:700;color:#374151}
   .blok-desa{font-size:9px;color:#9ca3af;margin-top:1px}
-  .blok-count{font-size:16px;font-weight:800;color:var(--color-fire-dk)}
+  .blok-count{font-size:19px;font-weight:800;color:var(--color-fire-dk)}
 
   .fdrs-date{font-size:9px;color:#9ca3af;font-weight:600;margin-bottom:5px}
   .fdrs-row{display:flex;gap:8px}
   .fdrs-col{flex:1}
   .fdrs-label{font-size:10px;font-weight:700;color:#374151;margin-bottom:3px}
-  .fdrs-badge{text-align:center;padding:5px 4px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.4px}
+  .fdrs-badge{text-align:center;padding:8px 4px;border-radius:6px;font-size:12px;font-weight:800;letter-spacing:.4px}
   .fdrs-low{background:#DCEEDD;color:#1a5c33}
   .fdrs-medium{background:#FDF0B0;color:#8a6300}
   .fdrs-high{background:#FCE0C4;color:#9a4b0c}
   .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
-  #map{width:100%;height:200px;border-radius:6px;border:1px solid var(--color-sand)}
+  #map{width:100%;height:280px;border-radius:6px;border:1px solid var(--color-sand)}
   .map-legend{display:flex;gap:14px;align-items:center;font-size:10px;color:#4b5563;margin-top:5px}
   .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
 
@@ -143,15 +143,15 @@
   .pg-btn:disabled{opacity:.4;cursor:not-allowed}
 
   /* RIGHT COLUMN — WEATHER */
-  .col-right{display:flex;flex-direction:column;gap:8px}
+  .col-right{display:flex;flex-direction:column;gap:12px}
   .weather-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1px}
   .weather-toggle{display:flex;gap:4px;background:var(--chip-bg);border-radius:6px;padding:2px}
   .wt-btn{padding:3px 8px;border:none;border-radius:5px;background:transparent;font-size:9px;font-weight:700;color:#6b7280;cursor:pointer;font-family:inherit}
   .wt-btn.active{background:var(--color-fire);color:#fff}
   .weather-follow{font-size:9px;color:#c2c9d1;font-style:italic}
-  .weather-current{font-size:17px;font-weight:800;color:#374151;line-height:1}
+  .weather-current{font-size:20px;font-weight:800;color:#374151;line-height:1}
   .weather-current span{font-size:11px;font-weight:600;color:#9ca3af}
-  .weather-chart-wrap{position:relative;height:48px;margin-top:4px}
+  .weather-chart-wrap{position:relative;height:65px;margin-top:6px}
 
   .loading-msg{padding:20px;text-align:center;color:var(--color-fern);font-size:11px}
 </style>
@@ -326,7 +326,7 @@ const MN_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov
 const DAY_ID=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
 let allFire=[],filteredFire=[],currentPage=1;
-const PAGE_SIZE=3;
+const PAGE_SIZE=4;
 
 function str(v){return (v??'').toString().trim();}
 function num(v){const n=parseFloat(str(v));return isNaN(n)?null:n;}
@@ -427,6 +427,7 @@ function renderBlokSummary(rows){
 let currentPreset='7d';
 let maxFireDate=null;
 let customStart=null,customEnd=null;
+let filterRangeStart=null,filterRangeEnd=null; // dipakai bersama oleh grafik cuaca supaya rentangnya selalu sinkron
 
 function applyFilter(){
   if(!maxFireDate){filteredFire=[];renderAll();return;}
@@ -453,6 +454,7 @@ function applyFilter(){
   }
   // Urutkan dari yang TERBARU dulu (untuk tabel "Data Titik Api Terbaru")
   filteredFire.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
+  filterRangeStart=rangeStart;filterRangeEnd=rangeEnd;
   document.getElementById('fireDateRange').textContent = (rangeStart&&rangeEnd)
     ? `${fmtDateShort(rangeStart)} – ${fmtDateShort(rangeEnd)}` : '–';
   currentPage=1;
@@ -471,9 +473,12 @@ document.getElementById('customApplyBtn').addEventListener('click',()=>{
   const sVal=document.getElementById('customStart').value;
   const eVal=document.getElementById('customEnd').value;
   if(!sVal||!eVal)return;
-  customStart=new Date(sVal);
-  customEnd=new Date(eVal);
-  customEnd.setHours(23,59,59,999);
+  // Parsing manual (bukan new Date(string)) supaya tidak bergeser zona waktu —
+  // input type="date" selalu format "YYYY-MM-DD" dan harus dibaca sebagai tanggal LOKAL, bukan UTC.
+  const [sy,sm,sd]=sVal.split('-').map(Number);
+  const [ey,em,ed]=eVal.split('-').map(Number);
+  customStart=new Date(sy,sm-1,sd,0,0,0,0);
+  customEnd=new Date(ey,em-1,ed,23,59,59,999);
   document.querySelectorAll('.qd-btn').forEach(b=>b.classList.remove('active'));
   currentPreset='custom';
   applyFilter();
@@ -546,21 +551,16 @@ function buildChart(canvasId,labels,data,color){
   });
 }
 
-function weatherDayCount(){
-  // Ikuti preset filter titik api: 7 Hari -> 7 hari, 30 Hari -> 30 hari, Semua -> semua data history yang ada
-  if(currentPreset==='7d')return 7;
-  if(currentPreset==='30d')return 30;
-  if(currentPreset==='custom'&&customStart&&customEnd){
-    return Math.max(1,Math.round((customEnd-customStart)/(1000*60*60*24))+1);
-  }
-  return historyData.length;
-}
-
 function renderWeather(metric){
   const src=historyData;
   if(!src.length)return;
-  const n=Math.min(weatherDayCount(),src.length);
-  const last=src.slice(-n);
+  let last;
+  if(filterRangeStart&&filterRangeEnd){
+    last=src.filter(d=>d.dateObj>=filterRangeStart&&d.dateObj<=filterRangeEnd);
+  }else{
+    last=src.slice(-7);
+  }
+  if(!last.length)last=src.slice(-1); // fallback: kalau tidak ada data di rentang, tampilkan titik terakhir saja
   const labels=last.map(d=>fmtDateShort(d.dateObj));
   const fieldMap={rain:'rain',wind:'wind',temp:'temp',hum:'hum'};
   const colorMap={rain:'#B5BBA9',wind:'#618273',temp:'#f97316',hum:'#356760'};
