@@ -19,7 +19,7 @@
     --color-pine:#356760;
     --color-fire:#f97316;
     --color-fire-dk:#c2410c;
-    --chip-bg:#F1EEE2;
+    --chip-bg:#DCDACC;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--color-cream);color:#374151}
@@ -89,14 +89,15 @@
   .map-loc-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}
   @media (max-width:1100px){ .map-loc-row{grid-template-columns:1fr} }
 
-  .custom-range-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
-  .date-input{padding:5px 7px;border:1px solid var(--color-sand);border-radius:6px;font-size:11px;color:#374151;background:#fff;font-family:inherit}
-  .custom-range-sep{font-size:11px;color:#9ca3af}
-
-  .legend-line{display:inline-block;width:16px;height:2px;background:#3b82f6;margin-right:4px;vertical-align:middle}
+  .legend-line{display:inline-block;width:16px;height:2px;background:#356760;margin-right:4px;vertical-align:middle}
   .kpi-val{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1}
   .kpi-sub{font-size:11px;color:#9ca3af;margin-top:6px}
   .kpi-filter-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .filter-divider{width:1px;height:18px;background:var(--color-sand);margin:0 2px}
+  .date-input{padding:5px 7px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:#374151;background:#fff;font-family:inherit}
+  .custom-range-sep{font-size:11px;color:#9ca3af}
+  .qd-btn-apply{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+  .qd-btn-apply:hover{background:var(--color-fern);border-color:var(--color-fern)}
   .qd-btn{padding:5px 10px;border:1px solid var(--color-sand);border-radius:20px;background:var(--chip-bg);font-size:10.5px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit}
   .qd-btn.active{background:var(--color-fire);border-color:var(--color-fire);color:#fff}
   .qd-btn:hover:not(.active){background:var(--color-sage);color:#fff}
@@ -203,12 +204,11 @@
             <button class="qd-btn active" data-preset="7d">7 Hari</button>
             <button class="qd-btn" data-preset="30d">30 Hari</button>
             <button class="qd-btn" data-preset="all">Semua</button>
-          </div>
-          <div class="custom-range-row">
+            <span class="filter-divider"></span>
             <input type="date" class="date-input" id="customStart">
             <span class="custom-range-sep">–</span>
             <input type="date" class="date-input" id="customEnd">
-            <button class="reset-btn" id="customApplyBtn">Terapkan</button>
+            <button class="qd-btn qd-btn-apply" id="customApplyBtn">Terapkan</button>
           </div>
         </div>
         <div class="card">
@@ -323,7 +323,11 @@ function num(v){const n=parseFloat(str(v));return isNaN(n)?null:n;}
 
 function parseDateLoose(s){
   s=str(s);if(!s)return null;
-  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  // Format literal dari Google Sheets gviz/tq untuk sel bertipe Date/DateTime asli:
+  // contoh: "Date(2026,6,18,14,22,0)" — bulan sudah 0-indexed
+  let m=s.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
+  if(m)return new Date(+m[1],+m[2],+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0));
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if(m)return new Date(+m[1],+m[2]-1,+m[3]);
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); // M/D/YYYY (format sheet Google umum)
   if(m)return new Date(+m[3],+m[1]-1,+m[2]);
@@ -344,7 +348,7 @@ let mapBounds=null;
 const fireLayer=L.layerGroup().addTo(map);
 
 fetch(CMI_URL).then(r=>r.json()).then(j=>{
-  const b=L.geoJSON(j,{style:{color:'#3b82f6',weight:2.5,fillOpacity:0}}).addTo(map);
+  const b=L.geoJSON(j,{style:{color:'#356760',weight:2.5,fillOpacity:0}}).addTo(map);
   mapBounds=b.getBounds();
   map.fitBounds(mapBounds,{padding:[20,20]});
 }).catch(()=>{});
@@ -537,7 +541,7 @@ function renderWeather(metric){
   const last=src.slice(-n);
   const labels=last.map(d=>fmtDateShort(d.dateObj));
   const fieldMap={rain:'rain',wind:'wind',temp:'temp',hum:'hum'};
-  const colorMap={rain:'#3b82f6',wind:'#618273',temp:'#f97316',hum:'#356760'};
+  const colorMap={rain:'#B5BBA9',wind:'#618273',temp:'#f97316',hum:'#356760'};
   const values=last.map(d=>d[fieldMap[metric]]);
   const canvasIdMap={rain:'chartRain',wind:'chartWind',temp:'chartTemp',hum:'chartHum'};
   buildChart(canvasIdMap[metric],labels,values,colorMap[metric]);
