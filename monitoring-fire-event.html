@@ -443,9 +443,12 @@ function applyFilter(){
     const withDate=allFire.filter(r=>r.dateObj);
     if(withDate.length){rangeStart=withDate.reduce((a,b)=>a.dateObj<b.dateObj?a:b).dateObj;rangeEnd=maxFireDate;}
   }else{
+    // Acuan "hari ini" pakai tanggal SAAT INI yang sebenarnya (bukan tanggal terbaru di data titik api),
+    // supaya "7 Hari Terakhir" selalu berarti 7 hari ke belakang dari hari ini yang sesungguhnya.
     const days=currentPreset==='7d'?7:30;
-    rangeStart=new Date(maxFireDate);rangeStart.setDate(rangeStart.getDate()-(days-1));
-    rangeEnd=maxFireDate;
+    const today=new Date();today.setHours(23,59,59,999);
+    rangeStart=new Date(today);rangeStart.setDate(rangeStart.getDate()-(days-1));rangeStart.setHours(0,0,0,0);
+    rangeEnd=today;
     filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
   }
   // Urutkan dari yang TERBARU dulu (untuk tabel "Data Titik Api Terbaru")
