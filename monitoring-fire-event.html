@@ -56,12 +56,15 @@
   .report{max-width:1180px;margin:0 auto;padding:44px 36px 64px}
 
   /* HEADER */
-  .report-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:34px}
-  .report-title{font-size:26px;color:var(--color-pine);letter-spacing:-.2px}
-  .report-subtitle{font-size:13px;color:var(--color-muted);margin-top:4px;font-family:'Inter',sans-serif}
-  .update-chip{border:1px solid var(--color-sand);border-radius:8px;padding:10px 16px;text-align:right;background:var(--color-cream);flex-shrink:0}
-  .update-chip-label{font-size:9.5px;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-  .update-chip-value{font-size:12.5px;font-weight:700;color:var(--color-ink);margin-top:2px}
+  .fire-topbar{
+    background:#3A342C;border-bottom:1px solid #4a4238;
+    padding:14px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  }
+  .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
+  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
+  .update-chip{border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px 14px;text-align:right;background:rgba(255,255,255,.06);flex-shrink:0}
+  .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
   /* SECTION TITLES */
   .section-title{font-size:17px;color:var(--color-ink);margin:38px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--color-sand)}
@@ -172,19 +175,17 @@
 </header>
 
 <div class="dashboard-frame">
-  <div class="report">
-
-    <!-- HEADER -->
-    <div class="report-header">
-      <div>
-        <h1 class="report-title">Monitoring Fire Event</h1>
-        <div class="report-subtitle">Ringkasan Hari Ini &bull; <span id="reportDateToday">&ndash;</span></div>
-      </div>
-      <div class="update-chip">
-        <div class="update-chip-label">Terakhir diperbarui</div>
-        <div class="update-chip-value" id="lastUpdate">&ndash;</div>
-      </div>
+  <div class="fire-topbar">
+    <div>
+      <h1 class="report-title">Monitoring Fire Event</h1>
+      <div class="report-subtitle">Ringkasan Hari Ini &bull; <span id="reportDateToday">&ndash;</span></div>
     </div>
+    <div class="update-chip">
+      <div class="update-chip-label">Terakhir diperbarui</div>
+      <div class="update-chip-value" id="lastUpdate">&ndash;</div>
+    </div>
+  </div>
+  <div class="report">
 
     <!-- FDRS -->
     <div class="panel fdrs-panel">
