@@ -305,9 +305,9 @@
 const FIRE_SHEET_ID='1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk';
 const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/export?format=csv&gid=0&v=${Date.now()}`;
 const RUNTIME_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RunTime`+'&'+Date.now();
-const WEATHER_ID='1gB7UT1ukBvMw36Nq--o1bQOHwlvKHDXB8x949EtQO4k';
-const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_History_Daily`+'&'+Date.now();
-const WEATHER_FORECAST_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_Daily`+'&'+Date.now();
+const WEATHER_ID='1nVvw7hVJjBb6nsHpwhCYykhk2cxIiZdiQaSiGAEe5H8';
+const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather`+'&'+Date.now();
+const WEATHER_FORECAST_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_Forecast_Daily`+'&'+Date.now();
 const FDRS_ID='1w1YUvhKArfvN3QcY8S1N9t2TpmNBf2O1pywvNNPDz5Q';
 const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Final Data')}`+'&'+Date.now();
 const CMI_URL='assets/json/CMI.json';
@@ -554,41 +554,42 @@ function renderWeather(metric){
 function renderAllWeather(){ ['rain','wind','temp','hum'].forEach(renderWeather); }
 
 Papa.parse(WEATHER_HISTORY_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
-  historyData=res.data.map(row=>{
-    const dateObj=parseDateLoose(row['Date']);
-    return{
-      dateObj,
-      temp:num(row['Temperature'])||0,
-      hum:num(row['Humidity'])||0,
-      wind:num(row['WindSpeed'])||0,
-      rain:num(row['Rain3h'])||0,
-      weather:str(row['Weather'])
-    };
-  }).filter(d=>d.dateObj).sort((a,b)=>a.dateObj-b.dateObj);
-  ['rain','wind','temp','hum'].forEach(renderWeather);
-}, error:()=>{}});
-
-Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   const byDay={};
   res.data.forEach(row=>{
-    const dt=parseDateLoose(row['Update']);
+    const dt=parseDateLoose(row['Timestamp']);
     if(!dt)return;
     const key=dateKey(dt);
     if(!byDay[key])byDay[key]={dateObj:new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()),temps:[],hums:[],winds:[],rain:0,weathers:[]};
     const g=byDay[key];
-    const t=num(row['Temperature']); if(t!==null)g.temps.push(t);
-    const h=num(row['Humidity']); if(h!==null)g.hums.push(h);
-    const w=num(row['WindSpeed']); if(w!==null)g.winds.push(w);
-    g.rain += num(row['Rain1h'])||0;
+    const t=num(row['Temperature (°C)']); if(t!==null)g.temps.push(t);
+    const h=num(row['Humidity (%)']); if(h!==null)g.hums.push(h);
+    const w=num(row['Wind Speed (m/s)']); if(w!==null)g.winds.push(w*3.6); // m/s -> km/jam
+    g.rain += num(row['Rain (mm)'])||0;
     if(row['Weather'])g.weathers.push(str(row['Weather']));
   });
   const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
-  forecastDaily=Object.values(byDay).map(g=>({
+  historyData=Object.values(byDay).map(g=>({
     dateObj:g.dateObj,
-    temp:avg(g.temps), tempMin:g.temps.length?Math.min(...g.temps):0, tempMax:g.temps.length?Math.max(...g.temps):0,
-    hum:avg(g.hums), wind:avg(g.winds), rain:g.rain,
+    temp:avg(g.temps), hum:avg(g.hums), wind:avg(g.winds), rain:g.rain,
     weather: g.weathers.length ? g.weathers.sort((a,b)=>g.weathers.filter(w=>w===a).length-g.weathers.filter(w=>w===b).length).pop() : ''
-  })).sort((a,b)=>a.dateObj-b.dateObj);
+  })).filter(d=>d.dateObj).sort((a,b)=>a.dateObj-b.dateObj);
+  ['rain','wind','temp','hum'].forEach(renderWeather);
+}, error:()=>{}});
+
+Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  forecastDaily=res.data.map(row=>{
+    const dateObj=parseDateLoose(row['Date']);
+    if(!dateObj)return null;
+    const windMs=num(row['WindSpeedAvg']);
+    return{
+      dateObj,
+      temp:num(row['TempAvg'])||0,
+      hum:num(row['HumidityAvg'])||0,
+      wind: windMs!==null ? windMs*3.6 : 0, // m/s -> km/jam
+      rain:num(row['RainTotal(mm)'])||0,
+      weather:str(row['MostFrequentWeather'])
+    };
+  }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
 
   // Prakiraan 6 Hari (sidebar) — ambil 6 hari data terbaru yang tersedia di sheet
   // (tidak dibatasi ketat oleh tanggal hari ini di kalender, karena data bisa berupa data historis/contoh)
@@ -601,7 +602,7 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
         <div class="forecast-day">${DAY_ID[d.dateObj.getDay()]}, ${fmtDateShort(d.dateObj)}</div>
         <div class="forecast-rain">Curah hujan ${d.rain.toFixed(1)} mm</div>
       </div>
-      <div class="forecast-temp">${Math.round(d.tempMax)}°/${Math.round(d.tempMin)}°C</div>
+      <div class="forecast-temp">${Math.round(d.temp)}°C</div>
     </div>`).join('') : '<div class="loading-msg">Tidak ada data prakiraan</div>';
 
 }, error:()=>{
