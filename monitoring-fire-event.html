@@ -82,18 +82,30 @@
   /* CENTER COLUMN */
   .col-center{display:flex;flex-direction:column;gap:12px;min-width:0}
   .top-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .top-row-3{grid-template-columns:1fr 1fr 1fr}
+  @media (max-width:1300px){ .top-row-3{grid-template-columns:1fr} }
   .kpi-val{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1}
   .kpi-sub{font-size:11px;color:#9ca3af;margin-top:6px}
-  .kpi-filter-row{display:flex;align-items:center;gap:8px;margin-top:10px}
-  select.f-select{padding:6px 8px;border:1px solid var(--color-sand);border-radius:6px;font-size:11.5px;color:#374151;background:#fff;font-family:inherit}
-  .reset-btn{padding:6px 10px;border:1px solid var(--color-sand);border-radius:6px;background:var(--chip-bg);color:var(--color-pine);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
-  .reset-btn:hover{background:var(--color-sage);color:#fff}
+  .kpi-filter-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .qd-btn{padding:5px 10px;border:1px solid var(--color-sand);border-radius:20px;background:var(--chip-bg);font-size:10.5px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit}
+  .qd-btn.active{background:var(--color-fire);border-color:var(--color-fire);color:#fff}
+  .qd-btn:hover:not(.active){background:var(--color-sage);color:#fff}
 
   .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f3f4f6}
   .blok-row:last-child{border-bottom:none}
   .blok-name{font-size:12px;font-weight:700;color:#374151}
   .blok-desa{font-size:10px;color:#9ca3af;margin-top:2px}
   .blok-count{font-size:20px;font-weight:800;color:var(--color-fire-dk)}
+
+  .fdrs-date{font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:8px}
+  .fdrs-row{display:flex;gap:10px}
+  .fdrs-col{flex:1}
+  .fdrs-label{font-size:11px;font-weight:700;color:#374151;margin-bottom:4px}
+  .fdrs-badge{text-align:center;padding:8px 4px;border-radius:6px;font-size:12px;font-weight:800;letter-spacing:.4px}
+  .fdrs-low{background:#DCEEDD;color:#1a5c33}
+  .fdrs-medium{background:#FDF0B0;color:#8a6300}
+  .fdrs-high{background:#FCE0C4;color:#9a4b0c}
+  .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
   #map{width:100%;height:380px;border-radius:6px;border:1px solid var(--color-sand)}
   .map-legend{display:flex;gap:16px;align-items:center;font-size:11px;color:#4b5563;margin-top:8px}
@@ -116,6 +128,7 @@
   .weather-toggle{display:flex;gap:4px;background:var(--chip-bg);border-radius:6px;padding:2px}
   .wt-btn{padding:4px 10px;border:none;border-radius:5px;background:transparent;font-size:10px;font-weight:700;color:#6b7280;cursor:pointer;font-family:inherit}
   .wt-btn.active{background:var(--color-fire);color:#fff}
+  .weather-follow{font-size:9.5px;color:#c2c9d1;font-style:italic}
   .weather-current{font-size:24px;font-weight:800;color:#374151;line-height:1}
   .weather-current span{font-size:13px;font-weight:600;color:#9ca3af}
   .weather-chart-wrap{position:relative;height:80px;margin-top:8px}
@@ -172,13 +185,28 @@
 
     <!-- CENTER COLUMN -->
     <div class="col-center">
-      <div class="top-row">
+      <div class="top-row top-row-3">
         <div class="card">
-          <div class="card-title" id="fireTodayLabel">Titik Api (Hari Ini)</div>
+          <div class="card-title" id="fireTodayLabel">Titik Api (7 Hari Terakhir)</div>
           <div class="kpi-val" id="fireTodayCount">–</div>
           <div class="kpi-filter-row">
-            <select class="f-select" id="dateFilter"><option value="">Memuat…</option></select>
-            <button class="reset-btn" id="resetBtn">Reset</button>
+            <button class="qd-btn active" data-preset="7d">7 Hari</button>
+            <button class="qd-btn" data-preset="30d">30 Hari</button>
+            <button class="qd-btn" data-preset="all">Semua</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Rating Bahaya Kebakaran (FDRS)</div>
+          <div class="fdrs-date" id="fdrsDate">Memuat…</div>
+          <div class="fdrs-row">
+            <div class="fdrs-col">
+              <div class="fdrs-label">Blok 1</div>
+              <div class="fdrs-badge" id="fdrsBlok1">–</div>
+            </div>
+            <div class="fdrs-col">
+              <div class="fdrs-label">Blok 2</div>
+              <div class="fdrs-badge" id="fdrsBlok2">–</div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -220,7 +248,7 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Curah Hujan (mm)</div>
-          <div class="weather-toggle" data-metric="rain">
+          <div class="weather-toggle" id="weatherToggleMaster">
             <button class="wt-btn active" data-mode="history">History</button>
             <button class="wt-btn" data-mode="forecast">Prediksi</button>
           </div>
@@ -232,10 +260,7 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Kecepatan Angin (km/jam)</div>
-          <div class="weather-toggle" data-metric="wind">
-            <button class="wt-btn active" data-mode="history">History</button>
-            <button class="wt-btn" data-mode="forecast">Prediksi</button>
-          </div>
+          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="windCurrent">– <span>km/jam</span></div>
         <div class="weather-chart-wrap"><canvas id="chartWind"></canvas></div>
@@ -244,10 +269,7 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Suhu Udara (°C)</div>
-          <div class="weather-toggle" data-metric="temp">
-            <button class="wt-btn active" data-mode="history">History</button>
-            <button class="wt-btn" data-mode="forecast">Prediksi</button>
-          </div>
+          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="tempCurrent">– <span>°C</span></div>
         <div class="weather-chart-wrap"><canvas id="chartTemp"></canvas></div>
@@ -256,10 +278,7 @@
       <div class="card">
         <div class="weather-head">
           <div class="card-title" style="margin-bottom:0">Kelembaban Udara (%)</div>
-          <div class="weather-toggle" data-metric="hum">
-            <button class="wt-btn active" data-mode="history">History</button>
-            <button class="wt-btn" data-mode="forecast">Prediksi</button>
-          </div>
+          <div class="weather-follow">Mengikuti pilihan di atas</div>
         </div>
         <div class="weather-current" id="humCurrent">– <span>%</span></div>
         <div class="weather-chart-wrap"><canvas id="chartHum"></canvas></div>
@@ -272,10 +291,15 @@
 
 <script>
 'use strict';
-const FIRE_SHEET_URL='https://docs.google.com/spreadsheets/d/1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk/gviz/tq?tqx=out:csv&sheet=Sheet1';
+const CACHE_BUST='?v='+Date.now();
+const FIRE_SHEET_ID='1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk';
+const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/export?format=csv&gid=0`+CACHE_BUST;
+const RUNTIME_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RunTime`+'&'+Date.now();
 const WEATHER_ID='1gB7UT1ukBvMw36Nq--o1bQOHwlvKHDXB8x949EtQO4k';
-const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_History_Daily`;
-const WEATHER_FORECAST_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_Daily`;
+const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_History_Daily`+'&'+Date.now();
+const WEATHER_FORECAST_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_Daily`+'&'+Date.now();
+const FDRS_ID='1w1YUvhKArfvN3QcY8S1N9t2TpmNBf2O1pywvNNPDz5Q';
+const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Final Data')}`+'&'+Date.now();
 const CMI_URL='assets/json/CMI.json';
 
 const MN_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -376,21 +400,36 @@ function renderBlokSummary(rows){
 }
 
 /* ============ FILTER ============ */
+let currentPreset='7d';
+let maxFireDate=null;
+
 function applyFilter(){
-  const val=document.getElementById('dateFilter').value;
-  filteredFire = val ? allFire.filter(r=>r.dateKey===val) : allFire.slice();
+  if(!maxFireDate){filteredFire=[];renderAll();return;}
+  if(currentPreset==='all'){
+    filteredFire=allFire.slice();
+  }else{
+    const days=currentPreset==='7d'?7:30;
+    const start=new Date(maxFireDate);start.setDate(start.getDate()-(days-1));
+    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=start&&r.dateObj<=maxFireDate);
+  }
   currentPage=1;
-  const label=val ? fmtDateID(new Date(val)) : 'Semua Tanggal';
-  document.getElementById('fireTodayLabel').textContent = val ? 'Titik Api ('+fmtDateShort(new Date(val))+')' : 'Titik Api (Semua)';
+  renderAll();
+}
+function renderAll(){
+  const labelMap={'7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua'};
+  document.getElementById('fireTodayLabel').textContent='Titik Api ('+labelMap[currentPreset]+')';
   document.getElementById('fireTodayCount').textContent=filteredFire.length;
   renderFireMarkers(filteredFire);
   renderBlokSummary(filteredFire);
   renderTable();
 }
-document.getElementById('dateFilter').addEventListener('change',applyFilter);
-document.getElementById('resetBtn').addEventListener('click',()=>{
-  document.getElementById('dateFilter').value='';
-  applyFilter();
+document.querySelectorAll('.qd-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.qd-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPreset=btn.dataset.preset;
+    applyFilter();
+  });
 });
 
 /* ============ LOAD FIRE DATA ============ */
@@ -415,14 +454,8 @@ Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,comple
     };
   }).filter(r=>r.lat!==null&&r.lon!==null);
 
-  const uniqDates=[...new Set(allFire.filter(r=>r.dateKey).map(r=>r.dateKey))].sort();
-  const sel=document.getElementById('dateFilter');
-  sel.innerHTML='<option value="">Semua Tanggal</option>'+
-    uniqDates.map(dk=>`<option value="${dk}">${fmtDateShort(new Date(dk))}</option>`).join('');
-
   const withDate=allFire.filter(r=>r.dateObj).sort((a,b)=>b.dateObj-a.dateObj);
-  document.getElementById('lastUpdate').textContent = withDate.length
-    ? `${fmtDateID(withDate[0].dateObj)}${withDate[0].jam?', '+withDate[0].jam:''}` : '–';
+  maxFireDate = withDate.length ? withDate[0].dateObj : null;
 
   applyFilter();
 }, error:()=>{
@@ -440,13 +473,13 @@ const WEATHER_ICON=(w)=>{
 };
 
 let historyData=[],forecastDaily=[];
-const charts={rain:null,wind:null,temp:null,hum:null};
-const metricMode={rain:'history',wind:'history',temp:'history',hum:'history'};
+const charts={};
+let weatherMode='history';
 
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
-  if(charts[canvasId+'_inst'])charts[canvasId+'_inst'].destroy();
-  charts[canvasId+'_inst']=new Chart(ctx,{
+  if(charts[canvasId])charts[canvasId].destroy();
+  charts[canvasId]=new Chart(ctx,{
     type:'bar',
     data:{labels,datasets:[{data,backgroundColor:color,borderRadius:3,barPercentage:.6}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true}},
@@ -456,8 +489,7 @@ function buildChart(canvasId,labels,data,color){
 }
 
 function renderWeather(metric){
-  const mode=metricMode[metric];
-  const src = mode==='history' ? historyData : forecastDaily;
+  const src = weatherMode==='history' ? historyData : forecastDaily;
   if(!src.length)return;
   const last = src.slice(-6);
   const labels=last.map(d=>fmtDateShort(d.dateObj));
@@ -472,16 +504,14 @@ function renderWeather(metric){
   document.getElementById(curElMap[metric]).innerHTML =
     (cur?cur[fieldMap[metric]].toFixed(1):'–')+` <span>${unitMap[metric]}</span>`;
 }
+function renderAllWeather(){ ['rain','wind','temp','hum'].forEach(renderWeather); }
 
-document.querySelectorAll('.weather-toggle').forEach(group=>{
-  const metric=group.dataset.metric;
-  group.querySelectorAll('.wt-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      group.querySelectorAll('.wt-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      metricMode[metric]=btn.dataset.mode;
-      renderWeather(metric);
-    });
+document.querySelectorAll('#weatherToggleMaster .wt-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#weatherToggleMaster .wt-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    weatherMode=btn.dataset.mode;
+    renderAllWeather();
   });
 });
 
@@ -536,9 +566,43 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
       <div class="forecast-temp">${Math.round(d.tempMax)}°/${Math.round(d.tempMin)}°C</div>
     </div>`).join('') : '<div class="loading-msg">Tidak ada data prakiraan</div>';
 
-  ['rain','wind','temp','hum'].forEach(m=>{ if(metricMode[m]==='forecast') renderWeather(m); });
+  if(weatherMode==='forecast') renderAllWeather();
 }, error:()=>{
   document.getElementById('forecastList').innerHTML='<div class="loading-msg" style="color:#b91c1c">Gagal memuat prakiraan.</div>';
+}});
+
+/* ============ FDRS ============ */
+function fdrsBadgeClass(status){
+  const s=(status||'').toUpperCase();
+  if(s==='LOW')return'fdrs-low';
+  if(s==='HIGH')return'fdrs-high';
+  if(s==='EXTREME')return'fdrs-extreme';
+  return'fdrs-medium'; // MEDIUM/MODERATE/default
+}
+Papa.parse(FDRS_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  const rows=res.data.map(raw=>({
+    keterangan:str(raw['keterangan']),
+    dateObj:parseDateLoose(raw['Tanggal']),
+    blok1:str(raw['Blok 1']),
+    blok2:str(raw['Blok 2'])
+  })).filter(r=>r.dateObj);
+  if(!rows.length){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
+  rows.sort((a,b)=>a.dateObj-b.dateObj);
+  const latest=rows[rows.length-1];
+  document.getElementById('fdrsDate').textContent='Berlaku '+fmtDateID(latest.dateObj);
+  const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
+  b1.textContent=latest.blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(latest.blok1);
+  b2.textContent=latest.blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(latest.blok2);
+}, error:()=>{
+  document.getElementById('fdrsDate').textContent='Gagal memuat data FDRS';
+}});
+
+/* ============ RUNTIME (Terakhir Diperbarui) ============ */
+Papa.parse(RUNTIME_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  const row=res.data[0];
+  document.getElementById('lastUpdate').textContent = row && row['Last_Run'] ? str(row['Last_Run']) : '–';
+}, error:()=>{
+  document.getElementById('lastUpdate').textContent='–';
 }});
 </script>
 
