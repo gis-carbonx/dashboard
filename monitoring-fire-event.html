@@ -82,8 +82,18 @@
   /* CENTER COLUMN */
   .col-center{display:flex;flex-direction:column;gap:12px;min-width:0}
   .top-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .top-row-2{grid-template-columns:1fr 1fr}
   .top-row-3{grid-template-columns:1fr 1fr 1fr}
-  @media (max-width:1300px){ .top-row-3{grid-template-columns:1fr} }
+  @media (max-width:1300px){ .top-row-3,.top-row-2{grid-template-columns:1fr} }
+
+  .map-loc-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}
+  @media (max-width:1100px){ .map-loc-row{grid-template-columns:1fr} }
+
+  .custom-range-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .date-input{padding:5px 7px;border:1px solid var(--color-sand);border-radius:6px;font-size:11px;color:#374151;background:#fff;font-family:inherit}
+  .custom-range-sep{font-size:11px;color:#9ca3af}
+
+  .legend-line{display:inline-block;width:16px;height:2px;background:#3b82f6;margin-right:4px;vertical-align:middle}
   .kpi-val{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1}
   .kpi-sub{font-size:11px;color:#9ca3af;margin-top:6px}
   .kpi-filter-row{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
@@ -185,7 +195,7 @@
 
     <!-- CENTER COLUMN -->
     <div class="col-center">
-      <div class="top-row top-row-3">
+      <div class="top-row top-row-2">
         <div class="card">
           <div class="card-title" id="fireTodayLabel">Titik Api (7 Hari Terakhir)</div>
           <div class="kpi-val" id="fireTodayCount">–</div>
@@ -193,6 +203,12 @@
             <button class="qd-btn active" data-preset="7d">7 Hari</button>
             <button class="qd-btn" data-preset="30d">30 Hari</button>
             <button class="qd-btn" data-preset="all">Semua</button>
+          </div>
+          <div class="custom-range-row">
+            <input type="date" class="date-input" id="customStart">
+            <span class="custom-range-sep">–</span>
+            <input type="date" class="date-input" id="customEnd">
+            <button class="reset-btn" id="customApplyBtn">Terapkan</button>
           </div>
         </div>
         <div class="card">
@@ -209,18 +225,20 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="map-loc-row">
+        <div class="card">
+          <div class="card-title">Peta Sebaran Titik Api</div>
+          <div id="map"></div>
+          <div class="map-legend">
+            <span><span class="legend-line"></span>Batas Area</span>
+            <span><span class="legend-dot" style="background:var(--color-fire)"></span>Titik Api (Ditampilkan)</span>
+          </div>
+        </div>
         <div class="card">
           <div class="card-title">Lokasi Terpantau (Data Ditampilkan)</div>
           <div id="blokSummary"><div class="loading-msg">Memuat…</div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Peta Sebaran Titik Api</div>
-        <div id="map"></div>
-        <div class="map-legend">
-          <span><span class="legend-dot" style="background:#3b82f6"></span>Batas Area</span>
-          <span><span class="legend-dot" style="background:var(--color-fire)"></span>Titik Api (Ditampilkan)</span>
         </div>
       </div>
 
@@ -394,10 +412,17 @@ function renderBlokSummary(rows){
 /* ============ FILTER ============ */
 let currentPreset='7d';
 let maxFireDate=null;
+let customStart=null,customEnd=null;
 
 function applyFilter(){
   if(!maxFireDate){filteredFire=[];renderAll();return;}
-  if(currentPreset==='all'){
+  if(currentPreset==='custom'){
+    if(customStart&&customEnd){
+      filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=customStart&&r.dateObj<=customEnd);
+    }else{
+      filteredFire=[];
+    }
+  }else if(currentPreset==='all'){
     filteredFire=allFire.slice();
   }else{
     const days=currentPreset==='7d'?7:30;
@@ -408,7 +433,7 @@ function applyFilter(){
   renderAll();
 }
 function renderAll(){
-  const labelMap={'7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua'};
+  const labelMap={'7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua','custom':'Rentang Kustom'};
   document.getElementById('fireTodayLabel').textContent='Titik Api ('+labelMap[currentPreset]+')';
   document.getElementById('fireTodayCount').textContent=filteredFire.length;
   renderFireMarkers(filteredFire);
@@ -416,6 +441,17 @@ function renderAll(){
   renderTable();
   if(typeof renderAllWeather==='function') renderAllWeather();
 }
+document.getElementById('customApplyBtn').addEventListener('click',()=>{
+  const sVal=document.getElementById('customStart').value;
+  const eVal=document.getElementById('customEnd').value;
+  if(!sVal||!eVal)return;
+  customStart=new Date(sVal);
+  customEnd=new Date(eVal);
+  customEnd.setHours(23,59,59,999);
+  document.querySelectorAll('.qd-btn').forEach(b=>b.classList.remove('active'));
+  currentPreset='custom';
+  applyFilter();
+});
 document.querySelectorAll('.qd-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.qd-btn').forEach(b=>b.classList.remove('active'));
@@ -471,11 +507,15 @@ const charts={};
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
   if(charts[canvasId])charts[canvasId].destroy();
+  const useLine = labels.length>30;
+  const dataset = useLine
+    ? {data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.3,pointRadius:0,borderWidth:2}
+    : {data,backgroundColor:color,borderRadius:3,barPercentage:.6};
   charts[canvasId]=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{data,backgroundColor:color,borderRadius:3,barPercentage:.6}]},
+    type:useLine?'line':'bar',
+    data:{labels,datasets:[dataset]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true}},
-      scales:{x:{ticks:{font:{size:8.5},color:'#9ca3af',maxRotation:0,autoSkip:true,maxTicksLimit:currentPreset==='7d'?7:10},grid:{display:false}},
+      scales:{x:{ticks:{font:{size:8.5},color:'#9ca3af',maxRotation:0,autoSkip:true,maxTicksLimit:useLine?8:(currentPreset==='7d'?7:10)},grid:{display:false}},
         y:{display:false,beginAtZero:true}}}
   });
 }
@@ -484,6 +524,9 @@ function weatherDayCount(){
   // Ikuti preset filter titik api: 7 Hari -> 7 hari, 30 Hari -> 30 hari, Semua -> semua data history yang ada
   if(currentPreset==='7d')return 7;
   if(currentPreset==='30d')return 30;
+  if(currentPreset==='custom'&&customStart&&customEnd){
+    return Math.max(1,Math.round((customEnd-customStart)/(1000*60*60*24))+1);
+  }
   return historyData.length;
 }
 
