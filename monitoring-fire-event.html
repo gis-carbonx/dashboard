@@ -731,11 +731,17 @@ Papa.parse(FDRS_URL,{download:true,header:true,skipEmptyLines:true,complete:(res
     dateObj:parseDateLoose(pickField(raw,'Tanggal','Date','tgl')),
     blok1:str(pickField(raw,'Blok 1','Blok1','Blok_1')),
     blok2:str(pickField(raw,'Blok 2','Blok2','Blok_2'))
-  })).filter(r=>r.dateObj);
+  }));
   if(!rows.length){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
-  rows.sort((a,b)=>a.dateObj-b.dateObj);
-  const latest=rows[rows.length-1];
-  document.getElementById('fdrsDate').textContent=fmtDateID(latest.dateObj);
+  // Selalu utamakan baris yang keterangan-nya persis "Hari ini" (baris C8/D8 di sheet).
+  // Kalau tidak ketemu (misal label berubah), fallback ke baris dengan tanggal terbaru.
+  let latest=rows.find(r=>r.keterangan.trim().toLowerCase()==='hari ini');
+  if(!latest){
+    const withDate=rows.filter(r=>r.dateObj);
+    if(withDate.length){withDate.sort((a,b)=>a.dateObj-b.dateObj);latest=withDate[withDate.length-1];}
+  }
+  if(!latest){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
+  document.getElementById('fdrsDate').textContent=latest.dateObj?fmtDateID(latest.dateObj):(latest.keterangan||'–');
   const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
   b1.textContent=latest.blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(latest.blok1);
   b2.textContent=latest.blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(latest.blok2);
