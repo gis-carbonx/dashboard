@@ -95,7 +95,7 @@
   .kpi-trend-row{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .kpi-trend-row{grid-template-columns:1fr} }
 
-  .fire-kpi-panel{display:flex;flex-direction:column}
+  .fire-kpi-panel{display:flex;flex-direction:column;justify-content:center}
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:54px;color:var(--color-pine);line-height:1.1;margin-top:4px}
   .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
@@ -709,18 +709,28 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
 
 /* ============ FDRS ============ */
 function fdrsBadgeClass(status){
-  const s=(status||'').toUpperCase();
+  const s=(status||'').toUpperCase().trim();
   if(s==='LOW')return'fdrs-low';
   if(s==='HIGH')return'fdrs-high';
   if(s==='EXTREME')return'fdrs-extreme';
+  if(s==='MEDIUM')return'fdrs-medium';
   return'fdrs-medium';
+}
+function pickField(raw,...names){
+  const keys=Object.keys(raw);
+  const norm=s=>s.toString().trim().toLowerCase();
+  for(const want of names){
+    const found=keys.find(k=>norm(k)===norm(want));
+    if(found!==undefined)return raw[found];
+  }
+  return undefined;
 }
 Papa.parse(FDRS_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   const rows=res.data.map(raw=>({
-    keterangan:str(raw['keterangan']),
-    dateObj:parseDateLoose(raw['Tanggal']),
-    blok1:str(raw['Blok 1']),
-    blok2:str(raw['Blok 2'])
+    keterangan:str(pickField(raw,'keterangan')),
+    dateObj:parseDateLoose(pickField(raw,'Tanggal','Date','tgl')),
+    blok1:str(pickField(raw,'Blok 1','Blok1','Blok_1')),
+    blok2:str(pickField(raw,'Blok 2','Blok2','Blok_2'))
   })).filter(r=>r.dateObj);
   if(!rows.length){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
   rows.sort((a,b)=>a.dateObj-b.dateObj);
