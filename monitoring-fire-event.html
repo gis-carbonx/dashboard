@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Monitoring Fire Event | Sanggala Corridor Project</title>
+<title>1</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -153,7 +153,7 @@
   .weather-current{font-size:18px;font-weight:800;color:var(--color-pine);margin-top:5px;font-family:'Source Serif 4',Georgia,serif}
   .weather-current span{font-size:10px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif}
   .weather-row .panel{display:flex;flex-direction:column;padding:14px 14px}
-  .weather-chart-wrap{position:relative;flex:1;min-height:55px;margin-top:8px;overflow:hidden}
+  .weather-chart-wrap{position:relative;height:70px;margin-top:8px;overflow:hidden}
 
   /* FORECAST ROW */
   .forecast-row-wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
@@ -494,6 +494,8 @@ function renderFireTrendChart(){
   const data=sorted.map(b=>b.count);
 
   if(fireTrendChartInst)fireTrendChartInst.destroy();
+  canvas.removeAttribute('width');canvas.removeAttribute('height');
+  canvas.style.width='';canvas.style.height='';
   fireTrendChartInst=new Chart(canvas,{
     type:'bar',
     data:{labels,datasets:[{data,backgroundColor:'#c2703f',borderRadius:3,barPercentage:.6}]},
@@ -620,6 +622,10 @@ const charts={};
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
   if(charts[canvasId])charts[canvasId].destroy();
+  // Reset atribut ukuran canvas secara eksplisit — mencegah grafik "membesar" terus
+  // setiap kali di-render ulang (bug umum Chart.js kalau canvas tidak direset).
+  ctx.removeAttribute('width');ctx.removeAttribute('height');
+  ctx.style.width='';ctx.style.height='';
   charts[canvasId]=new Chart(ctx,{
     type:'line',
     data:{labels,datasets:[{
