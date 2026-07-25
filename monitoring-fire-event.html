@@ -731,46 +731,28 @@ fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   const normalized=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const parsed=Papa.parse(normalized,{header:false,skipEmptyLines:true});
   const allRows=parsed.data;
-  console.log('[FDRS] semua baris mentah (tanpa asumsi header):',allRows);
+  console.log('[FDRS] semua baris mentah:',allRows);
 
-  // Cari sendiri baris header: baris yang sel pertamanya persis "keterangan"
-  // (menghindari bug PapaParse auto-header yang kadang salah gara-gara
-  // format baris baru/quoting yang tidak konsisten dari Google Sheets).
-  let headerRowIdx=allRows.findIndex(row=>str(row[0]).toLowerCase()==='keterangan');
-  if(headerRowIdx===-1)headerRowIdx=0; // fallback: anggap baris pertama = header
-
-  const headerRow=allRows[headerRowIdx].map(h=>str(h).toLowerCase());
-  const colIdx=(...names)=>{
-    for(const want of names){
-      const i=headerRow.indexOf(want.toLowerCase());
-      if(i!==-1)return i;
-    }
-    return -1;
-  };
-  const idxKet=colIdx('keterangan');
-  const idxTgl=colIdx('tanggal','date','tgl');
-  const idxB1=colIdx('blok 1','blok1','blok_1');
-  const idxB2=colIdx('blok 2','blok2','blok_2');
-
-  const dataRows=allRows.slice(headerRowIdx+1);
-  const rows=dataRows.map(row=>({
-    keterangan:str(idxKet>=0?row[idxKet]:''),
-    dateObj:parseDateLoose(idxTgl>=0?row[idxTgl]:''),
-    blok1:str(idxB1>=0?row[idxB1]:''),
-    blok2:str(idxB2>=0?row[idxB2]:'')
-  }));
-  console.log('[FDRS] hasil parsing:',rows);
-  if(!rows.length){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
-  let latest=rows.find(r=>r.keterangan.trim().toLowerCase()==='hari ini');
-  if(!latest){
-    const withDate=rows.filter(r=>r.dateObj);
-    if(withDate.length){withDate.sort((a,b)=>a.dateObj-b.dateObj);latest=withDate[withDate.length-1];}
+  // Baris header di sheet ini kadang tergabung dengan baris "Enam hari lalu" saat
+  // diekspor ke CSV oleh Google (kemungkinan dipicu sel #N/A di baris tsb).
+  // Jadi kita TIDAK mengandalkan baris header sama sekali — langsung cari baris
+  // yang kolom pertamanya persis "Hari ini", lalu baca Blok 1 & Blok 2 dari
+  // POSISI KOLOM TETAP (kolom ke-2 & ke-3), sesuai struktur asli sheet Anda.
+  let targetRow=allRows.find(row=>str(row[0]).trim().toLowerCase()==='hari ini');
+  if(!targetRow){
+    // fallback: kalau label "Hari ini" tidak ketemu, pakai baris paling bawah yang punya isi
+    const nonEmpty=allRows.filter(row=>row.some(cell=>str(cell)!==''));
+    targetRow=nonEmpty[nonEmpty.length-1];
   }
-  if(!latest)latest=rows[rows.length-1]; // fallback terakhir: baris paling bawah di sheet
-  document.getElementById('fdrsDate').textContent=latest.dateObj?fmtDateID(latest.dateObj):(latest.keterangan||'–');
+  console.log('[FDRS] baris yang dipakai:',targetRow);
+
+  if(!targetRow){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
+  const blok1=str(targetRow[1]);
+  const blok2=str(targetRow[2]);
+  document.getElementById('fdrsDate').textContent='Hari ini';
   const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
-  b1.textContent=latest.blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(latest.blok1);
-  b2.textContent=latest.blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(latest.blok2);
+  b1.textContent=blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(blok1);
+  b2.textContent=blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(blok2);
 }).catch(err=>{
   console.error('[FDRS] gagal fetch:',err);
   document.getElementById('fdrsDate').textContent='Gagal memuat data FDRS';
