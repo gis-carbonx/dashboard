@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>1</title>
+<title>Monitoring Fire Event | Sanggala Corridor Project</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,9 +146,10 @@
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
   /* WEATHER ROW */
-  .weather-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:stretch}
-  @media (max-width:900px){ .weather-row{grid-template-columns:1fr 1fr} }
-  @media (max-width:520px){ .weather-row{grid-template-columns:1fr} }
+  .weather-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:stretch}
+  .weather-row .panel:nth-child(4){grid-column:1 / -1}
+  @media (max-width:700px){ .weather-row{grid-template-columns:1fr 1fr} .weather-row .panel:nth-child(4){grid-column:auto} }
+  @media (max-width:400px){ .weather-row{grid-template-columns:1fr} }
   .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
   .weather-current{font-size:18px;font-weight:800;color:var(--color-pine);margin-top:5px;font-family:'Source Serif 4',Georgia,serif}
   .weather-current span{font-size:10px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif}
