@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>1</title>
+<title>Monitoring Fire Event | Sanggala Corridor Project</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -156,8 +156,10 @@
   .weather-chart-wrap{position:relative;flex:1;min-height:55px;margin-top:8px;overflow:hidden}
 
   /* FORECAST ROW */
-  .forecast-row-wrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
-  .forecast-card{flex:1 0 150px;min-width:150px;background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:14px 16px;text-align:center}
+  .forecast-row-wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  @media (max-width:900px){ .forecast-row-wrap{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:520px){ .forecast-row-wrap{grid-template-columns:repeat(2,1fr)} }
+  .forecast-card{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:14px 12px;text-align:center}
   .forecast-day{font-size:12px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
   .forecast-icon{font-size:22px;margin:8px 0}
   .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Source Serif 4',Georgia,serif}
@@ -726,12 +728,14 @@ function pickField(raw,...names){
   return undefined;
 }
 Papa.parse(FDRS_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  console.log('[FDRS] raw rows dari sheet:',res.data);
   const rows=res.data.map(raw=>({
     keterangan:str(pickField(raw,'keterangan')),
     dateObj:parseDateLoose(pickField(raw,'Tanggal','Date','tgl')),
     blok1:str(pickField(raw,'Blok 1','Blok1','Blok_1')),
     blok2:str(pickField(raw,'Blok 2','Blok2','Blok_2'))
   }));
+  console.log('[FDRS] hasil parsing:',rows);
   if(!rows.length){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
   // Selalu utamakan baris yang keterangan-nya persis "Hari ini" (baris C8/D8 di sheet).
   // Kalau tidak ketemu (misal label berubah), fallback ke baris dengan tanggal terbaru.
@@ -745,7 +749,8 @@ Papa.parse(FDRS_URL,{download:true,header:true,skipEmptyLines:true,complete:(res
   const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
   b1.textContent=latest.blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(latest.blok1);
   b2.textContent=latest.blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(latest.blok2);
-}, error:()=>{
+}, error:(err)=>{
+  console.error('[FDRS] gagal fetch:',err);
   document.getElementById('fdrsDate').textContent='Gagal memuat data FDRS';
 }});
 
