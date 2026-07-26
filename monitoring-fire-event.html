@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>1 Monitoring Fire Event | Sanggala Corridor Project</title>
+<title>Monitoring Fire Event | Sanggala Corridor Project</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,13 +146,17 @@
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
   /* WEATHER ROW */
-  .weather-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:stretch}
-  @media (max-width:400px){ .weather-row{grid-template-columns:1fr} }
-  .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
-  .weather-current{font-size:18px;font-weight:800;color:var(--color-pine);margin-top:5px;font-family:'Source Serif 4',Georgia,serif}
-  .weather-current span{font-size:10px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif}
-  .weather-row .panel{display:flex;flex-direction:column;padding:14px 14px}
-  .weather-chart-wrap{position:relative;height:70px;margin-top:8px;overflow:hidden}
+  .weather-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch}
+  @media (max-width:900px){ .weather-row{grid-template-columns:1fr 1fr} }
+  @media (max-width:420px){ .weather-row{grid-template-columns:1fr} }
+  .weather-row .panel{display:flex;flex-direction:column;padding:18px 18px 14px;border-radius:8px;transition:box-shadow .15s;}
+  .weather-row .panel:hover{box-shadow:0 4px 16px rgba(43,43,40,.06)}
+  .weather-panel-head{display:flex;align-items:center;gap:8px}
+  .weather-icon-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Inter',sans-serif}
+  .weather-current{font-size:26px;font-weight:700;color:var(--color-ink);margin-top:10px;font-family:'Source Serif 4',Georgia,serif;line-height:1}
+  .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif;margin-left:2px}
+  .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
 
   /* FORECAST ROW */
   .forecast-row-wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
@@ -273,22 +277,22 @@
     <h2 class="section-title">Kondisi Cuaca</h2>
     <div class="weather-row">
       <div class="panel">
-        <div class="weather-panel-title">Curah Hujan (mm)</div>
+        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#B5BBA9"></span><div class="weather-panel-title">Curah Hujan (mm)</div></div>
         <div class="weather-current" id="rainCurrent">&ndash; <span>mm</span></div>
         <div class="weather-chart-wrap"><canvas id="chartRain"></canvas></div>
       </div>
       <div class="panel">
-        <div class="weather-panel-title">Kecepatan Angin (km/jam)</div>
+        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#618273"></span><div class="weather-panel-title">Kecepatan Angin (km/jam)</div></div>
         <div class="weather-current" id="windCurrent">&ndash; <span>km/jam</span></div>
         <div class="weather-chart-wrap"><canvas id="chartWind"></canvas></div>
       </div>
       <div class="panel">
-        <div class="weather-panel-title">Suhu Udara (&deg;C)</div>
+        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#c2703f"></span><div class="weather-panel-title">Suhu Udara (&deg;C)</div></div>
         <div class="weather-current" id="tempCurrent">&ndash; <span>&deg;C</span></div>
         <div class="weather-chart-wrap"><canvas id="chartTemp"></canvas></div>
       </div>
       <div class="panel">
-        <div class="weather-panel-title">Kelembaban Udara (%)</div>
+        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#356760"></span><div class="weather-panel-title">Kelembaban Udara (%)</div></div>
         <div class="weather-current" id="humCurrent">&ndash; <span>%</span></div>
         <div class="weather-chart-wrap"><canvas id="chartHum"></canvas></div>
       </div>
@@ -701,7 +705,11 @@ Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,c
     };
   }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
 
-  const upcoming=forecastDaily.slice(-6);
+  // Ambil 6 hari KE DEPAN mulai dari hari ini (bukan sekadar 6 baris terakhir di sheet),
+  // supaya daftarnya otomatis maju setiap hari mengikuti tanggal sistem yang sebenarnya.
+  const todayForecast=new Date();todayForecast.setHours(0,0,0,0);
+  let upcoming=forecastDaily.filter(d=>d.dateObj>=todayForecast).slice(0,6);
+  if(!upcoming.length)upcoming=forecastDaily.slice(-6); // fallback kalau data sheet belum ter-update ke hari ini
   const listEl=document.getElementById('forecastList');
   listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
     <div class="forecast-card">
