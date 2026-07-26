@@ -91,13 +91,6 @@
   .fdrs-high{background:#FCE0C4;color:#9a4b0c}
   .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
-  .analysis-callout{
-    margin-top:14px;padding:12px 18px;background:var(--color-cream);border:1px solid var(--color-sand);
-    border-radius:6px;font-size:12.5px;color:var(--color-muted);font-family:'Inter',sans-serif;line-height:1.6;
-  }
-  .analysis-callout a{color:var(--color-pine);font-weight:700;text-decoration:none;white-space:nowrap}
-  .analysis-callout a:hover{color:var(--color-fern);text-decoration:underline}
-
   /* FIRE KPI PANEL + TREND ROW */
   .kpi-trend-row{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .kpi-trend-row{grid-template-columns:1fr} }
@@ -208,6 +201,19 @@
   </div>
   <div class="report">
 
+    <!-- ANALISA PERBANDINGAN HISTORIS -->
+    <h2 class="section-title" style="padding-top:0;margin-bottom:14px">Analisa Perbandingan Historis</h2>
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+      <div style="max-width:640px">
+        <div style="font-size:13px;color:var(--color-ink);line-height:1.6">
+          Analisa perbandingan titik api tahun 2026 terhadap tahun-tahun sebelumnya dapat dilihat melalui tautan berikut.
+        </div>
+      </div>
+      <a href="pantauan-titik-api.html" class="chip-btn chip-btn-accent" style="text-decoration:none;padding:9px 20px">
+        Buka Pantauan Titik Api &rarr;
+      </a>
+    </div>
+
     <!-- FDRS -->
     <div class="panel fdrs-panel">
       <div class="fdrs-panel-left">
@@ -222,11 +228,6 @@
         <div class="fdrs-blok-label">Blok 2</div>
         <div class="fdrs-badge" id="fdrsBlok2">&ndash;</div>
       </div>
-    </div>
-
-    <div class="analysis-callout">
-      Analisa perbandingan titik api tahun 2026 terhadap tahun-tahun sebelumnya dapat di lihat melalui tautan berikut &mdash;
-      <a href="pantauan-titik-api.html">Pantauan Titik Api Sanggala &rarr;</a>
     </div>
 
     <!-- TITIK API KPI + TREN -->
@@ -314,18 +315,6 @@
     <h2 class="section-title">Prediksi Cuaca</h2>
     <div class="forecast-row-wrap" id="forecastList">
       <div class="loading-msg">Memuat&hellip;</div>
-    </div>
-
-    <h2 class="section-title">Analisa Perbandingan Historis</h2>
-    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
-      <div style="max-width:640px">
-        <div style="font-size:13px;color:var(--color-ink);line-height:1.6">
-          Analisa perbandingan titik api tahun 2026 terhadap tahun-tahun sebelumnya dapat dilihat melalui tautan berikut.
-        </div>
-      </div>
-      <a href="pantauan-titik-api.html" class="chip-btn chip-btn-accent" style="text-decoration:none;padding:9px 20px">
-        Buka Pantauan Titik Api &rarr;
-      </a>
     </div>
 
   </div>
