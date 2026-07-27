@@ -715,7 +715,7 @@ Papa.parse(WEATHER_HISTORY_URL,{download:true,header:true,skipEmptyLines:true,co
 
 function parseBmkgDateTime(s){
   s=str(s);
-  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
   if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
   return parseDateLoose(s);
 }
