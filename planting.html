@@ -821,6 +821,11 @@ body{display:flex;flex-direction:column}
       </select>
       <select class="modal-sel" id="insSelDesa" onchange="filterInsentifTable()"><option value="">Semua Desa</option></select>
       <select class="modal-sel" id="insSelDusun" onchange="filterInsentifTable()"><option value="">Semua Dusun</option></select>
+      <select class="modal-sel" id="insSelStatus" onchange="filterInsentifTable()">
+        <option value="">Semua Status</option>
+        <option value="sudah">Sudah Bayar</option>
+        <option value="belum">Belum Bayar</option>
+      </select>
       <button class="ins-view-tab" id="insNominalToggle" onclick="toggleNominal()" style="font-size:10px;padding:4px 11px">Nominal: OFF</button>
       <span class="row-count" style="margin-left:auto" id="insRowCount">—</span>
     </div>
@@ -837,6 +842,11 @@ body{display:flex;flex-direction:column}
       </select>
       <select class="modal-sel" id="insSelDesaThn" onchange="filterTahunanTable()"><option value="">Semua Desa</option></select>
       <select class="modal-sel" id="insSelDusunThn" onchange="filterTahunanTable()"><option value="">Semua Dusun</option></select>
+      <select class="modal-sel" id="insSelStatusThn" onchange="filterTahunanTable()">
+        <option value="">Semua Status</option>
+        <option value="sudah">Sudah Bayar</option>
+        <option value="belum">Belum Bayar</option>
+      </select>
       <span class="row-count" style="margin-left:auto" id="insThnRowCount">—</span>
     </div>
 
@@ -981,6 +991,8 @@ function openInsentifModal(){
   document.getElementById('insSearchThn').value='';
   document.getElementById('insSelProg').value='';
   document.getElementById('insSelProgThn').value='';
+  document.getElementById('insSelStatus').value='';
+  document.getElementById('insSelStatusThn').value='';
   // Reset view tabs
   document.getElementById('insViewReg').classList.add('active');
   document.getElementById('insViewThn').classList.remove('active');
@@ -1878,7 +1890,7 @@ function switchInsTab(year){
   insActiveYear=year;
   document.querySelectorAll('#insentifTabBar .tab-btn').forEach(b=>b.classList.toggle('active',b.textContent===(year==='all'?'Semua Tahun':year)));
   ['insSearch','insSearchThn'].forEach(id=>document.getElementById(id).value='');
-  ['insSelProg','insSelProgThn','insSelDesa','insSelDesaThn','insSelDusun','insSelDusunThn'].forEach(id=>document.getElementById(id).value='');
+  ['insSelProg','insSelProgThn','insSelDesa','insSelDesaThn','insSelDusun','insSelDusunThn','insSelStatus','insSelStatusThn'].forEach(id=>document.getElementById(id).value='');
   renderInsTable();
   if(insActiveView==='tahunan')renderTahunanTable();
 }
@@ -1932,6 +1944,8 @@ function buildInsThead(rows){
 function buildInsTbody(rows){
   document.getElementById('insTbody').innerHTML=rows.map((r,i)=>{
     const st=PROG[r.prog];
+    const anyUnpaid=INS_STAGES.some(s=>stageStatus(r.stages[s.key])==='unpaid');
+    const rowStatus=anyUnpaid?'belum':'sudah';
     const stageCells=INS_STAGES.map(s=>{
       const st=stageStatus(r.stages[s.key]);
       if(insShowNominal){
@@ -1944,7 +1958,7 @@ function buildInsTbody(rows){
       }
       return `<td class="cell-center">${stageBadge(r.stages[s.key])}</td>`;
     }).join('');
-    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}">
+    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
       <td style="color:var(--text-3);font-size:10px">${i+1}</td>
       <td style="font-family:monospace;font-size:10px">${esc(r.id)}</td>
       <td style="font-weight:600">${esc(r.petani)}</td>
@@ -1957,18 +1971,20 @@ function buildInsTbody(rows){
     </tr>`;
   }).join('');}
 
+let insVisibleRows=[];
 function filterInsentifTable(){
   const q=document.getElementById('insSearch').value.toLowerCase().trim();
-  const prog=$v('insSelProg'),desa=$v('insSelDesa'),dusun=$v('insSelDusun');
+  const prog=$v('insSelProg'),desa=$v('insSelDesa'),dusun=$v('insSelDusun'),status=$v('insSelStatus');
   const visibleIds=[];
   document.querySelectorAll('#insTbody tr').forEach(tr=>{
-    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun);
+    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun)&&(!status||tr.dataset.status===status);
     tr.classList.toggle('ins-hidden',!show);if(show)visibleIds.push(tr.dataset.id);
   });
   setText('insRowCount',visibleIds.length+' lahan');
   document.getElementById('insNoResults').style.display=visibleIds.length===0?'block':'none';
   const idSet=new Set(visibleIds);
   const visRows=insFilteredRows.filter(r=>idSet.has(r.id));
+  insVisibleRows=visRows; // dipakai oleh fitur download, supaya sesuai filter yang aktif
   document.querySelectorAll('#insPctRow th[data-stage]').forEach(cell=>{
     const s=cell.dataset.stage;
     if(insShowNominal){
@@ -2030,7 +2046,10 @@ function buildTahunanTable(rows){
     const hasCair=(r.pupukCair||0)>0, hasPadat=(r.pupukPadat||0)>0;
     const bpoSudah=!!r.tglBPO, mtlSudah=!!r.tglMTL;
     const hasIns=(r.insentifMTL||0)>0||!!r.tglMTL;
-    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}">
+    const hasBPOField=hasCair||hasPadat||r.tglBPO;
+    const rowFullyPaid=(!hasBPOField||bpoSudah)&&(!hasIns||mtlSudah);
+    const rowStatus=rowFullyPaid?'sudah':'belum';
+    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
       <td style="color:var(--text-3);font-size:10px">${i+1}</td>
       <td style="font-family:monospace;font-size:10px">${esc(r.id)}</td>
       <td style="font-weight:600">${esc(r.petani)}</td>
@@ -2080,18 +2099,21 @@ function updateThnTotRow(vis){
   }
 }
 
+let thnVisibleRows=[];
 function filterTahunanTable(){
   const q=document.getElementById('insSearchThn').value.toLowerCase().trim();
-  const prog=$v('insSelProgThn'),desa=$v('insSelDesaThn'),dusun=$v('insSelDusunThn');
+  const prog=$v('insSelProgThn'),desa=$v('insSelDesaThn'),dusun=$v('insSelDusunThn'),status=$v('insSelStatusThn');
   const visIds=[];
   document.querySelectorAll('#thnTbody tr').forEach(tr=>{
-    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun);
+    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun)&&(!status||tr.dataset.status===status);
     tr.classList.toggle('ins-hidden',!show);if(show)visIds.push(tr.dataset.id);
   });
   setText('insThnRowCount',visIds.length+' lahan');
   document.getElementById('thnNoResults').style.display=visIds.length===0?'block':'none';
   const idSet=new Set(visIds);
-  updateThnTotRow(thnFilteredRows.filter(r=>idSet.has(r.id)));
+  const visRows=thnFilteredRows.filter(r=>idSet.has(r.id));
+  thnVisibleRows=visRows; // dipakai oleh fitur download, supaya sesuai filter yang aktif
+  updateThnTotRow(visRows);
 }
 
 // ── INSENTIF DOWNLOAD HELPERS ──
@@ -2099,7 +2121,7 @@ function getInsExportData(){
   const isReg=insActiveView==='reguler';
   const fname=`Insentif_${isReg?'Reguler':'Tahunan'}_${insActiveYear==='all'?'SemuaTahun':insActiveYear}`;
   if(isReg){
-    const rows=insFilteredRows;
+    const rows=insVisibleRows; // hasil setelah difilter (pencarian, program, desa, dusun, status bayar)
     const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Tahun Bergabung',
       ...INS_STAGES.flatMap(s=>[s.label,'Nominal '+s.label])];
     const body=rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,fmt(r.luas),yearOf(r)||'—',
@@ -2107,7 +2129,7 @@ function getInsExportData(){
         stageStatus(r.stages[s.key])!=='unpaid'&&r.nominalStages[s.key]?fmtInt(r.nominalStages[s.key]):''])]);
     return{hdr,body,fname,rows};
   }else{
-    const rows=thnFilteredRows;
+    const rows=thnVisibleRows; // hasil setelah difilter (pencarian, program, desa, dusun, status bayar)
     const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Pupuk Cair (L)','Pupuk Padat (kg)','Status BPO','Tgl BPO','Insentif MTL (Rp)','Status MTL','Tgl MTL'];
     const body=rows.map((r,i)=>{
       const hasBPO=(r.pupukCair||0)>0||(r.pupukPadat||0)>0||!!r.tglBPO;
@@ -2121,13 +2143,41 @@ function getInsExportData(){
     return{hdr,body,fname,rows};
   }
 }
+// Versi khusus untuk Excel: kolom angka dikirim sebagai NUMBER asli (bukan teks berformat),
+// supaya begitu dibuka di Excel langsung dikenali sebagai angka — tidak perlu convert manual.
+function getInsExportDataRaw(){
+  const isReg=insActiveView==='reguler';
+  const fname=`Insentif_${isReg?'Reguler':'Tahunan'}_${insActiveYear==='all'?'SemuaTahun':insActiveYear}`;
+  if(isReg){
+    const rows=insVisibleRows;
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Tahun Bergabung',
+      ...INS_STAGES.flatMap(s=>[s.label,'Nominal '+s.label])];
+    const body=rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),yearOf(r)||'',
+      ...INS_STAGES.flatMap(s=>[stageLabel(r.stages[s.key]),
+        stageStatus(r.stages[s.key])!=='unpaid'&&r.nominalStages[s.key]?Math.round(r.nominalStages[s.key]):''])]);
+    return{hdr,body,fname,rows};
+  }else{
+    const rows=thnVisibleRows;
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Pupuk Cair (L)','Pupuk Padat (kg)','Status BPO','Tgl BPO','Insentif MTL (Rp)','Status MTL','Tgl MTL'];
+    const body=rows.map((r,i)=>{
+      const hasBPO=(r.pupukCair||0)>0||(r.pupukPadat||0)>0||!!r.tglBPO;
+      const hasMTL=(r.insentifMTL||0)>0||!!r.tglMTL;
+      return[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),
+        hasBPO?+r.pupukCair.toFixed(2):'',
+        hasBPO?+r.pupukPadat.toFixed(2):'',
+        hasBPO?(r.tglBPO?'Sudah Bayar':'Belum Bayar'):'',hasBPO?fmtDate(r.tglBPO)||'':'',
+        hasMTL?Math.round(r.insentifMTL):'',hasMTL?(r.tglMTL?'Sudah Bayar':'Belum Bayar'):'',hasMTL?fmtDate(r.tglMTL)||'':''];
+    });
+    return{hdr,body,fname,rows};
+  }
+}
 function downloadInsentifCSV(){
-  const{hdr,body,fname,rows}=getInsExportData();
+  const{hdr,body,fname,rows}=getInsExportDataRaw();
   if(!rows.length){alert('Tidak ada data.');return;}
   dlCSV([hdr,...body],fname+'.csv');
 }
 function downloadInsentifExcel(){
-  const{hdr,body,fname,rows}=getInsExportData();
+  const{hdr,body,fname,rows}=getInsExportDataRaw();
   if(!rows.length){alert('Tidak ada data.');return;}
   if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
   const ws=XLSX.utils.aoa_to_sheet([hdr,...body]);
