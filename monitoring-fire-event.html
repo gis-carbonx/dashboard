@@ -164,6 +164,7 @@
   .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
 
   /* FORECAST ROW (BMKG, 3-jam-an) */
+  .forecast-panel{background:transparent;overflow:hidden}
   .forecast-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
   .forecast-scroll::-webkit-scrollbar{height:6px}
   .forecast-scroll::-webkit-scrollbar-thumb{background:var(--color-sand);border-radius:10px}
@@ -321,8 +322,10 @@
     <!-- PREDIKSI CUACA -->
     <h2 class="section-title">Prediksi Cuaca</h2>
     <div class="section-subtitle">Balai Karangan, Sanggau &middot; Sumber: <a href="https://www.bmkg.go.id/cuaca/prakiraan-cuaca/61.03.07.2001" target="_blank" rel="noopener">BMKG</a></div>
-    <div class="forecast-scroll" id="forecastList">
-      <div class="loading-msg">Memuat&hellip;</div>
+    <div class="panel forecast-panel">
+      <div class="forecast-scroll" id="forecastList">
+        <div class="loading-msg">Memuat&hellip;</div>
+      </div>
     </div>
 
   </div>
@@ -740,11 +743,12 @@ Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(re
     };
   }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
 
-  // Tampilkan slot 3-jaman ke depan mulai dari sekarang, maksimal 8 slot,
-  // supaya daftarnya otomatis maju mengikuti waktu berjalan.
+  // Tampilkan seluruh slot 3-jaman yang tersedia di sheet, mulai dari waktu
+  // yang sudah lewat hari ini agar konteksnya tetap utuh sampai data terakhir.
   const now=new Date();
-  let upcoming=forecastBmkg.filter(d=>d.dateObj>=now).slice(0,8);
-  if(!upcoming.length)upcoming=forecastBmkg.slice(-8); // fallback kalau data belum ter-update
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  let upcoming=forecastBmkg.filter(d=>d.dateObj>=todayStart);
+  if(!upcoming.length)upcoming=forecastBmkg.slice(); // fallback: tampilkan semua data
 
   const listEl=document.getElementById('forecastList');
   listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
