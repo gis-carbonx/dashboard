@@ -641,9 +641,12 @@ function renderSankey(totals, nonGrafting){
   const container=document.getElementById('sankeyContainer');
   container.innerHTML='';
 
+  const belumDisemai=Math.max(0,totals.bibitMasuk-totals.semai);
+
   const nodeDefs=[
     {id:'Bibit Masuk',      color:'#356760'},
     {id:'Semai',            color:'#356760'},
+    {id:'Belum Disemai',    color:'#B5BBA9'},
     {id:'Mati - Semai',     color:'#c2543f'},
     {id:'Rotasi',           color:'#356760'},
     {id:'Mati - Rotasi',    color:'#c2543f'},
@@ -658,7 +661,10 @@ function renderSankey(totals, nonGrafting){
   const idx={}; nodeDefs.forEach((n,i)=>idx[n.id]=i);
 
   const links=[
-    {source:idx['Bibit Masuk'], target:idx['Semai'],             value:Math.max(totals.semai,1)},
+    {source:idx['Bibit Masuk'], target:idx['Semai'],             value:Math.max(totals.semai,0.001)},
+  ];
+  if(belumDisemai>0) links.push({source:idx['Bibit Masuk'], target:idx['Belum Disemai'], value:belumDisemai});
+  links.push(
     {source:idx['Semai'],       target:idx['Mati - Semai'],      value:Math.max(totals.matiSemai,0.001)},
     {source:idx['Semai'],       target:idx['Rotasi'],            value:Math.max(totals.rotasi,0.001)},
     {source:idx['Rotasi'],      target:idx['Mati - Rotasi'],     value:Math.max(totals.matiRotasi,0.001)},
@@ -670,7 +676,7 @@ function renderSankey(totals, nonGrafting){
     {source:idx['Pembesaran'],  target:idx['Bibit Siap Tanam'],  value:Math.max(totals.siapTanam,0.001)},
     {source:idx['Bibit Siap Tanam'],target:idx['Stok Nursery'],  value:Math.max(totals.stokNursery,0.001)},
     {source:idx['Bibit Siap Tanam'],target:idx['Distribusi'],    value:Math.max(totals.distribusi,0.001)},
-  ];
+  );
 
   const width=Math.max(900, container.clientWidth||900);
   const height=440;
