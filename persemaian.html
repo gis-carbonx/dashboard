@@ -1,1089 +1,757 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Persemaian — Sanggala Corridor Project</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard Persemaian | Sanggala Corridor Project</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --cream:#FFFAF3;
-    --sand:#DCDACC;
-    --sage:#B5BBA9;
-    --moss:#8C9F8B;
-    --fern:#618273;
-    --pine:#356760;
-
-    --status-good:#3F7D4F;
-    --status-warn:#C98A32;
-    --status-bad:#B24A3D;
-
-    --ink:#20302B;
-    --ink-soft:#5B6B62;
-    --card-bg:#FFFFFF;
-
-    --font-display:'Source Serif 4', Georgia, serif;
-    --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-    --radius:0px;
+    --color-cream:#FFFAF3;
+    --color-sand:#DCDACC;
+    --color-sage:#B5BBA9;
+    --color-moss:#8C9F8B;
+    --color-fern:#618273;
+    --color-pine:#356760;
+    --color-ink:#2b2b28;
+    --color-muted:#8a8a82;
+    --color-good:#3f8f5c;
+    --color-warn:#d79a1f;
+    --color-bad:#c2543f;
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:'Inter',Arial,Helvetica,sans-serif;background:var(--color-cream);color:var(--color-ink)}
+  body{display:flex;flex-direction:column}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
 
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--sand);
-    font-family:var(--font-body);
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased;
-  }
-
-  /* ============ SITE NAVBAR (struktur standar situs) ============ */
+  /* SITE NAVBAR */
   .site-navbar{
-    background:var(--cream);
-    border-bottom:1px solid var(--sand);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 28px;
-    font-family:var(--font-body);
+    flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    padding:10px 32px;background-color:var(--color-cream);border-bottom:1px solid var(--color-sand);
   }
-  .site-navbar .brand{display:flex;align-items:center;gap:10px;}
-  .site-navbar .brand img{height:28px;display:block;}
-  .site-navbar .brand img.fallback-hide{display:none;}
-  .site-navbar .brand span{font-weight:700;font-size:15px;letter-spacing:.2px;color:var(--pine);}
-  .site-navbar nav{display:flex;gap:26px;}
-  .site-navbar nav a{
-    color:var(--ink-soft);
-    text-decoration:none;
-    font-size:14px;
-    font-weight:500;
+  .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+  .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Inter',sans-serif}
+  .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+  .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+  .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+  .site-navbar-spacer{justify-self:end}
+  @media (max-width:768px){
+    .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+    .site-navbar-menu{gap:14px;justify-self:end}
+    .site-navbar-spacer{display:none}
   }
-  .site-navbar nav a.active,.site-navbar nav a:hover{color:var(--pine);}
 
-  /* ============ DASHBOARD FRAME (struktur standar) ============ */
+  /* DASHBOARD FRAME */
   .dashboard-frame{
-    background:var(--cream);
-    margin:28px;
-    border:1px solid var(--sand);
-    border-radius:var(--radius);
-    box-shadow:0 1px 3px rgba(32,48,43,0.06);
-    overflow:hidden;
+    flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--color-sand);
+    overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
+    display:flex;flex-direction:column;
   }
+  .report-scroll{flex:1;min-height:0;overflow-y:auto}
+  .report{max-width:1180px;margin:0 auto;padding:44px 36px 64px}
 
-  /* ============ HEADER ============ */
-  .dash-header{
-    padding:32px 36px 24px;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:24px;
-    flex-wrap:wrap;
-    border-bottom:1px solid var(--sand);
-  }
-  .dash-header h1{
-    font-family:var(--font-display);
-    font-size:30px;
-    font-weight:700;
-    color:var(--pine);
-    margin:0 0 8px 0;
-    letter-spacing:.2px;
-  }
-  .dash-header p{
-    margin:0;
-    max-width:640px;
-    color:var(--ink-soft);
-    font-size:14px;
-    line-height:1.6;
-  }
-  .data-badge{
-    background:var(--cream);
-    border:1px solid var(--sand);
-    padding:12px 18px;
-    text-align:right;
-    min-width:200px;
-    flex-shrink:0;
-  }
-  .data-badge .label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
-  .data-badge .value{font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--pine);margin-top:2px;}
-  .data-badge .sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}
-  .data-badge .sub.error{color:var(--status-bad);}
-  .refresh-btn{
-    margin-top:8px;
-    font-size:11px;
-    background:var(--pine);
-    color:var(--cream);
-    border:none;
-    padding:5px 10px;
-    cursor:pointer;
-    font-family:var(--font-body);
-    font-weight:600;
-    letter-spacing:.02em;
-  }
-  .refresh-btn:hover{background:var(--fern);}
-  .refresh-btn:disabled{opacity:.5;cursor:default;}
+  /* TOPBAR */
+  .page-topbar{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0}
+  .page-topbar-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
+  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
+  .update-chip{text-align:right;flex-shrink:0}
+  .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
-  /* ============ SECTION ============ */
-  .section{padding:28px 36px;border-bottom:1px solid var(--sand);}
-  .section:last-of-type{border-bottom:none;}
-  .section-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
-  .section-num{
-    flex-shrink:0;
-    width:28px;height:28px;
-    background:var(--pine);
-    color:var(--cream);
-    display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-display);
-    font-weight:700;
-    font-size:14px;
-  }
-  .section-title-wrap{display:flex;flex-direction:column;gap:2px;}
-  .section-title{font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--ink);}
-  .section-desc{font-size:13px;color:var(--ink-soft);max-width:560px;line-height:1.5;}
+  /* SECTION TITLES */
+  .section-title{display:flex;align-items:center;gap:10px;font-size:17px;color:var(--color-ink);margin:0 0 4px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
+  .section-title:first-of-type{margin-top:0;padding-top:0}
+  .section-num{flex-shrink:0;width:22px;height:22px;border-radius:5px;background:var(--color-pine);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif}
+  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:8px 0 14px;font-family:'Inter',sans-serif}
 
-  /* ============ KPI CARDS ============ */
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;}
-  .kpi-card{
-    background:var(--card-bg);
-    border:1px solid var(--sand);
-    padding:18px 18px 16px;
-  }
-  .kpi-card .kpi-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;font-weight:500;}
-  .kpi-card .kpi-value{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--pine);line-height:1;}
-  .kpi-card .kpi-unit{font-size:12px;color:var(--ink-soft);margin-top:6px;}
-  .kpi-card .kpi-bar{height:5px;background:var(--sand);margin-top:12px;overflow:hidden;}
-  .kpi-card .kpi-bar-fill{height:100%;background:var(--fern);}
+  /* GENERIC PANEL */
+  .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
+  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Source Serif 4',Georgia,serif}
+  .panel-heading small{display:block;font-size:10.5px;font-weight:500;color:var(--color-muted);font-family:'Inter',sans-serif;margin-top:2px}
 
-  /* ============ CHART GRID ============ */
-  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  @media (max-width:900px){.chart-grid{grid-template-columns:1fr;}}
-  .chart-card{background:var(--card-bg);border:1px solid var(--sand);padding:18px 20px 14px;}
-  .chart-card h3{font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--ink);margin:0 0 14px 0;}
-  .chart-card .chart-wrap{position:relative;height:280px;}
-  .chart-card .chart-wrap.tall{height:340px;}
-  .legend-row{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
-  .legend-row .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  /* KPI CARDS */
+  .kpi-row{display:grid;gap:14px;margin-bottom:6px}
+  .kpi-row-5{grid-template-columns:repeat(5,1fr)}
+  .kpi-row-4{grid-template-columns:repeat(4,1fr)}
+  .kpi-row-8{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:980px){ .kpi-row-5,.kpi-row-4,.kpi-row-8{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:520px){ .kpi-row-5,.kpi-row-4,.kpi-row-8{grid-template-columns:1fr} }
+  .kpi-card{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:16px 18px}
+  .kpi-label{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px}
+  .kpi-value{font-size:30px;color:var(--color-pine);line-height:1.2;margin-top:6px}
+  .kpi-value.sm{font-size:22px}
+  .kpi-sub{font-size:11px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
+  .kpi-progress{height:6px;background:var(--color-sand);border-radius:4px;margin-top:10px;overflow:hidden}
+  .kpi-progress-fill{height:100%;background:var(--color-fern);border-radius:4px}
 
-  /* ============ FLOW / SANKEY ============ */
-  .flow-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
-  .flow-kpi{background:var(--card-bg);border:1px solid var(--sand);padding:12px 14px;}
-  .flow-kpi .fk-label{font-size:11px;color:var(--ink-soft);margin-bottom:6px;}
-  .flow-kpi .fk-value{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--pine);}
-  .sankey-card{background:var(--card-bg);border:1px solid var(--sand);padding:20px;margin-bottom:16px;}
-  .sankey-card svg{width:100%;height:auto;display:block;}
-  .sankey-card .sankey-note{font-size:11.5px;color:var(--ink-soft);margin-top:10px;}
+  /* ROWS */
+  .two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+  .three-col-row{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;align-items:stretch}
+  @media (max-width:900px){ .two-col-row,.three-col-row{grid-template-columns:1fr} }
+  .chart-wrap{position:relative;height:280px;margin-top:6px}
+  .chart-wrap.short{height:220px}
+  .legend-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
+  .legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
 
-  .flow-detail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;}
-  @media (max-width:900px){.flow-detail-grid{grid-template-columns:1fr;}}
-  .rincian-table{width:100%;border-collapse:collapse;font-size:13px;}
-  .rincian-table th{text-align:left;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--sand);padding:8px 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
-  .rincian-table td{padding:8px 6px;border-bottom:1px solid var(--sand);}
-  .rincian-table tr:last-child td{border-bottom:none;font-weight:700;}
-  .indikator-row{margin-bottom:12px;}
-  .indikator-row .ind-label{font-size:12.5px;color:var(--ink);margin-bottom:5px;display:flex;justify-content:space-between;}
-  .indikator-row .ind-label b{color:var(--pine);}
-  .indikator-bar{height:8px;background:var(--sand);width:100%;}
-  .indikator-bar-fill{height:100%;background:var(--fern);}
+  /* FLOW DIAGRAM */
+  .flow-panel{overflow-x:auto}
+  .flow-diagram{display:flex;align-items:center;gap:0;min-width:760px;padding:12px 4px}
+  .flow-box{flex:0 0 auto;min-width:130px;border-radius:6px;padding:12px 14px;text-align:center}
+  .flow-box .fb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
+  .flow-box .fb-value{font-size:20px;font-weight:800;margin-top:4px;font-family:'Source Serif 4',Georgia,serif}
+  .flow-box.main{background:var(--color-pine);color:#fff}
+  .flow-box.mid{background:var(--color-fern);color:#fff}
+  .flow-box.end{background:var(--color-moss);color:#fff}
+  .flow-box.die{background:#EFE7DC;color:var(--color-bad);border:1px dashed #d8c9b5}
+  .flow-arrow{flex:0 0 auto;width:36px;height:2px;background:var(--color-sage);position:relative;margin:0 2px}
+  .flow-arrow::after{content:'';position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left-color:var(--color-sage)}
+  .flow-col{display:flex;flex-direction:column;gap:10px;align-items:center}
+  .flow-branch{display:flex;flex-direction:column;gap:10px}
 
-  /* ============ TABLE (Detail Operasional) ============ */
-  .table-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap;}
-  .search-box{
-    border:1px solid var(--sand);
-    background:var(--card-bg);
-    padding:8px 12px;
-    font-family:var(--font-body);
-    font-size:13px;
-    width:260px;
-    max-width:100%;
-  }
-  .search-box:focus{outline:2px solid var(--fern);outline-offset:-1px;}
-  .table-count{font-size:12px;color:var(--ink-soft);}
-  .table-scroll{overflow-x:auto;border:1px solid var(--sand);background:var(--card-bg);}
-  table.detail-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1100px;}
-  table.detail-table th{
-    text-align:left;background:var(--cream);color:var(--ink-soft);
-    padding:10px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
-    border-bottom:1px solid var(--sand);position:sticky;top:0;
-  }
-  table.detail-table td{padding:9px 10px;border-bottom:1px solid var(--sand);color:var(--ink);white-space:nowrap;}
-  table.detail-table tr:hover td{background:#FAF7EE;}
-  .badge{padding:2px 8px;font-size:11px;font-weight:600;display:inline-block;}
-  .badge-good{background:rgba(63,125,79,0.12);color:var(--status-good);}
-  .badge-warn{background:rgba(201,138,50,0.14);color:var(--status-warn);}
-  .badge-bad{background:rgba(178,74,61,0.13);color:var(--status-bad);}
+  /* INDICATOR BARS */
+  .indicator-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #EDE7D8}
+  .indicator-row:last-child{border-bottom:none}
+  .indicator-label{flex:0 0 230px;font-size:11.5px;color:var(--color-ink);font-family:'Inter',sans-serif}
+  .indicator-track{flex:1;height:9px;background:var(--color-sand);border-radius:5px;overflow:hidden}
+  .indicator-fill{height:100%;background:var(--color-fern);border-radius:5px}
+  .indicator-val{flex:0 0 44px;text-align:right;font-size:12px;font-weight:700;color:var(--color-pine)}
 
-  /* ============ LOADING / ERROR ============ */
-  .loading-state{
-    display:flex;align-items:center;gap:10px;
-    padding:40px 20px;justify-content:center;
-    color:var(--ink-soft);font-size:13px;
-  }
-  .spinner{
-    width:16px;height:16px;border:2px solid var(--sand);
-    border-top-color:var(--fern);border-radius:50%;
-    animation:spin .7s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .error-box{
-    background:rgba(178,74,61,0.08);
-    border:1px solid var(--status-bad);
-    color:var(--status-bad);
-    padding:14px 18px;
-    font-size:13px;
-    line-height:1.6;
-  }
-  .fine-note{font-size:11px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
+  /* TABLE */
+  .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:auto}
+  table.data-tbl{width:100%;border-collapse:collapse;font-size:11.5px;font-family:'Inter',sans-serif;white-space:nowrap}
+  table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 14px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--color-sand)}
+  table.data-tbl tbody td{padding:9px 14px;border-bottom:1px solid #EDE7D8;color:var(--color-ink);vertical-align:middle}
+  table.data-tbl tbody tr:last-child td{border-bottom:none}
+  table.data-tbl tbody tr:hover td{background:#FFFAF3}
+  .stage-badge{display:inline-block;padding:2px 10px;border-radius:20px;background:var(--color-sand);color:var(--color-pine);font-size:10px;font-weight:700;white-space:nowrap}
+  .surv-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+  .surv-good{background:#DCEEDD;color:#1a5c33}
+  .surv-warn{background:#FDF0B0;color:#8a6300}
+  .surv-bad{background:#FADBD8;color:#8a1f1f}
+  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
+  .pg-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-ink)}
+  .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
+  .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
-  .dash-footer{padding:18px 36px;font-size:11.5px;color:var(--ink-soft);}
+  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Inter',sans-serif}
+  .error-msg{padding:16px;text-align:center;color:var(--color-bad);font-size:11.5px;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
 
 <header class="site-navbar">
-  <div class="brand">
-    <img src="assets/logo/Sanggala_color.png" alt="Sanggala" onerror="this.classList.add('fallback-hide')">
-    <span>Sanggala Corridor Project</span>
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
   </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="list.html">Activities</a>
-    <a href="#" class="active">Dashboard</a>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
   </nav>
+  <div class="site-navbar-spacer"></div>
 </header>
 
 <div class="dashboard-frame">
-
-  <div class="dash-header">
-    <div>
-      <h1>Dashboard Persemaian</h1>
-      <p>Dashboard ini menyajikan informasi produksi, pergerakan tahap (Bibit Masuk → Semai → Rotasi → Grafting/Distribusi), distribusi, dan keberhasilan bibit secara menyeluruh untuk mendukung pemantauan operasional persemaian.</p>
-    </div>
-    <div class="data-badge">
-      <div class="label">Sumber Data</div>
-      <div class="value">Google Sheets (live)</div>
-      <div class="sub" id="lastUpdated">Memuat data…</div>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">Muat Ulang</button>
+  <div class="page-topbar">
+    <div class="page-topbar-inner">
+      <div>
+        <h1 class="report-title">Dashboard Persemaian</h1>
+        <div class="report-subtitle">Produksi, pergerakan tahapan, distribusi, dan keberhasilan bibit</div>
+      </div>
+      <div class="update-chip">
+        <div class="update-chip-label">Tanggal Data Terbaru</div>
+        <div class="update-chip-value" id="lastDataDate">&ndash;</div>
+      </div>
     </div>
   </div>
+  <div class="report-scroll">
+  <div class="report">
 
-  <div id="loadingState" class="loading-state">
-    <span class="spinner"></span> Mengambil data dari Google Sheets…
+    <!-- 1. RINGKASAN KINERJA -->
+    <h2 class="section-title"><span class="section-num">1</span>Ringkasan Kinerja</h2>
+    <div class="section-subtitle">Gambaran umum kondisi persemaian secara keseluruhan.</div>
+    <div class="kpi-row kpi-row-5">
+      <div class="kpi-card">
+        <div class="kpi-label">Batch Siap Tanam</div>
+        <div class="kpi-value" id="kpiCapaian">&ndash;</div>
+        <div class="kpi-sub" id="kpiCapaianSub">dari <span id="kpiCapaianTotal">&ndash;</span> batch</div>
+        <div class="kpi-progress"><div class="kpi-progress-fill" id="kpiCapaianBar" style="width:0%"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jenis Tanaman</div>
+        <div class="kpi-value" id="kpiJenis">&ndash;</div>
+        <div class="kpi-sub">jenis</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Bibit Masuk</div>
+        <div class="kpi-value" id="kpiTotalBibit">&ndash;</div>
+        <div class="kpi-sub">bibit (kumulatif)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Sudah Grafting / Distribusi</div>
+        <div class="kpi-value" id="kpiSiapTanam">&ndash;</div>
+        <div class="kpi-sub">bibit</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Survival Rate</div>
+        <div class="kpi-value" id="kpiSurvival">&ndash;</div>
+        <div class="kpi-sub">rata-rata seluruh batch</div>
+      </div>
+    </div>
+
+    <!-- 2. KONDISI STOK -->
+    <h2 class="section-title"><span class="section-num">2</span>Kondisi Stok</h2>
+    <div class="section-subtitle">Jumlah bibit yang masih dalam proses (belum digrafting/didistribusikan/mati) per jenis tanaman, serta ke mana bibit yang masuk berakhir.</div>
+    <div class="two-col-row">
+      <div class="panel">
+        <div class="panel-heading">Stok Dalam Proses per Jenis Tanaman<small>Bibit yang masih di tahap semai/rotasi, belum digrafting atau didistribusikan</small></div>
+        <div class="chart-wrap"><canvas id="chartStok"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">Komposisi Alur Bibit per Jenis Tanaman<small>Persentase dari total bibit masuk: mati, masih dalam proses, digrafting, atau didistribusikan</small></div>
+        <div class="chart-wrap"><canvas id="chartKomposisi"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 3. KONDISI PRODUKSI -->
+    <h2 class="section-title"><span class="section-num">3</span>Kondisi Produksi</h2>
+    <div class="section-subtitle">Sebaran umur batch bibit dan tingkat keberhasilan (survival rate) tiap jenis tanaman.</div>
+    <div class="two-col-row">
+      <div class="panel">
+        <div class="panel-heading">Bibit Masuk per Kategori Umur Batch</div>
+        <div class="chart-wrap"><canvas id="chartUmur"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">Survival Rate per Jenis Tanaman</div>
+        <div class="chart-wrap"><canvas id="chartSurvival"></canvas></div>
+        <div class="legend-row">
+          <span><span class="legend-dot" style="background:var(--color-good)"></span>&ge; 95% (Baik)</span>
+          <span><span class="legend-dot" style="background:var(--color-warn)"></span>90&ndash;95% (Perlu Perhatian)</span>
+          <span><span class="legend-dot" style="background:var(--color-bad)"></span>&lt; 90% (Perlu Tindakan)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. ALUR PERGERAKAN BIBIT -->
+    <h2 class="section-title"><span class="section-num">4</span>Alur Pergerakan Bibit</h2>
+    <div class="section-subtitle">Bibit Masuk &rarr; Semai &rarr; Rotasi &rarr; lalu bercabang jadi Grafting atau langsung Distribusi sesuai kebutuhan. Bibit dapat mati/tidak survive di tahap Semai, Rotasi, maupun Grafting.</div>
+    <div class="kpi-row kpi-row-8" id="flowKpiRow">
+      <div class="kpi-card"><div class="kpi-label">Bibit Masuk</div><div class="kpi-value sm" id="fkBibitMasuk">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Semai</div><div class="kpi-value sm" id="fkSemai">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Mati - Semai</div><div class="kpi-value sm" id="fkMatiSemai">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Rotasi</div><div class="kpi-value sm" id="fkRotasi">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Mati - Rotasi</div><div class="kpi-value sm" id="fkMatiRotasi">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Grafting</div><div class="kpi-value sm" id="fkGrafting">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Mati - Grafting</div><div class="kpi-value sm" id="fkMatiGrafting">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Distribusi</div><div class="kpi-value sm" id="fkDistribusi">&ndash;</div></div>
+    </div>
+
+    <div class="panel flow-panel" style="margin-top:6px">
+      <div class="panel-heading">Diagram Alur Tahapan Bibit</div>
+      <div class="flow-diagram" id="flowDiagram">
+        <div class="loading-msg">Memuat&hellip;</div>
+      </div>
+    </div>
+
+    <div class="two-col-row" style="margin-top:16px">
+      <div class="panel">
+        <div class="panel-heading">Rincian Pergerakan Bibit</div>
+        <div class="tbl-wrap">
+          <table class="data-tbl">
+            <thead><tr><th>Tahap</th><th>Jumlah (bibit)</th><th>% terhadap Bibit Masuk</th></tr></thead>
+            <tbody id="rincianTbody"><tr><td colspan="3" class="loading-msg">Memuat&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">Indikator Pergerakan</div>
+        <div id="indikatorList"><div class="loading-msg">Memuat&hellip;</div></div>
+      </div>
+    </div>
+
+    <!-- 5. DISTRIBUSI BIBIT -->
+    <h2 class="section-title"><span class="section-num">5</span>Distribusi Bibit</h2>
+    <div class="section-subtitle">Total bibit yang telah didistribusikan, sebaran per program, per kelompok, serta komposisi jenis tanaman yang sudah didistribusikan.</div>
+    <div class="kpi-row kpi-row-4">
+      <div class="kpi-card"><div class="kpi-label">Total Distribusi (YTD)</div><div class="kpi-value" id="distTotal">&ndash;</div><div class="kpi-sub">bibit</div></div>
+      <div class="kpi-card"><div class="kpi-label">Distribusi Bulan Ini</div><div class="kpi-value" id="distBulanIni">&ndash;</div><div class="kpi-sub">bibit</div></div>
+      <div class="kpi-card"><div class="kpi-label">Jumlah KTH</div><div class="kpi-value" id="distKth">&ndash;</div><div class="kpi-sub">KTH binaan</div></div>
+      <div class="kpi-card"><div class="kpi-label">Jumlah Desa</div><div class="kpi-value" id="distDesa">&ndash;</div><div class="kpi-sub">desa</div></div>
+    </div>
+    <div class="three-col-row" style="margin-top:6px">
+      <div class="panel">
+        <div class="panel-heading">Distribusi per Program (YTD)</div>
+        <div class="chart-wrap short"><canvas id="chartProgram"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">Distribusi per Kelompok (YTD)</div>
+        <div class="chart-wrap short"><canvas id="chartKelompok"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">Komposisi Jenis Tanaman Didistribusikan</div>
+        <div class="chart-wrap short"><canvas id="chartJenisDist"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 6. DETAIL OPERASIONAL -->
+    <h2 class="section-title"><span class="section-num">6</span>Detail Operasional</h2>
+    <div class="section-subtitle">Rincian tiap batch bibit untuk memudahkan pemantauan operasional.</div>
+    <div class="tbl-wrap">
+      <table class="data-tbl">
+        <thead><tr>
+          <th>Kode Batch</th><th>Kelompok</th><th>Jenis Tanaman</th><th>Varietas</th><th>Umur (hari)</th>
+          <th>Tahap Terkini</th><th>Bibit Masuk</th><th>Total Mati</th><th>Grafting</th><th>Distribusi</th>
+          <th>Stok Akhir</th><th>Survival Rate</th><th>Program</th><th>Desa</th><th>KTH</th>
+        </tr></thead>
+        <tbody id="detailTbody"><tr><td colspan="15" class="loading-msg">Memuat data&hellip;</td></tr></tbody>
+      </table>
+    </div>
+    <div class="tbl-pagination">
+      <span id="pgInfo">&ndash;</span>
+      <button class="pg-btn" id="pgPrev">&lsaquo;</button>
+      <button class="pg-btn" id="pgNext">&rsaquo;</button>
+    </div>
+
   </div>
-  <div id="errorState" style="display:none;padding:28px 36px;">
-    <div class="error-box" id="errorBox"></div>
-  </div>
-
-  <div id="dashboardContent" style="display:none;">
-
-    <!-- ============ SECTION 1: RINGKASAN KINERJA ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">1</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Ringkasan Kinerja</div>
-          <div class="section-desc">Gambaran umum kondisi persemaian secara keseluruhan.</div>
-        </div>
-      </div>
-      <div class="kpi-grid" id="kpiGrid"></div>
-    </div>
-
-    <!-- ============ SECTION 2: KONDISI STOK ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">2</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Kondisi Stok</div>
-          <div class="section-desc">Jumlah bibit masuk per jenis tanaman, serta tahap yang sedang dijalani tiap batch saat ini.</div>
-        </div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card">
-          <h3>Bibit Masuk per Jenis Tanaman</h3>
-          <div class="chart-wrap tall"><canvas id="chartStokJenis"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>Komposisi Tahap Saat Ini per Jenis Tanaman</h3>
-          <div class="chart-wrap tall"><canvas id="chartTahapKomposisi"></canvas></div>
-          <div class="legend-row" id="legendTahap"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ SECTION 3: KONDISI PRODUKSI ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">3</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Kondisi Produksi</div>
-          <div class="section-desc">Distribusi umur bibit dan tingkat keberhasilan (survival rate) tiap jenis tanaman.</div>
-        </div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card">
-          <h3>Umur Bibit (Stok yang Masih Dalam Proses)</h3>
-          <div class="chart-wrap"><canvas id="chartUmur"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>Survival Rate per Jenis Tanaman</h3>
-          <div class="chart-wrap"><canvas id="chartSurvival"></canvas></div>
-          <div class="legend-row">
-            <span><span class="dot" style="background:var(--status-good)"></span>&ge; 95% (Baik)</span>
-            <span><span class="dot" style="background:var(--status-warn)"></span>90–95% (Perlu Perhatian)</span>
-            <span><span class="dot" style="background:var(--status-bad)"></span>&lt; 90% (Perlu Tindakan)</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ SECTION 4: ALUR PERGERAKAN BIBIT ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">4</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Alur Pergerakan Bibit</div>
-          <div class="section-desc">Menjelaskan alur bibit: Bibit Masuk → Semai → Rotasi → lalu bercabang menjadi Grafting atau langsung Distribusi. Kematian bisa terjadi di tahap Semai, Rotasi, maupun Grafting.</div>
-        </div>
-      </div>
-      <div class="flow-kpis" id="flowKpis"></div>
-      <div class="sankey-card">
-        <div id="sankeyContainer"></div>
-        <div class="sankey-note">Lebar tiap ruas sebanding dengan jumlah bibit. Ruas merah menunjukkan bibit yang mati/tidak survive di tahap tersebut.</div>
-      </div>
-      <div class="flow-detail-grid">
-        <div class="chart-card">
-          <h3>Rincian Pergerakan Bibit</h3>
-          <table class="rincian-table" id="rincianTable"></table>
-        </div>
-        <div class="chart-card">
-          <h3>Indikator Pergerakan</h3>
-          <div id="indikatorList"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ SECTION 5: DISTRIBUSI BIBIT ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">5</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Distribusi Bibit</div>
-          <div class="section-desc">Menunjukkan total bibit yang telah didistribusikan, sebaran per program, per kelompok, serta komposisi jenis tanaman yang telah disalurkan.</div>
-        </div>
-      </div>
-      <div class="kpi-grid" id="distribusiKpis" style="margin-bottom:16px;"></div>
-      <div class="chart-grid" style="grid-template-columns:1.2fr 1fr 1fr;">
-        <div class="chart-card">
-          <h3>Distribusi per Program (YTD)</h3>
-          <div class="chart-wrap"><canvas id="chartProgram"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>Distribusi per Kelompok (YTD)</h3>
-          <div class="chart-wrap"><canvas id="chartKelompok"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>Komposisi Jenis Tanaman Didistribusikan</h3>
-          <div class="chart-wrap"><canvas id="chartJenisDistribusi"></canvas></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ SECTION 6: DETAIL OPERASIONAL ============ -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-num">6</div>
-        <div class="section-title-wrap">
-          <div class="section-title">Detail Operasional</div>
-          <div class="section-desc">Rincian tiap batch bibit untuk memudahkan pemantauan operasional.</div>
-        </div>
-      </div>
-      <div class="table-controls">
-        <input type="text" class="search-box" id="tableSearch" placeholder="Cari kode batch, jenis tanaman, KTH…" oninput="filterDetailTable()">
-        <div class="table-count" id="tableCount"></div>
-      </div>
-      <div class="table-scroll">
-        <table class="detail-table" id="detailTable">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="fine-note">Kolom "Nama Petani (Tujuan)" pada Log Distribusi belum ditampilkan di sini karena belum dipakai oleh KPI/grafik manapun.</div>
-    </div>
-
-  </div>
-
-  <div class="dash-footer">
-    Data bersumber langsung dari Google Sheets dan dimuat ulang setiap kali halaman dibuka. Tanggal semai &amp; umur bibit dihitung terhadap tanggal saat halaman diakses.
   </div>
 </div>
 
-<!-- auth-guard.js: wajib disertakan sesuai konvensi situs (script bersama, tidak diduplikasi di sini) -->
-<script src="auth-guard.js"></script>
-
 <script>
-/* =========================================================================
-   Dashboard Persemaian — logic
-   Sumber data: Google Sheets "[dummy] database nursery"
-   Sheet yang dipakai: "3. Data Induk Bibit", "4. Log Distribusi", "5. Master Desa & KTH"
-   ========================================================================= */
-
-const SHEET_ID = '14A2o9WGcKprSIm2V1nbW0MKpn518QxptGXZz3-TidJ4';
-
-function sheetCsvUrl(sheetName) {
-  const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
-  const params = `tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&v=${Date.now()}`;
-  return `${base}?${params}`;
+'use strict';
+/* ============ KONFIGURASI SUMBER DATA ============ */
+const SHEET_ID='14A2o9WGcKprSIm2V1nbW0MKpn518QxptGXZz3-TidJ4';
+function gvizUrl(sheetName){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`+`&v=${Date.now()}`;
 }
+const DIB_SHEET='3. Data Induk Bibit';
+const DIST_SHEET='4. Log Distribusi';
+const DESA_SHEET='5. Master Desa & KTH';
 
-/* ---------- palet warna (mengikuti STYLE_GUIDE.md) ---------- */
-const COLOR = {
-  cream:'#FFFAF3', sand:'#DCDACC', sage:'#B5BBA9', moss:'#8C9F8B', fern:'#618273', pine:'#356760',
-  good:'#3F7D4F', warn:'#C98A32', bad:'#B24A3D'
-};
-// ramp untuk kategori (jenis tanaman, dsb) — turunan dari palet resmi
-const CATEGORY_RAMP = ['#356760','#3E7A6E','#4C8C7C','#5A8E7B','#618273','#7A9A82','#8C9F8B','#A3AC9A','#B5BBA9','#C7C7B0','#DCDACC'];
+/* ============ HELPER ============ */
+function str(v){return (v??'').toString().trim();}
+function parseNum(v){
+  const s=str(v).replace(/[^\d.\-]/g,'');
+  const n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+function parsePercent(v){
+  const s=str(v);
+  if(s==='')return 0;
+  const hasPct=s.includes('%');
+  const n=parseFloat(s.replace('%','').replace(',','.'));
+  if(isNaN(n))return 0;
+  return hasPct ? n/100 : (n>1 ? n/100 : n);
+}
+function parseDateFlexible(v){
+  const s=str(v);
+  if(!s)return null;
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  const d=new Date(s);
+  return isNaN(d)?null:d;
+}
+function fmtInt(n){return Math.round(n).toLocaleString('id-ID');}
+function fmtPct(n){return (n*100).toFixed(1).replace('.',',')+'%';}
+const MN_ID=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-function colorFor(i){ return CATEGORY_RAMP[i % CATEGORY_RAMP.length]; }
-
-/* =========================================================================
-   Helper: parsing angka yang aman terhadap format ekspor Google Sheets
-   (bisa berupa "1234", "1,234", "76.6%", string kosong, dst — lihat
-   catatan STYLE_GUIDE.md soal ekspor Google Sheets yang kadang berantakan)
-   ========================================================================= */
-function parseNum(v) {
-  if (v === undefined || v === null) return 0;
-  let s = String(v).trim();
-  if (s === '' || s === '-' || s.toUpperCase() === 'N/A' || s === '#N/A') return 0;
-  const isPct = s.includes('%');
-  s = s.replace(/%/g, '').trim();
-
-  // Google Sheets export bisa berformat locale AS (1,234.5) maupun ID (1.234,5) —
-  // deteksi pemisah desimal secara adaptif alih-alih asumsi satu format saja.
-  const lastComma = s.lastIndexOf(',');
-  const lastDot = s.lastIndexOf('.');
-  if (lastComma > -1 && lastDot > -1) {
-    if (lastComma > lastDot) { s = s.replace(/\./g, '').replace(',', '.'); }
-    else { s = s.replace(/,/g, ''); }
-  } else if (lastComma > -1) {
-    const decimals = s.slice(lastComma + 1);
-    s = decimals.length <= 2 ? s.replace(',', '.') : s.replace(/,/g, '');
-  } else if (lastDot > -1) {
-    const decimals = s.slice(lastDot + 1);
-    if (decimals.length === 3 && /^-?\d{1,3}(\.\d{3})+$/.test(s)) { s = s.replace(/\./g, ''); }
+/* Cari baris header (array-of-array) berdasarkan sekumpulan nama kolom yang wajib ada,
+   lalu kembalikan {headerRow, dataRows} — dataRows berhenti begitu kolom kunci kosong. */
+function extractTable(rows, requiredCols, keyCol){
+  let headerIdx=-1;
+  for(let i=0;i<rows.length;i++){
+    const cells=rows[i].map(str);
+    if(requiredCols.every(c=>cells.includes(c))){headerIdx=i;break;}
   }
-
-  const n = parseFloat(s);
-  if (isNaN(n)) return 0;
-  return isPct ? n / 100 : n;
-}
-
-function fmtInt(n) {
-  return Math.round(n).toLocaleString('id-ID');
-}
-function fmtPct(n, decimals = 1) {
-  return (n * 100).toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + '%';
-}
-
-/* =========================================================================
-   Helper: parse CSV text menjadi array of objects, dengan deteksi baris
-   header secara otomatis (karena beberapa sheet punya baris judul/catatan
-   di atas header asli — lihat STYLE_GUIDE.md soal ini)
-   ========================================================================= */
-function parseSheetCSV(csvText, anchorHeaderText, idColumnName) {
-  const parsed = Papa.parse(csvText.trim(), { skipEmptyLines: false });
-  const table = parsed.data;
-
-  let headerIdx = table.findIndex(row => row.some(cell => (cell || '').trim() === anchorHeaderText));
-  if (headerIdx === -1) headerIdx = 0;
-
-  const headers = table[headerIdx].map(h => (h || '').trim());
-  const rows = [];
-  for (let i = headerIdx + 1; i < table.length; i++) {
-    const row = table[i];
-    if (!row || row.every(c => (c || '').trim() === '')) continue;
-    const obj = {};
-    headers.forEach((h, idx) => {
-      if (h) obj[h] = (row[idx] !== undefined ? String(row[idx]).trim() : '');
-    });
-    rows.push(obj);
+  if(headerIdx===-1)return{header:[],data:[]};
+  const header=rows[headerIdx].map(str);
+  const keyIdx=header.indexOf(keyCol);
+  const data=[];
+  for(let i=headerIdx+1;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||str(row[keyIdx]||'')==='')break;
+    const obj={};
+    header.forEach((h,ci)=>{obj[h]=row[ci]!==undefined?row[ci]:'';});
+    data.push(obj);
   }
+  return{header,data};
+}
 
-  // buang baris ringkasan/total: hanya simpan baris dengan kolom ID valid berupa angka
-  return rows.filter(r => {
-    const idVal = r[idColumnName];
-    return idVal !== undefined && idVal !== '' && !isNaN(parseInt(idVal, 10));
+function fetchCsvRows(url){
+  return new Promise((resolve,reject)=>{
+    Papa.parse(url,{download:true,header:false,skipEmptyLines:false,complete:(res)=>resolve(res.data),error:reject});
   });
 }
 
-function fetchSheet(sheetName) {
-  return fetch(sheetCsvUrl(sheetName)).then(res => {
-    if (!res.ok) throw new Error(`Gagal memuat sheet "${sheetName}" (HTTP ${res.status}). Pastikan spreadsheet dibagikan dengan akses "Anyone with the link can view".`);
-    return res.text();
-  });
-}
+/* ============ STATE ============ */
+let dib=[];      // Data Induk Bibit (per batch)
+let dist=[];     // Log Distribusi (per transaksi)
+let desaKth=[];  // Master Desa & KTH
+let detailPage=1;
+const DETAIL_PAGE_SIZE=8;
 
-/* =========================================================================
-   Agregasi umum
-   ========================================================================= */
-function groupSum(rows, groupField, valueField) {
-  const out = {};
-  for (const r of rows) {
-    const k = (r[groupField] || 'Lainnya').trim() || 'Lainnya';
-    out[k] = (out[k] || 0) + parseNum(r[valueField]);
-  }
-  return out;
-}
-function groupCount(rows, groupField) {
-  const out = {};
-  for (const r of rows) {
-    const k = (r[groupField] || 'Lainnya').trim() || 'Lainnya';
-    out[k] = (out[k] || 0) + 1;
-  }
-  return out;
-}
-function sumField(rows, field) {
-  return rows.reduce((s, r) => s + parseNum(r[field]), 0);
-}
-function uniqueValues(rows, field) {
-  return [...new Set(rows.map(r => (r[field] || '').trim()).filter(Boolean))];
-}
+/* ============ LOAD & RENDER ============ */
+Promise.all([
+  fetchCsvRows(gvizUrl(DIB_SHEET)),
+  fetchCsvRows(gvizUrl(DIST_SHEET)),
+  fetchCsvRows(gvizUrl(DESA_SHEET)),
+]).then(([dibRows,distRows,desaRows])=>{
 
-/* =========================================================================
-   MAIN
-   ========================================================================= */
-let CHARTS = {};
-let DETAIL_ROWS = [];
-
-const UMUR_ORDER = ['0 - 1 Bulan', '1 - 2 Bulan', '2 - 3 Bulan', '3 - 4 Bulan', '> 4 Bulan'];
-const TAHAP_ORDER = ['Bibit Masuk', 'Semai', 'Rotasi', 'Grafting/Distribusi'];
-
-function loadAll() {
-  const loadingEl = document.getElementById('loadingState');
-  const errorEl = document.getElementById('errorState');
-  const contentEl = document.getElementById('dashboardContent');
-  const refreshBtn = document.getElementById('refreshBtn');
-
-  loadingEl.style.display = 'flex';
-  errorEl.style.display = 'none';
-  contentEl.style.display = 'none';
-  refreshBtn.disabled = true;
-
-  Promise.all([
-    fetchSheet('3. Data Induk Bibit'),
-    fetchSheet('4. Log Distribusi'),
-    fetchSheet('5. Master Desa & KTH'),
-  ]).then(([dibCsv, logCsv, desaCsv]) => {
-    const dib = parseSheetCSV(dibCsv, 'Kode Batch', 'No');
-    const logDistribusi = parseSheetCSV(logCsv, 'Nama Petani (Tujuan)', 'No');
-    const masterDesa = parseSheetCSV(desaCsv, 'KTH', 'No');
-
-    if (dib.length === 0) {
-      throw new Error('Sheet "3. Data Induk Bibit" tidak ditemukan atau kosong. Periksa nama sheet & hak akses spreadsheet.');
-    }
-
-    renderDashboard(dib, logDistribusi, masterDesa);
-
-    loadingEl.style.display = 'none';
-    contentEl.style.display = 'block';
-    document.getElementById('lastUpdated').textContent =
-      'Dimuat ' + new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-    document.getElementById('lastUpdated').classList.remove('error');
-  }).catch(err => {
-    console.error(err);
-    loadingEl.style.display = 'none';
-    errorEl.style.display = 'block';
-    document.getElementById('errorBox').innerHTML =
-      `<strong>Gagal memuat data.</strong><br>${err.message}`;
-    document.getElementById('lastUpdated').textContent = 'Gagal memuat data';
-    document.getElementById('lastUpdated').classList.add('error');
-  }).finally(() => {
-    refreshBtn.disabled = false;
-  });
-}
-
-function renderDashboard(dib, logDistribusi, masterDesa) {
-  DETAIL_ROWS = dib;
-  renderKPI(dib);
-  renderStokCharts(dib);
-  renderProduksiCharts(dib);
-  renderFlow(dib);
-  renderDistribusi(logDistribusi, masterDesa, dib);
-  renderDetailTable(dib);
-}
-
-/* ============================= SECTION 1: KPI ============================= */
-function renderKPI(dib) {
-  const totalBibitMasuk = sumField(dib, 'Bibit Masuk');
-  const totalMati = sumField(dib, 'Total Mati');
-  const totalGrafting = sumField(dib, 'Grafting');
-  const totalDistribusi = sumField(dib, 'Distribusi');
-  const jumlahBatch = dib.length;
-  const jenisSet = uniqueValues(dib, 'Jenis Tanaman');
-  const survival = totalBibitMasuk > 0 ? (totalBibitMasuk - totalMati) / totalBibitMasuk : 0;
-
-  const cards = [
-    { label: 'Jumlah Batch Aktif', value: fmtInt(jumlahBatch), unit: 'batch' },
-    { label: 'Jenis Tanaman', value: fmtInt(jenisSet.length), unit: 'jenis' },
-    { label: 'Total Bibit Masuk', value: fmtInt(totalBibitMasuk), unit: 'bibit' },
-    { label: 'Siap Salur (Grafting + Distribusi)', value: fmtInt(totalGrafting + totalDistribusi), unit: 'bibit' },
-    { label: 'Survival Rate Keseluruhan', value: fmtPct(survival), unit: 'seluruh batch', bar: survival },
-  ];
-
-  const grid = document.getElementById('kpiGrid');
-  grid.innerHTML = cards.map(c => `
-    <div class="kpi-card">
-      <div class="kpi-label">${c.label}</div>
-      <div class="kpi-value">${c.value}</div>
-      <div class="kpi-unit">${c.unit}</div>
-      ${c.bar !== undefined ? `<div class="kpi-bar"><div class="kpi-bar-fill" style="width:${Math.min(c.bar*100,100)}%"></div></div>` : ''}
-    </div>
-  `).join('');
-}
-
-/* ============================= SECTION 2: STOK ============================= */
-function renderStokCharts(dib) {
-  // --- chart 1: Bibit Masuk per Jenis Tanaman (horizontal bar) ---
-  const byJenis = groupSum(dib, 'Jenis Tanaman', 'Bibit Masuk');
-  const sortedJenis = Object.entries(byJenis).sort((a, b) => b[1] - a[1]);
-  const labels1 = sortedJenis.map(e => e[0]);
-  const values1 = sortedJenis.map(e => e[1]);
-
-  destroyChart('chartStokJenis');
-  CHARTS.chartStokJenis = new Chart(document.getElementById('chartStokJenis'), {
-    type: 'bar',
-    data: {
-      labels: labels1,
-      datasets: [{
-        data: values1,
-        backgroundColor: labels1.map((_, i) => colorFor(i)),
-        borderRadius: 2,
-        barThickness: 16,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => fmtInt(c.raw) + ' bibit' } } },
-      scales: {
-        x: { grid: { color: COLOR.sand }, ticks: { color: COLOR.pine, font: { family: 'Inter' } } },
-        y: { grid: { display: false }, ticks: { color: '#20302B', font: { family: 'Inter', size: 12 } } },
-      }
-    }
-  });
-
-  // --- chart 2: Komposisi Tahap Saat Ini per Jenis Tanaman (stacked bar, 100%) ---
-  const jenisList = [...new Set(dib.map(r => r['Jenis Tanaman']))];
-  const tahapCounts = {}; // jenis -> tahap -> count
-  jenisList.forEach(j => { tahapCounts[j] = {}; TAHAP_ORDER.forEach(t => tahapCounts[j][t] = 0); });
-  dib.forEach(r => {
-    const j = r['Jenis Tanaman'];
-    const t = TAHAP_ORDER.includes(r['Tahap Bibit (terkini)']) ? r['Tahap Bibit (terkini)'] : 'Grafting/Distribusi';
-    if (!tahapCounts[j]) tahapCounts[j] = {};
-    tahapCounts[j][t] = (tahapCounts[j][t] || 0) + 1;
-  });
-  // urutkan jenis sama seperti chart 1 supaya konsisten
-  const jenisOrdered = labels1.filter(j => tahapCounts[j]);
-  const tahapColors = { 'Bibit Masuk': COLOR.sand, 'Semai': COLOR.moss, 'Rotasi': COLOR.fern, 'Grafting/Distribusi': COLOR.pine };
-
-  const datasets2 = TAHAP_ORDER.map(t => ({
-    label: t,
-    data: jenisOrdered.map(j => {
-      const total = TAHAP_ORDER.reduce((s, tt) => s + (tahapCounts[j][tt] || 0), 0);
-      return total > 0 ? (tahapCounts[j][t] || 0) / total * 100 : 0;
-    }),
-    backgroundColor: tahapColors[t],
+  const dibTable=extractTable(dibRows,['Kode Batch','Jenis Tanaman','Bibit Masuk'],'Kode Batch');
+  dib=dibTable.data.map(r=>({
+    batch:str(r['Kode Batch']),
+    kelompok:str(r['Kelompok']),
+    jenis:str(r['Jenis Tanaman']),
+    varietas:str(r['Varietas']),
+    tglSemai:parseDateFlexible(r['Tanggal Semai']),
+    umur:parseNum(r['Umur (hari)']),
+    kategoriUmur:str(r['Kategori Umur']),
+    tahap:str(r['Tahap Bibit (terkini)']),
+    bibitMasuk:parseNum(r['Bibit Masuk']),
+    semai:parseNum(r['Semai']),
+    matiSemai:parseNum(r['Mati - Semai']),
+    rotasi:parseNum(r['Rotasi']),
+    matiRotasi:parseNum(r['Mati - Rotasi']),
+    grafting:parseNum(r['Grafting']),
+    matiGrafting:parseNum(r['Mati - Grafting']),
+    distribusi:parseNum(r['Distribusi']),
+    totalMati:parseNum(r['Total Mati']),
+    stokAkhir:parseNum(r['Stok Akhir (Dalam Proses)']),
+    survivalRate:parsePercent(r['Survival Rate']),
+    program:str(r['Program']),
+    desa:str(r['Desa']),
+    kth:str(r['KTH']),
   }));
 
-  destroyChart('chartTahapKomposisi');
-  CHARTS.chartTahapKomposisi = new Chart(document.getElementById('chartTahapKomposisi'), {
-    type: 'bar',
-    data: { labels: jenisOrdered, datasets: datasets2 },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw.toFixed(0)}%` } }
-      },
-      scales: {
-        x: { stacked: true, max: 100, grid: { color: COLOR.sand }, ticks: { color: COLOR.pine, callback: (v) => v + '%' } },
-        y: { stacked: true, grid: { display: false }, ticks: { color: '#20302B', font: { size: 12 } } },
-      }
-    }
-  });
+  const distTable=extractTable(distRows,['Tanggal','Program','Jumlah Bibit'],'Tanggal');
+  dist=distTable.data.map(r=>({
+    tanggal:parseDateFlexible(r['Tanggal']),
+    program:str(r['Program']),
+    kelompok:str(r['Kelompok']),
+    jenis:str(r['Jenis Tanaman']),
+    desa:str(r['Desa']),
+    kth:str(r['KTH']),
+    petani:str(r['Nama Petani (Tujuan)']),
+    jumlah:parseNum(r['Jumlah Bibit']),
+  }));
 
-  document.getElementById('legendTahap').innerHTML = TAHAP_ORDER.map(t =>
-    `<span><span class="dot" style="background:${tahapColors[t]}"></span>${t}</span>`
-  ).join('');
+  const desaTable=extractTable(desaRows,['No','Desa','KTH'],'No');
+  desaKth=desaTable.data.map(r=>({desa:str(r['Desa']),kth:str(r['KTH'])}));
+
+  renderAll();
+}).catch(err=>{
+  console.error('Gagal memuat data dari Google Sheets:',err);
+  document.getElementById('detailTbody').innerHTML='<tr><td colspan="15" class="error-msg">Gagal memuat data. Pastikan spreadsheet sudah dibagikan sebagai "Siapa saja yang memiliki tautan dapat melihat".</td></tr>';
+});
+
+function renderAll(){
+  const maxDate=dib.reduce((m,r)=>(r.tglSemai&&(!m||r.tglSemai>m))?r.tglSemai:m,null);
+  document.getElementById('lastDataDate').textContent = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+  renderKpiRingkasan();
+  renderChartStok();
+  renderChartKomposisi();
+  renderChartUmur();
+  renderChartSurvival();
+  renderFlow();
+  renderDistribusi();
+  renderDetailTable();
 }
 
-/* ============================= SECTION 3: PRODUKSI ============================= */
-function renderProduksiCharts(dib) {
-  // --- chart 1: Umur Bibit (stok yang masih dalam proses, per kategori umur) ---
-  const byUmur = groupSum(dib, 'Kategori Umur', 'Stok Akhir (Dalam Proses)');
-  const labelsU = UMUR_ORDER.filter(u => byUmur[u] !== undefined || true);
-  const valuesU = labelsU.map(u => byUmur[u] || 0);
+/* ============ 1. RINGKASAN KINERJA ============ */
+function renderKpiRingkasan(){
+  const totalBatch=dib.length;
+  const siapTanamBatch=dib.filter(r=>r.grafting>0||r.distribusi>0).length;
+  const jenisSet=new Set(dib.map(r=>r.jenis));
+  const totalBibitMasuk=dib.reduce((s,r)=>s+r.bibitMasuk,0);
+  const graftingDistribusi=dib.reduce((s,r)=>s+r.grafting+r.distribusi,0);
+  const totalMati=dib.reduce((s,r)=>s+r.totalMati,0);
+  const survivalKeseluruhan = totalBibitMasuk>0 ? (totalBibitMasuk-totalMati)/totalBibitMasuk : 0;
 
-  destroyChart('chartUmur');
-  CHARTS.chartUmur = new Chart(document.getElementById('chartUmur'), {
-    type: 'bar',
-    data: { labels: labelsU, datasets: [{ data: valuesU, backgroundColor: COLOR.fern, borderRadius: 2, maxBarThickness: 46 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => fmtInt(c.raw) + ' bibit' } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#20302B', font: { size: 11.5 } } },
-        y: { grid: { color: COLOR.sand }, ticks: { color: COLOR.pine } },
-      }
-    }
+  document.getElementById('kpiCapaian').textContent=siapTanamBatch;
+  document.getElementById('kpiCapaianTotal').textContent=totalBatch;
+  document.getElementById('kpiCapaianBar').style.width=(totalBatch?Math.round(siapTanamBatch/totalBatch*100):0)+'%';
+  document.getElementById('kpiJenis').textContent=jenisSet.size;
+  document.getElementById('kpiTotalBibit').textContent=fmtInt(totalBibitMasuk);
+  document.getElementById('kpiSiapTanam').textContent=fmtInt(graftingDistribusi);
+  document.getElementById('kpiSurvival').textContent=fmtPct(survivalKeseluruhan);
+}
+
+/* ============ 2. KONDISI STOK ============ */
+let chartStokInst=null, chartKomposisiInst=null;
+function aggBy(list, keyFn, valFn){
+  const m={};
+  list.forEach(r=>{const k=keyFn(r);m[k]=(m[k]||0)+valFn(r);});
+  return m;
+}
+function speciesSortedByStok(){
+  const m=aggBy(dib,r=>r.jenis,r=>r.stokAkhir);
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+}
+function renderChartStok(){
+  const entries=speciesSortedByStok();
+  const labels=entries.map(e=>e[0]);
+  const data=entries.map(e=>e[1]);
+  const ctx=document.getElementById('chartStok');
+  if(chartStokInst)chartStokInst.destroy();
+  chartStokInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:'#356760',borderRadius:3,barPercentage:.65}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtInt(c.parsed.x)+' bibit'}}},
+      scales:{x:{beginAtZero:true,ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}},
+               y:{ticks:{font:{size:10.5},color:'#4a4a44'},grid:{display:false}}}}
   });
+}
+function renderChartKomposisi(){
+  const species=[...new Set(dib.map(r=>r.jenis))];
+  const perSpecies=species.map(sp=>{
+    const rows=dib.filter(r=>r.jenis===sp);
+    const masuk=rows.reduce((s,r)=>s+r.bibitMasuk,0)||1;
+    const mati=rows.reduce((s,r)=>s+r.totalMati,0);
+    const grafting=rows.reduce((s,r)=>s+r.grafting,0);
+    const distribusi=rows.reduce((s,r)=>s+r.distribusi,0);
+    const proses=rows.reduce((s,r)=>s+r.stokAkhir,0);
+    return{sp,masuk,mati:mati/masuk,proses:proses/masuk,grafting:grafting/masuk,distribusi:distribusi/masuk};
+  }).sort((a,b)=>b.masuk-a.masuk);
 
-  // --- chart 2: Survival Rate per Jenis Tanaman (weighted, dengan status warna) ---
-  const jenisList = [...new Set(dib.map(r => r['Jenis Tanaman']))];
-  const survPerJenis = jenisList.map(j => {
-    const rows = dib.filter(r => r['Jenis Tanaman'] === j);
-    const masuk = sumField(rows, 'Bibit Masuk');
-    const mati = sumField(rows, 'Total Mati');
-    return { jenis: j, survival: masuk > 0 ? (masuk - mati) / masuk : 0 };
-  }).sort((a, b) => b.survival - a.survival);
-
-  const statusColor = (s) => s >= 0.95 ? COLOR.good : (s >= 0.90 ? COLOR.warn : COLOR.bad);
-
-  destroyChart('chartSurvival');
-  CHARTS.chartSurvival = new Chart(document.getElementById('chartSurvival'), {
-    type: 'bar',
-    data: {
-      labels: survPerJenis.map(d => d.jenis),
-      datasets: [{
-        data: survPerJenis.map(d => (d.survival * 100).toFixed(1)),
-        backgroundColor: survPerJenis.map(d => statusColor(d.survival)),
-        borderRadius: 2, maxBarThickness: 40,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.raw + '%' } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#20302B', font: { size: 11.5 } } },
-        y: { min: 0, max: 100, grid: { color: COLOR.sand }, ticks: { color: COLOR.pine, callback: (v) => v + '%' } },
-      }
-    }
+  const labels=perSpecies.map(p=>p.sp);
+  const ctx=document.getElementById('chartKomposisi');
+  if(chartKomposisiInst)chartKomposisiInst.destroy();
+  chartKomposisiInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Mati',data:perSpecies.map(p=>p.mati),backgroundColor:'#c2543f'},
+      {label:'Dalam Proses',data:perSpecies.map(p=>p.proses),backgroundColor:'#DCDACC'},
+      {label:'Grafting',data:perSpecies.map(p=>p.grafting),backgroundColor:'#8C9F8B'},
+      {label:'Distribusi',data:perSpecies.map(p=>p.distribusi),backgroundColor:'#356760'},
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.x*100).toFixed(1)+'%'}}},
+      scales:{x:{stacked:true,beginAtZero:true,max:1,ticks:{callback:v=>Math.round(v*100)+'%',font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}},
+               y:{stacked:true,ticks:{font:{size:10.5},color:'#4a4a44'},grid:{display:false}}}}
   });
 }
 
-/* ============================= SECTION 4: ALUR PERGERAKAN ============================= */
-function renderFlow(dib) {
-  const agg = {
-    bibitMasuk: sumField(dib, 'Bibit Masuk'),
-    semai: sumField(dib, 'Semai'),
-    matiSemai: sumField(dib, 'Mati - Semai'),
-    rotasi: sumField(dib, 'Rotasi'),
-    matiRotasi: sumField(dib, 'Mati - Rotasi'),
-    grafting: sumField(dib, 'Grafting'),
-    matiGrafting: sumField(dib, 'Mati - Grafting'),
-    distribusi: sumField(dib, 'Distribusi'),
-    totalMati: sumField(dib, 'Total Mati'),
-    stokAkhir: sumField(dib, 'Stok Akhir (Dalam Proses)'),
+/* ============ 3. KONDISI PRODUKSI ============ */
+let chartUmurInst=null, chartSurvivalInst=null;
+function renderChartUmur(){
+  const order=['0 - 1 Bulan','1 - 2 Bulan','2 - 3 Bulan','3 - 4 Bulan','> 4 Bulan'];
+  const m=aggBy(dib,r=>r.kategoriUmur,r=>r.bibitMasuk);
+  const data=order.map(k=>m[k]||0);
+  const ctx=document.getElementById('chartUmur');
+  if(chartUmurInst)chartUmurInst.destroy();
+  chartUmurInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels:order,datasets:[{data,backgroundColor:'#618273',borderRadius:4,barPercentage:.6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtInt(c.parsed.y)+' bibit'}}},
+      scales:{x:{ticks:{font:{size:9.5},color:'#9a9a90'},grid:{display:false}},
+               y:{beginAtZero:true,ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}}}}
+  });
+}
+function renderChartSurvival(){
+  const species=[...new Set(dib.map(r=>r.jenis))];
+  const perSpecies=species.map(sp=>{
+    const rows=dib.filter(r=>r.jenis===sp);
+    const masuk=rows.reduce((s,r)=>s+r.bibitMasuk,0);
+    const mati=rows.reduce((s,r)=>s+r.totalMati,0);
+    const rate=masuk>0?(masuk-mati)/masuk:0;
+    return{sp,rate};
+  }).sort((a,b)=>b.rate-a.rate);
+  const labels=perSpecies.map(p=>p.sp);
+  const data=perSpecies.map(p=>Math.round(p.rate*1000)/10);
+  const colors=perSpecies.map(p=>p.rate>=0.95?'#3f8f5c':p.rate>=0.90?'#d79a1f':'#c2543f');
+  const ctx=document.getElementById('chartSurvival');
+  if(chartSurvivalInst)chartSurvivalInst.destroy();
+  chartSurvivalInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4,barPercentage:.6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+'%'}}},
+      scales:{x:{ticks:{font:{size:9.5},color:'#9a9a90'},grid:{display:false}},
+               y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}}}}
+  });
+}
+
+/* ============ 4. ALUR PERGERAKAN BIBIT ============ */
+function renderFlow(){
+  const sum=k=>dib.reduce((s,r)=>s+r[k],0);
+  const totals={
+    bibitMasuk:sum('bibitMasuk'), semai:sum('semai'), matiSemai:sum('matiSemai'),
+    rotasi:sum('rotasi'), matiRotasi:sum('matiRotasi'), grafting:sum('grafting'),
+    matiGrafting:sum('matiGrafting'), distribusi:sum('distribusi'),
   };
-  const sisaRotasi = Math.max(agg.rotasi - agg.matiRotasi - agg.grafting - agg.distribusi, 0);
-  const berhasilGraft = Math.max(agg.grafting - agg.matiGrafting, 0);
+  document.getElementById('fkBibitMasuk').textContent=fmtInt(totals.bibitMasuk);
+  document.getElementById('fkSemai').textContent=fmtInt(totals.semai);
+  document.getElementById('fkMatiSemai').textContent=fmtInt(totals.matiSemai);
+  document.getElementById('fkRotasi').textContent=fmtInt(totals.rotasi);
+  document.getElementById('fkMatiRotasi').textContent=fmtInt(totals.matiRotasi);
+  document.getElementById('fkGrafting').textContent=fmtInt(totals.grafting);
+  document.getElementById('fkMatiGrafting').textContent=fmtInt(totals.matiGrafting);
+  document.getElementById('fkDistribusi').textContent=fmtInt(totals.distribusi);
 
-  // ---- KPI cards ----
-  const flowKpiDefs = [
-    ['Bibit Masuk', agg.bibitMasuk],
-    ['Semai', agg.semai],
-    ['Rotasi', agg.rotasi],
-    ['Grafting', agg.grafting],
-    ['Distribusi', agg.distribusi],
-    ['Total Mati', agg.totalMati],
-    ['Stok Dalam Proses', agg.stokAkhir],
-  ];
-  document.getElementById('flowKpis').innerHTML = flowKpiDefs.map(([label, val]) => `
-    <div class="flow-kpi"><div class="fk-label">${label}</div><div class="fk-value">${fmtInt(val)}</div></div>
-  `).join('');
-
-  // ---- Sankey ----
-  renderSankeySVG(document.getElementById('sankeyContainer'), agg, sisaRotasi, berhasilGraft);
-
-  // ---- Rincian table ----
-  const rincian = [
-    ['Bibit Masuk', agg.bibitMasuk],
-    ['Semai', agg.semai],
-    ['Mati - Semai', agg.matiSemai],
-    ['Rotasi', agg.rotasi],
-    ['Mati - Rotasi', agg.matiRotasi],
-    ['Grafting', agg.grafting],
-    ['Mati - Grafting', agg.matiGrafting],
-    ['Distribusi', agg.distribusi],
-    ['Total Mati (semua tahap)', agg.totalMati],
-    ['Stok Akhir (Dalam Proses)', agg.stokAkhir],
-  ];
-  const tbl = document.getElementById('rincianTable');
-  tbl.innerHTML = `
-    <thead><tr><th>Tahap</th><th>Jumlah (bibit)</th><th>% thd Bibit Masuk</th></tr></thead>
-    <tbody>
-      ${rincian.map(([label, val]) => `
-        <tr><td>${label}</td><td>${fmtInt(val)}</td><td>${agg.bibitMasuk > 0 ? fmtPct(val / agg.bibitMasuk) : '-'}</td></tr>
-      `).join('')}
-    </tbody>`;
-
-  // ---- Indikator ----
-  const indikators = [
-    ['Tingkat Kelangsungan Semai (Rotasi / Semai)', agg.semai > 0 ? agg.rotasi / agg.semai : 0],
-    ['Tingkat Kelangsungan Rotasi ((Rotasi−Mati Rotasi) / Rotasi)', agg.rotasi > 0 ? (agg.rotasi - agg.matiRotasi) / agg.rotasi : 0],
-    ['Proporsi ke Grafting (Grafting / (Grafting+Distribusi))', (agg.grafting + agg.distribusi) > 0 ? agg.grafting / (agg.grafting + agg.distribusi) : 0],
-    ['Proporsi ke Distribusi (Distribusi / (Grafting+Distribusi))', (agg.grafting + agg.distribusi) > 0 ? agg.distribusi / (agg.grafting + agg.distribusi) : 0],
-    ['Survival Rate Keseluruhan ((Bibit Masuk−Total Mati) / Bibit Masuk)', agg.bibitMasuk > 0 ? (agg.bibitMasuk - agg.totalMati) / agg.bibitMasuk : 0],
-  ];
-  document.getElementById('indikatorList').innerHTML = indikators.map(([label, val]) => `
-    <div class="indikator-row">
-      <div class="ind-label"><span>${label}</span><b>${fmtPct(val)}</b></div>
-      <div class="indikator-bar"><div class="indikator-bar-fill" style="width:${Math.min(val*100,100)}%"></div></div>
+  document.getElementById('flowDiagram').innerHTML=`
+    <div class="flow-box main"><div class="fb-label">Bibit Masuk</div><div class="fb-value">${fmtInt(totals.bibitMasuk)}</div></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-col">
+      <div class="flow-box mid"><div class="fb-label">Semai</div><div class="fb-value">${fmtInt(totals.semai)}</div></div>
+      <div class="flow-box die"><div class="fb-label">Mati - Semai</div><div class="fb-value">${fmtInt(totals.matiSemai)}</div></div>
     </div>
-  `).join('');
-}
-
-/* ---- Sankey renderer (SVG murni, tanpa library eksternal) ---- */
-function renderSankeySVG(container, agg, sisaRotasi, berhasilGraft) {
-  const W = 1180, H = 420;
-  const padTop = 30, padBottom = 40;
-  const plotH = H - padTop - padBottom;
-  const scale = agg.bibitMasuk > 0 ? plotH / agg.bibitMasuk : 0;
-  const nodeW = 22;
-  const colX = [40, 320, 600, 880, 1130 - nodeW];
-
-  const columns = [
-    [{ id: 'masuk', label: 'Bibit Masuk', value: agg.bibitMasuk, color: COLOR.pine }],
-    [{ id: 'semai', label: 'Semai', value: agg.semai, color: COLOR.fern }],
-    [
-      { id: 'rotasi', label: 'Rotasi', value: agg.rotasi, color: COLOR.moss },
-      { id: 'matiSemai', label: 'Mati - Semai', value: agg.matiSemai, color: COLOR.bad },
-    ],
-    [
-      { id: 'grafting', label: 'Grafting', value: agg.grafting, color: COLOR.pine },
-      { id: 'distribusi', label: 'Distribusi', value: agg.distribusi, color: COLOR.fern },
-      { id: 'sisa', label: 'Belum Diproses', value: sisaRotasi, color: COLOR.sage },
-      { id: 'matiRotasi', label: 'Mati - Rotasi', value: agg.matiRotasi, color: COLOR.bad },
-    ],
-    [
-      { id: 'berhasilGraft', label: 'Berhasil Digrafting', value: berhasilGraft, color: COLOR.pine },
-      { id: 'matiGrafting', label: 'Mati - Grafting', value: agg.matiGrafting, color: COLOR.bad },
-    ],
-  ];
-
-  const edges = [
-    { from: 'masuk', to: 'semai' },
-    { from: 'semai', to: 'rotasi' },
-    { from: 'semai', to: 'matiSemai' },
-    { from: 'rotasi', to: 'grafting' },
-    { from: 'rotasi', to: 'distribusi' },
-    { from: 'rotasi', to: 'sisa' },
-    { from: 'rotasi', to: 'matiRotasi' },
-    { from: 'grafting', to: 'berhasilGraft' },
-    { from: 'grafting', to: 'matiGrafting' },
-  ];
-
-  // layout: stack node dalam tiap kolom, hitung y & h
-  const nodeById = {};
-  const laidColumns = columns.map((col, ci) => {
-    let y = padTop;
-    return col.map(n => {
-      const h = Math.max(n.value * scale, n.value > 0 ? 1.5 : 0);
-      const laid = { ...n, x: colX[ci], y, h, colIndex: ci };
-      y += h;
-      nodeById[n.id] = laid;
-      return laid;
-    });
-  });
-
-  // hitung offset kumulatif per-parent untuk menempatkan pangkal ribbon
-  const parentOffset = {};
-  edges.forEach(e => { parentOffset[e.from] = 0; });
-
-  let ribbons = '';
-  edges.forEach(e => {
-    const src = nodeById[e.from];
-    const tgt = nodeById[e.to];
-    if (!src || !tgt || tgt.h <= 0) return;
-    const y1a = src.y + parentOffset[e.from];
-    const y1b = y1a + tgt.h;
-    parentOffset[e.from] += tgt.h;
-    const x1 = src.x + nodeW, x2 = tgt.x;
-    const y2a = tgt.y, y2b = tgt.y + tgt.h;
-    const mx = (x1 + x2) / 2;
-    const d = `M ${x1} ${y1a} C ${mx} ${y1a} ${mx} ${y2a} ${x2} ${y2a} L ${x2} ${y2b} C ${mx} ${y2b} ${mx} ${y1b} ${x1} ${y1b} Z`;
-    ribbons += `<path d="${d}" fill="${tgt.color}" fill-opacity="0.28" stroke="none"></path>`;
-  });
-
-  let nodesSvg = '';
-  let labelsSvg = '';
-  laidColumns.flat().forEach(n => {
-    if (n.h <= 0) return;
-    nodesSvg += `<rect x="${n.x}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="${n.color}"></rect>`;
-    const labelX = n.colIndex === laidColumns.length - 1 ? n.x - 8 : n.x + nodeW + 8;
-    const anchor = n.colIndex === laidColumns.length - 1 ? 'end' : 'start';
-    const midY = n.y + n.h / 2;
-    labelsSvg += `
-      <text x="${labelX}" y="${midY - 5}" text-anchor="${anchor}" font-family="Inter" font-size="12.5" font-weight="600" fill="#20302B">${n.label}</text>
-      <text x="${labelX}" y="${midY + 11}" text-anchor="${anchor}" font-family="Inter" font-size="11.5" fill="#5B6B62">${fmtInt(n.value)} bibit</text>
-    `;
-  });
-
-  container.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-      ${ribbons}
-      ${nodesSvg}
-      ${labelsSvg}
-    </svg>
-  `;
-}
-
-/* ============================= SECTION 5: DISTRIBUSI ============================= */
-function renderDistribusi(logDistribusi, masterDesa, dib) {
-  const totalYTD = sumField(logDistribusi, 'Jumlah Bibit');
-
-  // "bulan ini" = bulan-tahun terbaru yang tersedia di data (robust terhadap kapan halaman dibuka)
-  let latestYear = 0, latestMonth = 0;
-  logDistribusi.forEach(r => {
-    const y = parseInt(r['Tahun'], 10) || 0;
-    const m = parseInt(r['Bulan'], 10) || 0;
-    if (y > latestYear || (y === latestYear && m > latestMonth)) { latestYear = y; latestMonth = m; }
-  });
-  const bulanIni = logDistribusi.filter(r => parseInt(r['Tahun'], 10) === latestYear && parseInt(r['Bulan'], 10) === latestMonth);
-  const totalBulanIni = sumField(bulanIni, 'Jumlah Bibit');
-
-  const jumlahDesa = uniqueValues(masterDesa, 'Desa').length;
-  const jumlahKTH = uniqueValues(masterDesa, 'KTH').length;
-
-  const cards = [
-    { label: 'Total Distribusi (YTD)', value: fmtInt(totalYTD), unit: 'bibit' },
-    { label: 'Distribusi Bulan Terakhir Tercatat', value: fmtInt(totalBulanIni), unit: 'bibit' },
-    { label: 'Jumlah KTH', value: fmtInt(jumlahKTH), unit: 'kelompok tani hutan' },
-    { label: 'Jumlah Desa', value: fmtInt(jumlahDesa), unit: 'desa' },
-  ];
-  document.getElementById('distribusiKpis').innerHTML = cards.map(c => `
-    <div class="kpi-card">
-      <div class="kpi-label">${c.label}</div>
-      <div class="kpi-value">${c.value}</div>
-      <div class="kpi-unit">${c.unit}</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-col">
+      <div class="flow-box mid"><div class="fb-label">Rotasi</div><div class="fb-value">${fmtInt(totals.rotasi)}</div></div>
+      <div class="flow-box die"><div class="fb-label">Mati - Rotasi</div><div class="fb-value">${fmtInt(totals.matiRotasi)}</div></div>
     </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-branch">
+      <div class="flow-col" style="flex-direction:row;gap:14px;align-items:center">
+        <div class="flow-col">
+          <div class="flow-box end"><div class="fb-label">Grafting</div><div class="fb-value">${fmtInt(totals.grafting)}</div></div>
+          <div class="flow-box die"><div class="fb-label">Mati - Grafting</div><div class="fb-value">${fmtInt(totals.matiGrafting)}</div></div>
+        </div>
+        <div class="flow-box end" style="background:var(--color-pine)"><div class="fb-label">Distribusi</div><div class="fb-value">${fmtInt(totals.distribusi)}</div></div>
+      </div>
+    </div>`;
+
+  const stages=[
+    ['Bibit Masuk',totals.bibitMasuk],
+    ['Semai',totals.semai],
+    ['Mati - Semai',totals.matiSemai],
+    ['Rotasi',totals.rotasi],
+    ['Mati - Rotasi',totals.matiRotasi],
+    ['Grafting',totals.grafting],
+    ['Mati - Grafting',totals.matiGrafting],
+    ['Distribusi',totals.distribusi],
+  ];
+  document.getElementById('rincianTbody').innerHTML=stages.map(([label,val])=>`
+    <tr><td>${label}</td><td>${fmtInt(val)}</td><td>${totals.bibitMasuk>0?fmtPct(val/totals.bibitMasuk):'–'}</td></tr>
   `).join('');
 
-  // --- per program ---
-  const byProgram = groupSum(logDistribusi, 'Program', 'Jumlah Bibit');
-  const programLabels = Object.keys(byProgram);
-  destroyChart('chartProgram');
-  CHARTS.chartProgram = new Chart(document.getElementById('chartProgram'), {
-    type: 'bar',
-    data: { labels: programLabels, datasets: [{ data: programLabels.map(p => byProgram[p]), backgroundColor: programLabels.map((_, i) => colorFor(i)), borderRadius: 2, maxBarThickness: 50 }] },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => fmtInt(c.raw) + ' bibit' } } },
-      scales: {
-        x: { grid: { color: COLOR.sand }, ticks: { color: COLOR.pine } },
-        y: { grid: { display: false }, ticks: { color: '#20302B', font: { size: 12.5 } } },
-      }
-    }
+  const indikators=[
+    ['Efisiensi Semai (Semai / Bibit Masuk)', totals.bibitMasuk>0?totals.semai/totals.bibitMasuk:0],
+    ['Tingkat Kematian Semai (Mati - Semai / Semai)', totals.semai>0?totals.matiSemai/totals.semai:0],
+    ['Efisiensi Rotasi (Rotasi / Semai)', totals.semai>0?totals.rotasi/totals.semai:0],
+    ['Tingkat Kematian Rotasi (Mati - Rotasi / Rotasi)', totals.rotasi>0?totals.matiRotasi/totals.rotasi:0],
+    ['Konversi ke Grafting (Grafting / Rotasi)', totals.rotasi>0?totals.grafting/totals.rotasi:0],
+    ['Konversi ke Distribusi (Distribusi / Rotasi)', totals.rotasi>0?totals.distribusi/totals.rotasi:0],
+    ['Tingkat Kematian Grafting (Mati - Grafting / Grafting)', totals.grafting>0?totals.matiGrafting/totals.grafting:0],
+  ];
+  document.getElementById('indikatorList').innerHTML=indikators.map(([label,val])=>`
+    <div class="indicator-row">
+      <div class="indicator-label">${label}</div>
+      <div class="indicator-track"><div class="indicator-fill" style="width:${Math.min(100,Math.round(val*100))}%"></div></div>
+      <div class="indicator-val">${fmtPct(val)}</div>
+    </div>`).join('');
+}
+
+/* ============ 5. DISTRIBUSI BIBIT ============ */
+let chartProgramInst=null, chartKelompokInst=null, chartJenisDistInst=null;
+function renderDistribusi(){
+  const totalDistribusi=dist.reduce((s,r)=>s+r.jumlah,0);
+  const maxTgl=dist.reduce((m,r)=>(r.tanggal&&(!m||r.tanggal>m))?r.tanggal:m,null);
+  const bulanIni = maxTgl ? dist.filter(r=>r.tanggal&&r.tanggal.getMonth()===maxTgl.getMonth()&&r.tanggal.getFullYear()===maxTgl.getFullYear()).reduce((s,r)=>s+r.jumlah,0) : 0;
+  const jumlahKth = new Set(desaKth.map(r=>r.kth)).size || new Set(dist.map(r=>r.kth)).size;
+  const jumlahDesa = new Set(desaKth.map(r=>r.desa)).size || new Set(dist.map(r=>r.desa)).size;
+
+  document.getElementById('distTotal').textContent=fmtInt(totalDistribusi);
+  document.getElementById('distBulanIni').textContent=fmtInt(bulanIni);
+  document.getElementById('distKth').textContent=jumlahKth;
+  document.getElementById('distDesa').textContent=jumlahDesa;
+
+  const progM=aggBy(dist,r=>r.program,r=>r.jumlah);
+  const progLabels=Object.keys(progM);
+  const progData=progLabels.map(k=>progM[k]);
+  const ctxP=document.getElementById('chartProgram');
+  if(chartProgramInst)chartProgramInst.destroy();
+  chartProgramInst=new Chart(ctxP,{
+    type:'bar',
+    data:{labels:progLabels,datasets:[{data:progData,backgroundColor:'#356760',borderRadius:4,barPercentage:.5}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtInt(c.parsed.x)+' bibit'}}},
+      scales:{x:{beginAtZero:true,ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}},
+               y:{ticks:{font:{size:11},color:'#4a4a44'},grid:{display:false}}}}
   });
 
-  // --- per kelompok (donut) ---
-  const byKelompok = groupSum(logDistribusi, 'Kelompok', 'Jumlah Bibit');
-  const kelompokLabels = Object.keys(byKelompok);
-  destroyChart('chartKelompok');
-  CHARTS.chartKelompok = new Chart(document.getElementById('chartKelompok'), {
-    type: 'doughnut',
-    data: { labels: kelompokLabels, datasets: [{ data: kelompokLabels.map(k => byKelompok[k]), backgroundColor: kelompokLabels.map((_, i) => colorFor(i)), borderColor: '#fff', borderWidth: 2 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#20302B', font: { size: 11.5, family: 'Inter' }, boxWidth: 10, padding: 10 } },
-        tooltip: { callbacks: { label: (c) => `${c.label}: ${fmtInt(c.raw)} bibit` } }
-      }
-    }
+  const kelM=aggBy(dist,r=>r.kelompok,r=>r.jumlah);
+  const kelLabels=Object.keys(kelM);
+  const kelData=kelLabels.map(k=>kelM[k]);
+  const palette=['#356760','#8C9F8B','#DCDACC','#618273','#B5BBA9'];
+  const ctxK=document.getElementById('chartKelompok');
+  if(chartKelompokInst)chartKelompokInst.destroy();
+  chartKelompokInst=new Chart(ctxK,{
+    type:'doughnut',
+    data:{labels:kelLabels,datasets:[{data:kelData,backgroundColor:palette}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}},
+        tooltip:{callbacks:{label:c=>c.label+': '+fmtInt(c.parsed)+' bibit'}}}}
   });
 
-  // --- komposisi jenis tanaman didistribusikan (pie) ---
-  const byJenisDist = groupSum(logDistribusi, 'Jenis Tanaman', 'Jumlah Bibit');
-  const jenisDistSorted = Object.entries(byJenisDist).sort((a, b) => b[1] - a[1]);
-  destroyChart('chartJenisDistribusi');
-  CHARTS.chartJenisDistribusi = new Chart(document.getElementById('chartJenisDistribusi'), {
-    type: 'pie',
-    data: {
-      labels: jenisDistSorted.map(e => e[0]),
-      datasets: [{ data: jenisDistSorted.map(e => e[1]), backgroundColor: jenisDistSorted.map((_, i) => colorFor(i)), borderColor: '#fff', borderWidth: 2 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#20302B', font: { size: 10.5, family: 'Inter' }, boxWidth: 9, padding: 8 } },
-        tooltip: { callbacks: { label: (c) => `${c.label}: ${fmtInt(c.raw)} bibit` } }
-      }
-    }
+  const jenisM=aggBy(dist,r=>r.jenis,r=>r.jumlah);
+  const jenisEntries=Object.entries(jenisM).sort((a,b)=>b[1]-a[1]);
+  const jenisLabels=jenisEntries.map(e=>e[0]);
+  const jenisData=jenisEntries.map(e=>e[1]);
+  const ctxJ=document.getElementById('chartJenisDist');
+  if(chartJenisDistInst)chartJenisDistInst.destroy();
+  chartJenisDistInst=new Chart(ctxJ,{
+    type:'pie',
+    data:{labels:jenisLabels,datasets:[{data:jenisData,backgroundColor:['#356760','#618273','#8C9F8B','#B5BBA9','#DCDACC','#4a7a6c','#7a9285','#a3ac97','#c7c5b7','#e8e6da']}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:9,font:{size:9.5}}},
+        tooltip:{callbacks:{label:c=>{const total=jenisData.reduce((a,b)=>a+b,0);return c.label+': '+((c.parsed/total)*100).toFixed(0)+'%';}}}}}
   });
 }
 
-/* ============================= SECTION 6: DETAIL TABLE ============================= */
-const DETAIL_COLUMNS = [
-  'Kode Batch', 'Kelompok', 'Jenis Tanaman', 'Varietas', 'Tahap Bibit (terkini)',
-  'Bibit Masuk', 'Total Mati', 'Grafting', 'Distribusi', 'Stok Akhir (Dalam Proses)',
-  'Survival Rate', 'Program', 'Desa', 'KTH'
-];
-const NUMERIC_DETAIL_COLS = new Set(['Bibit Masuk', 'Total Mati', 'Grafting', 'Distribusi', 'Stok Akhir (Dalam Proses)']);
-
-function survivalBadge(val) {
-  const n = parseNum(val);
-  const pct = fmtPct(n);
-  if (n >= 0.95) return `<span class="badge badge-good">${pct}</span>`;
-  if (n >= 0.90) return `<span class="badge badge-warn">${pct}</span>`;
-  return `<span class="badge badge-bad">${pct}</span>`;
+/* ============ 6. DETAIL OPERASIONAL ============ */
+function survBadgeClass(rate){
+  if(rate>=0.95)return'surv-good';
+  if(rate>=0.90)return'surv-warn';
+  return'surv-bad';
 }
-
-function renderDetailTable(dib) {
-  const thead = document.querySelector('#detailTable thead');
-  thead.innerHTML = `<tr>${DETAIL_COLUMNS.map(c => `<th>${c}</th>`).join('')}</tr>`;
-  renderDetailRows(dib);
-  document.getElementById('tableSearch').value = '';
-}
-
-function renderDetailRows(rows) {
-  const tbody = document.querySelector('#detailTable tbody');
-  tbody.innerHTML = rows.map(r => `
+function renderDetailTable(){
+  const sorted=[...dib].sort((a,b)=>b.bibitMasuk-a.bibitMasuk);
+  const start=(detailPage-1)*DETAIL_PAGE_SIZE;
+  const pageRows=sorted.slice(start,start+DETAIL_PAGE_SIZE);
+  document.getElementById('detailTbody').innerHTML = pageRows.length ? pageRows.map(r=>`
     <tr>
-      ${DETAIL_COLUMNS.map(c => {
-        if (c === 'Survival Rate') return `<td>${survivalBadge(r[c])}</td>`;
-        if (NUMERIC_DETAIL_COLS.has(c)) return `<td>${fmtInt(parseNum(r[c]))}</td>`;
-        return `<td>${r[c] || '-'}</td>`;
-      }).join('')}
-    </tr>
-  `).join('');
-  document.getElementById('tableCount').textContent = `${rows.length} batch ditampilkan`;
+      <td><strong>${r.batch}</strong></td>
+      <td>${r.kelompok}</td>
+      <td>${r.jenis}</td>
+      <td>${r.varietas}</td>
+      <td>${r.umur}</td>
+      <td><span class="stage-badge">${r.tahap}</span></td>
+      <td>${fmtInt(r.bibitMasuk)}</td>
+      <td>${fmtInt(r.totalMati)}</td>
+      <td>${fmtInt(r.grafting)}</td>
+      <td>${fmtInt(r.distribusi)}</td>
+      <td>${fmtInt(r.stokAkhir)}</td>
+      <td><span class="surv-badge ${survBadgeClass(r.survivalRate)}">${fmtPct(r.survivalRate)}</span></td>
+      <td>${r.program}</td>
+      <td>${r.desa}</td>
+      <td>${r.kth}</td>
+    </tr>`).join('') : '<tr><td colspan="15" style="text-align:center;color:var(--color-muted);padding:20px">Tidak ada data</td></tr>';
+  const totalPages=Math.max(1,Math.ceil(sorted.length/DETAIL_PAGE_SIZE));
+  document.getElementById('pgInfo').textContent=`${sorted.length?start+1:0}-${Math.min(start+DETAIL_PAGE_SIZE,sorted.length)} / ${sorted.length}`;
+  document.getElementById('pgPrev').disabled=detailPage<=1;
+  document.getElementById('pgNext').disabled=detailPage>=totalPages;
 }
-
-function filterDetailTable() {
-  const q = document.getElementById('tableSearch').value.trim().toLowerCase();
-  if (!q) { renderDetailRows(DETAIL_ROWS); return; }
-  const filtered = DETAIL_ROWS.filter(r =>
-    ['Kode Batch', 'Jenis Tanaman', 'KTH', 'Desa', 'Varietas', 'Program', 'Kelompok'].some(c =>
-      (r[c] || '').toLowerCase().includes(q)
-    )
-  );
-  renderDetailRows(filtered);
-}
-
-/* ============================= util ============================= */
-function destroyChart(key) {
-  if (CHARTS[key]) { CHARTS[key].destroy(); delete CHARTS[key]; }
-}
-
-/* ============================= init ============================= */
-document.addEventListener('DOMContentLoaded', loadAll);
-
+document.getElementById('pgPrev').addEventListener('click',()=>{if(detailPage>1){detailPage--;renderDetailTable();}});
+document.getElementById('pgNext').addEventListener('click',()=>{
+  const totalPages=Math.max(1,Math.ceil(dib.length/DETAIL_PAGE_SIZE));
+  if(detailPage<totalPages){detailPage++;renderDetailTable();}
+});
 </script>
+
+<script src="auth-guard.js"></script>
 </body>
 </html>
