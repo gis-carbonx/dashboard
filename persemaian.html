@@ -431,10 +431,10 @@ Promise.all([
     survivalRate:parsePercent(r['Survival Rate']),
   }));
 
-  const distTable=extractTable(distRows,['Tanggal','Program','Jumlah Bibit'],'Tanggal');
+  const distTable=extractTable(distRows,['Tanggal','Program (Penggunaan Bibit)','Jumlah Bibit'],'Tanggal');
   dist=distTable.data.map(r=>({
     tanggal:parseDateFlexible(r['Tanggal']),
-    program:str(r['Program']),
+    program:str(r['Program (Penggunaan Bibit)']),
     kelompok:str(r['Kelompok']),
     jenis:str(r['Jenis Tanaman']),
     desa:str(r['Desa']),
