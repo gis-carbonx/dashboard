@@ -388,8 +388,34 @@ function extractTable(rows, requiredCols, keyCol){
 
 function fetchCsvRows(url){
   return new Promise((resolve,reject)=>{
-    Papa.parse(url,{download:true,header:false,skipEmptyLines:false,complete:(res)=>resolve(res.data),error:reject});
+    Papa.parse(url,{download:true,header:false,skipEmptyLines:false,
+      complete:(res)=>resolve(res.data),
+      error:(err)=>reject(err)});
   });
+}
+
+/* ============ BANNER DIAGNOSTIK ============ */
+function showDataBanner(kind,title,lines){
+  const box=document.createElement('div');
+  box.style.cssText='margin:0 0 20px;padding:16px 18px;border-radius:6px;font-family:Inter,sans-serif;font-size:12.5px;line-height:1.7;'
+    +(kind==='error'
+      ? 'background:#FDECEA;border:1px solid #f3b7ae;color:#8a1f1f;'
+      : 'background:#FFF6DE;border:1px solid #f0d98c;color:#6b5100;');
+  box.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${title}</div>`
+    + lines.map(l=>`<div>&bull; ${l}</div>`).join('');
+  const report=document.querySelector('.report');
+  report.insertBefore(box, report.firstChild);
+}
+
+function checkRunningLocally(){
+  if(location.protocol==='file:'){
+    showDataBanner('error','Halaman dibuka langsung dari file lokal (file://)',[
+      'Browser memblokir pengambilan data dari Google Sheets kalau file dibuka dengan cara diklik/di-drag ke browser (protokol file://).',
+      'Upload file ini ke GitHub Pages (atau jalankan lewat server lokal, mis. "npx serve" / Live Server di VS Code), lalu buka lewat URL http(s)://.',
+    ]);
+    return true;
+  }
+  return false;
 }
 
 /* ============ STATE ============ */
@@ -400,13 +426,34 @@ let detailPage=1;
 const DETAIL_PAGE_SIZE=8;
 
 /* ============ LOAD & RENDER ============ */
+const isLocalFile=checkRunningLocally();
+
 Promise.all([
   fetchCsvRows(gvizUrl(DIB_SHEET)),
   fetchCsvRows(gvizUrl(DIST_SHEET)),
   fetchCsvRows(gvizUrl(DESA_SHEET)),
 ]).then(([dibRows,distRows,desaRows])=>{
+  console.log('[Persemaian] baris mentah "'+DIB_SHEET+'":', dibRows.length, dibRows.slice(0,6));
+  console.log('[Persemaian] baris mentah "'+DIST_SHEET+'":', distRows.length, distRows.slice(0,6));
+  console.log('[Persemaian] baris mentah "'+DESA_SHEET+'":', desaRows.length, desaRows.slice(0,6));
 
   const dibTable=extractTable(dibRows,['Kode Batch','Jenis Tanaman','Bibit Masuk'],'Kode Batch');
+  const distTableCheck=extractTable(distRows,['Tanggal','Program','Jumlah Bibit'],'Tanggal');
+  const desaTableCheck=extractTable(desaRows,['No','Desa','KTH'],'No');
+
+  const problems=[];
+  if(dibTable.data.length===0) problems.push(`Sheet "${DIB_SHEET}": header/kolom yang dibutuhkan (Kode Batch, Jenis Tanaman, Bibit Masuk) tidak ditemukan, atau tidak ada baris data.`);
+  if(distTableCheck.data.length===0) problems.push(`Sheet "${DIST_SHEET}": header/kolom yang dibutuhkan (Tanggal, Program, Jumlah Bibit) tidak ditemukan, atau tidak ada baris data.`);
+  if(desaTableCheck.data.length===0) problems.push(`Sheet "${DESA_SHEET}": header/kolom yang dibutuhkan (No, Desa, KTH) tidak ditemukan, atau tidak ada baris data.`);
+
+  if(problems.length && !isLocalFile){
+    showDataBanner('warn','Sebagian data tidak terbaca dari Google Sheets',[
+      ...problems,
+      'Kemungkinan penyebab: (1) nama sheet di spreadsheet Anda berbeda dari yang dicari di kode (cek ejaan &amp; spasi persis), (2) spreadsheet belum dibagikan sebagai "Anyone with the link: Viewer", atau (3) baris header di sheet tersebut sudah bergeser/berubah.',
+      'Buka F12 &rarr; tab Console di browser untuk melihat cuplikan data mentah yang berhasil diambil (membantu menemukan sheet mana yang salah baca).',
+    ]);
+  }
+
   dib=dibTable.data.map(r=>({
     batch:str(r['Kode Batch']),
     kelompok:str(r['Kelompok']),
@@ -450,7 +497,14 @@ Promise.all([
   renderAll();
 }).catch(err=>{
   console.error('Gagal memuat data dari Google Sheets:',err);
-  document.getElementById('detailTbody').innerHTML='<tr><td colspan="15" class="error-msg">Gagal memuat data. Pastikan spreadsheet sudah dibagikan sebagai "Siapa saja yang memiliki tautan dapat melihat".</td></tr>';
+  document.getElementById('detailTbody').innerHTML='<tr><td colspan="15" class="error-msg">Gagal memuat data. Lihat pesan di bagian atas halaman.</td></tr>';
+  if(!isLocalFile){
+    showDataBanner('error','Gagal mengambil data dari Google Sheets',[
+      'Pastikan spreadsheet sudah dibagikan sebagai "Anyone with the link: Viewer" (Siapa saja yang memiliki tautan &rarr; Dapat melihat).',
+      'Cek koneksi internet, dan pastikan halaman ini diakses lewat http(s)://, bukan dibuka langsung dari file lokal.',
+      'Detail teknis error ada di F12 &rarr; tab Console.',
+    ]);
+  }
 });
 
 function renderAll(){
