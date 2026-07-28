@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Persemaian — Sanggala Corridor Project</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --cream:#FFFAF3;
+    --sand:#DCDACC;
+    --sage:#B5BBA9;
+    --moss:#8C9F8B;
+    --fern:#618273;
+    --pine:#356760;
+
+    --status-good:#3F7D4F;
+    --status-warn:#C98A32;
+    --status-bad:#B24A3D;
+
+    --ink:#20302B;
+    --ink-soft:#5B6B62;
+    --card-bg:#FFFFFF;
+
+    --font-display:'Source Serif 4', Georgia, serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --radius:0px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sand);
+    font-family:var(--font-body);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ============ SITE NAVBAR (struktur standar situs) ============ */
+  .site-navbar{
+    background:var(--cream);
+    border-bottom:1px solid var(--sand);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 28px;
+    font-family:var(--font-body);
+  }
+  .site-navbar .brand{display:flex;align-items:center;gap:10px;}
+  .site-navbar .brand img{height:28px;display:block;}
+  .site-navbar .brand img.fallback-hide{display:none;}
+  .site-navbar .brand span{font-weight:700;font-size:15px;letter-spacing:.2px;color:var(--pine);}
+  .site-navbar nav{display:flex;gap:26px;}
+  .site-navbar nav a{
+    color:var(--ink-soft);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+  }
+  .site-navbar nav a.active,.site-navbar nav a:hover{color:var(--pine);}
+
+  /* ============ DASHBOARD FRAME (struktur standar) ============ */
+  .dashboard-frame{
+    background:var(--cream);
+    margin:28px;
+    border:1px solid var(--sand);
+    border-radius:var(--radius);
+    box-shadow:0 1px 3px rgba(32,48,43,0.06);
+    overflow:hidden;
+  }
+
+  /* ============ HEADER ============ */
+  .dash-header{
+    padding:32px 36px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--sand);
+  }
+  .dash-header h1{
+    font-family:var(--font-display);
+    font-size:30px;
+    font-weight:700;
+    color:var(--pine);
+    margin:0 0 8px 0;
+    letter-spacing:.2px;
+  }
+  .dash-header p{
+    margin:0;
+    max-width:640px;
+    color:var(--ink-soft);
+    font-size:14px;
+    line-height:1.6;
+  }
+  .data-badge{
+    background:var(--cream);
+    border:1px solid var(--sand);
+    padding:12px 18px;
+    text-align:right;
+    min-width:200px;
+    flex-shrink:0;
+  }
+  .data-badge .label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+  .data-badge .value{font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--pine);margin-top:2px;}
+  .data-badge .sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}
+  .data-badge .sub.error{color:var(--status-bad);}
+  .refresh-btn{
+    margin-top:8px;
+    font-size:11px;
+    background:var(--pine);
+    color:var(--cream);
+    border:none;
+    padding:5px 10px;
+    cursor:pointer;
+    font-family:var(--font-body);
+    font-weight:600;
+    letter-spacing:.02em;
+  }
+  .refresh-btn:hover{background:var(--fern);}
+  .refresh-btn:disabled{opacity:.5;cursor:default;}
+
+  /* ============ SECTION ============ */
+  .section{padding:28px 36px;border-bottom:1px solid var(--sand);}
+  .section:last-of-type{border-bottom:none;}
+  .section-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+  .section-num{
+    flex-shrink:0;
+    width:28px;height:28px;
+    background:var(--pine);
+    color:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+  }
+  .section-title-wrap{display:flex;flex-direction:column;gap:2px;}
+  .section-title{font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--ink);}
+  .section-desc{font-size:13px;color:var(--ink-soft);max-width:560px;line-height:1.5;}
+
+  /* ============ KPI CARDS ============ */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;}
+  .kpi-card{
+    background:var(--card-bg);
+    border:1px solid var(--sand);
+    padding:18px 18px 16px;
+  }
+  .kpi-card .kpi-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;font-weight:500;}
+  .kpi-card .kpi-value{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--pine);line-height:1;}
+  .kpi-card .kpi-unit{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  .kpi-card .kpi-bar{height:5px;background:var(--sand);margin-top:12px;overflow:hidden;}
+  .kpi-card .kpi-bar-fill{height:100%;background:var(--fern);}
+
+  /* ============ CHART GRID ============ */
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:900px){.chart-grid{grid-template-columns:1fr;}}
+  .chart-card{background:var(--card-bg);border:1px solid var(--sand);padding:18px 20px 14px;}
+  .chart-card h3{font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--ink);margin:0 0 14px 0;}
+  .chart-card .chart-wrap{position:relative;height:280px;}
+  .chart-card .chart-wrap.tall{height:340px;}
+  .legend-row{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
+  .legend-row .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+
+  /* ============ FLOW / SANKEY ============ */
+  .flow-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
+  .flow-kpi{background:var(--card-bg);border:1px solid var(--sand);padding:12px 14px;}
+  .flow-kpi .fk-label{font-size:11px;color:var(--ink-soft);margin-bottom:6px;}
+  .flow-kpi .fk-value{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--pine);}
+  .sankey-card{background:var(--card-bg);border:1px solid var(--sand);padding:20px;margin-bottom:16px;}
+  .sankey-card svg{width:100%;height:auto;display:block;}
+  .sankey-card .sankey-note{font-size:11.5px;color:var(--ink-soft);margin-top:10px;}
+
+  .flow-detail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;}
+  @media (max-width:900px){.flow-detail-grid{grid-template-columns:1fr;}}
+  .rincian-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .rincian-table th{text-align:left;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--sand);padding:8px 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .rincian-table td{padding:8px 6px;border-bottom:1px solid var(--sand);}
+  .rincian-table tr:last-child td{border-bottom:none;font-weight:700;}
+  .indikator-row{margin-bottom:12px;}
+  .indikator-row .ind-label{font-size:12.5px;color:var(--ink);margin-bottom:5px;display:flex;justify-content:space-between;}
+  .indikator-row .ind-label b{color:var(--pine);}
+  .indikator-bar{height:8px;background:var(--sand);width:100%;}
+  .indikator-bar-fill{height:100%;background:var(--fern);}
+
+  /* ============ TABLE (Detail Operasional) ============ */
+  .table-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap;}
+  .search-box{
+    border:1px solid var(--sand);
+    background:var(--card-bg);
+    padding:8px 12px;
+    font-family:var(--font-body);
+    font-size:13px;
+    width:260px;
+    max-width:100%;
+  }
+  .search-box:focus{outline:2px solid var(--fern);outline-offset:-1px;}
+  .table-count{font-size:12px;color:var(--ink-soft);}
+  .table-scroll{overflow-x:auto;border:1px solid var(--sand);background:var(--card-bg);}
+  table.detail-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1100px;}
+  table.detail-table th{
+    text-align:left;background:var(--cream);color:var(--ink-soft);
+    padding:10px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+    border-bottom:1px solid var(--sand);position:sticky;top:0;
+  }
+  table.detail-table td{padding:9px 10px;border-bottom:1px solid var(--sand);color:var(--ink);white-space:nowrap;}
+  table.detail-table tr:hover td{background:#FAF7EE;}
+  .badge{padding:2px 8px;font-size:11px;font-weight:600;display:inline-block;}
+  .badge-good{background:rgba(63,125,79,0.12);color:var(--status-good);}
+  .badge-warn{background:rgba(201,138,50,0.14);color:var(--status-warn);}
+  .badge-bad{background:rgba(178,74,61,0.13);color:var(--status-bad);}
+
+  /* ============ LOADING / ERROR ============ */
+  .loading-state{
+    display:flex;align-items:center;gap:10px;
+    padding:40px 20px;justify-content:center;
+    color:var(--ink-soft);font-size:13px;
+  }
+  .spinner{
+    width:16px;height:16px;border:2px solid var(--sand);
+    border-top-color:var(--fern);border-radius:50%;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error-box{
+    background:rgba(178,74,61,0.08);
+    border:1px solid var(--status-bad);
+    color:var(--status-bad);
+    padding:14px 18px;
+    font-size:13px;
+    line-height:1.6;
+  }
+  .fine-note{font-size:11px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
+
+  .dash-footer{padding:18px 36px;font-size:11.5px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Sanggala" onerror="this.classList.add('fallback-hide')">
+    <span>Sanggala Corridor Project</span>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="list.html">Activities</a>
+    <a href="#" class="active">Dashboard</a>
+  </nav>
+</header>
+
+<div class="dashboard-frame">
+
+  <div class="dash-header">
+    <div>
+      <h1>Dashboard Persemaian</h1>
+      <p>Dashboard ini menyajikan informasi produksi, pergerakan tahap (Bibit Masuk → Semai → Rotasi → Grafting/Distribusi), distribusi, dan keberhasilan bibit secara menyeluruh untuk mendukung pemantauan operasional persemaian.</p>
+    </div>
+    <div class="data-badge">
+      <div class="label">Sumber Data</div>
+      <div class="value">Google Sheets (live)</div>
+      <div class="sub" id="lastUpdated">Memuat data…</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">Muat Ulang</button>
+    </div>
+  </div>
+
+  <div id="loadingState" class="loading-state">
+    <span class="spinner"></span> Mengambil data dari Google Sheets…
+  </div>
+  <div id="errorState" style="display:none;padding:28px 36px;">
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div id="dashboardContent" style="display:none;">
+
+    <!-- ============ SECTION 1: RINGKASAN KINERJA ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Ringkasan Kinerja</div>
+          <div class="section-desc">Gambaran umum kondisi persemaian secara keseluruhan.</div>
+        </div>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <!-- ============ SECTION 2: KONDISI STOK ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Kondisi Stok</div>
+          <div class="section-desc">Jumlah bibit masuk per jenis tanaman, serta tahap yang sedang dijalani tiap batch saat ini.</div>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Bibit Masuk per Jenis Tanaman</h3>
+          <div class="chart-wrap tall"><canvas id="chartStokJenis"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Komposisi Tahap Saat Ini per Jenis Tanaman</h3>
+          <div class="chart-wrap tall"><canvas id="chartTahapKomposisi"></canvas></div>
+          <div class="legend-row" id="legendTahap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECTION 3: KONDISI PRODUKSI ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Kondisi Produksi</div>
+          <div class="section-desc">Distribusi umur bibit dan tingkat keberhasilan (survival rate) tiap jenis tanaman.</div>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Umur Bibit (Stok yang Masih Dalam Proses)</h3>
+          <div class="chart-wrap"><canvas id="chartUmur"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Survival Rate per Jenis Tanaman</h3>
+          <div class="chart-wrap"><canvas id="chartSurvival"></canvas></div>
+          <div class="legend-row">
+            <span><span class="dot" style="background:var(--status-good)"></span>&ge; 95% (Baik)</span>
+            <span><span class="dot" style="background:var(--status-warn)"></span>90–95% (Perlu Perhatian)</span>
+            <span><span class="dot" style="background:var(--status-bad)"></span>&lt; 90% (Perlu Tindakan)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECTION 4: ALUR PERGERAKAN BIBIT ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Alur Pergerakan Bibit</div>
+          <div class="section-desc">Menjelaskan alur bibit: Bibit Masuk → Semai → Rotasi → lalu bercabang menjadi Grafting atau langsung Distribusi. Kematian bisa terjadi di tahap Semai, Rotasi, maupun Grafting.</div>
+        </div>
+      </div>
+      <div class="flow-kpis" id="flowKpis"></div>
+      <div class="sankey-card">
+        <div id="sankeyContainer"></div>
+        <div class="sankey-note">Lebar tiap ruas sebanding dengan jumlah bibit. Ruas merah menunjukkan bibit yang mati/tidak survive di tahap tersebut.</div>
+      </div>
+      <div class="flow-detail-grid">
+        <div class="chart-card">
+          <h3>Rincian Pergerakan Bibit</h3>
+          <table class="rincian-table" id="rincianTable"></table>
+        </div>
+        <div class="chart-card">
+          <h3>Indikator Pergerakan</h3>
+          <div id="indikatorList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECTION 5: DISTRIBUSI BIBIT ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Distribusi Bibit</div>
+          <div class="section-desc">Menunjukkan total bibit yang telah didistribusikan, sebaran per program, per kelompok, serta komposisi jenis tanaman yang telah disalurkan.</div>
+        </div>
+      </div>
+      <div class="kpi-grid" id="distribusiKpis" style="margin-bottom:16px;"></div>
+      <div class="chart-grid" style="grid-template-columns:1.2fr 1fr 1fr;">
+        <div class="chart-card">
+          <h3>Distribusi per Program (YTD)</h3>
+          <div class="chart-wrap"><canvas id="chartProgram"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Distribusi per Kelompok (YTD)</h3>
+          <div class="chart-wrap"><canvas id="chartKelompok"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Komposisi Jenis Tanaman Didistribusikan</h3>
+          <div class="chart-wrap"><canvas id="chartJenisDistribusi"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SECTION 6: DETAIL OPERASIONAL ============ -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-num">6</div>
+        <div class="section-title-wrap">
+          <div class="section-title">Detail Operasional</div>
+          <div class="section-desc">Rincian tiap batch bibit untuk memudahkan pemantauan operasional.</div>
+        </div>
+      </div>
+      <div class="table-controls">
+        <input type="text" class="search-box" id="tableSearch" placeholder="Cari kode batch, jenis tanaman, KTH…" oninput="filterDetailTable()">
+        <div class="table-count" id="tableCount"></div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail-table" id="detailTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="fine-note">Kolom "Nama Petani (Tujuan)" pada Log Distribusi belum ditampilkan di sini karena belum dipakai oleh KPI/grafik manapun.</div>
+    </div>
+
+  </div>
+
+  <div class="dash-footer">
+    Data bersumber langsung dari Google Sheets dan dimuat ulang setiap kali halaman dibuka. Tanggal semai &amp; umur bibit dihitung terhadap tanggal saat halaman diakses.
+  </div>
+</div>
+
+<!-- auth-guard.js: wajib disertakan sesuai konvensi situs (script bersama, tidak diduplikasi di sini) -->
+<script src="auth-guard.js"></script>
+
+<script src="persemaian.js"></script>
+</body>
+</html>
