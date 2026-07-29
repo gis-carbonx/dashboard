@@ -227,7 +227,7 @@
     <div class="section-subtitle">Sebaran umur batch bibit dan tingkat keberhasilan (survival rate) tiap jenis tanaman.</div>
     <div class="two-col-row">
       <div class="panel">
-        <div class="panel-heading">Bibit Masuk per Kategori Umur Batch</div>
+        <div class="panel-heading">Benih Masuk per Kategori Umur Batch</div>
         <div class="chart-wrap"><canvas id="chartUmur"></canvas></div>
       </div>
       <div class="panel">
@@ -243,9 +243,9 @@
 
     <!-- 4. ALUR PERGERAKAN BIBIT -->
     <h2 class="section-title"><span class="section-num">4</span>Alur Pergerakan Bibit</h2>
-    <div class="section-subtitle">Bibit Masuk &rarr; Semai &rarr; Rotasi &rarr; sebagian digrafting &amp; sebagian tidak &rarr; keduanya masuk Pembesaran &rarr; Bibit Siap Tanam &rarr; tetap Stok Nursery atau Distribusi. Bibit dapat mati/tidak survive di tahap Semai, Rotasi, maupun Pembesaran.</div>
+    <div class="section-subtitle">Benih Masuk &rarr; Semai &rarr; Seleksi &rarr; Pembesaran 1 &rarr; sebagian langsung ke Bibit Siap Tanam (BST), sebagian lagi ke Grafting &rarr; Pembesaran 2 &rarr; baru ke BST &rarr; tetap Stok Nursery atau Distribusi. Bibit dapat mati/tidak survive di tahap Semai, Seleksi, maupun kedua tahap Pembesaran.</div>
     <div class="kpi-row kpi-row-5" id="flowKpiRow">
-      <div class="kpi-card"><div class="kpi-label">Bibit Masuk</div><div class="kpi-value sm" id="fkBibitMasuk">&ndash;</div></div>
+      <div class="kpi-card"><div class="kpi-label">Benih Masuk</div><div class="kpi-value sm" id="fkBenihMasuk">&ndash;</div></div>
       <div class="kpi-card"><div class="kpi-label">Total Mati (semua tahap)</div><div class="kpi-value sm" id="fkTotalMati">&ndash;</div></div>
       <div class="kpi-card"><div class="kpi-label">Digrafting</div><div class="kpi-value sm" id="fkGrafting">&ndash;</div></div>
       <div class="kpi-card"><div class="kpi-label">Bibit Siap Tanam</div><div class="kpi-value sm" id="fkSiapTanam">&ndash;</div></div>
@@ -290,7 +290,7 @@
       <table class="data-tbl">
         <thead><tr>
           <th>Kode Batch</th><th>Kelompok</th><th>Jenis Tanaman</th><th>Varietas</th><th>Umur (hari)</th>
-          <th>Tahap Terkini</th><th>Bibit Masuk</th><th>Total Mati</th><th>Grafting</th><th>Siap Tanam</th>
+          <th>Tahap Terkini</th><th>Benih Masuk</th><th>Total Mati</th><th>Grafting</th><th>Siap Tanam</th>
           <th>Stok Nursery</th><th>Distribusi</th><th>Survival Rate</th>
         </tr></thead>
         <tbody id="detailTbody"><tr><td colspan="13" class="loading-msg">Memuat data&hellip;</td></tr></tbody>
@@ -389,7 +389,7 @@ Promise.all([
   fetchCsvRows(gvizUrl(DIST_SHEET)),
   fetchCsvRows(gvizUrl(DESA_SHEET)),
 ]).then(([dibRows,distRows,desaRows])=>{
-  const dibTable=extractTable(dibRows,['Kode Batch','Jenis Tanaman','Bibit Masuk'],'Kode Batch');
+  const dibTable=extractTable(dibRows,['Kode Batch','Jenis Tanaman','Benih Masuk'],'Kode Batch');
 
   dib=dibTable.data.map(r=>({
     batch:str(r['Kode Batch']),
@@ -400,14 +400,16 @@ Promise.all([
     umur:parseNum(r['Umur (hari)']),
     kategoriUmur:str(r['Kategori Umur']),
     tahap:str(r['Tahap Bibit (terkini)']),
-    bibitMasuk:parseNum(r['Bibit Masuk']),
+    benihMasuk:parseNum(r['Benih Masuk']),
     semai:parseNum(r['Semai']),
     matiSemai:parseNum(r['Mati - Semai']),
-    rotasi:parseNum(r['Rotasi']),
-    matiRotasi:parseNum(r['Mati - Rotasi']),
+    seleksi:parseNum(r['Seleksi']),
+    matiSeleksi:parseNum(r['Mati - Seleksi']),
+    pembesaran1:parseNum(r['Pembesaran 1']),
+    matiPembesaran1:parseNum(r['Mati - Pembesaran 1']),
     grafting:parseNum(r['Grafting']),
-    pembesaran:parseNum(r['Pembesaran']),
-    matiPembesaran:parseNum(r['Mati - Pembesaran']),
+    pembesaran2:parseNum(r['Pembesaran 2']),
+    matiPembesaran2:parseNum(r['Mati - Pembesaran 2']),
     siapTanam:parseNum(r['Siap Tanam']),
     distribusi:parseNum(r['Distribusi']),
     totalMati:parseNum(r['Total Mati']),
@@ -453,7 +455,7 @@ function renderAll(){
 /* ============ 1. RINGKASAN KINERJA ============ */
 function renderKpiRingkasan(){
   const jenisSet=new Set(dib.map(r=>r.jenis));
-  const totalBibitMasuk=dib.reduce((s,r)=>s+r.bibitMasuk,0);
+  const totalBibitMasuk=dib.reduce((s,r)=>s+r.benihMasuk,0);
   const totalSiapTanam=dib.reduce((s,r)=>s+r.siapTanam,0);
   const totalStokNursery=dib.reduce((s,r)=>s+r.stokNursery,0);
   const totalMati=dib.reduce((s,r)=>s+r.totalMati,0);
@@ -498,7 +500,7 @@ function renderChartKomposisi(){
   const species=[...new Set(dib.map(r=>r.jenis))];
   const perSpecies=species.map(sp=>{
     const rows=dib.filter(r=>r.jenis===sp);
-    const masuk=rows.reduce((s,r)=>s+r.bibitMasuk,0)||1;
+    const masuk=rows.reduce((s,r)=>s+r.benihMasuk,0)||1;
     const mati=rows.reduce((s,r)=>s+r.totalMati,0);
     const siapTanam=rows.reduce((s,r)=>s+r.siapTanam,0);
     const distribusi=rows.reduce((s,r)=>s+r.distribusi,0);
@@ -530,7 +532,7 @@ function renderChartKomposisi(){
 let chartUmurInst=null, chartSurvivalInst=null;
 function renderChartUmur(){
   const order=['0 - 1 Bulan','1 - 2 Bulan','2 - 3 Bulan','3 - 4 Bulan','> 4 Bulan'];
-  const m=aggBy(dib,r=>r.kategoriUmur,r=>r.bibitMasuk);
+  const m=aggBy(dib,r=>r.kategoriUmur,r=>r.benihMasuk);
   const data=order.map(k=>m[k]||0);
   const ctx=document.getElementById('chartUmur');
   if(chartUmurInst)chartUmurInst.destroy();
@@ -547,7 +549,7 @@ function renderChartSurvival(){
   const species=[...new Set(dib.map(r=>r.jenis))];
   const perSpecies=species.map(sp=>{
     const rows=dib.filter(r=>r.jenis===sp);
-    const masuk=rows.reduce((s,r)=>s+r.bibitMasuk,0);
+    const masuk=rows.reduce((s,r)=>s+r.benihMasuk,0);
     const mati=rows.reduce((s,r)=>s+r.totalMati,0);
     const rate=masuk>0?(masuk-mati)/masuk:0;
     return{sp,rate};
@@ -571,66 +573,69 @@ function renderChartSurvival(){
 function renderFlow(){
   const sum=k=>dib.reduce((s,r)=>s+r[k],0);
   const totals={
-    bibitMasuk:sum('bibitMasuk'), semai:sum('semai'), matiSemai:sum('matiSemai'),
-    rotasi:sum('rotasi'), matiRotasi:sum('matiRotasi'), grafting:sum('grafting'),
-    pembesaran:sum('pembesaran'), matiPembesaran:sum('matiPembesaran'),
+    benihMasuk:sum('benihMasuk'), semai:sum('semai'), matiSemai:sum('matiSemai'),
+    seleksi:sum('seleksi'), matiSeleksi:sum('matiSeleksi'),
+    pembesaran1:sum('pembesaran1'), matiPembesaran1:sum('matiPembesaran1'),
+    grafting:sum('grafting'), pembesaran2:sum('pembesaran2'), matiPembesaran2:sum('matiPembesaran2'),
     siapTanam:sum('siapTanam'), distribusi:sum('distribusi'),
     totalMati:sum('totalMati'), stokNursery:sum('stokNursery'),
   };
-  const nonGrafting=Math.max(0,totals.rotasi-totals.matiRotasi-totals.grafting);
+  const langsungBST=Math.max(0,totals.pembesaran1-totals.matiPembesaran1-totals.grafting);
 
-  document.getElementById('fkBibitMasuk').textContent=fmtInt(totals.bibitMasuk);
+  document.getElementById('fkBenihMasuk').textContent=fmtInt(totals.benihMasuk);
   document.getElementById('fkTotalMati').textContent=fmtInt(totals.totalMati);
   document.getElementById('fkGrafting').textContent=fmtInt(totals.grafting);
   document.getElementById('fkSiapTanam').textContent=fmtInt(totals.siapTanam);
   document.getElementById('fkDistribusi').textContent=fmtInt(totals.distribusi);
 
-  renderSankey(totals, nonGrafting);
+  renderSankey(totals, langsungBST);
 }
 
-function renderSankey(totals, nonGrafting){
+function renderSankey(totals, langsungBST){
   const container=document.getElementById('sankeyContainer');
   container.innerHTML='';
 
-  const belumDisemai=Math.max(0,totals.bibitMasuk-totals.semai);
+  const belumDisemai=Math.max(0,totals.benihMasuk-totals.semai);
 
   const nodeDefs=[
-    {id:'Bibit Masuk',      color:'#356760'},
-    {id:'Semai',            color:'#356760'},
-    {id:'Belum Disemai',    color:'#B5BBA9'},
-    {id:'Mati - Semai',     color:'#c2543f'},
-    {id:'Rotasi',           color:'#356760'},
-    {id:'Mati - Rotasi',    color:'#c2543f'},
-    {id:'Digrafting',       color:'#618273'},
-    {id:'Tanpa Grafting',   color:'#8C9F8B'},
-    {id:'Pembesaran',       color:'#356760'},
-    {id:'Mati - Pembesaran',color:'#c2543f'},
-    {id:'Bibit Siap Tanam', color:'#2b5c50'},
-    {id:'Stok Nursery',     color:'#B5BBA9'},
-    {id:'Distribusi',       color:'#1f453d'},
+    {id:'Benih Masuk',       color:'#356760'},
+    {id:'Semai',             color:'#356760'},
+    {id:'Belum Disemai',     color:'#B5BBA9'},
+    {id:'Mati - Semai',      color:'#c2543f'},
+    {id:'Seleksi',           color:'#356760'},
+    {id:'Mati - Seleksi',    color:'#c2543f'},
+    {id:'Pembesaran 1',      color:'#356760'},
+    {id:'Mati - Pembesaran 1',color:'#c2543f'},
+    {id:'Grafting',          color:'#618273'},
+    {id:'Pembesaran 2',      color:'#8C9F8B'},
+    {id:'Mati - Pembesaran 2',color:'#c2543f'},
+    {id:'Bibit Siap Tanam',  color:'#2b5c50'},
+    {id:'Stok Nursery',      color:'#B5BBA9'},
+    {id:'Distribusi',        color:'#1f453d'},
   ];
   const idx={}; nodeDefs.forEach((n,i)=>idx[n.id]=i);
 
   const links=[
-    {source:idx['Bibit Masuk'], target:idx['Semai'],             value:Math.max(totals.semai,0.001)},
+    {source:idx['Benih Masuk'], target:idx['Semai'], value:Math.max(totals.semai,0.001)},
   ];
-  if(belumDisemai>0) links.push({source:idx['Bibit Masuk'], target:idx['Belum Disemai'], value:belumDisemai});
+  if(belumDisemai>0) links.push({source:idx['Benih Masuk'], target:idx['Belum Disemai'], value:belumDisemai});
   links.push(
-    {source:idx['Semai'],       target:idx['Mati - Semai'],      value:Math.max(totals.matiSemai,0.001)},
-    {source:idx['Semai'],       target:idx['Rotasi'],            value:Math.max(totals.rotasi,0.001)},
-    {source:idx['Rotasi'],      target:idx['Mati - Rotasi'],     value:Math.max(totals.matiRotasi,0.001)},
-    {source:idx['Rotasi'],      target:idx['Digrafting'],        value:Math.max(totals.grafting,0.001)},
-    {source:idx['Rotasi'],      target:idx['Tanpa Grafting'],    value:Math.max(nonGrafting,0.001)},
-    {source:idx['Digrafting'],  target:idx['Pembesaran'],        value:Math.max(totals.grafting,0.001)},
-    {source:idx['Tanpa Grafting'],target:idx['Pembesaran'],      value:Math.max(nonGrafting,0.001)},
-    {source:idx['Pembesaran'],  target:idx['Mati - Pembesaran'], value:Math.max(totals.matiPembesaran,0.001)},
-    {source:idx['Pembesaran'],  target:idx['Bibit Siap Tanam'],  value:Math.max(totals.siapTanam,0.001)},
-    {source:idx['Bibit Siap Tanam'],target:idx['Stok Nursery'],  value:Math.max(totals.stokNursery,0.001)},
-    {source:idx['Bibit Siap Tanam'],target:idx['Distribusi'],    value:Math.max(totals.distribusi,0.001)},
+    {source:idx['Semai'],        target:idx['Mati - Semai'],       value:Math.max(totals.matiSemai,0.001)},
+    {source:idx['Semai'],        target:idx['Seleksi'],            value:Math.max(totals.seleksi,0.001)},
+    {source:idx['Seleksi'],      target:idx['Mati - Seleksi'],     value:Math.max(totals.matiSeleksi,0.001)},
+    {source:idx['Seleksi'],      target:idx['Pembesaran 1'],       value:Math.max(totals.pembesaran1,0.001)},
+    {source:idx['Pembesaran 1'], target:idx['Mati - Pembesaran 1'],value:Math.max(totals.matiPembesaran1,0.001)},
+    {source:idx['Pembesaran 1'], target:idx['Bibit Siap Tanam'],   value:Math.max(langsungBST,0.001)},
+    {source:idx['Pembesaran 1'], target:idx['Grafting'],           value:Math.max(totals.grafting,0.001)},
+    {source:idx['Grafting'],     target:idx['Pembesaran 2'],       value:Math.max(totals.grafting,0.001)},
+    {source:idx['Pembesaran 2'], target:idx['Mati - Pembesaran 2'],value:Math.max(totals.matiPembesaran2,0.001)},
+    {source:idx['Pembesaran 2'], target:idx['Bibit Siap Tanam'],   value:Math.max(totals.pembesaran2-totals.matiPembesaran2,0.001)},
+    {source:idx['Bibit Siap Tanam'],target:idx['Stok Nursery'],    value:Math.max(totals.stokNursery,0.001)},
+    {source:idx['Bibit Siap Tanam'],target:idx['Distribusi'],      value:Math.max(totals.distribusi,0.001)},
   );
 
-  const width=Math.max(900, container.clientWidth||900);
-  const height=440;
+  const width=Math.max(1000, container.clientWidth||1000);
+  const height=460;
 
   const svg=d3.select(container).append('svg')
     .attr('viewBox',`0 0 ${width} ${height}`)
@@ -640,7 +645,7 @@ function renderSankey(totals, nonGrafting){
   const sankeyGen=d3.sankey()
     .nodeId(d=>d.index)
     .nodeWidth(16)
-    .nodePadding(18)
+    .nodePadding(16)
     .extent([[1,10],[width-160,height-10]]);
 
   const graph=sankeyGen({
@@ -741,7 +746,7 @@ function survBadgeClass(rate){
   return'surv-bad';
 }
 function renderDetailTable(){
-  const sorted=[...dib].sort((a,b)=>b.bibitMasuk-a.bibitMasuk);
+  const sorted=[...dib].sort((a,b)=>b.benihMasuk-a.benihMasuk);
   const start=(detailPage-1)*DETAIL_PAGE_SIZE;
   const pageRows=sorted.slice(start,start+DETAIL_PAGE_SIZE);
   document.getElementById('detailTbody').innerHTML = pageRows.length ? pageRows.map(r=>`
@@ -752,7 +757,7 @@ function renderDetailTable(){
       <td>${r.varietas}</td>
       <td>${r.umur}</td>
       <td><span class="stage-badge">${r.tahap}</span></td>
-      <td>${fmtInt(r.bibitMasuk)}</td>
+      <td>${fmtInt(r.benihMasuk)}</td>
       <td>${fmtInt(r.totalMati)}</td>
       <td>${fmtInt(r.grafting)}</td>
       <td>${fmtInt(r.siapTanam)}</td>
