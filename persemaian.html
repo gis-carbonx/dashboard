@@ -187,11 +187,6 @@
         <div class="kpi-sub">jenis</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Total Bibit Masuk</div>
-        <div class="kpi-value" id="kpiTotalBibit">&ndash;</div>
-        <div class="kpi-sub">bibit (kumulatif)</div>
-      </div>
-      <div class="kpi-card">
         <div class="kpi-label">Bibit Siap Tanam</div>
         <div class="kpi-value" id="kpiSiapTanam">&ndash;</div>
         <div class="kpi-sub">total pernah mencapai siap tanam</div>
@@ -205,6 +200,11 @@
         <div class="kpi-label">Survival Rate</div>
         <div class="kpi-value" id="kpiSurvival">&ndash;</div>
         <div class="kpi-sub">rata-rata seluruh batch</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Bibit yang Ada</div>
+        <div class="kpi-value" id="kpiTotalAda">&ndash;</div>
+        <div class="kpi-sub">segala tahap, belum mati/didistribusikan</div>
       </div>
     </div>
 
@@ -256,22 +256,6 @@
       <div class="panel-heading">Sankey Diagram &mdash; Alur Tahapan Bibit<small>Lebar aliran proporsional terhadap jumlah bibit (kumulatif seluruh batch)</small></div>
       <div id="sankeyContainer" style="width:100%;overflow-x:auto">
         <div class="loading-msg">Memuat&hellip;</div>
-      </div>
-    </div>
-
-    <div class="two-col-row" style="margin-top:16px">
-      <div class="panel">
-        <div class="panel-heading">Rincian Pergerakan Bibit</div>
-        <div class="tbl-wrap">
-          <table class="data-tbl">
-            <thead><tr><th>Tahap</th><th>Jumlah (bibit)</th><th>% terhadap Bibit Masuk</th></tr></thead>
-            <tbody id="rincianTbody"><tr><td colspan="3" class="loading-msg">Memuat&hellip;</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-heading">Indikator Pergerakan</div>
-        <div id="indikatorList"><div class="loading-msg">Memuat&hellip;</div></div>
       </div>
     </div>
 
@@ -473,13 +457,15 @@ function renderKpiRingkasan(){
   const totalSiapTanam=dib.reduce((s,r)=>s+r.siapTanam,0);
   const totalStokNursery=dib.reduce((s,r)=>s+r.stokNursery,0);
   const totalMati=dib.reduce((s,r)=>s+r.totalMati,0);
+  const totalDistribusi=dib.reduce((s,r)=>s+r.distribusi,0);
+  const totalAda=totalBibitMasuk-totalMati-totalDistribusi;
   const survivalKeseluruhan = totalBibitMasuk>0 ? (totalBibitMasuk-totalMati)/totalBibitMasuk : 0;
 
   document.getElementById('kpiJenis').textContent=jenisSet.size;
-  document.getElementById('kpiTotalBibit').textContent=fmtInt(totalBibitMasuk);
   document.getElementById('kpiSiapTanam').textContent=fmtInt(totalSiapTanam);
   document.getElementById('kpiStokNursery').textContent=fmtInt(totalStokNursery);
   document.getElementById('kpiSurvival').textContent=fmtPct(survivalKeseluruhan);
+  document.getElementById('kpiTotalAda').textContent=fmtInt(totalAda);
 }
 
 /* ============ 2. KONDISI STOK ============ */
@@ -600,41 +586,6 @@ function renderFlow(){
   document.getElementById('fkDistribusi').textContent=fmtInt(totals.distribusi);
 
   renderSankey(totals, nonGrafting);
-
-  const stages=[
-    ['Bibit Masuk',totals.bibitMasuk],
-    ['Semai',totals.semai],
-    ['Mati - Semai',totals.matiSemai],
-    ['Rotasi',totals.rotasi],
-    ['Mati - Rotasi',totals.matiRotasi],
-    ['Digrafting',totals.grafting],
-    ['Tanpa Grafting',nonGrafting],
-    ['Pembesaran',totals.pembesaran],
-    ['Mati - Pembesaran',totals.matiPembesaran],
-    ['Bibit Siap Tanam',totals.siapTanam],
-    ['Stok Nursery',totals.stokNursery],
-    ['Distribusi',totals.distribusi],
-  ];
-  document.getElementById('rincianTbody').innerHTML=stages.map(([label,val])=>`
-    <tr><td>${label}</td><td>${fmtInt(val)}</td><td>${totals.bibitMasuk>0?fmtPct(val/totals.bibitMasuk):'–'}</td></tr>
-  `).join('');
-
-  const indikators=[
-    ['Efisiensi Semai (Semai / Bibit Masuk)', totals.bibitMasuk>0?totals.semai/totals.bibitMasuk:0],
-    ['Tingkat Kematian Semai (Mati - Semai / Semai)', totals.semai>0?totals.matiSemai/totals.semai:0],
-    ['Efisiensi Rotasi (Rotasi / Semai)', totals.semai>0?totals.rotasi/totals.semai:0],
-    ['Tingkat Kematian Rotasi (Mati - Rotasi / Rotasi)', totals.rotasi>0?totals.matiRotasi/totals.rotasi:0],
-    ['Proporsi Digrafting (Grafting / Pembesaran)', totals.pembesaran>0?totals.grafting/totals.pembesaran:0],
-    ['Tingkat Kematian Pembesaran (Mati - Pembesaran / Pembesaran)', totals.pembesaran>0?totals.matiPembesaran/totals.pembesaran:0],
-    ['Konversi ke Siap Tanam (Siap Tanam / Pembesaran)', totals.pembesaran>0?totals.siapTanam/totals.pembesaran:0],
-    ['Distribusi dari Stok Siap Tanam (Distribusi / Siap Tanam)', totals.siapTanam>0?totals.distribusi/totals.siapTanam:0],
-  ];
-  document.getElementById('indikatorList').innerHTML=indikators.map(([label,val])=>`
-    <div class="indicator-row">
-      <div class="indicator-label">${label}</div>
-      <div class="indicator-track"><div class="indicator-fill" style="width:${Math.min(100,Math.round(val*100))}%"></div></div>
-      <div class="indicator-val">${fmtPct(val)}</div>
-    </div>`).join('');
 }
 
 function renderSankey(totals, nonGrafting){
