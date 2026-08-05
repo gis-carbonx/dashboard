@@ -716,14 +716,7 @@ body{display:flex;flex-direction:column}
     <div style="padding:12px 16px 16px 16px;display:flex;gap:12px;flex-wrap:wrap;overflow-y:auto;border-top:1px solid var(--border)">
       <div class="sc" style="flex:1;min-width:220px;box-shadow:none">
         <div class="sc-lbl">ENP (Protected Area)</div>
-        <div class="sc-top-row">
-          <div class="sc-val" id="enrStripENP" style="margin:2px 0 6px">—</div>
-          <div class="sc-right-info" id="enrENPRightInfo" style="display:none">
-            <span class="sc-pct-badge" id="enrENPPct">—</span>
-            <span class="sc-target-inline" id="enrENPTarget">—</span>
-          </div>
-        </div>
-        <div class="prog-bar-wrap" style="margin-bottom:8px"><div class="prog-bar-fill" id="enrENPProgBar" style="width:0%;background:linear-gradient(90deg,#7dd3fc,#0ea5e9)"></div></div>
+        <div class="sc-val" id="enrStripENP" style="margin:2px 0 8px">—</div>
         <div class="sc-subs">
           <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label" style="font-size:12px">Pengkayaan</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="enrENP_TR" style="font-size:13px">—</span><span class="sc-sub-petani" id="enrENP_TR_p"></span></div></div>
           <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#38a3e0"></span><span class="sc-sub-label" style="font-size:12px">Bantuan Pupuk Organik</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="enrENP_BPO" style="font-size:13px">—</span><span class="sc-sub-petani" id="enrENP_BPO_p"></span></div></div>
@@ -732,14 +725,7 @@ body{display:flex;flex-direction:column}
       </div>
       <div class="sc" style="flex:1;min-width:220px;box-shadow:none">
         <div class="sc-lbl">ENL (Logged Over Area)</div>
-        <div class="sc-top-row">
-          <div class="sc-val" id="enrStripENL" style="margin:2px 0 6px">—</div>
-          <div class="sc-right-info" id="enrENLRightInfo" style="display:none">
-            <span class="sc-pct-badge" id="enrENLPct">—</span>
-            <span class="sc-target-inline" id="enrENLTarget">—</span>
-          </div>
-        </div>
-        <div class="prog-bar-wrap" style="margin-bottom:8px"><div class="prog-bar-fill" id="enrENLProgBar" style="width:0%;background:linear-gradient(90deg,#fcd34d,#f59e0b)"></div></div>
+        <div class="sc-val" id="enrStripENL" style="margin:2px 0 8px">—</div>
         <div class="sc-subs">
           <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label" style="font-size:12px">Pengkayaan</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="enrENL_TR" style="font-size:13px">—</span><span class="sc-sub-petani" id="enrENL_TR_p"></span></div></div>
           <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ce6be8"></span><span class="sc-sub-label" style="font-size:12px">Menjaga Tutupan Lahan</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="enrENL_MTL" style="font-size:13px">—</span><span class="sc-sub-petani" id="enrENL_MTL_p"></span></div></div>
@@ -1677,18 +1663,8 @@ function getEnrRowsForYear(yr){
 function currentEnrYear(){
   return enrChartTab==='mingguan'?$v('enrChartWeekYear'):$v('enrChartYear');
 }
-function getEnrModalTarget(yrSel){
-  if(yrSel==='all'||!yrSel){
-    let enp=0,enl=0,found=false;
-    Object.values(targetData).forEach(td=>{enp+=td.enp_utama||0;enl+=td.enl_utama||0;found=true;});
-    return found?{enp,enl}:{enp:null,enl:null};
-  }
-  const td=targetData[+yrSel];
-  return td?{enp:td.enp_utama??null,enl:td.enl_utama??null}:{enp:null,enl:null};
-}
 function refreshEnrStrip(){
-  const yr=currentEnrYear();
-  renderEnrStrip(getEnrRowsForYear(yr),yr);
+  renderEnrStrip(getEnrRowsForYear(currentEnrYear()));
 }
 
 function openEnrichmentModal(){
@@ -1723,28 +1699,10 @@ function populateEnrWeekYear(){
   document.getElementById('enrChartWeekMonth').value=new Date().getMonth();
 }
 
-function renderEnrStrip(rows,yrSel){
+function renderEnrStrip(rows){
   const tENP=rows.reduce((s,r)=>s+r.luasENP,0),tENL=rows.reduce((s,r)=>s+r.luasENL,0);
   setText('enrStripENP',fmt(tENP)+' ha');
   setText('enrStripENL',fmt(tENL)+' ha');
-
-  const tgt=getEnrModalTarget(yrSel);
-  const setEnrTgtUI=(pctId,barId,tgtId,riId,real,tgtVal)=>{
-    const ri=document.getElementById(riId);
-    if(tgtVal!==null&&tgtVal>0){
-      const p=Math.min(999,real/tgtVal*100);
-      document.getElementById(pctId).textContent=p.toFixed(1)+'% dari target';
-      const yLbl=(yrSel==='all'||!yrSel)?'Semua Tahun':yrSel;
-      document.getElementById(tgtId).textContent=`Target ${yLbl}: ${fmt(tgtVal)} ha`;
-      if(ri)ri.style.display='flex';
-      document.getElementById(barId).style.width=Math.min(100,p).toFixed(1)+'%';
-    }else{
-      if(ri)ri.style.display='none';
-      document.getElementById(barId).style.width='0%';
-    }
-  };
-  setEnrTgtUI('enrENPPct','enrENPProgBar','enrENPTarget','enrENPRightInfo',tENP,tgt.enp);
-  setEnrTgtUI('enrENLPct','enrENLProgBar','enrENLTarget','enrENLRightInfo',tENL,tgt.enl);
 
   let enpTReg=0,enpBPO=0,enpMTL=0,enlTReg=0,enlMTL=0;
   const pENP_TR=new Set(),pENP_BPO=new Set(),pENP_MTL=new Set(),pENL_TR=new Set(),pENL_MTL=new Set();
@@ -2290,6 +2248,5 @@ function toggleDlMenu(wrapId){
 function closeDlOut(e){if(!e.target.closest('.dl-dropdown-wrap'))closeAllDlMenus();}
 function closeAllDlMenus(){document.querySelectorAll('.dl-dropdown-menu').forEach(m=>m.classList.remove('open'));document.removeEventListener('click',closeDlOut);}
 </script>
-<script src="auth-guard.js"></script>
 </body>
 </html>
