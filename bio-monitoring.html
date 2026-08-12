@@ -690,13 +690,9 @@ async function openSpeciesInfo(latinName,localName,iucn){
     const gbifMatch=await fetch(`https://api.gbif.org/v1/species/match?name=${encodeURIComponent(latinName)}`).then(r=>r.ok?r.json():null).catch(()=>null);
     const gbifKey=gbifMatch&&gbifMatch.usageKey?gbifMatch.usageKey:null;
 
-    const [gbifOcc,gbifDesc]=await Promise.allSettled([
-      fetch(`https://api.gbif.org/v1/occurrence/search?scientific_name=${encodeURIComponent(latinName)}&media_type=StillImage&limit=8`).then(r=>r.ok?r.json():null),
-      gbifKey?fetch(`https://api.gbif.org/v1/species/${gbifKey}/descriptions?limit=10`).then(r=>r.ok?r.json():null):Promise.resolve(null)
-    ]);
+    const gbifOcc=await fetch(`https://api.gbif.org/v1/occurrence/search?scientific_name=${encodeURIComponent(latinName)}&media_type=StillImage&limit=8`).then(r=>r.ok?r.json():null).catch(()=>null);
 
-    const occData=gbifOcc.status==='fulfilled'?gbifOcc.value:null;
-    const descData=gbifDesc.status==='fulfilled'?gbifDesc.value:null;
+    const occData=gbifOcc;
 
     let images=[];
     if(occData&&occData.results){
@@ -709,18 +705,10 @@ async function openSpeciesInfo(latinName,localName,iucn){
     images=[...new Set(images)].slice(0,8);
 
     let description=null,descSource=null;
-    if(descData&&descData.results&&descData.results.length){
-      const engDesc=descData.results.find(d=>d.language==='eng'&&d.description&&d.description.length>40)
-        ||descData.results.find(d=>d.description&&d.description.length>40);
-      if(engDesc){description=engDesc.description.replace(/<[^>]+>/g,'').trim();descSource='GBIF';}
-    }
-
-    if(!description){
-      try{
-        const eolResult=await fetchEolDescription(latinName);
-        if(eolResult){description=eolResult;descSource='EOL';}
-      }catch(e){console.warn('EOL fetch failed:',e);}
-    }
+    try{
+      const eolResult=await fetchEolDescription(latinName);
+      if(eolResult){description=eolResult;descSource='EOL';}
+    }catch(e){console.warn('EOL fetch failed:',e);}
 
     const info={
       images,
@@ -749,9 +737,9 @@ function renderSpeciesInfo(latinName,iucn,info){
 
   const descHtml=info.description
     ? `<div class="sp-modal-desc">${info.description}</div>`
-    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi taksonomi belum tersedia di GBIF untuk spesies ini. Gunakan tautan referensi di bawah untuk info lebih lanjut.</div>`;
+    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi belum tersedia di Encyclopedia of Life untuk spesies ini.</div>`;
 
-  const descSourceLabel=info.descSource==='EOL'?'Encyclopedia of Life (EOL)':'GBIF (Global Biodiversity Information Facility)';
+  const descSourceLabel='Encyclopedia of Life (EOL)';
   const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
