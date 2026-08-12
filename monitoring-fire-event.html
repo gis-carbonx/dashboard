@@ -75,9 +75,6 @@
   /* SECTION TITLES */
   .section-title{font-size:17px;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
   .section-title:first-of-type{margin-top:0}
-  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:-10px 0 14px;font-family:'Inter',sans-serif}
-  .section-subtitle a{color:var(--color-fern);font-weight:600;text-decoration:none}
-  .section-subtitle a:hover{text-decoration:underline}
 
   /* GENERIC PANEL */
   .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
@@ -163,18 +160,15 @@
   .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif;margin-left:2px}
   .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
 
-  /* FORECAST ROW (BMKG, 3-jam-an) */
-  .forecast-panel{background:transparent;overflow:hidden}
-  .forecast-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
-  .forecast-scroll::-webkit-scrollbar{height:6px}
-  .forecast-scroll::-webkit-scrollbar-thumb{background:var(--color-sand);border-radius:10px}
-  .forecast-card{flex:0 0 118px;background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:14px 10px;text-align:center}
-  .forecast-day{font-size:11.5px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
-  .forecast-day-sub{font-size:10px;color:var(--color-muted);margin-top:1px;font-family:'Inter',sans-serif}
-  .forecast-icon{width:34px;height:34px;margin:8px auto;display:block;object-fit:contain}
-  .forecast-desc{font-size:10.5px;color:var(--color-fern);font-family:'Inter',sans-serif;min-height:14px}
-  .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Source Serif 4',Georgia,serif;margin-top:4px}
-  .forecast-meta{font-size:10px;color:var(--color-muted);margin-top:6px;font-family:'Inter',sans-serif;line-height:1.6}
+  /* FORECAST ROW */
+  .forecast-row-wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  @media (max-width:900px){ .forecast-row-wrap{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:520px){ .forecast-row-wrap{grid-template-columns:repeat(2,1fr)} }
+  .forecast-card{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:14px 12px;text-align:center}
+  .forecast-day{font-size:12px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
+  .forecast-icon{font-size:22px;margin:8px 0}
+  .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Source Serif 4',Georgia,serif}
+  .forecast-rain{font-size:10.5px;color:var(--color-muted);margin-top:4px;font-family:'Inter',sans-serif}
 
   .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Inter',sans-serif}
 </style>
@@ -218,7 +212,7 @@
         </div>
       </div>
       <a href="pantauan-titik-api.html" class="chip-btn chip-btn-accent" style="text-decoration:none;padding:9px 20px">
-        Perbandingan Titik Api &rarr;
+        Buka Pantauan Titik Api &rarr;
       </a>
     </div>
 
@@ -248,6 +242,7 @@
           <button class="chip-btn" data-preset="today">Hari Ini</button>
           <button class="chip-btn active" data-preset="7d">7 Hari</button>
           <button class="chip-btn" data-preset="30d">30 Hari</button>
+          <button class="chip-btn" data-preset="ytd">YTD</button>
           <button class="chip-btn" data-preset="all">Semua</button>
           <span class="filter-divider"></span>
           <input type="date" class="date-input-sm" id="customStart">
@@ -321,11 +316,8 @@
 
     <!-- PREDIKSI CUACA -->
     <h2 class="section-title">Prediksi Cuaca</h2>
-    <div class="section-subtitle">Balai Karangan, Sanggau &middot; Sumber: <a href="https://www.bmkg.go.id/cuaca/prakiraan-cuaca/61.03.07.2001" target="_blank" rel="noopener">BMKG</a></div>
-    <div class="panel forecast-panel">
-      <div class="forecast-scroll" id="forecastList">
-        <div class="loading-msg">Memuat&hellip;</div>
-      </div>
+    <div class="forecast-row-wrap" id="forecastList">
+      <div class="loading-msg">Memuat&hellip;</div>
     </div>
 
   </div>
@@ -339,8 +331,7 @@ const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/ex
 const RUNTIME_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RunTime`+'&'+Date.now();
 const WEATHER_ID='1nVvw7hVJjBb6nsHpwhCYykhk2cxIiZdiQaSiGAEe5H8';
 const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather`+'&'+Date.now();
-const BMKG_ID='1DL98t0o3UdEwgBJC8nH_WP80L6aLjdtEErAAVcNbcZ8';
-const BMKG_URL=`https://docs.google.com/spreadsheets/d/${BMKG_ID}/gviz/tq?tqx=out:csv&sheet=BMKG`+'&'+Date.now();
+const WEATHER_FORECAST_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather_Forecast_Daily`+'&'+Date.now();
 const FDRS_ID='1w1YUvhKArfvN3QcY8S1N9t2TpmNBf2O1pywvNNPDz5Q';
 const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Final Data')}`+'&'+Date.now();
 const CMI_URL='assets/json/CMI.json';
@@ -450,7 +441,7 @@ function renderBlokSummary(rows){
 /* ============ TREN KEJADIAN TITIK API (granularitas otomatis) ============ */
 let fireTrendChartInst=null;
 function isoWeekKey(d){
-  // Kunci minggu berdasarkan hari Senin sebagai awal minggu
+
   const dt=new Date(d);const day=(dt.getDay()+6)%7; // 0=Senin
   dt.setDate(dt.getDate()-day);dt.setHours(0,0,0,0);
   return dateKey(dt);
@@ -460,7 +451,6 @@ function renderFireTrendChart(){
   const canvas=document.getElementById('chartFireTrend');
   if(!canvas)return;
 
-  // Tentukan granularitas dari rentang tanggal yang sedang aktif
   let spanDays=7;
   if(filterRangeStart&&filterRangeEnd){
     spanDays=Math.max(1,Math.round((filterRangeEnd-filterRangeStart)/(1000*60*60*24))+1);
@@ -495,8 +485,6 @@ function renderFireTrendChart(){
     }
   }
 
-  // Buat dulu seluruh urutan bucket kosong (0) sepanjang rentang filter yang aktif,
-  // supaya hari/minggu/bulan TANPA kejadian titik api tetap muncul di grafik.
   if(filterRangeStart&&filterRangeEnd){
     const cursor=new Date(filterRangeStart);
     const step=granularity==='day'?1:(granularity==='week'?7:0);
@@ -510,7 +498,6 @@ function renderFireTrendChart(){
     }
   }
 
-  // Isi jumlah kejadian sesungguhnya ke bucket yang sudah dibuat (atau bucket baru kalau di luar rentang)
   rows.forEach(r=>{
     if(!r.dateObj)return;
     const b=bucketInfoFor(r.dateObj);
@@ -562,6 +549,11 @@ function applyFilter(){
     rangeStart=new Date(today);rangeStart.setHours(0,0,0,0);
     rangeEnd=new Date(today);rangeEnd.setHours(23,59,59,999);
     filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
+  }else if(currentPreset==='ytd'){
+    const today=new Date();
+    rangeStart=new Date(today.getFullYear(),0,1,0,0,0,0); // 1 Januari tahun berjalan
+    rangeEnd=new Date(today);rangeEnd.setHours(23,59,59,999);
+    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
   }else{
     const days=currentPreset==='7d'?7:30;
     const today=new Date();today.setHours(23,59,59,999);
@@ -571,7 +563,7 @@ function applyFilter(){
   }
   filteredFire.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
   filterRangeStart=rangeStart;filterRangeEnd=rangeEnd;
-  const labelMap={'today':'Hari Ini','7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua Data','custom':'Rentang Kustom'};
+  const labelMap={'today':'Hari Ini','7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','ytd':'Year to Date','all':'Semua Data','custom':'Rentang Kustom'};
   document.getElementById('fireDateRange').textContent = (rangeStart&&rangeEnd)
     ? `${labelMap[currentPreset]} · ${fmtDateShort(rangeStart)} – ${fmtDateShort(rangeEnd)}` : labelMap[currentPreset]||'–';
   currentPage=1;
@@ -635,7 +627,6 @@ Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,comple
   document.getElementById('tblBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:#a5382c;padding:20px">Gagal memuat data titik api.</td></tr>';
 }});
 
-/* ============ WEATHER ============ */
 const WEATHER_ICON=(w)=>{
   const s=(w||'').toLowerCase();
   if(s.includes('thunder'))return'⛈️';
@@ -645,14 +636,13 @@ const WEATHER_ICON=(w)=>{
   return'🌥️';
 };
 
-let historyData=[],forecastBmkg=[];
+let historyData=[],forecastDaily=[];
 const charts={};
 
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
   if(charts[canvasId])charts[canvasId].destroy();
-  // Reset atribut ukuran canvas secara eksplisit — mencegah grafik "membesar" terus
-  // setiap kali di-render ulang (bug umum Chart.js kalau canvas tidak direset).
+
   ctx.removeAttribute('width');ctx.removeAttribute('height');
   ctx.style.width='';ctx.style.height='';
   charts[canvasId]=new Chart(ctx,{
@@ -716,58 +706,35 @@ Papa.parse(WEATHER_HISTORY_URL,{download:true,header:true,skipEmptyLines:true,co
   ['rain','wind','temp','hum'].forEach(renderWeather);
 }, error:()=>{}});
 
-function parseBmkgDateTime(s){
-  s=str(s);
-  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
-  return parseDateLoose(s);
-}
-function fmtJam(d){return d?d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'–';}
-
-Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
-  const dataRows=res.data.slice(1); // baris pertama = header
-  forecastBmkg=dataRows.map(row=>{
-    const dateObj=parseBmkgDateTime(row[0]);
+Papa.parse(WEATHER_FORECAST_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
+  forecastDaily=res.data.map(row=>{
+    const dateObj=parseDateLoose(row['Date']);
     if(!dateObj)return null;
+    const windMs=num(row['WindSpeedAvg']);
     return{
       dateObj,
-      cuacaID:str(row[2]),
-      cuacaEN:str(row[3]),
-      suhu:num(row[5]),
-      kelembaban:num(row[6]),
-      curahHujan:num(row[8]),
-      kecAngin:num(row[9]),
-      arahDari:str(row[11]),
-      arahMenuju:str(row[12]),
-      icon:str(row[16])
+      temp:num(row['TempAvg'])||0,
+      hum:num(row['HumidityAvg'])||0,
+      wind: windMs!==null ? windMs*3.6 : 0,
+      rain:num(row['RainTotal(mm)'])||0,
+      weather:str(row['MostFrequentWeather'])
     };
   }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
 
-  // Tampilkan seluruh slot 3-jaman yang tersedia di sheet, mulai dari waktu
-  // yang sudah lewat hari ini agar konteksnya tetap utuh sampai data terakhir.
-  const now=new Date();
-  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  let upcoming=forecastBmkg.filter(d=>d.dateObj>=todayStart);
-  if(!upcoming.length)upcoming=forecastBmkg.slice(); // fallback: tampilkan semua data
 
+  const todayForecast=new Date();todayForecast.setHours(0,0,0,0);
+  let upcoming=forecastDaily.filter(d=>d.dateObj>=todayForecast).slice(0,6);
+  if(!upcoming.length)upcoming=forecastDaily.slice(-6);
   const listEl=document.getElementById('forecastList');
   listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
     <div class="forecast-card">
-      <div class="forecast-day">${fmtJam(d.dateObj)}</div>
-      <div class="forecast-day-sub">${DAY_ID[d.dateObj.getDay()].slice(0,3)}, ${fmtDateShort(d.dateObj)}</div>
-      ${d.icon
-        ? `<img class="forecast-icon" src="${d.icon}" alt="${d.cuacaEN}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'forecast-icon',style:'font-size:26px;line-height:34px',textContent:WEATHER_ICON(d.cuacaEN)}))">`
-        : `<div class="forecast-icon" style="font-size:26px;line-height:34px">${WEATHER_ICON(d.cuacaEN)}</div>`}
-      <div class="forecast-desc">${d.cuacaID||d.cuacaEN||'–'}</div>
-      <div class="forecast-temp">${d.suhu!==null?Math.round(d.suhu):'–'}°C</div>
-      <div class="forecast-meta">
-        ${d.kelembaban!==null?`Lembab ${Math.round(d.kelembaban)}%`:''}
-        ${d.kecAngin!==null?`<br>Angin ${d.kecAngin.toFixed(1)} km/j${d.arahDari?' ('+d.arahDari+')':''}`:''}
-        ${d.curahHujan!==null?`<br>Hujan ${d.curahHujan.toFixed(1)} mm`:''}
-      </div>
+      <div class="forecast-day">${DAY_ID[d.dateObj.getDay()]}<br>${fmtDateShort(d.dateObj)}</div>
+      <div class="forecast-icon">${WEATHER_ICON(d.weather)}</div>
+      <div class="forecast-temp">${Math.round(d.temp)}°C</div>
+      <div class="forecast-rain">Curah hujan ${d.rain.toFixed(1)} mm</div>
     </div>`).join('') : '<div class="loading-msg">Tidak ada data prakiraan</div>';
 }, error:()=>{
-  document.getElementById('forecastList').innerHTML='<div class="loading-msg" style="color:#a5382c">Gagal memuat prakiraan cuaca dari sheet BMKG.</div>';
+  document.getElementById('forecastList').innerHTML='<div class="loading-msg" style="color:#a5382c">Gagal memuat prakiraan.</div>';
 }});
 
 /* ============ FDRS ============ */
@@ -794,14 +761,9 @@ fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   const allRows=parsed.data;
   console.log('[FDRS] semua baris mentah:',allRows);
 
-  // Baris header di sheet ini kadang tergabung dengan baris "Enam hari lalu" saat
-  // diekspor ke CSV oleh Google (kemungkinan dipicu sel #N/A di baris tsb).
-  // Jadi kita TIDAK mengandalkan baris header sama sekali — langsung cari baris
-  // yang kolom pertamanya persis "Hari ini", lalu baca Blok 1 & Blok 2 dari
-  // POSISI KOLOM TETAP (kolom ke-2 & ke-3), sesuai struktur asli sheet Anda.
   let targetRow=allRows.find(row=>str(row[0]).trim().toLowerCase()==='hari ini');
   if(!targetRow){
-    // fallback: kalau label "Hari ini" tidak ketemu, pakai baris paling bawah yang punya isi
+
     const nonEmpty=allRows.filter(row=>row.some(cell=>str(cell)!==''));
     targetRow=nonEmpty[nonEmpty.length-1];
   }
@@ -828,6 +790,5 @@ Papa.parse(RUNTIME_URL,{download:true,header:true,skipEmptyLines:true,complete:(
 }});
 </script>
 
-<script src="auth-guard.js"></script>
 </body>
 </html>
