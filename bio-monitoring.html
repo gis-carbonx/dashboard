@@ -666,15 +666,40 @@ document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.rem
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
 /* ===== GBIF species descriptions (primary) ===== */
+/* Provider priority — lower index = more trusted. Matched against the
+   'source' field GBIF returns for each description entry (case-insensitive,
+   substring match). Adjust this list any time to change priority. */
+const GBIF_PROVIDER_PRIORITY=[
+  'catalogue of life',
+  'iucn',
+  'fauna europaea',
+  'encyclopedia of life',
+  'eol'
+];
+function providerRank(sourceStr){
+  if(!sourceStr)return GBIF_PROVIDER_PRIORITY.length;
+  const s=sourceStr.toLowerCase();
+  for(let i=0;i<GBIF_PROVIDER_PRIORITY.length;i++){
+    if(s.includes(GBIF_PROVIDER_PRIORITY[i]))return i;
+  }
+  return GBIF_PROVIDER_PRIORITY.length;
+}
 async function fetchGbifDescription(gbifKey){
   if(!gbifKey)return{status:'not_found'};
   try{
-    const res=await fetch(`https://api.gbif.org/v1/species/${gbifKey}/descriptions?limit=10`).then(r=>r.ok?r.json():null);
+    const res=await fetch(`https://api.gbif.org/v1/species/${gbifKey}/descriptions?limit=20`).then(r=>r.ok?r.json():null);
     if(!res||!res.results||!res.results.length)return{status:'not_found'};
-    const engDesc=res.results.find(d=>d.language==='eng'&&d.description&&d.description.length>40)
-      ||res.results.find(d=>d.description&&d.description.length>40);
-    if(!engDesc)return{status:'not_found'};
-    return{status:'ok',text:engDesc.description.replace(/<[^>]+>/g,'').trim()};
+    const candidates=res.results.filter(d=>d.description&&d.description.length>40);
+    if(!candidates.length)return{status:'not_found'};
+    const engFirst=candidates.filter(d=>d.language==='eng');
+    const pool=engFirst.length?engFirst:candidates;
+    pool.sort((a,b)=>{
+      const ra=providerRank(a.source),rb=providerRank(b.source);
+      if(ra!==rb)return ra-rb;
+      return (b.description?b.description.length:0)-(a.description?a.description.length:0);
+    });
+    const best=pool[0];
+    return{status:'ok',text:best.description.replace(/<[^>]+>/g,'').trim(),provider:best.source||null};
   }catch(e){
     console.warn('GBIF description fetch failed:',e);
     return{status:'error'};
@@ -726,7 +751,7 @@ async function openSpeciesInfo(latinName,localName,iucn){
       description=wikiResult.text;descSource='Wikipedia';
     }else{
       const gbifDescResult=await fetchGbifDescription(gbifKey);
-      if(gbifDescResult.status==='ok'){description=gbifDescResult.text;descSource='GBIF';}
+      if(gbifDescResult.status==='ok'){description=gbifDescResult.text;descSource=gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF';}
     }
 
     const info={
