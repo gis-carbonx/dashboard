@@ -665,36 +665,22 @@ const spModalBody=document.getElementById('spModalBody');
 document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
-
-const IUCN_API_TOKEN='qVwc8MC81vBT85CbuBs72vD4UoBrNnGaBV3J';
-const IUCN_API_BASE='https://api.iucnredlist.org/api/v4';
-
-async function fetchIucnDescription(latinName){
-  if(!IUCN_API_TOKEN)return{status:'no_token'};
-  const parts=latinName.trim().split(/\s+/);
-  if(parts.length<2)return{status:'error'};
-  const genus=parts[0],species=parts[1];
+/* ===== iNaturalist Taxa API =====
+   Tanpa API key. Endpoint publik: https://api.inaturalist.org/v1/taxa
+   Catatan: field wikipedia_summary di iNaturalist bersumber dari Wikipedia
+   (dikurasi/diverifikasi kurator iNaturalist), bukan tulisan asli iNaturalist. */
+async function fetchINatDescription(latinName){
   try{
-    const searchRes=await fetch(`${IUCN_API_BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${IUCN_API_TOKEN}`).then(r=>r.ok?r.json():null);
-    if(!searchRes)return{status:'error'};
-    const taxon=Array.isArray(searchRes.taxon)?searchRes.taxon[0]:(searchRes.taxon||searchRes);
-    const assessments=taxon&&taxon.assessments?taxon.assessments:(searchRes.assessments||[]);
-    if(!assessments||!assessments.length)return{status:'not_found'};
-    const latest=assessments.find(a=>a.latest)||assessments[0];
-    if(!latest||!latest.assessment_id)return{status:'not_found'};
-    const assessRes=await fetch(`${IUCN_API_BASE}/assessment/${latest.assessment_id}?token=${IUCN_API_TOKEN}`).then(r=>r.ok?r.json():null);
-    if(!assessRes)return{status:'error'};
-    const doc=assessRes.documentation||{};
-    const parts2=[];
-    ['rationale','habitat','population','threats'].forEach(key=>{
-      const field=doc[key];
-      const val=field&&(field.value||field.text||(typeof field==='string'?field:null));
-      if(val&&val.length>30)parts2.push(val.replace(/<[^>]+>/g,'').trim());
-    });
-    if(!parts2.length)return{status:'not_found'};
-    return{status:'ok',text:parts2.join('\n\n')};
+    const res=await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(latinName)}&rank=species,subspecies&per_page=5`).then(r=>r.ok?r.json():null);
+    if(!res||!res.results||!res.results.length)return{status:'not_found'};
+    const norm=s=>(s||'').trim().toLowerCase();
+    const match=res.results.find(t=>norm(t.name)===norm(latinName))||res.results[0];
+    if(!match)return{status:'not_found'};
+    if(!match.wikipedia_summary||match.wikipedia_summary.length<30)return{status:'not_found'};
+    const text=match.wikipedia_summary.replace(/<[^>]+>/g,'').trim();
+    return{status:'ok',text};
   }catch(e){
-    console.warn('IUCN Red List fetch failed:',e);
+    console.warn('iNaturalist fetch failed:',e);
     return{status:'error'};
   }
 }
@@ -728,10 +714,10 @@ async function openSpeciesInfo(latinName,localName,iucn){
 
     let description=null,descSource=null,descStatus='not_found';
     try{
-      const iucnResult=await fetchIucnDescription(latinName);
-      descStatus=iucnResult.status;
-      if(iucnResult.status==='ok'){description=iucnResult.text;descSource='IUCN';}
-    }catch(e){console.warn('IUCN fetch failed:',e);}
+      const inatResult=await fetchINatDescription(latinName);
+      descStatus=inatResult.status;
+      if(inatResult.status==='ok'){description=inatResult.text;descSource='iNaturalist';}
+    }catch(e){console.warn('iNaturalist fetch failed:',e);}
 
     const info={
       images,
@@ -760,13 +746,10 @@ function renderSpeciesInfo(latinName,iucn,info){
     : '';
 
   const descHtml=info.description
-    ? `<div class="sp-modal-desc">${info.description.replace(/\n\n/g,'</div><div class="sp-modal-desc">')}</div>`
-    : info.descStatus==='no_token'
-      ? `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi IUCN Red List belum aktif — token API belum diisi. Daftar token gratis di api.iucnredlist.org lalu isi di kode (variabel IUCN_API_TOKEN).</div>`
-      : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada asesmen IUCN Red List yang cocok untuk nama spesies ini.</div>`;
+    ? `<div class="sp-modal-desc">${info.description}</div>`
+    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di iNaturalist untuk spesies ini.</div>`;
 
-  const descSourceLabel='IUCN Red List';
-  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`;
+  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: iNaturalist (ringkasan terkurasi dari Wikipedia).</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
