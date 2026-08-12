@@ -764,6 +764,29 @@ function renderSpeciesInfo(latinName,iucn,info){
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
 
+function computeMonitoredGrids(filtered){
+  if(!ctGridGeo)return[];
+  const gridMap={};
+  const seenLoc=new Set();
+  filtered.forEach(r=>{
+    const locKey=`${r.Latitude.toFixed(5)}_${r.Longitude.toFixed(5)}_${r.CameraID}`;
+    if(seenLoc.has(locKey))return;
+    seenLoc.add(locKey);
+    for(let fi=0;fi<ctGridGeo.features.length;fi++){
+      if(inFeature(r.Latitude,r.Longitude,ctGridGeo.features[fi])){
+        const gid=`G-${String(fi).padStart(3,'0')}`;
+        if(!gridMap[gid])gridMap[gid]={sites:new Set(),cams:new Set()};
+        if(r.Site)gridMap[gid].sites.add(r.Site);
+        if(r.CameraID)gridMap[gid].cams.add(r.CameraID);
+        break;
+      }
+    }
+  });
+  return Object.entries(gridMap)
+    .map(([gid,d])=>({gid,sites:[...d.sites],camCount:d.cams.size}))
+    .sort((a,b)=>a.gid.localeCompare(b.gid));
+}
+
 function updateCtStats(){
   const filtered=getCtFiltered();
   const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
@@ -775,7 +798,11 @@ function updateCtStats(){
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
   const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
-  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+  const monitoredGrids=computeMonitoredGrids(filtered);
+  const monitoredGridsHtml=monitoredGrids.length
+    ?`<div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Monitored Locations (Camera Grids)</div>${monitoredGrids.map(g=>`<div class="ct-stat-inline"><span>${g.gid}${g.sites.length?' · '+g.sites.join(', '):''}</span><span class="ct-stat-inline-val">${g.camCount} cam</span></div>`).join('')}`
+    :'';
+  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}${monitoredGridsHtml}`;
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
