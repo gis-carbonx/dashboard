@@ -721,12 +721,12 @@ async function openSpeciesInfo(latinName,localName,iucn){
     images=[...new Set(images)].slice(0,8);
 
     let description=null,descSource=null;
-    const gbifDescResult=await fetchGbifDescription(gbifKey);
-    if(gbifDescResult.status==='ok'){
-      description=gbifDescResult.text;descSource='GBIF';
+    const wikiResult=await fetchWikipediaDescription(latinName);
+    if(wikiResult.status==='ok'){
+      description=wikiResult.text;descSource='Wikipedia';
     }else{
-      const wikiResult=await fetchWikipediaDescription(latinName);
-      if(wikiResult.status==='ok'){description=wikiResult.text;descSource='Wikipedia';}
+      const gbifDescResult=await fetchGbifDescription(gbifKey);
+      if(gbifDescResult.status==='ok'){description=gbifDescResult.text;descSource='GBIF';}
     }
 
     const info={
