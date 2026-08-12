@@ -665,16 +665,38 @@ const spModalBody=document.getElementById('spModalBody');
 document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
-async function fetchEolDescription(latinName){
-  const searchRes=await fetch(`https://eol.org/api/search/1.0.json?q=${encodeURIComponent(latinName)}&page=1&exact=false`).then(r=>r.ok?r.json():null);
-  if(!searchRes||!searchRes.results||!searchRes.results.length)return null;
-  const pageId=searchRes.results[0].id;
-  if(!pageId)return null;
-  const pageRes=await fetch(`https://eol.org/api/pages/1.0/${pageId}.json?images=0&videos=0&sounds=0&maps=0&text=3&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0`).then(r=>r.ok?r.json():null);
-  if(!pageRes||!pageRes.dataObjects||!pageRes.dataObjects.length)return null;
-  const textObj=pageRes.dataObjects.find(d=>d.description&&d.description.length>60);
-  if(!textObj)return null;
-  return textObj.description.replace(/<[^>]+>/g,'').trim();
+
+const IUCN_API_TOKEN='qVwc8MC81vBT85CbuBs72vD4UoBrNnGaBV3J';
+const IUCN_API_BASE='https://api.iucnredlist.org/api/v4';
+
+async function fetchIucnDescription(latinName){
+  if(!IUCN_API_TOKEN)return{status:'no_token'};
+  const parts=latinName.trim().split(/\s+/);
+  if(parts.length<2)return{status:'error'};
+  const genus=parts[0],species=parts[1];
+  try{
+    const searchRes=await fetch(`${IUCN_API_BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${IUCN_API_TOKEN}`).then(r=>r.ok?r.json():null);
+    if(!searchRes)return{status:'error'};
+    const taxon=Array.isArray(searchRes.taxon)?searchRes.taxon[0]:(searchRes.taxon||searchRes);
+    const assessments=taxon&&taxon.assessments?taxon.assessments:(searchRes.assessments||[]);
+    if(!assessments||!assessments.length)return{status:'not_found'};
+    const latest=assessments.find(a=>a.latest)||assessments[0];
+    if(!latest||!latest.assessment_id)return{status:'not_found'};
+    const assessRes=await fetch(`${IUCN_API_BASE}/assessment/${latest.assessment_id}?token=${IUCN_API_TOKEN}`).then(r=>r.ok?r.json():null);
+    if(!assessRes)return{status:'error'};
+    const doc=assessRes.documentation||{};
+    const parts2=[];
+    ['rationale','habitat','population','threats'].forEach(key=>{
+      const field=doc[key];
+      const val=field&&(field.value||field.text||(typeof field==='string'?field:null));
+      if(val&&val.length>30)parts2.push(val.replace(/<[^>]+>/g,'').trim());
+    });
+    if(!parts2.length)return{status:'not_found'};
+    return{status:'ok',text:parts2.join('\n\n')};
+  }catch(e){
+    console.warn('IUCN Red List fetch failed:',e);
+    return{status:'error'};
+  }
 }
 
 async function openSpeciesInfo(latinName,localName,iucn){
@@ -704,16 +726,18 @@ async function openSpeciesInfo(latinName,localName,iucn){
     }
     images=[...new Set(images)].slice(0,8);
 
-    let description=null,descSource=null;
+    let description=null,descSource=null,descStatus='not_found';
     try{
-      const eolResult=await fetchEolDescription(latinName);
-      if(eolResult){description=eolResult;descSource='EOL';}
-    }catch(e){console.warn('EOL fetch failed:',e);}
+      const iucnResult=await fetchIucnDescription(latinName);
+      descStatus=iucnResult.status;
+      if(iucnResult.status==='ok'){description=iucnResult.text;descSource='IUCN';}
+    }catch(e){console.warn('IUCN fetch failed:',e);}
 
     const info={
       images,
       description,
       descSource,
+      descStatus,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
       kingdom:gbifMatch&&gbifMatch.kingdom?gbifMatch.kingdom:null
@@ -736,10 +760,12 @@ function renderSpeciesInfo(latinName,iucn,info){
     : '';
 
   const descHtml=info.description
-    ? `<div class="sp-modal-desc">${info.description}</div>`
-    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi belum tersedia di Encyclopedia of Life untuk spesies ini.</div>`;
+    ? `<div class="sp-modal-desc">${info.description.replace(/\n\n/g,'</div><div class="sp-modal-desc">')}</div>`
+    : info.descStatus==='no_token'
+      ? `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi IUCN Red List belum aktif — token API belum diisi. Daftar token gratis di api.iucnredlist.org lalu isi di kode (variabel IUCN_API_TOKEN).</div>`
+      : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada asesmen IUCN Red List yang cocok untuk nama spesies ini.</div>`;
 
-  const descSourceLabel='Encyclopedia of Life (EOL)';
+  const descSourceLabel='IUCN Red List';
   const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
