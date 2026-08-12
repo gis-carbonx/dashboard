@@ -792,13 +792,13 @@ function updateCtStats(){
   const totalDet=filtered.reduce((s,r)=>s+r.Indep,0);
   const totalSp=new Set(filtered.filter(r=>r.Indep>0).map(r=>r.Species).filter(Boolean)).size;
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
-  const totalLok=new Set(filtered.map(r=>`${r.Latitude.toFixed(4)}_${r.Longitude.toFixed(4)}`)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
   const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
   const monitoredGrids=computeMonitoredGrids(filtered);
+  const totalLok=monitoredGrids.length;
   const monitoredGridsHtml=monitoredGrids.length
     ?`<div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Monitored Locations (Camera Grids)</div>${monitoredGrids.map(g=>`<div class="ct-stat-inline"><span>${g.gid}${g.sites.length?' · '+g.sites.join(', '):''}</span><span class="ct-stat-inline-val">${g.camCount} cam</span></div>`).join('')}`
     :'';
