@@ -124,13 +124,7 @@
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
     .icon-btn-wrap{position:relative}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
-    .ct-bottom-bar{position:absolute;bottom:0;left:268px;right:0;z-index:900;background:#4A3B2F;border-top:1px solid #5c4a3a;display:flex;align-items:stretch;height:72px;overflow:hidden}
-    .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px;border-right:1px solid #2a544d}
-    .ct-stat:last-child{border-right:none}
-    .ct-stat-val{font-size:17px;font-weight:700;color:#fff;line-height:1}
-    .ct-stat-label{font-size:9px;color:#6b7280;text-align:center;line-height:1.3}
-    .ct-stat-sub{font-size:8px;color:#4b5563;text-align:center}
-    .grid-detail-panel{position:absolute;top:68px;right:16px;bottom:84px;z-index:1000;width:320px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden}
+    .grid-detail-panel{position:absolute;top:68px;right:16px;bottom:16px;z-index:1000;width:320px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden}
     .grid-detail-panel.open{display:flex}
     .gdp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#0f172a}
     .gdp-title{font-size:12px;font-weight:700;color:#fff}
@@ -159,17 +153,18 @@
     .gdp-class-pct{font-size:10px;color:#9ca3af;min-width:34px;text-align:right}
     .gdp-species-section{padding:0 16px 8px}
     .gdp-sp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f9fafb;font-size:11px}
-    .gdp-sp-name{color:#374151;font-style:italic;flex:1}
+    .gdp-sp-name{color:#356760;font-style:italic;flex:1;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s}
+    .gdp-sp-name:hover{text-decoration-color:#356760}
     .gdp-sp-local{color:#9ca3af;font-size:10px;flex:1;text-align:center}
     .gdp-sp-count{font-weight:700;color:#0ea5e9;min-width:24px;text-align:right}
     .gdp-sp-iucn{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px}
     .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
-    .map-zoom{position:absolute;bottom:92px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
+    .map-zoom{position:absolute;bottom:16px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
-    .basemap-panel{position:absolute;bottom:84px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
+    .basemap-panel{position:absolute;bottom:16px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
     .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
     .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .15s}
@@ -178,6 +173,31 @@
     .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
     .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
     .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
+
+    /* SPECIES INFO MODAL */
+    .sp-modal-overlay{position:fixed;inset:0;z-index:5000;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:24px}
+    .sp-modal-overlay.open{display:flex}
+    .sp-modal{width:100%;max-width:480px;max-height:88vh;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    .sp-modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
+    .sp-modal-titles{display:flex;flex-direction:column;gap:2px}
+    .sp-modal-latin{font-size:15px;font-weight:700;color:#1f2937;font-style:italic}
+    .sp-modal-local{font-size:11px;color:#6b7280;font-weight:500}
+    .sp-modal-close{width:28px;height:28px;border-radius:7px;border:none;background:#f3f4f6;cursor:pointer;font-size:15px;color:#6b7280;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+    .sp-modal-close:hover{background:#e5e7eb}
+    .sp-modal-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
+    .sp-modal-body::-webkit-scrollbar{width:4px}
+    .sp-modal-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+    .sp-gallery{display:flex;gap:6px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:thin}
+    .sp-gallery img{height:140px;width:auto;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
+    .sp-gallery-empty{padding:14px 18px 4px;font-size:11px;color:#9ca3af;font-style:italic}
+    .sp-modal-status{display:flex;align-items:center;gap:8px;padding:14px 18px 0}
+    .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
+    .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#374151}
+    .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
+    .sp-modal-links{display:flex;flex-wrap:wrap;gap:8px;padding:10px 18px 18px}
+    .sp-modal-link{font-size:10.5px;font-weight:600;color:#356760;background:#FFFAF3;border:1px solid #DCDACC;border-radius:20px;padding:5px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
+    .sp-modal-link:hover{background:#DCDACC}
+    .sp-modal-source-note{padding:0 18px 16px;font-size:9px;color:#9ca3af}
   </style>
 </head>
 <body>
@@ -356,15 +376,24 @@
   <div class="gdp-body" id="gridDetailBody"></div>
 </div>
 
-<div class="ct-bottom-bar" id="ctBottomBar">
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatCameras">–</div><div class="ct-stat-label">Camera Trap Location</div><div class="ct-stat-sub">Units</div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatDetections">–</div><div class="ct-stat-label">Number of individuals recorded</div><div class="ct-stat-sub" id="ctStatDetSub">–</div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatSpecies">–</div><div class="ct-stat-label">Species Recorded</div><div class="ct-stat-sub" id="ctStatSpeciesSub"></div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatTopGrid">–</div><div class="ct-stat-label">Highest Activity Grid</div><div class="ct-stat-sub" id="ctStatTopSub"></div></div>
-  <div class="ct-stat"><div class="ct-stat-val" id="ctStatTrapNights">–</div><div class="ct-stat-label">Total Trap-Nights</div><div class="ct-stat-sub" id="ctStatTrapNightsSub"></div></div>
-</div>
 </div><!-- /#dashboardRoot -->
 </div><!-- /.dashboard-frame -->
+
+<!-- SPECIES INFO MODAL -->
+<div class="sp-modal-overlay" id="spModalOverlay">
+  <div class="sp-modal">
+    <div class="sp-modal-head">
+      <div class="sp-modal-titles">
+        <span class="sp-modal-latin" id="spModalLatin">–</span>
+        <span class="sp-modal-local" id="spModalLocal"></span>
+      </div>
+      <button class="sp-modal-close" id="spModalClose">✕</button>
+    </div>
+    <div class="sp-modal-body" id="spModalBody">
+      <div class="sp-modal-loading">Loading species info…</div>
+    </div>
+  </div>
+</div>
 
 <script>
 const GRID_BREAKS=[0,5,15,30,60];
@@ -373,6 +402,7 @@ const GRID_OPAC=[0,0.45,0.60,0.68,0.75,0.88];
 function gridStyle(n){for(let i=0;i<GRID_BREAKS.length;i++)if(n<=GRID_BREAKS[i])return{color:GRID_COLORS[i],opacity:GRID_OPAC[i]};return{color:GRID_COLORS[GRID_COLORS.length-1],opacity:GRID_OPAC[GRID_OPAC.length-1]};}
 
 const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
+const IUCN_FULL={LC:'Least Concern',NT:'Near Threatened',VU:'Vulnerable',EN:'Endangered',CR:'Critically Endangered',EW:'Extinct in the Wild',EX:'Extinct',DD:'Data Deficient',NE:'Not Evaluated'};
 function classIcon(k){if(!k)return'?';return k.trim().charAt(0).toUpperCase();}
 function fmtLabel(s){return(s||'').replace(/_/g,' ');}
 function toMidnight(y,m,d){return new Date(y,m,d);}
@@ -621,11 +651,94 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
   const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
   const numCams=camsInCell.size,avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
   const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="gdp-class-row"><div class="gdp-class-icon">${classIcon(k)}</div><span class="gdp-class-name">${k}</span><div class="gdp-class-bar-wrap"><div class="gdp-class-bar" style="width:${totalInCell?Math.round(v/totalInCell*100):0}%"></div></div><span class="gdp-class-count">${v}</span><span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span></div>`).join('');
-  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
+  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
   document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total individuals recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Cameras Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
   document.getElementById('gridDetailPanel').classList.add('open');
 }
 document.getElementById('gridDetailClose').onclick=()=>document.getElementById('gridDetailPanel').classList.remove('open');
+
+/* ===================== SPECIES INFO MODAL (GBIF + Wikipedia) ===================== */
+const spInfoCache={};
+const spModalOverlay=document.getElementById('spModalOverlay');
+const spModalBody=document.getElementById('spModalBody');
+document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
+spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
+
+async function openSpeciesInfo(latinName,localName,iucn){
+  if(!latinName)return;
+  document.getElementById('spModalLatin').textContent=latinName;
+  document.getElementById('spModalLocal').textContent=localName||'';
+  spModalOverlay.classList.add('open');
+  spModalBody.innerHTML='<div class="sp-modal-loading">Loading species info…</div>';
+
+  if(spInfoCache[latinName]){renderSpeciesInfo(latinName,iucn,spInfoCache[latinName]);return;}
+
+  try{
+    const [wiki,gbifMatch,gbifOcc]=await Promise.allSettled([
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(latinName.replace(/\s+/g,'_'))}`).then(r=>r.ok?r.json():null),
+      fetch(`https://api.gbif.org/v1/species/match?name=${encodeURIComponent(latinName)}`).then(r=>r.ok?r.json():null),
+      fetch(`https://api.gbif.org/v1/occurrence/search?scientific_name=${encodeURIComponent(latinName)}&media_type=StillImage&limit=8`).then(r=>r.ok?r.json():null)
+    ]);
+
+    const wikiData=wiki.status==='fulfilled'?wiki.value:null;
+    const gbifData=gbifMatch.status==='fulfilled'?gbifMatch.value:null;
+    const occData=gbifOcc.status==='fulfilled'?gbifOcc.value:null;
+
+    let images=[];
+    if(occData&&occData.results){
+      occData.results.forEach(res=>{
+        if(res.media&&res.media.length){
+          res.media.forEach(m=>{if(m.identifier&&images.length<8)images.push(m.identifier);});
+        }
+      });
+    }
+    if(wikiData&&wikiData.thumbnail&&wikiData.thumbnail.source){
+      const big=wikiData.originalimage?wikiData.originalimage.source:wikiData.thumbnail.source;
+      images.unshift(big);
+    }
+    images=[...new Set(images)].slice(0,8);
+
+    const info={
+      images,
+      description:wikiData&&wikiData.extract?wikiData.extract:null,
+      wikiUrl:wikiData&&wikiData.content_urls?wikiData.content_urls.desktop.page:`https://en.wikipedia.org/wiki/${encodeURIComponent(latinName.replace(/\s+/g,'_'))}`,
+      gbifKey:gbifData&&gbifData.usageKey?gbifData.usageKey:null,
+      gbifRank:gbifData&&gbifData.rank?gbifData.rank:null,
+      kingdom:gbifData&&gbifData.kingdom?gbifData.kingdom:null
+    };
+    spInfoCache[latinName]=info;
+    renderSpeciesInfo(latinName,iucn,info);
+  }catch(err){
+    console.warn('Species info fetch failed:',err);
+    spModalBody.innerHTML='<div class="sp-modal-loading">Info tidak dapat dimuat saat ini. Coba lagi nanti.</div>';
+  }
+}
+
+function renderSpeciesInfo(latinName,iucn,info){
+  const galleryHtml=info.images.length
+    ? `<div class="sp-gallery">${info.images.map(src=>`<img src="${src}" alt="${latinName}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
+    : `<div class="sp-gallery-empty">Belum ada foto referensi yang ditemukan untuk spesies ini.</div>`;
+
+  const statusHtml=iucn
+    ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
+    : '';
+
+  const descHtml=info.description
+    ? `<div class="sp-modal-desc">${info.description}</div>`
+    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi belum tersedia dari Wikipedia untuk nama ilmiah ini. Gunakan tautan referensi di bawah untuk info lebih lanjut.</div>`;
+
+  const iucnSearchUrl=`https://www.iucnredlist.org/search?query=${encodeURIComponent(latinName)}&searchType=species`;
+  const gbifUrl=info.gbifKey?`https://www.gbif.org/species/${info.gbifKey}`:`https://www.gbif.org/species/search?q=${encodeURIComponent(latinName)}`;
+
+  const linksHtml=`<div class="sp-modal-links">
+    <a class="sp-modal-link" href="${iucnSearchUrl}" target="_blank" rel="noopener">🔴 IUCN Red List</a>
+    <a class="sp-modal-link" href="${gbifUrl}" target="_blank" rel="noopener">🌐 GBIF</a>
+    <a class="sp-modal-link" href="${info.wikiUrl}" target="_blank" rel="noopener">📖 Wikipedia</a>
+  </div>
+  <div class="sp-modal-source-note">Foto: GBIF occurrence records &amp; Wikipedia · Deskripsi: Wikipedia. Untuk status konservasi resmi dan data taksonomi terverifikasi, rujuk IUCN Red List dan GBIF.</div>`;
+
+  spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
+}
 
 function updateCtStats(){
   const filtered=getCtFiltered();
@@ -638,23 +751,7 @@ function updateCtStats(){
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
   const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
-  let topGrid='–',topCount=0;
-  if(ctGridGeo){
-    ctGridGeo.features.forEach((feat,fi)=>{
-      let det=0;filtered.forEach(r=>{if(inFeature(r.Latitude,r.Longitude,feat))det+=r.Indep;});
-      if(det>topCount){topCount=det;topGrid=`G-${String(fi).padStart(3,'0')}`;}
-    });
-  }
   document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
-  document.getElementById('ctStatCameras').textContent=totalCam;
-  document.getElementById('ctStatDetections').textContent=totalDet;
-  document.getElementById('ctStatDetSub').textContent=`${totalSp} species recorded`;
-  document.getElementById('ctStatSpecies').textContent=totalSp;
-  document.getElementById('ctStatSpeciesSub').textContent=`across ${totalCam} cameras`;
-  document.getElementById('ctStatTopGrid').textContent=topGrid;
-  document.getElementById('ctStatTopSub').textContent=topCount?`${topCount} Events`:'';
-  document.getElementById('ctStatTrapNights').textContent=trapNights||'–';
-  document.getElementById('ctStatTrapNightsSub').textContent=tnSub;
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
