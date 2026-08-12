@@ -665,6 +665,18 @@ const spModalBody=document.getElementById('spModalBody');
 document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
+async function fetchEolDescription(latinName){
+  const searchRes=await fetch(`https://eol.org/api/search/1.0.json?q=${encodeURIComponent(latinName)}&page=1&exact=false`).then(r=>r.ok?r.json():null);
+  if(!searchRes||!searchRes.results||!searchRes.results.length)return null;
+  const pageId=searchRes.results[0].id;
+  if(!pageId)return null;
+  const pageRes=await fetch(`https://eol.org/api/pages/1.0/${pageId}.json?images=0&videos=0&sounds=0&maps=0&text=3&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0`).then(r=>r.ok?r.json():null);
+  if(!pageRes||!pageRes.dataObjects||!pageRes.dataObjects.length)return null;
+  const textObj=pageRes.dataObjects.find(d=>d.description&&d.description.length>60);
+  if(!textObj)return null;
+  return textObj.description.replace(/<[^>]+>/g,'').trim();
+}
+
 async function openSpeciesInfo(latinName,localName,iucn){
   if(!latinName)return;
   document.getElementById('spModalLatin').textContent=latinName;
@@ -696,16 +708,24 @@ async function openSpeciesInfo(latinName,localName,iucn){
     }
     images=[...new Set(images)].slice(0,8);
 
-    let description=null;
+    let description=null,descSource=null;
     if(descData&&descData.results&&descData.results.length){
       const engDesc=descData.results.find(d=>d.language==='eng'&&d.description&&d.description.length>40)
         ||descData.results.find(d=>d.description&&d.description.length>40);
-      if(engDesc)description=engDesc.description.replace(/<[^>]+>/g,'').trim();
+      if(engDesc){description=engDesc.description.replace(/<[^>]+>/g,'').trim();descSource='GBIF';}
+    }
+
+    if(!description){
+      try{
+        const eolResult=await fetchEolDescription(latinName);
+        if(eolResult){description=eolResult;descSource='EOL';}
+      }catch(e){console.warn('EOL fetch failed:',e);}
     }
 
     const info={
       images,
       description,
+      descSource,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
       kingdom:gbifMatch&&gbifMatch.kingdom?gbifMatch.kingdom:null
@@ -731,14 +751,8 @@ function renderSpeciesInfo(latinName,iucn,info){
     ? `<div class="sp-modal-desc">${info.description}</div>`
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Deskripsi taksonomi belum tersedia di GBIF untuk spesies ini. Gunakan tautan referensi di bawah untuk info lebih lanjut.</div>`;
 
-  const iucnSearchUrl=`https://www.iucnredlist.org/search?query=${encodeURIComponent(latinName)}&searchType=species`;
-  const gbifUrl=info.gbifKey?`https://www.gbif.org/species/${info.gbifKey}`:`https://www.gbif.org/species/search?q=${encodeURIComponent(latinName)}`;
-
-  const linksHtml=`<div class="sp-modal-links">
-    <a class="sp-modal-link" href="${iucnSearchUrl}" target="_blank" rel="noopener">🔴 IUCN Red List</a>
-    <a class="sp-modal-link" href="${gbifUrl}" target="_blank" rel="noopener">🌐 GBIF</a>
-  </div>
-  <div class="sp-modal-source-note">Foto &amp; deskripsi: GBIF (Global Biodiversity Information Facility). Untuk status konservasi resmi, rujuk IUCN Red List.</div>`;
+  const descSourceLabel=info.descSource==='EOL'?'Encyclopedia of Life (EOL)':'GBIF (Global Biodiversity Information Facility)';
+  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
