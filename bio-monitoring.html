@@ -665,22 +665,30 @@ const spModalBody=document.getElementById('spModalBody');
 document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
-/* ===== iNaturalist Taxa API =====
-   Tanpa API key. Endpoint publik: https://api.inaturalist.org/v1/taxa
-   Catatan: field wikipedia_summary di iNaturalist bersumber dari Wikipedia
-   (dikurasi/diverifikasi kurator iNaturalist), bukan tulisan asli iNaturalist. */
-async function fetchINatDescription(latinName){
+/* ===== GBIF species descriptions (primary) ===== */
+async function fetchGbifDescription(gbifKey){
+  if(!gbifKey)return{status:'not_found'};
   try{
-    const res=await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(latinName)}&rank=species,subspecies&per_page=5`).then(r=>r.ok?r.json():null);
+    const res=await fetch(`https://api.gbif.org/v1/species/${gbifKey}/descriptions?limit=10`).then(r=>r.ok?r.json():null);
     if(!res||!res.results||!res.results.length)return{status:'not_found'};
-    const norm=s=>(s||'').trim().toLowerCase();
-    const match=res.results.find(t=>norm(t.name)===norm(latinName))||res.results[0];
-    if(!match)return{status:'not_found'};
-    if(!match.wikipedia_summary||match.wikipedia_summary.length<30)return{status:'not_found'};
-    const text=match.wikipedia_summary.replace(/<[^>]+>/g,'').trim();
-    return{status:'ok',text};
+    const engDesc=res.results.find(d=>d.language==='eng'&&d.description&&d.description.length>40)
+      ||res.results.find(d=>d.description&&d.description.length>40);
+    if(!engDesc)return{status:'not_found'};
+    return{status:'ok',text:engDesc.description.replace(/<[^>]+>/g,'').trim()};
   }catch(e){
-    console.warn('iNaturalist fetch failed:',e);
+    console.warn('GBIF description fetch failed:',e);
+    return{status:'error'};
+  }
+}
+
+/* ===== Wikipedia summary (fallback) ===== */
+async function fetchWikipediaDescription(latinName){
+  try{
+    const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(latinName.replace(/\s+/g,'_'))}`).then(r=>r.ok?r.json():null);
+    if(!res||!res.extract||res.extract.length<30)return{status:'not_found'};
+    return{status:'ok',text:res.extract.trim()};
+  }catch(e){
+    console.warn('Wikipedia fetch failed:',e);
     return{status:'error'};
   }
 }
@@ -712,18 +720,19 @@ async function openSpeciesInfo(latinName,localName,iucn){
     }
     images=[...new Set(images)].slice(0,8);
 
-    let description=null,descSource=null,descStatus='not_found';
-    try{
-      const inatResult=await fetchINatDescription(latinName);
-      descStatus=inatResult.status;
-      if(inatResult.status==='ok'){description=inatResult.text;descSource='iNaturalist';}
-    }catch(e){console.warn('iNaturalist fetch failed:',e);}
+    let description=null,descSource=null;
+    const gbifDescResult=await fetchGbifDescription(gbifKey);
+    if(gbifDescResult.status==='ok'){
+      description=gbifDescResult.text;descSource='GBIF';
+    }else{
+      const wikiResult=await fetchWikipediaDescription(latinName);
+      if(wikiResult.status==='ok'){description=wikiResult.text;descSource='Wikipedia';}
+    }
 
     const info={
       images,
       description,
       descSource,
-      descStatus,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
       kingdom:gbifMatch&&gbifMatch.kingdom?gbifMatch.kingdom:null
@@ -747,9 +756,10 @@ function renderSpeciesInfo(latinName,iucn,info){
 
   const descHtml=info.description
     ? `<div class="sp-modal-desc">${info.description}</div>`
-    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di iNaturalist untuk spesies ini.</div>`;
+    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
 
-  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: iNaturalist (ringkasan terkurasi dari Wikipedia).</div>`;
+  const descSourceLabel=info.descSource||'–';
+  const linksHtml=info.description?`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`:'';
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
