@@ -89,27 +89,27 @@
     .cta-btn:hover{opacity:.88}
 
     /* SPECIES BREAKDOWN CARD (Spesies terdeteksi / Spesies terancam) */
-    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;margin-bottom:8px}
+    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,480px));gap:18px;margin-bottom:8px}
     .breakdown-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px;
-      display:flex;align-items:center;gap:30px;flex-wrap:wrap;
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      display:flex;align-items:center;gap:22px;flex-wrap:wrap;
     }
     .breakdown-main{display:flex;flex-direction:column;gap:6px}
     .breakdown-label{font-size:12px;color:#6b7280;font-weight:600}
-    .breakdown-value{font-size:42px;font-weight:800;color:var(--color-pine);line-height:1}
-    .breakdown-mini-grid{display:flex;gap:22px;flex-wrap:wrap}
+    .breakdown-value{font-size:38px;font-weight:800;color:var(--color-pine);line-height:1}
+    .breakdown-mini-grid{display:flex;gap:18px;flex-wrap:wrap}
     .breakdown-mini{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-    .breakdown-mini-value{font-size:20px;font-weight:800;color:#1f2937;line-height:1}
-    .breakdown-mini-label{font-size:10px;color:#6b7280;margin-top:2px;max-width:88px;line-height:1.4}
+    .breakdown-mini-value{font-size:18px;font-weight:800;color:#1f2937;line-height:1}
+    .breakdown-mini-label{font-size:9.5px;color:#6b7280;margin-top:2px;max-width:80px;line-height:1.4}
 
     /* SPECIES PRESENCE PANEL (Trigger species / Apex predator) */
-    .presence-row-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px}
-    .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
-    .presence-panel-title{font-size:14px;font-weight:700;color:#1f2937;margin-bottom:6px}
+    .presence-row-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,480px));gap:18px}
+    .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
+    .presence-panel-title{font-size:13px;font-weight:700;color:#1f2937;margin-bottom:4px}
     .presence-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
     .presence-row:last-child{border-bottom:none}
     .presence-badge{
-      width:34px;height:34px;border-radius:50%;flex-shrink:0;
+      width:36px;height:36px;border-radius:8px;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;
     }
     .presence-name{font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic}
@@ -341,20 +341,23 @@ const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/expo
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
 const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=0`;
 
-const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
+/* Warna kategori resmi IUCN Red List (bukan logo/ikon asli IUCN — lihat catatan di respons chat
+   soal kenapa logo asli tidak di-hotlink langsung). Beberapa warna terang (VU/NT/NE/DD) butuh teks gelap. */
+const IUCN_COLORS={LC:'#60c659',NT:'#cce226',VU:'#f9e814',EN:'#fc7f3f',CR:'#d81e05',EW:'#542344',EX:'#000000',DD:'#d1d1c6',NE:'#d1d1c6'};
+const IUCN_DARK_TEXT=new Set(['NT','VU','NE','DD']);
 const THREATENED_STATUSES=['VU','EN','CR'];
 
 /* Daftar tetap — sama dengan Key Species di biodiversity-monitoring.html,
    ditambah daftar Apex Predator. IUCN di sini dipakai sebagai referensi tampilan
    badge (tetap tampil walau spesies itu belum pernah terdeteksi di data). */
 const TRIGGER_SPECIES=[
-  {latin:'Pongo pygmaeus pygmaeus', local:'Orangutan',                          iucn:'CR'},
+  {latin:'Pongo pygmaeus', local:'Orangutan',                                   iucn:'CR'},
   {latin:'Manis javanica',          local:'Sunda Pangolin (Trenggiling)',       iucn:'CR'},
   {latin:'Rhinoplax vigil',         local:'Helmeted Hornbill (Rangkong Gading)',iucn:'CR'}
 ];
 const APEX_PREDATOR_SPECIES=[
   {latin:'Catopuma badia',          local:'Bay Cat (Kucing Merah)',             iucn:'EN'},
-  {latin:'Neofelis diardi',         local:'Sunda Clouded Leopard (Macan Dahan)',iucn:'VU'},
+  {latin:'Pardofelis marmorata',    local:'Marbled Cat (Kucing Batu)',          iucn:'VU'},
   {latin:'Prionailurus bengalensis',local:'Leopard Cat (Kucing Kuwuk)',         iucn:'LC'}
 ];
 
@@ -423,8 +426,31 @@ function fetchCsv(url){
     });
   }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
 }
+function fetchCsvHeader(url){
+  return new Promise((resolve)=>{
+    Papa.parse(url,{download:true,header:true,skipEmptyLines:true,
+      complete:(res)=>resolve(res.data||[]),
+      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
+    });
+  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
+}
 function fetchJson(url){
   return fetch(url).then(r=>r.json()).catch(e=>{console.warn('JSON load failed:',url,e);return null;});
+}
+/* Cari nilai kolom dengan cocokkan nama header secara fleksibel (exact match dulu,
+   baru substring) — supaya tidak bergantung pada urutan/index kolom yang bisa berubah. */
+function pickFieldExactOrPartial(row,...patterns){
+  const keys=Object.keys(row);
+  const norm=s=>s.toString().trim().toLowerCase();
+  for(const want of patterns){
+    const exact=keys.find(k=>norm(k)===norm(want));
+    if(exact!==undefined)return row[exact];
+  }
+  for(const want of patterns){
+    const partial=keys.find(k=>norm(k).includes(norm(want)));
+    if(partial!==undefined)return row[partial];
+  }
+  return undefined;
 }
 
 /* ============== LOAD & NORMALISASI ============== */
@@ -436,7 +462,7 @@ async function loadAll(){
     fetchCsv(BIO_SHEET_URL),
     fetchJson(GRID_URL),
     fetchCsv(PATROL_URL),
-    fetchCsv(SUBMISSION_URL)
+    fetchCsvHeader(SUBMISSION_URL)
   ]);
 
   // Camera trap: Batch,StartDate,EndDate,Site,Latitude,Longitude,CameraID,Date,Time,Class,Species,LocalName,IUCN,Indep,Count,...
@@ -462,14 +488,24 @@ async function loadAll(){
     if(label)patrolMap[label.toLowerCase()]=val;
   });
 
-  // Hunting records dari sheet submission — kolom I (index 8) = data-survey-finding
-  huntingRecords=subRaw.slice(1).map(r=>({
-    dateObj:parseDateTimeLoose(r[0]),
-    coordinate:(r[2]||'').trim(),
-    reporter:(r[5]||'').trim(),
-    finding:(r[8]||'').trim().toLowerCase()
-  })).filter(r=>HUNTING_FINDINGS.includes(r.finding));
+  // Hunting records dari sheet submission — dicocokkan berdasarkan NAMA kolom (bukan index tetap),
+  // supaya tidak gampang salah kalau urutan kolom sheet-nya sedikit berbeda dari dugaan.
+  console.log('[Hunting] baris mentah dari sheet submission:',subRaw.length,subRaw.slice(0,2));
+  huntingRecords=subRaw.map(row=>{
+    const findingRaw=pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding');
+    return{
+      dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
+      coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
+      reporter:(pickFieldExactOrPartial(row,'data-base-info-name','data-base-info-na','base-info-name','reporter-name')||'').toString().trim(),
+      finding:(findingRaw||'').toString().trim().toLowerCase()
+    };
+  }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
   huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
+  console.log('[Hunting] jumlah baris cocok (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
+  if(subRaw.length&&!huntingRecords.length){
+    const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
+    console.log('[Hunting] tidak ada yang cocok. Nilai unik kolom finding yang ditemukan di sheet:',[...findingValues]);
+  }
 
   document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
   const allDates=[...ctRows,...bioRows].map(r=>r.Date).filter(Boolean);
@@ -577,7 +613,7 @@ function renderPresenceRow(sp){
     ? `<div class="presence-detected">Terdeteksi ${count} kali</div>`
     : `<div class="presence-not-detected">Belum terdeteksi</div>`;
   return `<div class="presence-row">
-    <div class="presence-badge" style="background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}">${sp.iucn}</div>
+    <div class="presence-badge" style="background:${IUCN_COLORS[sp.iucn]||'#94a3b8'};color:${IUCN_DARK_TEXT.has(sp.iucn)?'#1f2937':'#fff'}">${sp.iucn}</div>
     <div>
       <div class="presence-name">${sp.latin}</div>
       <div class="presence-local">${sp.local}</div>
@@ -651,7 +687,7 @@ function renderHuntingRecords(){
   const listEl=document.getElementById('huntingList');
   const moreBtn=document.getElementById('huntingMoreBtn');
   if(!huntingRecords.length){
-    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang terdeteksi.</div>';
+    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang cocok. Kalau seharusnya ada data, cek: (1) sheet submission sudah di-share publik ("Anyone with the link → Viewer"), (2) tab "submission" memang di gid=0, (3) buka Console browser (F12) untuk lihat nilai kolom finding yang sebenarnya ada di sheet.</div>';
     moreBtn.style.display='none';
     return;
   }
