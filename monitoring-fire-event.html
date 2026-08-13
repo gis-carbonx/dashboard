@@ -1,186 +1,106 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Monitoring Fire Event | Sanggala Corridor Project</title>
-<link rel="icon" type="image/png" href="assets/icons/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<style>
-  :root{
-    --color-cream:#FFFAF3;
-    --color-sand:#DCDACC;
-    --color-sage:#B5BBA9;
-    --color-moss:#8C9F8B;
-    --color-fern:#618273;
-    --color-pine:#356760;
-    --color-fire:#c2703f;
-    --color-ink:#2b2b28;
-    --color-muted:#8a8a82;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;font-family:'Inter',Arial,Helvetica,sans-serif;background:var(--color-cream);color:var(--color-ink)}
-  body{display:flex;flex-direction:column}
-  h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biodiversity Monitoring | Sanggala Corridor Project</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --color-cream:#FFFAF3;
+      --color-sand:#DCDACC;
+      --color-sage:#B5BBA9;
+      --color-moss:#8C9F8B;
+      --color-fern:#618273;
+      --color-pine:#356760;
+      --color-delta:#f97316;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{font-family:'Montserrat',sans-serif;background:#FFFAF3}
 
-  /* SITE NAVBAR */
-  .site-navbar{
-    flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-    padding:10px 32px;background-color:var(--color-cream);border-bottom:1px solid var(--color-sand);
-  }
-  .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
-  .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
-  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Inter',sans-serif}
-  .site-navbar-menu{display:flex;gap:32px;justify-self:center}
-  .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
-  .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
-  .site-navbar-spacer{justify-self:end}
-  @media (max-width:768px){
-    .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
-    .site-navbar-menu{gap:14px;justify-self:end}
-    .site-navbar-spacer{display:none}
-  }
+    /* SITE NAVBAR (sama seperti halaman lain) */
+    .site-navbar{
+      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+      padding:12px 32px;background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);font-family:'Montserrat',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
 
-  /* DASHBOARD FRAME */
-  .dashboard-frame{
-    flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--color-sand);
-    overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
-    display:flex;flex-direction:column;
-  }
+    .dashboard-frame{
+      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
+    }
 
-  .report-scroll{flex:1;min-height:0;overflow-y:auto}
-  .report{max-width:1180px;margin:0 auto;padding:44px 36px 64px}
+    /* HEADER BAR — background penuh lebar, konten di dalamnya dibatasi & ditengahkan */
+    .bio-header{background:#4A3B2F}
+    .bio-header-inner{
+      max-width:1180px;margin:0 auto;padding:22px 36px;
+      display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    }
+    .bio-header-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.2px}
+    .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px}
+    .bio-header-right{text-align:right}
+    .bio-header-updated-label{font-size:9px;font-weight:700;letter-spacing:.6px;color:rgba(255,255,255,.55);text-transform:uppercase}
+    .bio-header-updated-value{font-size:12px;font-weight:600;color:#fff;margin-top:3px}
 
-  /* HEADER */
-  .fire-topbar{
-    background:#3A342C;border-bottom:1px solid #4a4238;
-    padding:14px 0;
-  }
-  .fire-topbar-inner{
-    max-width:1180px;margin:0 auto;padding:0 36px;
-    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  }
-  .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
-  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
-  .update-chip{text-align:right;flex-shrink:0}
-  .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-  .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+    /* QUARTER SELECTOR BAR — sama pola: background penuh, konten dibatasi & ditengahkan */
+    .quarter-bar{background:var(--color-cream);border-bottom:1px solid var(--color-sand)}
+    .quarter-bar-inner{
+      max-width:1180px;margin:0 auto;padding:12px 36px;
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    }
+    .quarter-bar-label{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px}
+    .quarter-bar-current{font-size:13px;font-weight:700;color:var(--color-pine)}
+    .quarter-select{
+      margin-left:auto;padding:7px 30px 7px 12px;border:1.5px solid var(--color-sand);border-radius:8px;
+      font-size:12px;font-family:'Montserrat',sans-serif;color:#374151;background:#fff;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23356760'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;
+    }
+    .quarter-select:focus{outline:none;border-color:var(--color-fern)}
 
-  /* SECTION TITLES */
-  .section-title{font-size:17px;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
-  .section-title:first-of-type{margin-top:0}
-  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:-10px 0 14px;font-family:'Inter',sans-serif}
-  .section-subtitle a{color:var(--color-fern);font-weight:600;text-decoration:none}
-  .section-subtitle a:hover{text-decoration:underline}
+    /* CONTENT — dibatasi lebar & ditengahkan, ada ruang kiri-kanan */
+    .bio-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
+    .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:14px 0 28px}
 
-  /* GENERIC PANEL */
-  .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
-  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Source Serif 4',Georgia,serif}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:8px}
+    .stat-grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .stat-card{
+      background:#fff;border:1px solid var(--color-sand);border-radius:10px;padding:16px 18px;
+    }
+    .stat-label{font-size:11.5px;color:#6b7280;font-weight:600;margin-bottom:10px}
+    .stat-value-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .stat-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1}
+    .stat-value.empty{color:#c4c4c4;font-size:22px;font-weight:600}
+    .stat-delta{display:flex;flex-direction:column}
+    .stat-delta-num{font-size:12px;font-weight:700;color:var(--color-delta)}
+    .stat-delta-num.negative{color:#9ca3af}
+    .stat-delta-sub{font-size:9.5px;color:#9ca3af;line-height:1.3}
 
-  /* FDRS PANEL */
-  .fdrs-panel{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
-  .fdrs-panel-left{flex:1;min-width:200px}
-  .fdrs-panel-title{font-size:16px;color:var(--color-ink)}
-  .fdrs-panel-sub{font-size:12px;color:var(--color-muted);margin-top:3px;font-family:'Inter',sans-serif}
-  .fdrs-panel-blok{text-align:center}
-  .fdrs-blok-label{font-size:10px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-  .fdrs-badge{padding:9px 22px;border-radius:6px;font-size:14px;font-weight:800;letter-spacing:.5px;text-align:center}
-  .fdrs-low{background:#DCEEDD;color:#1a5c33}
-  .fdrs-medium{background:#FDF0B0;color:#8a6300}
-  .fdrs-high{background:#FCE0C4;color:#9a4b0c}
-  .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
+    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
 
-  /* FIRE KPI PANEL + TREND ROW */
-  .kpi-trend-row{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:stretch}
-  @media (max-width:900px){ .kpi-trend-row{grid-template-columns:1fr} }
+    .species-card .stat-label{font-style:italic;color:#374151;font-weight:700}
+    .species-card .stat-label small{display:block;font-style:normal;font-weight:500;color:#9ca3af;margin-top:2px}
 
-  .fire-kpi-panel{display:flex;flex-direction:column;justify-content:center}
-  .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
-  .fire-kpi-value{font-size:54px;color:var(--color-pine);line-height:1.1;margin-top:4px}
-  .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
-  .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:28px}
-  .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
-
-  .trend-panel{display:flex;flex-direction:column}
-  .trend-granularity{font-size:10px;font-weight:600;color:var(--color-muted);text-transform:none;font-family:'Inter',sans-serif}
-  .trend-chart-wrap{position:relative;flex:1;min-height:150px;margin-top:6px}
-
-  .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Inter',sans-serif}
-  .chip-btn.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
-  .chip-btn:hover:not(.active){border-color:var(--color-fern);color:var(--color-fern)}
-  .chip-btn-accent{background:var(--color-fire);border-color:var(--color-fire);color:#fff}
-  .chip-btn-accent:hover{opacity:.88}
-  .date-input-sm{padding:4px 8px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:var(--color-ink);background:#fff;font-family:'Inter',sans-serif}
-
-  /* TWO COLUMN ROW (map + lokasi) */
-  .two-col-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch}
-  @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
-  .map-panel{padding:0;overflow:hidden;display:flex;flex-direction:column}
-  #map{width:100%;height:340px}
-  .map-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--color-muted);padding:12px 18px;border-top:1px solid var(--color-sand);font-family:'Inter',sans-serif}
-  .legend-line{display:inline-block;width:16px;height:2px;background:var(--color-pine);margin-right:5px;vertical-align:middle}
-  .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
-
-  .loc-panel{display:flex;flex-direction:column}
-  .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #EDE7D8}
-  .blok-row:last-child{border-bottom:none}
-  .blok-name{font-size:13px;font-weight:700;color:var(--color-ink)}
-  .blok-desa{font-size:10.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
-  .blok-count{font-size:19px;font-weight:800;color:var(--color-fire)}
-
-  /* TABLE */
-  .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:hidden}
-  table.data-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:'Inter',sans-serif}
-  table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 16px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--color-sand)}
-  table.data-tbl tbody td{padding:10px 16px;border-bottom:1px solid #EDE7D8;color:var(--color-ink);vertical-align:middle}
-  table.data-tbl tbody tr:last-child td{border-bottom:none}
-  table.data-tbl tbody tr:hover td{background:#FFFAF3}
-  .tbl-time{font-weight:600;color:var(--color-ink);white-space:nowrap}
-  .tbl-time-sub{font-size:10px;color:var(--color-muted)}
-  .tbl-coord{font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--color-muted);white-space:nowrap}
-  .blok-badge{display:inline-block;padding:2px 10px;border-radius:20px;background:var(--color-sand);color:var(--color-pine);font-size:10px;font-weight:700;white-space:nowrap}
-  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
-  .pg-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-ink)}
-  .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
-  .pg-btn:disabled{opacity:.35;cursor:not-allowed}
-
-  /* WEATHER ROW */
-  .weather-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
-  @media (max-width:760px){ .weather-row{grid-template-columns:1fr 1fr} }
-  @media (max-width:420px){ .weather-row{grid-template-columns:1fr} }
-  .weather-row .panel{display:flex;flex-direction:column;padding:18px 18px 14px;border-radius:8px;transition:box-shadow .15s;}
-  .weather-row .panel:hover{box-shadow:0 4px 16px rgba(43,43,40,.06)}
-  .weather-panel-head{display:flex;align-items:center;gap:8px}
-  .weather-icon-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Inter',sans-serif}
-  .weather-current{font-size:26px;font-weight:700;color:var(--color-ink);margin-top:10px;font-family:'Source Serif 4',Georgia,serif;line-height:1}
-  .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif;margin-left:2px}
-  .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
-
-  /* FORECAST ROW (BMKG, 3-jam-an) */
-  .forecast-panel{background:transparent;overflow:hidden}
-  .forecast-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
-  .forecast-scroll::-webkit-scrollbar{height:6px}
-  .forecast-scroll::-webkit-scrollbar-thumb{background:var(--color-sand);border-radius:10px}
-  .forecast-card{flex:0 0 118px;background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:14px 10px;text-align:center}
-  .forecast-day{font-size:11.5px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
-  .forecast-day-sub{font-size:10px;color:var(--color-muted);margin-top:1px;font-family:'Inter',sans-serif}
-  .forecast-icon{width:34px;height:34px;margin:8px auto;display:block;object-fit:contain}
-  .forecast-desc{font-size:10.5px;color:var(--color-fern);font-family:'Inter',sans-serif;min-height:14px}
-  .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Source Serif 4',Georgia,serif;margin-top:4px}
-  .forecast-meta{font-size:10px;color:var(--color-muted);margin-top:6px;font-family:'Inter',sans-serif;line-height:1.6}
-
-  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Inter',sans-serif}
-</style>
+    .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
+  </style>
 </head>
 <body>
-
 <header class="site-navbar">
   <div class="site-navbar-brand">
     <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
@@ -195,632 +115,339 @@
 </header>
 
 <div class="dashboard-frame">
-  <div class="fire-topbar">
-    <div class="fire-topbar-inner">
+  <div class="bio-header">
+    <div class="bio-header-inner">
       <div>
-        <h1 class="report-title">Monitoring Fire Event</h1>
-        <div class="report-subtitle"><span id="reportDateToday">&ndash;</span></div>
+        <div class="bio-header-title">Biodiversity Monitoring</div>
+        <div class="bio-header-date" id="bioTodayDate">–</div>
       </div>
-      <div class="update-chip">
-        <div class="update-chip-label">Terakhir diperbarui</div>
-        <div class="update-chip-value" id="lastUpdate">&ndash;</div>
+      <div class="bio-header-right">
+        <div class="bio-header-updated-label">Terakhir Diperbarui</div>
+        <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
       </div>
     </div>
   </div>
-  <div class="report-scroll">
-  <div class="report">
 
-    <!-- ANALISA PERBANDINGAN HISTORIS -->
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:18px 0;margin-bottom:24px">
-      <div style="max-width:640px">
-        <div style="font-size:13px;color:var(--color-ink);line-height:1.6">
-          Analisa perbandingan titik api tahun 2026 terhadap tahun-tahun sebelumnya dapat dilihat melalui tautan berikut.
-        </div>
-      </div>
-      <a href="pantauan-titik-api.html" class="chip-btn chip-btn-accent" style="text-decoration:none;padding:9px 20px">
-        Perbandingan Titik Api &rarr;
-      </a>
+  <div class="quarter-bar">
+    <div class="quarter-bar-inner">
+      <span class="quarter-bar-label">Kuartal ditampilkan:</span>
+      <span class="quarter-bar-current" id="quarterCurrentLabel">–</span>
+      <select class="quarter-select" id="quarterSelect"></select>
     </div>
-
-    <!-- FDRS -->
-    <div class="panel fdrs-panel">
-      <div class="fdrs-panel-left">
-        <div class="fdrs-panel-title">Rating Bahaya Kebakaran</div>
-        <div class="fdrs-panel-sub">PT Citra Mulia Inti &bull; <span id="fdrsDate">&ndash;</span></div>
-      </div>
-      <div class="fdrs-panel-blok">
-        <div class="fdrs-blok-label">Blok 1</div>
-        <div class="fdrs-badge" id="fdrsBlok1">&ndash;</div>
-      </div>
-      <div class="fdrs-panel-blok">
-        <div class="fdrs-blok-label">Blok 2</div>
-        <div class="fdrs-badge" id="fdrsBlok2">&ndash;</div>
-      </div>
-    </div>
-
-    <!-- TITIK API KPI + TREN -->
-    <div class="two-col-row kpi-trend-row" style="margin-top:16px">
-      <div class="panel fire-kpi-panel">
-        <div class="fire-kpi-label">Titik Api</div>
-        <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
-        <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
-        <div class="fire-kpi-filters">
-          <button class="chip-btn" data-preset="today">Hari Ini</button>
-          <button class="chip-btn active" data-preset="7d">7 Hari</button>
-          <button class="chip-btn" data-preset="30d">30 Hari</button>
-          <button class="chip-btn" data-preset="all">Semua</button>
-          <span class="filter-divider"></span>
-          <input type="date" class="date-input-sm" id="customStart">
-          <span style="color:var(--color-muted);font-size:11px">&ndash;</span>
-          <input type="date" class="date-input-sm" id="customEnd">
-          <button class="chip-btn chip-btn-accent" id="customApplyBtn">Terapkan</button>
-        </div>
-      </div>
-      <div class="panel trend-panel">
-        <div class="panel-heading">Tren Kejadian Titik Api <span class="trend-granularity" id="trendGranularity"></span></div>
-        <div class="trend-chart-wrap"><canvas id="chartFireTrend"></canvas></div>
-      </div>
-    </div>
-
-    <!-- PETA -->
-    <h2 class="section-title">Peta Sebaran Titik Api</h2>
-    <div class="two-col-row">
-      <div class="panel map-panel">
-        <div id="map"></div>
-        <div class="map-legend">
-          <span><span class="legend-line"></span>Batas Area</span>
-          <span><span class="legend-dot" style="background:var(--color-fire)"></span>Titik Api (Ditampilkan)</span>
-        </div>
-      </div>
-      <div class="panel loc-panel">
-        <div class="panel-heading">Lokasi Titik Api</div>
-        <div id="blokSummary"><div class="loading-msg">Memuat&hellip;</div></div>
-      </div>
-    </div>
-
-    <!-- DATA TABLE -->
-    <h2 class="section-title">Data Titik Api Terbaru</h2>
-    <div class="tbl-wrap">
-      <table class="data-tbl">
-        <thead><tr>
-          <th>Waktu Deteksi</th><th>Koordinat</th><th>Desa</th><th>Blok</th><th>Satelit</th><th>Owner</th><th>Penutup Lahan</th>
-        </tr></thead>
-        <tbody id="tblBody"><tr><td colspan="7" class="loading-msg">Memuat data&hellip;</td></tr></tbody>
-      </table>
-    </div>
-    <div class="tbl-pagination">
-      <span id="pgInfo">&ndash;</span>
-      <button class="pg-btn" id="pgPrev">&lsaquo;</button>
-      <button class="pg-btn" id="pgNext">&rsaquo;</button>
-    </div>
-
-    <!-- KONDISI CUACA -->
-    <h2 class="section-title">Kondisi Cuaca</h2>
-    <div class="weather-row">
-      <div class="panel">
-        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#B5BBA9"></span><div class="weather-panel-title">Curah Hujan (mm)</div></div>
-        <div class="weather-current" id="rainCurrent">&ndash; <span>mm</span></div>
-        <div class="weather-chart-wrap"><canvas id="chartRain"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#618273"></span><div class="weather-panel-title">Kecepatan Angin (km/jam)</div></div>
-        <div class="weather-current" id="windCurrent">&ndash; <span>km/jam</span></div>
-        <div class="weather-chart-wrap"><canvas id="chartWind"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#c2703f"></span><div class="weather-panel-title">Suhu Udara (&deg;C)</div></div>
-        <div class="weather-current" id="tempCurrent">&ndash; <span>&deg;C</span></div>
-        <div class="weather-chart-wrap"><canvas id="chartTemp"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="weather-panel-head"><span class="weather-icon-dot" style="background:#356760"></span><div class="weather-panel-title">Kelembaban Udara (%)</div></div>
-        <div class="weather-current" id="humCurrent">&ndash; <span>%</span></div>
-        <div class="weather-chart-wrap"><canvas id="chartHum"></canvas></div>
-      </div>
-    </div>
-
-    <!-- PREDIKSI CUACA -->
-    <h2 class="section-title">Prediksi Cuaca</h2>
-    <div class="section-subtitle">Balai Karangan, Sanggau &middot; Sumber: <a href="https://www.bmkg.go.id/cuaca/prakiraan-cuaca/61.03.07.2001" target="_blank" rel="noopener">BMKG</a></div>
-    <div class="panel forecast-panel">
-      <div class="forecast-scroll" id="forecastList">
-        <div class="loading-msg">Memuat&hellip;</div>
-      </div>
-    </div>
-
   </div>
+
+  <div id="bioContent">
+    <div class="loading-msg" id="bioLoading">Memuat data monitoring…</div>
+
+    <div class="bio-content" id="bioContentBody" style="display:none">
+
+      <div class="stat-grid cols-2">
+        <div class="stat-card">
+          <div class="stat-label">Camera trap installed</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statCtInstalled">–</span>
+            <div class="stat-delta">
+              <span class="stat-delta-num" id="statCtInstalledDelta">–</span>
+              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Bioacoustic installed</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statBioInstalled">–</span>
+            <div class="stat-delta">
+              <span class="stat-delta-num" id="statBioInstalledDelta">–</span>
+              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- [placeholder 1] — dummy text, ganti dengan kalimat asli -->
+      <p class="bio-note">
+        [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat, tersebar di beberapa titik Blok 1 dan Blok 2.
+      </p>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Wildlife records</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statWildlifeRecords">–</span>
+            <div class="stat-delta">
+              <span class="stat-delta-num" id="statWildlifeRecordsDelta">–</span>
+              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Threatened species recorded</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statThreatened">–</span>
+            <div class="stat-delta">
+              <span class="stat-delta-num" id="statThreatenedDelta">–</span>
+              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Area better managed (ha)</div>
+          <div class="stat-value-row">
+            <!-- Sengaja dikosongkan dulu — belum ada sumber data untuk metrik ini. -->
+            <span class="stat-value empty">–</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- [placeholder 2] — dummy text, ganti dengan ringkasan asli -->
+      <p class="bio-note">
+        [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
+      </p>
+
+      <div class="section-title">Key Species Monitoring</div>
+      <div class="stat-grid" id="keySpeciesGrid"></div>
+
+      <!-- [placeholder 3] — dummy text, ganti dengan ringkasan asli -->
+      <p class="bio-note">
+        [placeholder 3] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
+      </p>
+
+    </div>
   </div>
 </div>
 
 <script>
-'use strict';
-const FIRE_SHEET_ID='1QRsiwK-3vlEU8991xsFsFvWdmyeuMTvSnATxxWRZEfk';
-const FIRE_SHEET_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/export?format=csv&gid=0&v=${Date.now()}`;
-const RUNTIME_URL=`https://docs.google.com/spreadsheets/d/${FIRE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RunTime`+'&'+Date.now();
-const WEATHER_ID='1nVvw7hVJjBb6nsHpwhCYykhk2cxIiZdiQaSiGAEe5H8';
-const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather`+'&'+Date.now();
-const BMKG_ID='1DL98t0o3UdEwgBJC8nH_WP80L6aLjdtEErAAVcNbcZ8';
-const BMKG_URL=`https://docs.google.com/spreadsheets/d/${BMKG_ID}/gviz/tq?tqx=out:csv&sheet=BMKG`+'&'+Date.now();
-const FDRS_ID='1w1YUvhKArfvN3QcY8S1N9t2TpmNBf2O1pywvNNPDz5Q';
-const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Final Data')}`+'&'+Date.now();
-const CMI_URL='assets/json/CMI.json';
+/* ============== KONFIGURASI ============== */
+const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
+const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
 
-const MN_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-const DAY_ID=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const THREATENED_STATUSES=['VU','EN','CR'];
 
-let allFire=[],filteredFire=[],currentPage=1;
-const PAGE_SIZE=6;
+/* Key species — daftar tetap. Latin name dicocokkan case-insensitive & trim
+   terhadap kolom Species di kedua sheet. Edit di sini kalau daftarnya berubah. */
+const KEY_SPECIES=[
+  {latin:'Pongo pygmaeus pygmaeus', local:'Orangutan'},
+  {latin:'Manis javanica',          local:'Sunda Pangolin'},
+  {latin:'Rhinoplax vigil',         local:'Helmeted Hornbill'}
+];
 
-function str(v){return (v??'').toString().trim();}
-function num(v){const n=parseFloat(str(v));return isNaN(n)?null:n;}
-
-function parseDateLoose(s){
-  s=str(s);if(!s)return null;
-  let m=s.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
-  if(m)return new Date(+m[1],+m[2],+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0));
-  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
-  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
-  m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})/);
+/* ============== HELPERS TANGGAL & KUARTAL ============== */
+function toMidnight(y,m,d){return new Date(y,m,d);}
+function parseDateStr(s){
+  if(!s||!s.trim())return null;
+  s=s.trim();s=s.split('T')[0].split(' ')[0];
   const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  if(m&&MON[m[2]]!==undefined)return new Date(+m[3],MON[m[2]],+m[1]);
-  const d=new Date(s);return isNaN(d)?null:d;
+  let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if(m&&MON[m[2]]!==undefined)return toMidnight(+m[3],MON[m[2]],+m[1]);
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[1]-1,+m[2]);}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(m){const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];if(+m[1]>12)return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(yyyy,+m[1]-1,+m[2]);return toMidnight(yyyy,+m[1]-1,+m[2]);}
+  const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
+  return null;
 }
-function dateKey(d){return d?d.toISOString().slice(0,10):'';}
-function fmtDateID(d){return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'–';}
-function fmtDateShort(d){return d?`${d.getDate()} ${MN_SHORT[d.getMonth()]}`:'–';}
-
-document.getElementById('reportDateToday').textContent=fmtDateID(new Date());
-
-/* ============ MAP ============ */
-const map=L.map('map',{zoomControl:true,attributionControl:false});
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
-map.setView([0.8,110.3],11);
-let mapBounds=null;
-const fireLayer=L.layerGroup().addTo(map);
-
-fetch(CMI_URL).then(r=>r.json()).then(j=>{
-  const b=L.geoJSON(j,{style:{color:'#356760',weight:2.5,fillOpacity:0}}).addTo(map);
-  mapBounds=b.getBounds();
-  map.fitBounds(mapBounds,{padding:[20,20]});
-  setTimeout(()=>map.invalidateSize(),150);
-}).catch(()=>{});
-
-function renderFireMarkers(rows){
-  fireLayer.clearLayers();
-  rows.forEach(r=>{
-    if(r.lat===null||r.lon===null)return;
-    L.circleMarker([r.lat,r.lon],{radius:6,color:'#fff',weight:1.5,fillColor:'#c2703f',fillOpacity:.9})
-      .bindPopup(`<div style="font-family:Arial;font-size:12px">
-        <b style="color:#a05a26">Titik Api</b><br>
-        <b>Tanggal:</b> ${fmtDateID(r.dateObj)}${r.jam?' '+r.jam:''}<br>
-        ${r.desa?`<b>Desa:</b> ${r.desa}<br>`:''}
-        ${r.blok?`<b>Blok:</b> ${r.blok}<br>`:''}
-        ${r.owner?`<b>Owner:</b> ${r.owner}<br>`:''}
-        ${r.lahan?`<b>Penutup Lahan:</b> ${r.lahan}<br>`:''}
-      </div>`)
-      .addTo(fireLayer);
-  });
+function getQuarter(date){return {year:date.getFullYear(),q:Math.floor(date.getMonth()/3)+1};}
+function quarterKey(y,q){return `${y}-Q${q}`;}
+function quarterLabel(y,q){return `Q${q} ${y}`;}
+function quarterEndDate(y,q){return new Date(y,q*3,0,23,59,59);}
+function prevQuarter(y,q){return q===1?{year:y-1,q:4}:{year:y,q:q-1};}
+function fmtDateID(d){return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'–';}
+function fmtDateTimeID(d){
+  if(!d)return '–';
+  const date=d.toLocaleDateString('id-ID',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const time=d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  return `${date} ${time} WIB`;
 }
 
-/* ============ TABLE ============ */
-function renderTable(){
-  const start=(currentPage-1)*PAGE_SIZE;
-  const pageRows=filteredFire.slice(start,start+PAGE_SIZE);
-  const tbody=document.getElementById('tblBody');
-  tbody.innerHTML = pageRows.length ? pageRows.map(r=>`<tr>
-      <td><div class="tbl-time">${fmtDateID(r.dateObj)}</div>${r.jam?`<div class="tbl-time-sub">${r.jam}</div>`:''}</td>
-      <td class="tbl-coord">${r.lat!==null?r.lat.toFixed(5):'–'}, ${r.lon!==null?r.lon.toFixed(5):'–'}</td>
-      <td>${r.desa||'–'}</td>
-      <td>${r.blok?`<span class="blok-badge">${r.blok}</span>`:'–'}</td>
-      <td>${r.satellite||'–'}${r.instrument?' / '+r.instrument:''}</td>
-      <td>${r.owner||'–'}</td>
-      <td>${r.lahan||'–'}</td>
-    </tr>`).join('')
-    : '<tr><td colspan="7" style="text-align:center;color:var(--color-muted);padding:24px">Tidak ada data</td></tr>';
-  const totalPages=Math.max(1,Math.ceil(filteredFire.length/PAGE_SIZE));
-  document.getElementById('pgInfo').textContent=`${filteredFire.length?start+1:0}-${Math.min(start+PAGE_SIZE,filteredFire.length)} / ${filteredFire.length}`;
-  document.getElementById('pgPrev').disabled=currentPage<=1;
-  document.getElementById('pgNext').disabled=currentPage>=totalPages;
-}
-document.getElementById('pgPrev').addEventListener('click',()=>{if(currentPage>1){currentPage--;renderTable();}});
-document.getElementById('pgNext').addEventListener('click',()=>{
-  const totalPages=Math.max(1,Math.ceil(filteredFire.length/PAGE_SIZE));
-  if(currentPage<totalPages){currentPage++;renderTable();}
-});
+/* ============== LOAD & NORMALISASI DATA ============== */
+let ctRows=[],bioRows=[],allQuarters=[],selectedQuarterIdx=-1;
 
-/* ============ LOKASI TITIK API ============ */
-function renderBlokSummary(rows){
-  const groups={};
-  rows.forEach(r=>{
-    const key=(r.desa||'—')+'||'+(r.blok||'—');
-    if(!groups[key])groups[key]={desa:r.desa||'—',blok:r.blok||'—',count:0};
-    groups[key].count++;
-  });
-  const list=Object.values(groups).sort((a,b)=>b.count-a.count).slice(0,8);
-  const el=document.getElementById('blokSummary');
-  el.innerHTML = list.length ? list.map(g=>`
-    <div class="blok-row">
-      <div><div class="blok-name">${g.desa}</div><div class="blok-desa">${g.blok}</div></div>
-      <div class="blok-count">${g.count}</div>
-    </div>`).join('') : '<div class="loading-msg">Tidak ada data</div>';
+function fetchCsv(url){
+  return new Promise((resolve)=>{
+    Papa.parse(url,{download:true,header:false,skipEmptyLines:true,
+      complete:(res)=>resolve(res.data||[]),
+      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
+    });
+  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
 }
 
-/* ============ TREN KEJADIAN TITIK API (granularitas otomatis) ============ */
-let fireTrendChartInst=null;
-function isoWeekKey(d){
-  // Kunci minggu berdasarkan hari Senin sebagai awal minggu
-  const dt=new Date(d);const day=(dt.getDay()+6)%7; // 0=Senin
-  dt.setDate(dt.getDate()-day);dt.setHours(0,0,0,0);
-  return dateKey(dt);
-}
-function renderFireTrendChart(){
-  const rows=filteredFire;
-  const canvas=document.getElementById('chartFireTrend');
-  if(!canvas)return;
+async function loadAllData(){
+  const [ctRaw,bioRaw]=await Promise.all([fetchCsv(CT_SHEET_URL),fetchCsv(BIO_SHEET_URL)]);
 
-  // Tentukan granularitas dari rentang tanggal yang sedang aktif
-  let spanDays=7;
-  if(filterRangeStart&&filterRangeEnd){
-    spanDays=Math.max(1,Math.round((filterRangeEnd-filterRangeStart)/(1000*60*60*24))+1);
-  }else if(rows.length){
-    const dates=rows.map(r=>r.dateObj).filter(Boolean);
-    if(dates.length){
-      const mn=new Date(Math.min(...dates)),mx=new Date(Math.max(...dates));
-      spanDays=Math.max(1,Math.round((mx-mn)/(1000*60*60*24))+1);
-    }
-  }
+  // Camera trap columns: Batch,StartDate,EndDate,Site,Latitude,Longitude,CameraID,Date,Time,Class,Species,LocalName,IUCN,Indep,Count,FileType,FileName,Behavior,Note
+  ctRows=ctRaw.slice(1).map(r=>{
+    const d=parseDateStr(r[7]);
+    return{
+      UnitID:r[6]||'',Date:d,Species:(r[10]||'').trim(),LocalName:r[11]||'',IUCN:r[12]||'',
+      Indep:Math.max(0,parseInt(r[13])||0),Source:'cameratrap'
+    };
+  }).filter(r=>r.Date&&r.UnitID);
 
-  let granularity,granLabel;
-  if(spanDays<=31){granularity='day';granLabel='Harian';}
-  else if(spanDays<=180){granularity='week';granLabel='Mingguan';}
-  else{granularity='month';granLabel='Bulanan';}
-  document.getElementById('trendGranularity').textContent='· '+granLabel;
+  // Bioacoustic columns: Recorder,Batch,FileName,Longitude,Latitude,Date,Time,Class,Species,LocalName,IUCN,CallType,ValidatedBy,Notes
+  bioRows=bioRaw.slice(1).map(r=>{
+    const d=parseDateStr(r[5]);
+    return{
+      UnitID:r[0]||'',Date:d,Species:(r[8]||'').trim(),LocalName:r[9]||'',IUCN:r[10]||'',
+      Indep:1,Source:'bioacoustic'
+    };
+  }).filter(r=>r.Date&&r.UnitID);
 
-  const buckets={};
-
-  function ensureBucket(key,sortKey,label){
-    if(!buckets[key])buckets[key]={sortKey,label,count:0};
-  }
-  function bucketInfoFor(d){
-    if(granularity==='day'){
-      return{key:dateKey(d),sortKey:new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(),label:fmtDateShort(d)};
-    }else if(granularity==='week'){
-      const key=isoWeekKey(d);const wkStart=new Date(key);
-      return{key,sortKey:wkStart.getTime(),label:fmtDateShort(wkStart)};
-    }else{
-      const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-      return{key,sortKey:new Date(d.getFullYear(),d.getMonth(),1).getTime(),label:MN_SHORT[d.getMonth()]+' '+d.getFullYear()};
-    }
-  }
-
-  // Buat dulu seluruh urutan bucket kosong (0) sepanjang rentang filter yang aktif,
-  // supaya hari/minggu/bulan TANPA kejadian titik api tetap muncul di grafik.
-  if(filterRangeStart&&filterRangeEnd){
-    const cursor=new Date(filterRangeStart);
-    const step=granularity==='day'?1:(granularity==='week'?7:0);
-    let guard=0;
-    while(cursor<=filterRangeEnd&&guard<1000){
-      const b=bucketInfoFor(cursor);
-      ensureBucket(b.key,b.sortKey,b.label);
-      if(granularity==='month'){cursor.setMonth(cursor.getMonth()+1);}
-      else{cursor.setDate(cursor.getDate()+step);}
-      guard++;
-    }
-  }
-
-  // Isi jumlah kejadian sesungguhnya ke bucket yang sudah dibuat (atau bucket baru kalau di luar rentang)
-  rows.forEach(r=>{
-    if(!r.dateObj)return;
-    const b=bucketInfoFor(r.dateObj);
-    ensureBucket(b.key,b.sortKey,b.label);
-    buckets[b.key].count++;
+  // Kumpulkan semua kuartal yang muncul di kedua sumber data
+  const qSet=new Map();
+  [...ctRows,...bioRows].forEach(r=>{
+    const{year,q}=getQuarter(r.Date);
+    qSet.set(quarterKey(year,q),{year,q});
   });
 
-  const sorted=Object.values(buckets).sort((a,b)=>a.sortKey-b.sortKey);
-  const labels=sorted.map(b=>b.label);
-  const data=sorted.map(b=>b.count);
+  // Pastikan kuartal berjalan (hari ini) selalu ada di daftar pilihan,
+  // meskipun belum ada data sama sekali untuk kuartal itu.
+  const nowQ=getQuarter(new Date());
+  qSet.set(quarterKey(nowQ.year,nowQ.q),nowQ);
 
-  if(fireTrendChartInst)fireTrendChartInst.destroy();
-  canvas.removeAttribute('width');canvas.removeAttribute('height');
-  canvas.style.width='';canvas.style.height='';
-  fireTrendChartInst=new Chart(canvas,{
-    type:'bar',
-    data:{labels,datasets:[{data,backgroundColor:'#c2703f',borderRadius:3,barPercentage:.6}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{enabled:true}},
-      scales:{
-        x:{ticks:{font:{size:9},color:'#9a9a90',maxRotation:0,autoSkip:true,maxTicksLimit:10},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}}
-      }}
-  });
-}
+  allQuarters=[...qSet.values()].sort((a,b)=>a.year-b.year||a.q-b.q);
 
-/* ============ FILTER ============ */
-let currentPreset='7d';
-let maxFireDate=null;
-let customStart=null,customEnd=null;
-let filterRangeStart=null,filterRangeEnd=null;
-
-function applyFilter(){
-  if(!maxFireDate){filteredFire=[];renderAll();return;}
-  let rangeStart=null,rangeEnd=null;
-  if(currentPreset==='custom'){
-    if(customStart&&customEnd){
-      rangeStart=customStart;rangeEnd=customEnd;
-      filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
-    }else{
-      filteredFire=[];
-    }
-  }else if(currentPreset==='all'){
-    filteredFire=allFire.slice();
-    const withDate=allFire.filter(r=>r.dateObj);
-    if(withDate.length){rangeStart=withDate.reduce((a,b)=>a.dateObj<b.dateObj?a:b).dateObj;rangeEnd=maxFireDate;}
-  }else if(currentPreset==='today'){
-    const today=new Date();
-    rangeStart=new Date(today);rangeStart.setHours(0,0,0,0);
-    rangeEnd=new Date(today);rangeEnd.setHours(23,59,59,999);
-    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
-  }else{
-    const days=currentPreset==='7d'?7:30;
-    const today=new Date();today.setHours(23,59,59,999);
-    rangeStart=new Date(today);rangeStart.setDate(rangeStart.getDate()-(days-1));rangeStart.setHours(0,0,0,0);
-    rangeEnd=today;
-    filteredFire=allFire.filter(r=>r.dateObj&&r.dateObj>=rangeStart&&r.dateObj<=rangeEnd);
+  if(!allQuarters.length){
+    document.getElementById('bioLoading').textContent='Data tidak termuat. Cek apakah kedua Google Sheet sudah di-share publik ("Anyone with the link → Viewer"), lalu refresh.';
+    return;
   }
-  filteredFire.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
-  filterRangeStart=rangeStart;filterRangeEnd=rangeEnd;
-  const labelMap={'today':'Hari Ini','7d':'7 Hari Terakhir','30d':'30 Hari Terakhir','all':'Semua Data','custom':'Rentang Kustom'};
-  document.getElementById('fireDateRange').textContent = (rangeStart&&rangeEnd)
-    ? `${labelMap[currentPreset]} · ${fmtDateShort(rangeStart)} – ${fmtDateShort(rangeEnd)}` : labelMap[currentPreset]||'–';
-  currentPage=1;
+
+  // Default: kuartal berjalan saat ini (bukan kuartal terakhir yang ada datanya).
+  // Kuartal-kuartal lain tetap bisa dipilih lewat dropdown.
+  selectedQuarterIdx=allQuarters.findIndex(qq=>qq.year===nowQ.year&&qq.q===nowQ.q);
+
+  buildQuarterSelect();
   renderAll();
+
+  document.getElementById('bioLoading').style.display='none';
+  document.getElementById('bioContentBody').style.display='block';
 }
+
+function buildQuarterSelect(){
+  const sel=document.getElementById('quarterSelect');
+  sel.innerHTML='';
+  allQuarters.forEach((qq,i)=>{
+    const o=document.createElement('option');
+    o.value=i;o.textContent=quarterLabel(qq.year,qq.q);
+    if(i===selectedQuarterIdx)o.selected=true;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change',e=>{
+    selectedQuarterIdx=parseInt(e.target.value);
+    renderAll();
+  });
+}
+
+/* ============== KOMPUTASI METRIK ============== */
+function rowsInQuarter(rows,year,q){
+  return rows.filter(r=>{const g=getQuarter(r.Date);return g.year===year&&g.q===q;});
+}
+function cumulativeUnits(rows,year,q){
+  const endDate=quarterEndDate(year,q);
+  const units=new Set();
+  rows.forEach(r=>{if(r.Date<=endDate&&r.UnitID)units.add(r.UnitID);});
+  return units.size;
+}
+function wildlifeRecordsInQuarter(year,q){
+  const ct=rowsInQuarter(ctRows,year,q).reduce((s,r)=>s+r.Indep,0);
+  const bio=rowsInQuarter(bioRows,year,q).reduce((s,r)=>s+r.Indep,0);
+  return ct+bio;
+}
+function threatenedSpeciesInQuarter(year,q){
+  const combined=[...rowsInQuarter(ctRows,year,q),...rowsInQuarter(bioRows,year,q)];
+  const sp=new Set();
+  combined.forEach(r=>{if(r.Indep>0&&THREATENED_STATUSES.includes((r.IUCN||'').trim().toUpperCase()))sp.add(r.Species);});
+  return sp.size;
+}
+function keySpeciesCountInQuarter(latinName,year,q){
+  const combined=[...rowsInQuarter(ctRows,year,q),...rowsInQuarter(bioRows,year,q)];
+  const norm=s=>(s||'').trim().toLowerCase();
+  return combined.filter(r=>norm(r.Species)===norm(latinName)).reduce((s,r)=>s+r.Indep,0);
+}
+
+function fmtDelta(curr,prev){
+  const diff=curr-prev;
+  const sign=diff>0?'+':diff<0?'':'+';
+  return{text:`${sign}${diff}`,negative:diff<0};
+}
+
+/* ============== RENDER ============== */
 function renderAll(){
-  document.getElementById('fireTodayCount').textContent=filteredFire.length;
-  renderFireMarkers(filteredFire);
-  renderBlokSummary(filteredFire);
-  renderTable();
-  renderFireTrendChart();
-  if(typeof renderAllWeather==='function') renderAllWeather();
-}
-document.getElementById('customApplyBtn').addEventListener('click',()=>{
-  const sVal=document.getElementById('customStart').value;
-  const eVal=document.getElementById('customEnd').value;
-  if(!sVal||!eVal)return;
-  const [sy,sm,sd]=sVal.split('-').map(Number);
-  const [ey,em,ed]=eVal.split('-').map(Number);
-  customStart=new Date(sy,sm-1,sd,0,0,0,0);
-  customEnd=new Date(ey,em-1,ed,23,59,59,999);
-  document.querySelectorAll('.chip-btn[data-preset]').forEach(b=>b.classList.remove('active'));
-  currentPreset='custom';
-  applyFilter();
-});
-document.querySelectorAll('.chip-btn[data-preset]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.chip-btn[data-preset]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPreset=btn.dataset.preset;
-    applyFilter();
-  });
-});
+  const{year,q}=allQuarters[selectedQuarterIdx];
+  const prev=prevQuarter(year,q);
+  const hasPrev=allQuarters.some(qq=>qq.year===prev.year&&qq.q===prev.q) || selectedQuarterIdx>0;
 
-/* ============ LOAD FIRE DATA ============ */
-Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
-  const rows=res.data;
-  const dataRows=rows.slice(3290);
-  allFire=dataRows.map(row=>{
-    const lat=num(row[0]),lon=num(row[1]);
-    const dateObj=parseDateLoose(row[2]);
-    return{
-      lat,lon,dateObj,
-      dateKey: dateObj?dateKey(dateObj):'',
-      jam:str(row[3]),
-      satellite:str(row[4]),
-      instrument:str(row[5]),
-      owner:str(row[6]),
-      desa:str(row[7]),
-      lahan:str(row[8]),
-      blok:str(row[9]),
-      ket:str(row[10])
-    };
-  }).filter(r=>r.lat!==null&&r.lon!==null);
+  document.getElementById('quarterCurrentLabel').textContent=quarterLabel(year,q);
+  document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
 
-  const withDate=allFire.filter(r=>r.dateObj).sort((a,b)=>b.dateObj-a.dateObj);
-  maxFireDate = withDate.length ? withDate[0].dateObj : null;
+  // Terakhir diperbarui = tanggal deteksi terbaru di seluruh data gabungan
+  const allDates=[...ctRows,...bioRows].map(r=>r.Date).filter(Boolean);
+  const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
+  document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
 
-  applyFilter();
-}, error:()=>{
-  document.getElementById('tblBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:#a5382c;padding:20px">Gagal memuat data titik api.</td></tr>';
-}});
+  // Installed (kumulatif s.d. akhir kuartal terpilih)
+  const ctInstalled=cumulativeUnits(ctRows,year,q);
+  const bioInstalled=cumulativeUnits(bioRows,year,q);
+  const ctInstalledPrev=cumulativeUnits(ctRows,prev.year,prev.q);
+  const bioInstalledPrev=cumulativeUnits(bioRows,prev.year,prev.q);
+  document.getElementById('statCtInstalled').textContent=ctInstalled;
+  document.getElementById('statBioInstalled').textContent=bioInstalled;
+  setDelta('statCtInstalledDelta',ctInstalled,ctInstalledPrev);
+  setDelta('statBioInstalledDelta',bioInstalled,bioInstalledPrev);
 
-/* ============ WEATHER ============ */
-const WEATHER_ICON=(w)=>{
-  const s=(w||'').toLowerCase();
-  if(s.includes('thunder'))return'⛈️';
-  if(s.includes('rain')||s.includes('drizzle'))return'🌧️';
-  if(s.includes('cloud'))return'⛅';
-  if(s.includes('clear'))return'☀️';
-  return'🌥️';
-};
+  // Wildlife records (per kuartal terpilih)
+  const wr=wildlifeRecordsInQuarter(year,q);
+  const wrPrev=wildlifeRecordsInQuarter(prev.year,prev.q);
+  document.getElementById('statWildlifeRecords').textContent=wr;
+  setDelta('statWildlifeRecordsDelta',wr,wrPrev);
 
-let historyData=[],forecastBmkg=[];
-const charts={};
+  // Threatened species (per kuartal terpilih)
+  const th=threatenedSpeciesInQuarter(year,q);
+  const thPrev=threatenedSpeciesInQuarter(prev.year,prev.q);
+  document.getElementById('statThreatened').textContent=th;
+  setDelta('statThreatenedDelta',th,thPrev);
 
-function buildChart(canvasId,labels,data,color){
-  const ctx=document.getElementById(canvasId);
-  if(charts[canvasId])charts[canvasId].destroy();
-  // Reset atribut ukuran canvas secara eksplisit — mencegah grafik "membesar" terus
-  // setiap kali di-render ulang (bug umum Chart.js kalau canvas tidak direset).
-  ctx.removeAttribute('width');ctx.removeAttribute('height');
-  ctx.style.width='';ctx.style.height='';
-  charts[canvasId]=new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:[{
-      data,borderColor:color,backgroundColor:color+'1a',fill:true,tension:.3,
-      pointRadius:2,pointBackgroundColor:color,borderWidth:2
-    }]},
-    options:{responsive:true,maintainAspectRatio:false,
-      layout:{padding:{left:2,right:2,top:4,bottom:0}},
-      plugins:{legend:{display:false},tooltip:{enabled:true}},
-      scales:{x:{ticks:{font:{size:8.5},color:'#9a9a90',maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{display:false}},
-        y:{display:false,beginAtZero:true}}}
+  // Key species cards
+  const grid=document.getElementById('keySpeciesGrid');
+  grid.innerHTML='';
+  KEY_SPECIES.forEach(sp=>{
+    const val=keySpeciesCountInQuarter(sp.latin,year,q);
+    const valPrev=keySpeciesCountInQuarter(sp.latin,prev.year,prev.q);
+    const delta=fmtDelta(val,valPrev);
+    const card=document.createElement('div');
+    card.className='stat-card species-card';
+    card.innerHTML=`
+      <div class="stat-label">${sp.latin}<small>${sp.local}</small></div>
+      <div class="stat-value-row">
+        <span class="stat-value">${val}</span>
+        <div class="stat-delta">
+          <span class="stat-delta-num${delta.negative?' negative':''}">${delta.text}</span>
+          <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
   });
 }
-
-function renderWeather(metric){
-  const src=historyData;
-  if(!src.length)return;
-  let last;
-  if(filterRangeStart&&filterRangeEnd){
-    last=src.filter(d=>d.dateObj>=filterRangeStart&&d.dateObj<=filterRangeEnd);
-  }else{
-    last=src.slice(-7);
-  }
-  if(!last.length)last=src.slice(-1);
-  const labels=last.map(d=>fmtDateShort(d.dateObj));
-  const fieldMap={rain:'rain',wind:'wind',temp:'temp',hum:'hum'};
-  const colorMap={rain:'#B5BBA9',wind:'#618273',temp:'#c2703f',hum:'#356760'};
-  const values=last.map(d=>d[fieldMap[metric]]);
-  const canvasIdMap={rain:'chartRain',wind:'chartWind',temp:'chartTemp',hum:'chartHum'};
-  buildChart(canvasIdMap[metric],labels,values,colorMap[metric]);
-  const cur=last[last.length-1];
-  const curElMap={rain:'rainCurrent',wind:'windCurrent',temp:'tempCurrent',hum:'humCurrent'};
-  const unitMap={rain:'mm',wind:'km/jam',temp:'°C',hum:'%'};
-  document.getElementById(curElMap[metric]).innerHTML =
-    (cur?cur[fieldMap[metric]].toFixed(1):'–')+` <span>${unitMap[metric]}</span>`;
+function setDelta(elId,curr,prev){
+  const d=fmtDelta(curr,prev);
+  const el=document.getElementById(elId);
+  el.textContent=d.text;
+  el.classList.toggle('negative',d.negative);
 }
-function renderAllWeather(){ ['rain','wind','temp','hum'].forEach(renderWeather); }
 
-Papa.parse(WEATHER_HISTORY_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
-  const byDay={};
-  res.data.forEach(row=>{
-    const dt=parseDateLoose(row['Timestamp']);
-    if(!dt)return;
-    const key=dateKey(dt);
-    if(!byDay[key])byDay[key]={dateObj:new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()),temps:[],hums:[],winds:[],rain:0,weathers:[]};
-    const g=byDay[key];
-    const t=num(row['Temperature (°C)']); if(t!==null)g.temps.push(t);
-    const h=num(row['Humidity (%)']); if(h!==null)g.hums.push(h);
-    const w=num(row['Wind Speed (m/s)']); if(w!==null)g.winds.push(w*3.6);
-    g.rain += num(row['Rain (mm)'])||0;
-    if(row['Weather'])g.weathers.push(str(row['Weather']));
-  });
-  const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
-  historyData=Object.values(byDay).map(g=>({
-    dateObj:g.dateObj,
-    temp:avg(g.temps), hum:avg(g.hums), wind:avg(g.winds), rain:g.rain,
-    weather: g.weathers.length ? g.weathers.sort((a,b)=>g.weathers.filter(w=>w===a).length-g.weathers.filter(w=>w===b).length).pop() : ''
-  })).filter(d=>d.dateObj).sort((a,b)=>a.dateObj-b.dateObj);
-  ['rain','wind','temp','hum'].forEach(renderWeather);
-}, error:()=>{}});
-
-function parseBmkgDateTime(s){
-  s=str(s);
-  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
-  return parseDateLoose(s);
-}
-function fmtJam(d){return d?d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'–';}
-
-Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
-  const dataRows=res.data.slice(1); // baris pertama = header
-  forecastBmkg=dataRows.map(row=>{
-    const dateObj=parseBmkgDateTime(row[0]);
-    if(!dateObj)return null;
-    return{
-      dateObj,
-      cuacaID:str(row[2]),
-      cuacaEN:str(row[3]),
-      suhu:num(row[5]),
-      kelembaban:num(row[6]),
-      curahHujan:num(row[8]),
-      kecAngin:num(row[9]),
-      arahDari:str(row[11]),
-      arahMenuju:str(row[12]),
-      icon:str(row[16])
-    };
-  }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
-
-  const now=new Date();
-  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  let upcoming=forecastBmkg.filter(d=>d.dateObj>=todayStart);
-  if(!upcoming.length)upcoming=forecastBmkg.slice(); // fallback: tampilkan semua data
-
-  const listEl=document.getElementById('forecastList');
-  listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
-    <div class="forecast-card">
-      <div class="forecast-day">${fmtJam(d.dateObj)}</div>
-      <div class="forecast-day-sub">${DAY_ID[d.dateObj.getDay()].slice(0,3)}, ${fmtDateShort(d.dateObj)}</div>
-      ${d.icon
-        ? `<img class="forecast-icon" src="${d.icon}" alt="${d.cuacaEN}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'forecast-icon',style:'font-size:26px;line-height:34px',textContent:WEATHER_ICON(d.cuacaEN)}))">`
-        : `<div class="forecast-icon" style="font-size:26px;line-height:34px">${WEATHER_ICON(d.cuacaEN)}</div>`}
-      <div class="forecast-desc">${d.cuacaID||d.cuacaEN||'–'}</div>
-      <div class="forecast-temp">${d.suhu!==null?Math.round(d.suhu):'–'}°C</div>
-      <div class="forecast-meta">
-        ${d.kelembaban!==null?`Lembab ${Math.round(d.kelembaban)}%`:''}
-        ${d.kecAngin!==null?`<br>Angin ${d.kecAngin.toFixed(1)} km/j${d.arahDari?' ('+d.arahDari+')':''}`:''}
-        ${d.curahHujan!==null?`<br>Hujan ${d.curahHujan.toFixed(1)} mm`:''}
-      </div>
-    </div>`).join('') : '<div class="loading-msg">Tidak ada data prakiraan</div>';
-}, error:()=>{
-  document.getElementById('forecastList').innerHTML='<div class="loading-msg" style="color:#a5382c">Gagal memuat prakiraan cuaca dari sheet BMKG.</div>';
-}});
-
-
-function fdrsBadgeClass(status){
-  const s=(status||'').toUpperCase().trim();
-  if(s==='LOW')return'fdrs-low';
-  if(s==='HIGH')return'fdrs-high';
-  if(s==='EXTREME')return'fdrs-extreme';
-  if(s==='MEDIUM')return'fdrs-medium';
-  return'fdrs-medium';
-}
-function pickField(raw,...names){
-  const keys=Object.keys(raw);
-  const norm=s=>s.toString().trim().toLowerCase();
-  for(const want of names){
-    const found=keys.find(k=>norm(k)===norm(want));
-    if(found!==undefined)return raw[found];
-  }
-  return undefined;
-}
-fetch(FDRS_URL).then(r=>r.text()).then(text=>{
-  const normalized=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const parsed=Papa.parse(normalized,{header:false,skipEmptyLines:true});
-  const allRows=parsed.data;
-  console.log('[FDRS] semua baris mentah:',allRows);
-
-  let targetRow=allRows.find(row=>str(row[0]).trim().toLowerCase()==='hari ini');
-  if(!targetRow){
-
-    const nonEmpty=allRows.filter(row=>row.some(cell=>str(cell)!==''));
-    targetRow=nonEmpty[nonEmpty.length-1];
-  }
-  console.log('[FDRS] baris yang dipakai:',targetRow);
-
-  if(!targetRow){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
-  const blok1=str(targetRow[1]);
-  const blok2=str(targetRow[2]);
-  document.getElementById('fdrsDate').textContent='Hari ini';
-  const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
-  b1.textContent=blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(blok1);
-  b2.textContent=blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(blok2);
-}).catch(err=>{
-  console.error('[FDRS] gagal fetch:',err);
-  document.getElementById('fdrsDate').textContent='Gagal memuat data FDRS';
-});
-
-/* ============ RUNTIME ============ */
-Papa.parse(RUNTIME_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
-  const row=res.data[0];
-  document.getElementById('lastUpdate').textContent = row && row['Last_Run'] ? str(row['Last_Run']) : '–';
-}, error:()=>{
-  document.getElementById('lastUpdate').textContent='–';
-}});
+loadAllData();
 </script>
-
 <script src="auth-guard.js"></script>
 </body>
 </html>
