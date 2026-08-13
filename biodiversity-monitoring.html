@@ -46,16 +46,16 @@
     }
 
     /* HEADER BAR — background penuh lebar, konten di dalamnya dibatasi & ditengahkan */
-    .bio-header{background:#4A3B2F}
+    .bio-header{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0}
     .bio-header-inner{
-      max-width:1180px;margin:0 auto;padding:22px 36px;
-      display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;
+      max-width:1180px;margin:0 auto;padding:0 36px;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
     }
-    .bio-header-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.2px}
-    .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px}
-    .bio-header-right{text-align:right}
-    .bio-header-updated-label{font-size:9px;font-weight:700;letter-spacing:.6px;color:rgba(255,255,255,.55);text-transform:uppercase}
-    .bio-header-updated-value{font-size:12px;font-weight:600;color:#fff;margin-top:3px}
+    .bio-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+    .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+    .bio-header-right{text-align:right;flex-shrink:0}
+    .bio-header-updated-label{font-size:9.5px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.55);text-transform:uppercase}
+    .bio-header-updated-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
     /* QUARTER SELECTOR BAR — sama pola: background penuh, konten dibatasi & ditengahkan */
     .quarter-bar{background:var(--color-cream);border-bottom:1px solid var(--color-sand)}
@@ -78,8 +78,8 @@
     .bio-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
     .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:14px 0 28px}
 
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:8px}
-    .stat-grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,280px));gap:16px;margin-bottom:8px}
+    .stat-grid.cols-2{grid-template-columns:repeat(auto-fill,minmax(240px,320px))}
     .stat-card{
       background:#fff;border:1px solid var(--color-sand);border-radius:10px;padding:16px 18px;
     }
@@ -98,6 +98,20 @@
     .species-card .stat-label small{display:block;font-style:normal;font-weight:500;color:#9ca3af;margin-top:2px}
 
     .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
+
+    /* CTA BAR — link ke detail dashboard camera trap / bioacoustic
+       (style disamakan dengan callout "Analisa Perbandingan Historis" di monitoring-fire-event.html) */
+    .cta-bar{
+      display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+      padding:18px 0;
+    }
+    .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
+    .cta-btn{
+      background:#c2703f;border:1px solid #c2703f;color:#fff;font-size:11px;font-weight:600;
+      padding:9px 20px;border-radius:20px;text-decoration:none;white-space:nowrap;
+      transition:opacity .15s;flex-shrink:0;
+    }
+    .cta-btn:hover{opacity:.88}
   </style>
 </head>
 <body>
@@ -220,6 +234,15 @@
         risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
         metus.
       </p>
+
+      <div class="cta-bar">
+        <span class="cta-text">Detail sebaran data camera trap dapat dilihat melalui tautan berikut</span>
+        <a href="cameratrap-monitoring.html" class="cta-btn">Camera Trap &rarr;</a>
+      </div>
+      <div class="cta-bar">
+        <span class="cta-text">Detail sebaran data bioacoustic dapat dilihat melalui tautan berikut</span>
+        <a href="bioacoustic-monitoring.html" class="cta-btn">Bioacoustic &rarr;</a>
+      </div>
 
     </div>
   </div>
