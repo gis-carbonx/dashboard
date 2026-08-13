@@ -194,6 +194,9 @@
     .sp-modal-status{display:flex;align-items:center;gap:8px;padding:14px 18px 0}
     .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
     .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#374151}
+    .sp-desc-block{padding-top:2px}
+    .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
+    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px 0}
     .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
     .sp-modal-links{display:flex;flex-wrap:wrap;gap:8px;padding:10px 18px 18px}
     .sp-modal-link{font-size:10.5px;font-weight:600;color:#356760;background:transparent;border:1px solid #DCDACC;border-radius:20px;padding:5px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
@@ -831,20 +834,22 @@ async function openSpeciesInfo(latinName,localName,iucn){
     if(gbifImages.length)photoSources.push('GBIF');
     if(inatImages.length)photoSources.push('iNaturalist');
 
-    let description=null,descSource=null;
-    const gbifDescResult=await fetchGbifDescription(gbifKey);
+    const[gbifDescResult,wikiResult]=await Promise.all([
+      fetchGbifDescription(gbifKey),
+      fetchWikipediaDescription(latinName)
+    ]);
+    const descriptions=[];
     if(gbifDescResult.status==='ok'){
-      description=gbifDescResult.text;descSource=gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF';
-    }else{
-      const wikiResult=await fetchWikipediaDescription(latinName);
-      if(wikiResult.status==='ok'){description=wikiResult.text;descSource='Wikipedia';}
+      descriptions.push({text:gbifDescResult.text,source:gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF'});
+    }
+    if(wikiResult.status==='ok'){
+      descriptions.push({text:wikiResult.text,source:'Wikipedia'});
     }
 
     const info={
       images,
       photoSources,
-      description,
-      descSource,
+      descriptions,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
       kingdom:gbifMatch&&gbifMatch.kingdom?gbifMatch.kingdom:null
@@ -866,16 +871,12 @@ function renderSpeciesInfo(latinName,iucn,info){
     ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
     : '';
 
-  const descHtml=info.description
-    ? `<div class="sp-modal-desc">${info.description}</div>`
+  const descHtml=info.descriptions.length
+    ? info.descriptions.map(d=>`<div class="sp-desc-block"><div class="sp-desc-source-tag">${d.source}</div><div class="sp-modal-desc">${d.text}</div></div>`).join('')
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
 
-  const descSourceLabel=info.descSource||'–';
   const photoSourceLabel=(info.photoSources&&info.photoSources.length)?info.photoSources.join(', '):null;
-  const noteLine=[
-    photoSourceLabel?`Foto: ${photoSourceLabel}.`:null,
-    info.description?`Deskripsi: ${descSourceLabel}.`:null
-  ].filter(Boolean).join(' ');
+  const noteLine=photoSourceLabel?`Foto: ${photoSourceLabel}.`:'';
   const linksHtml=noteLine?`<div class="sp-modal-source-note">${noteLine}</div>`:'';
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
