@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
@@ -102,8 +104,10 @@
     .breakdown-mini-value{font-size:18px;font-weight:800;color:#1f2937;line-height:1}
     .breakdown-mini-label{font-size:9.5px;color:#6b7280;margin-top:2px;max-width:80px;line-height:1.4}
 
-    /* SPECIES PRESENCE PANEL (Trigger species / Apex predator) */
-    .presence-row-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,480px));gap:18px}
+    /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Peta deteksi) */
+    .presence-row-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+    @media (max-width:920px){ .presence-row-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:620px){ .presence-row-grid{grid-template-columns:1fr} }
     .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
     .presence-panel-title{font-size:13px;font-weight:700;color:#1f2937;margin-bottom:4px}
     .presence-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
@@ -116,6 +120,17 @@
     .presence-local{font-size:11px;color:#9ca3af;margin-top:1px}
     .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
     .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
+
+    /* PETA DETEKSI TRIGGER SPECIES & APEX PREDATOR */
+    .presence-map-panel{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
+      display:flex;flex-direction:column;min-height:260px;
+    }
+    .presence-map-panel .presence-panel-title{padding:18px 20px 0}
+    #presenceMap{flex:1;min-height:200px;width:100%}
+    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 12px;padding:10px 20px 14px;border-top:1px solid #f3f4f6}
+    .presence-map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:#6b7280}
+    .presence-map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
     /* SPECIES STATISTICS PANEL */
     .species-stat-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
@@ -272,6 +287,11 @@
           <div class="presence-panel-title">Apex Predator Presence</div>
           <div id="apexPredatorList"></div>
         </div>
+        <div class="presence-map-panel">
+          <div class="presence-panel-title">Detection Map</div>
+          <div id="presenceMap"></div>
+          <div class="presence-map-legend" id="presenceMapLegend"></div>
+        </div>
       </div>
 
       <!-- [placeholder 2] -->
@@ -353,7 +373,7 @@ const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_
 const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
 const THREATENED_STATUSES=['EN','CR'];
 
-/* Daftar tetap — sama dengan Key Species di biodiversity-monitoring.html,
+/* Daftar tetap — sama dengan Key Species di biodiversity-report.html,
    ditambah daftar Apex Predator. IUCN di sini dipakai sebagai referensi tampilan
    badge (tetap tampil walau spesies itu belum pernah terdeteksi di data). */
 const TRIGGER_SPECIES=[
@@ -540,6 +560,7 @@ async function loadAll(){
   renderPatrolCoverage();
   renderSpeciesCounts();
   renderPresenceLists();
+  initPresenceMap();
   renderSpeciesStats();
   renderHuntingRecords();
 
@@ -647,6 +668,49 @@ function renderPresenceRow(sp){
 function renderPresenceLists(){
   document.getElementById('triggerSpeciesList').innerHTML=TRIGGER_SPECIES.map(renderPresenceRow).join('');
   document.getElementById('apexPredatorList').innerHTML=APEX_PREDATOR_SPECIES.map(renderPresenceRow).join('');
+}
+
+/* ============== PETA DETEKSI TRIGGER SPECIES & APEX PREDATOR ============== */
+const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
+function speciesLocations(latinName){
+  const norm=s=>(s||'').trim().toLowerCase();
+  const seen=new Set();const locs=[];
+  [...ctRows,...bioRows].forEach(r=>{
+    if(norm(r.Species)!==norm(latinName))return;
+    if(isNaN(r.Latitude)||isNaN(r.Longitude))return;
+    const key=r.Latitude.toFixed(5)+'_'+r.Longitude.toFixed(5);
+    if(seen.has(key))return;
+    seen.add(key);
+    locs.push({lat:r.Latitude,lon:r.Longitude});
+  });
+  return locs;
+}
+function initPresenceMap(){
+  const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  map.setView([0.8,110.3],11);
+
+  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
+    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
+    const bounds=boundary.getBounds();
+    if(bounds.isValid())map.fitBounds(bounds,{padding:[16,16]});
+    setTimeout(()=>map.invalidateSize(),150);
+  }).catch(e=>console.warn('Gagal memuat batas Project Area:',e));
+
+  const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
+  const legendEl=document.getElementById('presenceMapLegend');
+  const legendParts=[];
+  allSpecies.forEach(sp=>{
+    const locs=speciesLocations(sp.latin);
+    const color=IUCN_COLORS[sp.iucn]||'#94a3b8';
+    locs.forEach(loc=>{
+      L.circleMarker([loc.lat,loc.lon],{radius:6,color:'#fff',weight:1.5,fillColor:color,fillOpacity:.9})
+        .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b style="font-style:italic">${sp.latin}</b><br>${sp.local}</div>`)
+        .addTo(map);
+    });
+    legendParts.push(`<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${color}"></span>${sp.local.split(' (')[0]}</span>`);
+  });
+  legendEl.innerHTML=legendParts.join('')+'<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
 }
 
 /* ============== STATISTIK SPESIES AREA PROYEK ============== */
