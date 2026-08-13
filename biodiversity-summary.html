@@ -103,6 +103,8 @@
     .breakdown-mini{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
     .breakdown-mini-value{font-size:18px;font-weight:800;color:#1f2937;line-height:1}
     .breakdown-mini-label{font-size:9.5px;color:#6b7280;margin-top:2px;max-width:80px;line-height:1.4}
+    .breakdown-chart{display:flex;height:30px;width:90px;border-radius:6px;overflow:hidden;flex-shrink:0;margin-left:auto}
+    .breakdown-chart-seg{height:100%}
 
     /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Peta deteksi) */
     .presence-row-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:18px;align-items:stretch}
@@ -251,6 +253,7 @@
                 <span class="breakdown-mini-label">bioacoustic</span>
               </div>
             </div>
+            <div class="breakdown-chart" id="statSpeciesChart"></div>
           </div>
         </div>
         <div class="breakdown-card">
@@ -267,6 +270,7 @@
                 <span class="breakdown-mini-label">Critically Endangered</span>
               </div>
             </div>
+            <div class="breakdown-chart" id="statThreatenedChart"></div>
           </div>
         </div>
       </div>
@@ -624,6 +628,16 @@ function uniqueSpeciesSet(rows){
   rows.forEach(r=>{if(r.Species&&r.Indep>0)s.add(r.Species.trim().toLowerCase());});
   return s;
 }
+function renderMiniBarChart(elId,segments){
+  // segments = [{value, color}, ...]
+  const el=document.getElementById(elId);
+  const sum=segments.reduce((s,seg)=>s+seg.value,0);
+  if(sum<=0){el.innerHTML='';return;}
+  el.innerHTML=segments.map(seg=>{
+    const pct=(seg.value/sum*100).toFixed(1);
+    return seg.value>0?`<div class="breakdown-chart-seg" style="width:${pct}%;background:${seg.color}"></div>`:'';
+  }).join('');
+}
 function renderSpeciesCounts(){
   const combined=[...ctRows,...bioRows];
   const allSp=uniqueSpeciesSet(combined);
@@ -632,6 +646,10 @@ function renderSpeciesCounts(){
   document.getElementById('statSpeciesTotal').textContent=allSp.size;
   document.getElementById('statSpeciesCt').textContent=ctSp.size;
   document.getElementById('statSpeciesBio').textContent=bioSp.size;
+  renderMiniBarChart('statSpeciesChart',[
+    {value:ctSp.size,color:SOURCE_COLORS.cameratrap},
+    {value:bioSp.size,color:SOURCE_COLORS.bioacoustic}
+  ]);
 
   const iucnMap={};
   combined.forEach(r=>{
@@ -644,6 +662,10 @@ function renderSpeciesCounts(){
   document.getElementById('statThreatenedTotal').textContent=total;
   document.getElementById('statThreatenedEn').textContent=counts.EN;
   document.getElementById('statThreatenedCr').textContent=counts.CR;
+  renderMiniBarChart('statThreatenedChart',[
+    {value:counts.EN,color:IUCN_COLORS.EN},
+    {value:counts.CR,color:IUCN_COLORS.CR}
+  ]);
 }
 
 /* ============== TRIGGER SPECIES / APEX PREDATOR PRESENCE ============== */
@@ -703,8 +725,8 @@ function initPresenceMap(){
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
       map.fitBounds(bounds,{padding:[16,16]});
-      // Default zoom out 3 level lebih jauh dari hasil fitBounds.
-      map.setZoom(Math.max(map.getMinZoom(),map.getZoom()-3));
+      // Zoom default: 13
+      map.setZoom(13);
     }
     setTimeout(()=>map.invalidateSize(),150);
   }).catch(e=>{
