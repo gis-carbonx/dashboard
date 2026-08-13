@@ -687,10 +687,10 @@ function speciesLocations(latinName){
 }
 function initPresenceMap(){
   const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:14}).addTo(map);
   map.setView([0.8,110.3],11);
 
-  const markerLayer=L.layerGroup(); // ditambahkan ke peta belakangan, supaya render di ATAS batas Project Area
+  const markerLayer=L.layerGroup();
 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
     // 1) Project Area ditambahkan LEBIH DULU -> jadi layer paling bawah.
