@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biodiversity Summary | Sanggala Corridor Project</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --color-cream:#FFFAF3;
+      --color-sand:#DCDACC;
+      --color-sage:#B5BBA9;
+      --color-moss:#8C9F8B;
+      --color-fern:#618273;
+      --color-pine:#356760;
+      --color-delta:#f97316;
+      --color-fire:#c2703f;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
+    body{display:flex;flex-direction:column}
+
+    /* SITE NAVBAR */
+    .site-navbar{
+      flex-shrink:0;
+      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+      padding:12px 32px;background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);font-family:'Montserrat',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
+
+    .dashboard-frame{
+      flex:1;min-height:0;
+      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
+      display:flex;flex-direction:column;
+    }
+
+    /* HEADER BAR */
+    .bio-header{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0;flex-shrink:0}
+    .bio-header-inner{
+      max-width:1180px;margin:0 auto;padding:0 36px;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
+    }
+    .bio-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+    .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+    .bio-header-right{text-align:right;flex-shrink:0}
+    .bio-header-updated-label{font-size:9.5px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.55);text-transform:uppercase}
+    .bio-header-updated-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+
+    /* CONTENT */
+    .bio-scroll{flex:1;min-height:0;overflow-y:auto}
+    .bio-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
+    .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
+    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
+
+    /* GENERIC STAT GRID / CARD (dipakai di beberapa section) */
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,300px));gap:18px;margin-bottom:8px}
+    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
+    .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
+    .stat-value-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+    .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
+    .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
+    .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
+
+    /* CTA BAR — style disamakan dengan callout di monitoring-fire-event.html */
+    .cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:14px 0}
+    .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
+    .cta-btn{
+      background:var(--color-fire);border:1px solid var(--color-fire);color:#fff;font-size:11px;font-weight:600;
+      padding:9px 20px;border-radius:20px;text-decoration:none;white-space:nowrap;
+      transition:opacity .15s;flex-shrink:0;
+    }
+    .cta-btn:hover{opacity:.88}
+
+    /* SPECIES BREAKDOWN CARD (Spesies terdeteksi / Spesies terancam) */
+    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;margin-bottom:8px}
+    .breakdown-card{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px;
+      display:flex;align-items:center;gap:30px;flex-wrap:wrap;
+    }
+    .breakdown-main{display:flex;flex-direction:column;gap:6px}
+    .breakdown-label{font-size:12px;color:#6b7280;font-weight:600}
+    .breakdown-value{font-size:42px;font-weight:800;color:var(--color-pine);line-height:1}
+    .breakdown-mini-grid{display:flex;gap:22px;flex-wrap:wrap}
+    .breakdown-mini{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+    .breakdown-mini-value{font-size:20px;font-weight:800;color:#1f2937;line-height:1}
+    .breakdown-mini-label{font-size:10px;color:#6b7280;margin-top:2px;max-width:88px;line-height:1.4}
+
+    /* SPECIES PRESENCE PANEL (Trigger species / Apex predator) */
+    .presence-row-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px}
+    .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
+    .presence-panel-title{font-size:14px;font-weight:700;color:#1f2937;margin-bottom:6px}
+    .presence-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+    .presence-row:last-child{border-bottom:none}
+    .presence-badge{
+      width:34px;height:34px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;
+    }
+    .presence-name{font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic}
+    .presence-local{font-size:11px;color:#9ca3af;margin-top:1px}
+    .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
+    .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
+
+    /* SPECIES STATISTICS PANEL */
+    .species-stat-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
+    .species-stat-title{font-size:14px;font-weight:700;color:#1f2937;margin-bottom:16px}
+    .species-stat-row{display:grid;grid-template-columns:1.5fr 1fr;gap:28px;align-items:start}
+    @media (max-width:800px){ .species-stat-row{grid-template-columns:1fr} }
+    .species-chart-wrap{position:relative;height:220px}
+    .species-table{width:100%;border-collapse:collapse;font-size:12px}
+    .species-table th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;padding-bottom:8px;border-bottom:1px solid var(--color-sand);font-weight:700}
+    .species-table th:last-child,.species-table td:last-child{text-align:right}
+    .species-table td{padding:8px 0;border-bottom:1px solid #f3f4f6;color:#374151}
+    .species-table td:first-child{font-style:italic;color:#374151}
+    .species-table td:last-child{font-weight:700;color:var(--color-pine)}
+
+    /* HUNTING RECORDS PANEL */
+    .hunting-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
+    .hunting-panel-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#1f2937;margin-bottom:14px}
+    .hunting-dot{width:9px;height:9px;border-radius:50%;background:#dc2626;flex-shrink:0}
+    .hunting-row{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      background:#FADBD8;border-left:3px solid #dc2626;border-radius:6px;padding:11px 14px;margin-bottom:8px;
+    }
+    .hunting-row-title{font-size:12.5px;font-weight:700;color:#8a1f1f}
+    .hunting-row-sub{font-size:11px;color:#9a4b3a;margin-top:3px;line-height:1.5}
+    .hunting-warn-icon{color:#dc2626;font-size:15px;flex-shrink:0;margin-top:1px}
+    .hunting-more-btn{
+      background:none;border:none;color:var(--color-fern);font-size:11.5px;font-weight:600;cursor:pointer;
+      padding:6px 0;display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;
+    }
+    .hunting-more-btn:hover{color:var(--color-pine)}
+    .hunting-empty{font-size:12px;color:#9ca3af;padding:8px 0}
+
+    .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
+  </style>
+</head>
+<body>
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="bio-header">
+    <div class="bio-header-inner">
+      <div>
+        <div class="bio-header-title">Biodiversity Monitoring</div>
+        <div class="bio-header-date" id="bioTodayDate">–</div>
+      </div>
+      <div class="bio-header-right">
+        <div class="bio-header-updated-label">Terakhir Diperbarui</div>
+        <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bio-scroll" id="bioContent">
+    <div class="loading-msg" id="bioLoading">Memuat data monitoring…</div>
+
+    <div class="bio-content" id="bioContentBody" style="display:none">
+
+      <!-- TOTAL TITIK MONITORING & CAKUPAN PATROLI -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total titik monitoring</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statGridMonitored">–<span class="stat-value-suffix" id="statGridTotal"></span></span>
+            <span class="stat-sub-plain">grid terpasang alat monitoring</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total cakupan patroli</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statPatrolPct">–%</span>
+            <span class="stat-sub-plain" id="statPatrolSub">grid terpantau</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-bar">
+        <span class="cta-text">Detail sebaran data camera trap dapat dilihat melalui tautan berikut</span>
+        <a href="cameratrap-monitoring.html" class="cta-btn">Camera Trap &rarr;</a>
+      </div>
+      <div class="cta-bar">
+        <span class="cta-text">Detail sebaran data bioacoustic dapat dilihat melalui tautan berikut</span>
+        <a href="bioacoustic-monitoring.html" class="cta-btn">Bioacoustic &rarr;</a>
+      </div>
+
+      <!-- SPESIES TERDETEKSI & TERANCAM -->
+      <div class="breakdown-grid" style="margin-top:20px">
+        <div class="breakdown-card">
+          <div class="breakdown-main">
+            <span class="breakdown-label">Spesies terdeteksi</span>
+            <span class="breakdown-value" id="statSpeciesTotal">–</span>
+          </div>
+          <div class="breakdown-mini-grid">
+            <div class="breakdown-mini">
+              <span class="breakdown-mini-value" id="statSpeciesCt">–</span>
+              <span class="breakdown-mini-label">camera trap</span>
+            </div>
+            <div class="breakdown-mini">
+              <span class="breakdown-mini-value" id="statSpeciesBio">–</span>
+              <span class="breakdown-mini-label">bioacoustic</span>
+            </div>
+          </div>
+        </div>
+        <div class="breakdown-card">
+          <div class="breakdown-main">
+            <span class="breakdown-label">Spesies terancam</span>
+            <span class="breakdown-value" id="statThreatenedTotal">–</span>
+          </div>
+          <div class="breakdown-mini-grid">
+            <div class="breakdown-mini">
+              <span class="breakdown-mini-value" id="statThreatenedVu">–</span>
+              <span class="breakdown-mini-label">Vulnerable</span>
+            </div>
+            <div class="breakdown-mini">
+              <span class="breakdown-mini-value" id="statThreatenedEn">–</span>
+              <span class="breakdown-mini-label">Endangered</span>
+            </div>
+            <div class="breakdown-mini">
+              <span class="breakdown-mini-value" id="statThreatenedCr">–</span>
+              <span class="breakdown-mini-label">Critically Endangered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- [placeholder 1] -->
+      <p class="bio-note">
+        [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
+      </p>
+
+      <!-- TRIGGER SPECIES & APEX PREDATOR -->
+      <div class="presence-row-grid">
+        <div class="presence-panel">
+          <div class="presence-panel-title">Trigger Species Presence</div>
+          <div id="triggerSpeciesList"></div>
+        </div>
+        <div class="presence-panel">
+          <div class="presence-panel-title">Apex Predator Presence</div>
+          <div id="apexPredatorList"></div>
+        </div>
+      </div>
+
+      <!-- [placeholder 2] -->
+      <p class="bio-note">
+        [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
+      </p>
+
+      <!-- STATISTIK SPESIES AREA PROYEK SANGGALA -->
+      <div class="species-stat-panel">
+        <div class="species-stat-title">Statistik Spesies Area Proyek Sanggala</div>
+        <div class="species-stat-row">
+          <div class="species-chart-wrap"><canvas id="chartSpeciesClass"></canvas></div>
+          <table class="species-table">
+            <thead><tr><th>Species</th><th>Jumlah Deteksi</th></tr></thead>
+            <tbody id="topSpeciesTbody"><tr><td colspan="2" style="color:#9ca3af;padding:12px 0">Memuat…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- [placeholder 3] -->
+      <p class="bio-note">
+        [placeholder 3] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
+      </p>
+
+      <!-- HUNTING RECORDS -->
+      <div class="hunting-panel">
+        <div class="hunting-panel-title"><span class="hunting-dot"></span>Hunting Records</div>
+        <div id="huntingList"></div>
+        <button class="hunting-more-btn" id="huntingMoreBtn" style="display:none">&#9660; Show more</button>
+      </div>
+
+      <!-- [placeholder 4] -->
+      <p class="bio-note">
+        [placeholder 4] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
+      </p>
+
+      <div class="cta-bar">
+        <span class="cta-text">Dashboard monitoring biodiversitas dapat dilihat melalui tautan berikut</span>
+        <a href="biodiversity-monitoring.html" class="cta-btn">Biodiversitas &#8599;</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============== KONFIGURASI SUMBER DATA ============== */
+const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
+const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
+const GRID_URL='./assets/json/Grid.json';
+
+/* Sheet "Patroli -rkt", tab "Ringkasan Petak" (gid dari link yang diberikan) */
+const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
+const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=94771341`;
+
+/* Sheet submission (Hunting Records). Asumsi tab "submission" = gid 0 (tab paling kiri).
+   Kalau ternyata gid-nya berbeda, ganti angka di bawah ini. */
+const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
+const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=0`;
+
+const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
+const THREATENED_STATUSES=['VU','EN','CR'];
+
+/* Daftar tetap — sama dengan Key Species di biodiversity-monitoring.html,
+   ditambah daftar Apex Predator. IUCN di sini dipakai sebagai referensi tampilan
+   badge (tetap tampil walau spesies itu belum pernah terdeteksi di data). */
+const TRIGGER_SPECIES=[
+  {latin:'Pongo pygmaeus pygmaeus', local:'Orangutan',                          iucn:'CR'},
+  {latin:'Manis javanica',          local:'Sunda Pangolin (Trenggiling)',       iucn:'CR'},
+  {latin:'Rhinoplax vigil',         local:'Helmeted Hornbill (Rangkong Gading)',iucn:'CR'}
+];
+const APEX_PREDATOR_SPECIES=[
+  {latin:'Catopuma badia',          local:'Bay Cat (Kucing Merah)',             iucn:'EN'},
+  {latin:'Neofelis diardi',         local:'Sunda Clouded Leopard (Macan Dahan)',iucn:'VU'},
+  {latin:'Prionailurus bengalensis',local:'Leopard Cat (Kucing Kuwuk)',         iucn:'LC'}
+];
+
+const FINDING_LABELS={
+  wildlife_trap:'Jerat aktif ditemukan',
+  gunshot_sound:'Suara tembakan terdengar',
+  hunter_shelter:'Pondok pemburu ditemukan'
+};
+const HUNTING_FINDINGS=['gunshot_sound','wildlife_trap','hunter_shelter'];
+
+/* ============== HELPERS TANGGAL ============== */
+function toMidnight(y,m,d){return new Date(y,m,d);}
+function parseDateStr(s){
+  if(!s||!s.trim())return null;
+  s=s.trim();s=s.split('T')[0].split(' ')[0];
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  let m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+  if(m&&MON[m[2]]!==undefined)return toMidnight(+m[3],MON[m[2]],+m[1]);
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[1]-1,+m[2]);}
+  const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
+  return null;
+}
+function parseDateTimeLoose(s){
+  s=(s||'').trim();if(!s)return null;
+  const [datePart,timePart]=s.split(' ');
+  const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!dm){const d=new Date(s);return isNaN(d)?null:d;}
+  const day=+dm[1],month=+dm[2],year=+dm[3];
+  let h=0,mi=0,se=0;
+  if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
+  return new Date(year,month-1,day,h,mi,se);
+}
+function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
+function fmtDateTimeID(d){
+  if(!d)return '–';
+  const date=d.toLocaleDateString('en-GB',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const time=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  return `${date} ${time} WIB`;
+}
+function fmtDateShort(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'–';}
+
+/* ============== POINT-IN-POLYGON (untuk hitung grid termonitor) ============== */
+function pip(lat,lon,ring){
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+    if(((yi>lat)!==(yj>lat))&&(lon<(xj-xi)*(lat-yi)/(yj-yi)+xi))inside=!inside;
+  }
+  return inside;
+}
+function inFeature(lat,lon,feature){
+  const g=feature.geometry;
+  const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+  for(const poly of polys)if(pip(lat,lon,poly[0]))return true;
+  return false;
+}
+
+/* ============== FETCH HELPERS ============== */
+function fetchCsv(url){
+  return new Promise((resolve)=>{
+    Papa.parse(url,{download:true,header:false,skipEmptyLines:true,
+      complete:(res)=>resolve(res.data||[]),
+      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
+    });
+  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
+}
+function fetchJson(url){
+  return fetch(url).then(r=>r.json()).catch(e=>{console.warn('JSON load failed:',url,e);return null;});
+}
+
+/* ============== LOAD & NORMALISASI ============== */
+let ctRows=[],bioRows=[],gridGeo=null,patrolMap={},huntingRecords=[];
+
+async function loadAll(){
+  const[ctRaw,bioRaw,grid,patrolRaw,subRaw]=await Promise.all([
+    fetchCsv(CT_SHEET_URL),
+    fetchCsv(BIO_SHEET_URL),
+    fetchJson(GRID_URL),
+    fetchCsv(PATROL_URL),
+    fetchCsv(SUBMISSION_URL)
+  ]);
+
+  // Camera trap: Batch,StartDate,EndDate,Site,Latitude,Longitude,CameraID,Date,Time,Class,Species,LocalName,IUCN,Indep,Count,...
+  ctRows=ctRaw.slice(1).map(r=>({
+    Latitude:parseFloat(r[4]),Longitude:parseFloat(r[5]),UnitID:r[6]||'',Date:parseDateStr(r[7]),
+    Class:r[9]||'',Species:(r[10]||'').trim(),LocalName:r[11]||'',IUCN:r[12]||'',
+    Indep:Math.max(0,parseInt(r[13])||0)
+  })).filter(r=>r.Species&&!isNaN(r.Latitude)&&!isNaN(r.Longitude));
+
+  // Bioacoustic: Recorder,Batch,FileName,Longitude,Latitude,Date,Time,Class,Species,LocalName,IUCN,CallType,ValidatedBy,Notes
+  bioRows=bioRaw.slice(1).map(r=>({
+    Longitude:parseFloat(r[3]),Latitude:parseFloat(r[4]),UnitID:r[0]||'',Date:parseDateStr(r[5]),
+    Class:r[7]||'',Species:(r[8]||'').trim(),LocalName:r[9]||'',IUCN:r[10]||'',
+    Indep:1
+  })).filter(r=>r.Species&&!isNaN(r.Latitude)&&!isNaN(r.Longitude));
+
+  gridGeo=grid;
+
+  // Patrol summary (label -> value)
+  patrolRaw.forEach(r=>{
+    const label=(r[0]||'').trim();
+    const val=(r[1]||'').trim();
+    if(label)patrolMap[label.toLowerCase()]=val;
+  });
+
+  // Hunting records dari sheet submission — kolom I (index 8) = data-survey-finding
+  huntingRecords=subRaw.slice(1).map(r=>({
+    dateObj:parseDateTimeLoose(r[0]),
+    coordinate:(r[2]||'').trim(),
+    reporter:(r[5]||'').trim(),
+    finding:(r[8]||'').trim().toLowerCase()
+  })).filter(r=>HUNTING_FINDINGS.includes(r.finding));
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
+
+  document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
+  const allDates=[...ctRows,...bioRows].map(r=>r.Date).filter(Boolean);
+  const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
+  document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
+
+  renderMonitoringCoverage();
+  renderPatrolCoverage();
+  renderSpeciesCounts();
+  renderPresenceLists();
+  renderSpeciesStats();
+  renderHuntingRecords();
+
+  document.getElementById('bioLoading').style.display='none';
+  document.getElementById('bioContentBody').style.display='block';
+}
+
+/* ============== TOTAL TITIK MONITORING ============== */
+function uniqueLocations(rows){
+  const seen=new Set();const locs=[];
+  rows.forEach(r=>{
+    if(isNaN(r.Latitude)||isNaN(r.Longitude))return;
+    const key=r.Latitude.toFixed(5)+'_'+r.Longitude.toFixed(5);
+    if(!seen.has(key)){seen.add(key);locs.push({lat:r.Latitude,lon:r.Longitude});}
+  });
+  return locs;
+}
+function renderMonitoringCoverage(){
+  const totalGrid=gridGeo&&gridGeo.features?gridGeo.features.length:null;
+  let monitoredCount='–';
+  if(gridGeo&&gridGeo.features){
+    const locs=uniqueLocations([...ctRows,...bioRows]);
+    const hit=new Set();
+    locs.forEach(loc=>{
+      for(let fi=0;fi<gridGeo.features.length;fi++){
+        if(inFeature(loc.lat,loc.lon,gridGeo.features[fi])){hit.add(fi);break;}
+      }
+    });
+    monitoredCount=hit.size;
+  }
+  document.getElementById('statGridMonitored').firstChild.textContent=monitoredCount+' ';
+  document.getElementById('statGridTotal').textContent=totalGrid!==null?`/${totalGrid}`:'';
+}
+
+/* ============== TOTAL CAKUPAN PATROLI (sheet Ringkasan Petak) ============== */
+function findPatrolValue(matchFn){
+  for(const k in patrolMap){if(matchFn(k))return patrolMap[k];}
+  return null;
+}
+function renderPatrolCoverage(){
+  const totalOverallStr=findPatrolValue(k=>k.includes('total petak keseluruhan'));
+  const totalOverall=parseInt((totalOverallStr||'').replace(/[^\d]/g,''))||0;
+
+  // Cari kolom "Total Petak Unik Tahun XXXX" dengan tahun TERBARU yang tersedia di sheet
+  let best=null;
+  for(const k in patrolMap){
+    const m=k.match(/total petak unik tahun (\d{4})/);
+    if(m){const yr=+m[1];if(!best||yr>best.yr)best={yr,val:patrolMap[k]};}
+  }
+  const uniqueYear=best?parseInt((best.val||'').replace(/[^\d]/g,'')):0;
+  const yearLabel=best?best.yr:new Date().getFullYear();
+
+  const pct=totalOverall?Math.round((uniqueYear/totalOverall)*1000)/10:0;
+  document.getElementById('statPatrolPct').textContent=(totalOverall?pct:'–')+'%';
+  document.getElementById('statPatrolSub').textContent=`grid terpantau tahun ${yearLabel}`;
+}
+
+/* ============== SPESIES TERDETEKSI & TERANCAM ============== */
+function uniqueSpeciesSet(rows){
+  const s=new Set();
+  rows.forEach(r=>{if(r.Species&&r.Indep>0)s.add(r.Species.trim().toLowerCase());});
+  return s;
+}
+function renderSpeciesCounts(){
+  const combined=[...ctRows,...bioRows];
+  const allSp=uniqueSpeciesSet(combined);
+  const ctSp=uniqueSpeciesSet(ctRows);
+  const bioSp=uniqueSpeciesSet(bioRows);
+  document.getElementById('statSpeciesTotal').textContent=allSp.size;
+  document.getElementById('statSpeciesCt').textContent=ctSp.size;
+  document.getElementById('statSpeciesBio').textContent=bioSp.size;
+
+  const iucnMap={};
+  combined.forEach(r=>{
+    if(!r.Species)return;
+    const key=r.Species.trim().toLowerCase();
+    if(!iucnMap[key]&&r.IUCN)iucnMap[key]=r.IUCN.trim().toUpperCase();
+  });
+  const counts={VU:0,EN:0,CR:0};let total=0;
+  Object.values(iucnMap).forEach(iucn=>{if(THREATENED_STATUSES.includes(iucn)){counts[iucn]++;total++;}});
+  document.getElementById('statThreatenedTotal').textContent=total;
+  document.getElementById('statThreatenedVu').textContent=counts.VU;
+  document.getElementById('statThreatenedEn').textContent=counts.EN;
+  document.getElementById('statThreatenedCr').textContent=counts.CR;
+}
+
+/* ============== TRIGGER SPECIES / APEX PREDATOR PRESENCE ============== */
+function speciesDetectionCount(latinName){
+  const norm=s=>(s||'').trim().toLowerCase();
+  return [...ctRows,...bioRows].filter(r=>norm(r.Species)===norm(latinName)).reduce((s,r)=>s+r.Indep,0);
+}
+function renderPresenceRow(sp){
+  const count=speciesDetectionCount(sp.latin);
+  const detectedHtml=count>0
+    ? `<div class="presence-detected">Terdeteksi ${count} kali</div>`
+    : `<div class="presence-not-detected">Belum terdeteksi</div>`;
+  return `<div class="presence-row">
+    <div class="presence-badge" style="background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}">${sp.iucn}</div>
+    <div>
+      <div class="presence-name">${sp.latin}</div>
+      <div class="presence-local">${sp.local}</div>
+      ${detectedHtml}
+    </div>
+  </div>`;
+}
+function renderPresenceLists(){
+  document.getElementById('triggerSpeciesList').innerHTML=TRIGGER_SPECIES.map(renderPresenceRow).join('');
+  document.getElementById('apexPredatorList').innerHTML=APEX_PREDATOR_SPECIES.map(renderPresenceRow).join('');
+}
+
+/* ============== STATISTIK SPESIES AREA PROYEK ============== */
+let speciesClassChart=null;
+function renderSpeciesStats(){
+  const combined=[...ctRows,...bioRows];
+
+  // Total deteksi per Class
+  const classTotals={};
+  combined.forEach(r=>{if(r.Class)classTotals[r.Class]=(classTotals[r.Class]||0)+r.Indep;});
+  const classLabels=Object.keys(classTotals);
+  const classData=classLabels.map(k=>classTotals[k]);
+  const palette=['#356760','#618273','#8C9F8B','#B5BBA9','#DCDACC'];
+
+  const canvas=document.getElementById('chartSpeciesClass');
+  if(speciesClassChart)speciesClassChart.destroy();
+  speciesClassChart=new Chart(canvas,{
+    type:'bar',
+    data:{labels:classLabels,datasets:[{
+      data:classData,
+      backgroundColor:classLabels.map((_,i)=>palette[i%palette.length]),
+      borderRadius:4,barPercentage:.55
+    }]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:true}},
+      scales:{
+        x:{beginAtZero:true,ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}},
+        y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false}}
+      }
+    }
+  });
+
+  // Top 5 species (gabungan)
+  const spTotals={};
+  combined.forEach(r=>{if(r.Species&&r.Indep>0)spTotals[r.Species]=(spTotals[r.Species]||0)+r.Indep;});
+  const top=Object.entries(spTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const tbody=document.getElementById('topSpeciesTbody');
+  tbody.innerHTML=top.length
+    ? top.map(([sp,count])=>`<tr><td>${sp}</td><td>${count}</td></tr>`).join('')
+    : '<tr><td colspan="2" style="color:#9ca3af;padding:12px 0">Belum ada data</td></tr>';
+}
+
+/* ============== HUNTING RECORDS ============== */
+let huntingExpanded=false;
+const HUNTING_PREVIEW_COUNT=4;
+function huntingRowHtml(r){
+  const parts=[];
+  parts.push(fmtDateShort(r.dateObj));
+  if(r.coordinate)parts.push('Koordinat: '+r.coordinate);
+  if(r.reporter)parts.push('Dilaporkan oleh '+r.reporter);
+  return `<div class="hunting-row">
+    <div>
+      <div class="hunting-row-title">${FINDING_LABELS[r.finding]||r.finding}</div>
+      <div class="hunting-row-sub">${parts.join(' &middot; ')}</div>
+    </div>
+    <span class="hunting-warn-icon">&#9888;</span>
+  </div>`;
+}
+function renderHuntingRecords(){
+  const listEl=document.getElementById('huntingList');
+  const moreBtn=document.getElementById('huntingMoreBtn');
+  if(!huntingRecords.length){
+    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang terdeteksi.</div>';
+    moreBtn.style.display='none';
+    return;
+  }
+  const shown=huntingExpanded?huntingRecords:huntingRecords.slice(0,HUNTING_PREVIEW_COUNT);
+  listEl.innerHTML=shown.map(huntingRowHtml).join('');
+  if(huntingRecords.length>HUNTING_PREVIEW_COUNT){
+    moreBtn.style.display='flex';
+    moreBtn.innerHTML=huntingExpanded?'&#9650; Show less':'&#9660; Show more';
+  }else{
+    moreBtn.style.display='none';
+  }
+}
+document.getElementById('huntingMoreBtn').addEventListener('click',()=>{
+  huntingExpanded=!huntingExpanded;
+  renderHuntingRecords();
+});
+
+loadAll();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>
