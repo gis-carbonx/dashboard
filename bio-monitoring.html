@@ -194,6 +194,14 @@
     .sp-modal-status{display:flex;align-items:center;gap:8px;padding:14px 18px 0}
     .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
     .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#374151}
+    .sp-desc-block{padding-top:2px}
+    .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
+    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Montserrat',sans-serif}
+    .sp-desc-source-tag:hover{color:#1f2937}
+    .sp-desc-chevron{font-size:9px;color:#9ca3af;transition:transform .2s}
+    .sp-desc-chevron.open{transform:rotate(180deg)}
+    .sp-desc-body{overflow:hidden;max-height:0;transition:max-height .2s ease}
+    .sp-desc-body.open{max-height:1000px}
     .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
     .sp-modal-links{display:flex;flex-wrap:wrap;gap:8px;padding:10px 18px 18px}
     .sp-modal-link{font-size:10.5px;font-weight:600;color:#356760;background:transparent;border:1px solid #DCDACC;border-radius:20px;padding:5px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
@@ -745,19 +753,21 @@ async function openSpeciesInfo(latinName,localName,iucn){
     }
     images=[...new Set(images)].slice(0,8);
 
-    let description=null,descSource=null;
-    const gbifDescResult=await fetchGbifDescription(gbifKey);
+    const[gbifDescResult,wikiResult]=await Promise.all([
+      fetchGbifDescription(gbifKey),
+      fetchWikipediaDescription(latinName)
+    ]);
+    const descriptions=[];
     if(gbifDescResult.status==='ok'){
-      description=gbifDescResult.text;descSource=gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF';
-    }else{
-      const wikiResult=await fetchWikipediaDescription(latinName);
-      if(wikiResult.status==='ok'){description=wikiResult.text;descSource='Wikipedia';}
+      descriptions.push({text:gbifDescResult.text,source:gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF'});
+    }
+    if(wikiResult.status==='ok'){
+      descriptions.push({text:wikiResult.text,source:'Wikipedia'});
     }
 
     const info={
       images,
-      description,
-      descSource,
+      descriptions,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
       kingdom:gbifMatch&&gbifMatch.kingdom?gbifMatch.kingdom:null
@@ -770,6 +780,14 @@ async function openSpeciesInfo(latinName,localName,iucn){
   }
 }
 
+function toggleDescBlock(btn){
+  const chevron=btn.querySelector('.sp-desc-chevron');
+  const body=btn.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chevron.classList.toggle('open',!isOpen);
+}
+
 function renderSpeciesInfo(latinName,iucn,info){
   const galleryHtml=info.images.length
     ? `<div class="sp-gallery">${info.images.map(src=>`<img src="${src}" alt="${latinName}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
@@ -779,12 +797,11 @@ function renderSpeciesInfo(latinName,iucn,info){
     ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
     : '';
 
-  const descHtml=info.description
-    ? `<div class="sp-modal-desc">${info.description}</div>`
+  const descHtml=info.descriptions.length
+    ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
 
-  const descSourceLabel=info.descSource||'–';
-  const linksHtml=info.description?`<div class="sp-modal-source-note">Foto: GBIF. Deskripsi: ${descSourceLabel}.</div>`:'';
+  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF.</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
