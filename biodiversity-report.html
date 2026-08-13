@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biodiversity Monitoring | Sanggala Corridor Project</title>
+  <title>Biodiversity Report | Sanggala Corridor Project</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
     html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
+    /* SITE NAVBAR (sama seperti halaman lain) */
     .site-navbar{
       flex-shrink:0;
       display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
@@ -136,7 +137,7 @@
   <div class="bio-header">
     <div class="bio-header-inner">
       <div>
-        <div class="bio-header-title">Biodiversity Monitoring</div>
+        <div class="bio-header-title">Biodiversity Report</div>
         <div class="bio-header-date" id="bioTodayDate">–</div>
       </div>
       <div class="bio-header-right">
@@ -166,7 +167,7 @@
             <span class="stat-value" id="statCtInstalled">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statCtInstalledDelta">–</span>
-              <span class="stat-delta-sub">vs previous quarter</span>
+              <span class="stat-delta-sub" id="statCtInstalledSub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -176,7 +177,7 @@
             <span class="stat-value" id="statBioInstalled">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statBioInstalledDelta">–</span>
-              <span class="stat-delta-sub">vs previous quarter</span>
+              <span class="stat-delta-sub" id="statBioInstalledSub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -195,7 +196,7 @@
             <span class="stat-value" id="statWildlifeRecords">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statWildlifeRecordsDelta">–</span>
-              <span class="stat-delta-sub">vs previous quarter</span>
+              <span class="stat-delta-sub" id="statWildlifeRecordsSub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -205,7 +206,7 @@
             <span class="stat-value" id="statThreatened">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statThreatenedDelta">–</span>
-              <span class="stat-delta-sub">vs previous quarter</span>
+              <span class="stat-delta-sub" id="statThreatenedSub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -364,6 +365,11 @@ async function loadAllData(){
 function buildQuarterSelect(){
   const sel=document.getElementById('quarterSelect');
   sel.innerHTML='';
+  const allOpt=document.createElement('option');
+  allOpt.value='all';
+  allOpt.textContent='Show All';
+  if(selectedQuarterIdx==='all')allOpt.selected=true;
+  sel.appendChild(allOpt);
   allQuarters.forEach((qq,i)=>{
     const o=document.createElement('option');
     o.value=i;o.textContent=quarterLabel(qq.year,qq.q);
@@ -371,7 +377,8 @@ function buildQuarterSelect(){
     sel.appendChild(o);
   });
   sel.addEventListener('change',e=>{
-    selectedQuarterIdx=parseInt(e.target.value);
+    const v=e.target.value;
+    selectedQuarterIdx=v==='all'?'all':parseInt(v);
     renderAll();
   });
 }
@@ -380,10 +387,16 @@ function buildQuarterSelect(){
 function rowsInQuarter(rows,year,q){
   return rows.filter(r=>{const g=getQuarter(r.Date);return g.year===year&&g.q===q;});
 }
-function cumulativeUnits(rows,year,q){
-  const endDate=quarterEndDate(year,q);
+function installedUnitsInQuarter(rows,year,q){
+  // Unit dihitung HANYA jika ada catatan (Indep-nya) di kuartal itu sendiri — bukan kumulatif.
+  // Kalau di kuartal itu memang tidak ada pemasangan/catatan, hasilnya 0, sesuai kondisi sebenarnya.
   const units=new Set();
-  rows.forEach(r=>{if(r.Date<=endDate&&r.UnitID)units.add(r.UnitID);});
+  rowsInQuarter(rows,year,q).forEach(r=>{if(r.UnitID)units.add(r.UnitID);});
+  return units.size;
+}
+function installedUnitsAll(rows){
+  const units=new Set();
+  rows.forEach(r=>{if(r.UnitID)units.add(r.UnitID);});
   return units.size;
 }
 function wildlifeRecordsInQuarter(year,q){
@@ -391,8 +404,17 @@ function wildlifeRecordsInQuarter(year,q){
   const bio=rowsInQuarter(bioRows,year,q).reduce((s,r)=>s+r.Indep,0);
   return ct+bio;
 }
+function wildlifeRecordsAll(){
+  return ctRows.reduce((s,r)=>s+r.Indep,0)+bioRows.reduce((s,r)=>s+r.Indep,0);
+}
 function threatenedSpeciesInQuarter(year,q){
   const combined=[...rowsInQuarter(ctRows,year,q),...rowsInQuarter(bioRows,year,q)];
+  const sp=new Set();
+  combined.forEach(r=>{if(r.Indep>0&&THREATENED_STATUSES.includes((r.IUCN||'').trim().toUpperCase()))sp.add(r.Species);});
+  return sp.size;
+}
+function threatenedSpeciesAll(){
+  const combined=[...ctRows,...bioRows];
   const sp=new Set();
   combined.forEach(r=>{if(r.Indep>0&&THREATENED_STATUSES.includes((r.IUCN||'').trim().toUpperCase()))sp.add(r.Species);});
   return sp.size;
@@ -401,6 +423,10 @@ function keySpeciesCountInQuarter(latinName,year,q){
   const combined=[...rowsInQuarter(ctRows,year,q),...rowsInQuarter(bioRows,year,q)];
   const norm=s=>(s||'').trim().toLowerCase();
   return combined.filter(r=>norm(r.Species)===norm(latinName)).reduce((s,r)=>s+r.Indep,0);
+}
+function keySpeciesCountAll(latinName){
+  const norm=s=>(s||'').trim().toLowerCase();
+  return [...ctRows,...bioRows].filter(r=>norm(r.Species)===norm(latinName)).reduce((s,r)=>s+r.Indep,0);
 }
 
 function fmtDelta(curr,prev){
@@ -411,11 +437,14 @@ function fmtDelta(curr,prev){
 
 /* ============== RENDER ============== */
 function renderAll(){
-  const{year,q}=allQuarters[selectedQuarterIdx];
-  const prev=prevQuarter(year,q);
-  const hasPrev=allQuarters.some(qq=>qq.year===prev.year&&qq.q===prev.q) || selectedQuarterIdx>0;
+  const isAll=selectedQuarterIdx==='all';
+  let year,q,prev;
+  if(!isAll){
+    ({year,q}=allQuarters[selectedQuarterIdx]);
+    prev=prevQuarter(year,q);
+  }
 
-  document.getElementById('quarterCurrentLabel').textContent=quarterLabel(year,q);
+  document.getElementById('quarterCurrentLabel').textContent=isAll?'All Quarters':quarterLabel(year,q);
   document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
 
   // Terakhir diperbarui = tanggal deteksi terbaru di seluruh data gabungan
@@ -423,35 +452,66 @@ function renderAll(){
   const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
   document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
 
-  // Installed (kumulatif s.d. akhir kuartal terpilih)
-  const ctInstalled=cumulativeUnits(ctRows,year,q);
-  const bioInstalled=cumulativeUnits(bioRows,year,q);
-  const ctInstalledPrev=cumulativeUnits(ctRows,prev.year,prev.q);
-  const bioInstalledPrev=cumulativeUnits(bioRows,prev.year,prev.q);
-  document.getElementById('statCtInstalled').textContent=ctInstalled;
-  document.getElementById('statBioInstalled').textContent=bioInstalled;
-  setDelta('statCtInstalledDelta',ctInstalled,ctInstalledPrev);
-  setDelta('statBioInstalledDelta',bioInstalled,bioInstalledPrev);
+  // Installed — dihitung PER KUARTAL (bukan kumulatif). Kalau kuartal itu memang tidak ada
+  // catatan pemasangan/aktivitas alat, hasilnya 0 sesuai kondisi sebenarnya di data.
+  if(isAll){
+    const ctInstalled=installedUnitsAll(ctRows);
+    const bioInstalled=installedUnitsAll(bioRows);
+    document.getElementById('statCtInstalled').textContent=ctInstalled;
+    document.getElementById('statBioInstalled').textContent=bioInstalled;
+    setDeltaAll('statCtInstalledDelta','statCtInstalledSub');
+    setDeltaAll('statBioInstalledDelta','statBioInstalledSub');
+  }else{
+    const ctInstalled=installedUnitsInQuarter(ctRows,year,q);
+    const bioInstalled=installedUnitsInQuarter(bioRows,year,q);
+    const ctInstalledPrev=installedUnitsInQuarter(ctRows,prev.year,prev.q);
+    const bioInstalledPrev=installedUnitsInQuarter(bioRows,prev.year,prev.q);
+    document.getElementById('statCtInstalled').textContent=ctInstalled;
+    document.getElementById('statBioInstalled').textContent=bioInstalled;
+    setDelta('statCtInstalledDelta','statCtInstalledSub',ctInstalled,ctInstalledPrev);
+    setDelta('statBioInstalledDelta','statBioInstalledSub',bioInstalled,bioInstalledPrev);
+  }
 
-  // Wildlife records (per kuartal terpilih)
-  const wr=wildlifeRecordsInQuarter(year,q);
-  const wrPrev=wildlifeRecordsInQuarter(prev.year,prev.q);
-  document.getElementById('statWildlifeRecords').textContent=wr;
-  setDelta('statWildlifeRecordsDelta',wr,wrPrev);
+  // Wildlife records
+  if(isAll){
+    const wr=wildlifeRecordsAll();
+    document.getElementById('statWildlifeRecords').textContent=wr;
+    setDeltaAll('statWildlifeRecordsDelta','statWildlifeRecordsSub');
+  }else{
+    const wr=wildlifeRecordsInQuarter(year,q);
+    const wrPrev=wildlifeRecordsInQuarter(prev.year,prev.q);
+    document.getElementById('statWildlifeRecords').textContent=wr;
+    setDelta('statWildlifeRecordsDelta','statWildlifeRecordsSub',wr,wrPrev);
+  }
 
-  // Threatened species (per kuartal terpilih)
-  const th=threatenedSpeciesInQuarter(year,q);
-  const thPrev=threatenedSpeciesInQuarter(prev.year,prev.q);
-  document.getElementById('statThreatened').textContent=th;
-  setDelta('statThreatenedDelta',th,thPrev);
+  // Threatened species
+  if(isAll){
+    const th=threatenedSpeciesAll();
+    document.getElementById('statThreatened').textContent=th;
+    setDeltaAll('statThreatenedDelta','statThreatenedSub');
+  }else{
+    const th=threatenedSpeciesInQuarter(year,q);
+    const thPrev=threatenedSpeciesInQuarter(prev.year,prev.q);
+    document.getElementById('statThreatened').textContent=th;
+    setDelta('statThreatenedDelta','statThreatenedSub',th,thPrev);
+  }
 
   // Key species cards
   const grid=document.getElementById('keySpeciesGrid');
   grid.innerHTML='';
   KEY_SPECIES.forEach(sp=>{
-    const val=keySpeciesCountInQuarter(sp.latin,year,q);
-    const valPrev=keySpeciesCountInQuarter(sp.latin,prev.year,prev.q);
-    const delta=fmtDelta(val,valPrev);
+    let deltaHtml;
+    let val;
+    if(isAll){
+      val=keySpeciesCountAll(sp.latin);
+      deltaHtml=`<span class="stat-delta-sub">across all quarters</span>`;
+    }else{
+      val=keySpeciesCountInQuarter(sp.latin,year,q);
+      const valPrev=keySpeciesCountInQuarter(sp.latin,prev.year,prev.q);
+      const delta=fmtDelta(val,valPrev);
+      deltaHtml=`<span class="stat-delta-num${delta.negative?' negative':''}">${delta.text}</span>
+          <span class="stat-delta-sub">vs previous quarter</span>`;
+    }
     const card=document.createElement('div');
     card.className='stat-card species-card';
     card.innerHTML=`
@@ -459,18 +519,25 @@ function renderAll(){
       <div class="stat-value-row">
         <span class="stat-value">${val}</span>
         <div class="stat-delta">
-          <span class="stat-delta-num${delta.negative?' negative':''}">${delta.text}</span>
-          <span class="stat-delta-sub">vs previous quarter</span>
+          ${deltaHtml}
         </div>
       </div>`;
     grid.appendChild(card);
   });
 }
-function setDelta(elId,curr,prev){
+function setDelta(deltaElId,subElId,curr,prev){
   const d=fmtDelta(curr,prev);
-  const el=document.getElementById(elId);
+  const el=document.getElementById(deltaElId);
   el.textContent=d.text;
   el.classList.toggle('negative',d.negative);
+  el.style.display='';
+  document.getElementById(subElId).textContent='vs previous quarter';
+}
+function setDeltaAll(deltaElId,subElId){
+  const el=document.getElementById(deltaElId);
+  el.textContent='';
+  el.style.display='none';
+  document.getElementById(subElId).textContent='across all quarters';
 }
 
 loadAllData();
