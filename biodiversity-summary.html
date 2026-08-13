@@ -690,12 +690,25 @@ function initPresenceMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
 
+  const markerLayer=L.layerGroup(); // ditambahkan ke peta belakangan, supaya render di ATAS batas Project Area
+
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
+    // 1) Project Area ditambahkan LEBIH DULU -> jadi layer paling bawah.
     const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
+    // 2) Titik lokasi spesies ditambahkan SETELAHNYA -> render di atas batas Project Area.
+    markerLayer.addTo(map);
+
     const bounds=boundary.getBounds();
-    if(bounds.isValid())map.fitBounds(bounds,{padding:[16,16]});
+    if(bounds.isValid()){
+      map.fitBounds(bounds,{padding:[16,16]});
+      // Default zoom out 3 level lebih jauh dari hasil fitBounds.
+      map.setZoom(Math.max(map.getMinZoom(),map.getZoom()-3));
+    }
     setTimeout(()=>map.invalidateSize(),150);
-  }).catch(e=>console.warn('Gagal memuat batas Project Area:',e));
+  }).catch(e=>{
+    console.warn('Gagal memuat batas Project Area:',e);
+    markerLayer.addTo(map); // tetap tampilkan titik walau boundary gagal dimuat
+  });
 
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
@@ -705,8 +718,8 @@ function initPresenceMap(){
     const color=IUCN_COLORS[sp.iucn]||'#94a3b8';
     locs.forEach(loc=>{
       L.circleMarker([loc.lat,loc.lon],{radius:6,color:'#fff',weight:1.5,fillColor:color,fillOpacity:.9})
-        .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b style="font-style:italic">${sp.latin}</b><br>${sp.local}</div>`)
-        .addTo(map);
+        .bindPopup(`<i style="font-family:'Libre Franklin',sans-serif;font-size:12px">${sp.latin}</i>`)
+        .addTo(markerLayer);
     });
     legendParts.push(`<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${color}"></span>${sp.local.split(' (')[0]}</span>`);
   });
