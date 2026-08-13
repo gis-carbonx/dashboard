@@ -134,18 +134,25 @@
     .hunting-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
     .hunting-panel-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#1f2937;margin-bottom:14px}
     .hunting-dot{width:9px;height:9px;border-radius:50%;background:#dc2626;flex-shrink:0}
-    .hunting-row{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      background:#FADBD8;border-left:3px solid #dc2626;border-radius:6px;padding:11px 14px;margin-bottom:8px;
+    .hunting-tbl-wrap{border:1px solid var(--color-sand);border-radius:8px;overflow:hidden}
+    table.hunting-table{width:100%;border-collapse:collapse;font-size:12px}
+    .hunting-table thead th{
+      background:var(--color-cream);color:var(--color-pine);padding:9px 12px;text-align:left;
+      font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;
+      border-bottom:1px solid var(--color-sand);
     }
-    .hunting-row-title{font-size:12.5px;font-weight:700;color:#8a1f1f}
-    .hunting-row-sub{font-size:11px;color:#9a4b3a;margin-top:3px;line-height:1.5}
-    .hunting-photo-link{display:inline-block;font-size:10.5px;font-weight:700;color:#8a1f1f;text-decoration:none;margin-top:5px}
-    .hunting-photo-link:hover{text-decoration:underline}
-    .hunting-warn-icon{color:#dc2626;font-size:15px;flex-shrink:0;margin-top:1px}
+    .hunting-table tbody td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top}
+    .hunting-table tbody tr:last-child td{border-bottom:none}
+    .hunting-table tbody tr:hover td{background:#FFFAF3}
+    .hunting-date-cell{white-space:nowrap;font-weight:600;color:#374151}
+    .hunting-finding-cell{font-weight:700;color:#8a1f1f;white-space:nowrap}
+    .hunting-coord-cell{font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:#6b7280;white-space:nowrap}
+    .hunting-desc-cell{font-style:italic;color:#6b7280}
+    .hunting-photo-cell a{color:#8a1f1f;font-weight:700;text-decoration:none;font-size:11px;white-space:nowrap}
+    .hunting-photo-cell a:hover{text-decoration:underline}
     .hunting-more-btn{
       background:none;border:none;color:var(--color-fern);font-size:11.5px;font-weight:600;cursor:pointer;
-      padding:6px 0;display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;
+      padding:10px 0 0;display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;
     }
     .hunting-more-btn:hover{color:var(--color-pine)}
     .hunting-empty{font-size:12px;color:#9ca3af;padding:8px 0}
@@ -300,7 +307,12 @@
       <!-- HUNTING RECORDS -->
       <div class="hunting-panel">
         <div class="hunting-panel-title"><span class="hunting-dot"></span>Hunting Records</div>
-        <div id="huntingList"></div>
+        <div class="hunting-tbl-wrap">
+          <table class="hunting-table">
+            <thead><tr><th>Tanggal</th><th>Temuan</th><th>Koordinat</th><th>Deskripsi</th><th>Foto</th></tr></thead>
+            <tbody id="huntingList"></tbody>
+          </table>
+        </div>
         <button class="hunting-more-btn" id="huntingMoreBtn" style="display:none">&#9660; Show more</button>
       </div>
 
@@ -505,13 +517,14 @@ async function loadAll(){
   huntingRecords=subRaw.map(row=>{
     const findingRaw=pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding');
     return{
+      dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
       coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
       description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
       imageUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','data-survey-image','survey-image','photo','image','foto','gambar','attachment')||'').toString().trim(),
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
-  huntingRecords.reverse(); // submission baru biasanya ditambahkan di baris bawah — tampilkan yang terbaru dulu
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); // terbaru dulu
   console.log('[Hunting] jumlah baris cocok (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
   if(subRaw.length&&!huntingRecords.length){
     const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
@@ -679,26 +692,22 @@ function renderSpeciesStats(){
 
 /* ============== HUNTING RECORDS ============== */
 let huntingExpanded=false;
-const HUNTING_PREVIEW_COUNT=4;
+const HUNTING_PREVIEW_COUNT=3;
 function huntingRowHtml(r){
-  const parts=[];
-  if(r.coordinate)parts.push('Koordinat: '+r.coordinate);
-  const photoLink=r.imageUrl?`<a href="${r.imageUrl}" target="_blank" rel="noopener" class="hunting-photo-link">Lihat foto &#8599;</a>`:'';
-  return `<div class="hunting-row">
-    <div>
-      <div class="hunting-row-title">${FINDING_LABELS[r.finding]||r.finding}</div>
-      ${parts.length?`<div class="hunting-row-sub">${parts.join(' &middot; ')}</div>`:''}
-      ${r.description?`<div class="hunting-row-sub" style="margin-top:2px;font-style:italic">${r.description}</div>`:''}
-      ${photoLink}
-    </div>
-    <span class="hunting-warn-icon">&#9888;</span>
-  </div>`;
+  const photoLink=r.imageUrl?`<a href="${r.imageUrl}" target="_blank" rel="noopener">Lihat foto &#8599;</a>`:'–';
+  return `<tr>
+    <td class="hunting-date-cell">${fmtDateShort(r.dateObj)}</td>
+    <td class="hunting-finding-cell">${FINDING_LABELS[r.finding]||r.finding}</td>
+    <td class="hunting-coord-cell">${r.coordinate||'–'}</td>
+    <td class="hunting-desc-cell">${r.description||'–'}</td>
+    <td class="hunting-photo-cell">${photoLink}</td>
+  </tr>`;
 }
 function renderHuntingRecords(){
   const listEl=document.getElementById('huntingList');
   const moreBtn=document.getElementById('huntingMoreBtn');
   if(!huntingRecords.length){
-    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang cocok. Buka Console browser (F12) untuk lihat diagnosanya — kemungkinan besar tab "submission" bukan di gid=0 (buka tab submission di Google Sheets, lihat "#gid=..." di URL browser) atau sheet belum di-share publik ("Anyone with the link → Viewer").</div>';
+    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">Belum ada catatan perburuan yang cocok. Buka Console browser (F12) untuk lihat diagnosanya — kemungkinan besar tab "submission" bukan di gid yang benar, atau sheet belum di-share publik ("Anyone with the link → Viewer").</td></tr>';
     moreBtn.style.display='none';
     return;
   }
