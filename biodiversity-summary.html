@@ -109,7 +109,7 @@
     .presence-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
     .presence-row:last-child{border-bottom:none}
     .presence-badge{
-      width:36px;height:36px;border-radius:8px;flex-shrink:0;
+      width:34px;height:34px;border-radius:50%;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;
     }
     .presence-name{font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic}
@@ -341,10 +341,7 @@ const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/expo
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
 const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=0`;
 
-/* Warna kategori resmi IUCN Red List (bukan logo/ikon asli IUCN — lihat catatan di respons chat
-   soal kenapa logo asli tidak di-hotlink langsung). Beberapa warna terang (VU/NT/NE/DD) butuh teks gelap. */
-const IUCN_COLORS={LC:'#60c659',NT:'#cce226',VU:'#f9e814',EN:'#fc7f3f',CR:'#d81e05',EW:'#542344',EX:'#000000',DD:'#d1d1c6',NE:'#d1d1c6'};
-const IUCN_DARK_TEXT=new Set(['NT','VU','NE','DD']);
+const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
 const THREATENED_STATUSES=['VU','EN','CR'];
 
 /* Daftar tetap — sama dengan Key Species di biodiversity-monitoring.html,
@@ -438,10 +435,11 @@ function fetchJson(url){
   return fetch(url).then(r=>r.json()).catch(e=>{console.warn('JSON load failed:',url,e);return null;});
 }
 /* Cari nilai kolom dengan cocokkan nama header secara fleksibel (exact match dulu,
-   baru substring) — supaya tidak bergantung pada urutan/index kolom yang bisa berubah. */
+   baru substring) — supaya tidak bergantung pada urutan/index kolom yang bisa berubah.
+   Underscore & strip dianggap setara ("base_info" akan cocok dengan pola "base-info"). */
 function pickFieldExactOrPartial(row,...patterns){
   const keys=Object.keys(row);
-  const norm=s=>s.toString().trim().toLowerCase();
+  const norm=s=>s.toString().trim().toLowerCase().replace(/[_\s]+/g,'-');
   for(const want of patterns){
     const exact=keys.find(k=>norm(k)===norm(want));
     if(exact!==undefined)return row[exact];
@@ -496,7 +494,8 @@ async function loadAll(){
     return{
       dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
       coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
-      reporter:(pickFieldExactOrPartial(row,'data-base-info-name','data-base-info-na','base-info-name','reporter-name')||'').toString().trim(),
+      reporter:(pickFieldExactOrPartial(row,'data-base_info-nama','data-base-info-nama','base_info-nama','base-info-name','reporter-name')||'').toString().trim(),
+      description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
@@ -613,7 +612,7 @@ function renderPresenceRow(sp){
     ? `<div class="presence-detected">Terdeteksi ${count} kali</div>`
     : `<div class="presence-not-detected">Belum terdeteksi</div>`;
   return `<div class="presence-row">
-    <div class="presence-badge" style="background:${IUCN_COLORS[sp.iucn]||'#94a3b8'};color:${IUCN_DARK_TEXT.has(sp.iucn)?'#1f2937':'#fff'}">${sp.iucn}</div>
+    <div class="presence-badge" style="background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}">${sp.iucn}</div>
     <div>
       <div class="presence-name">${sp.latin}</div>
       <div class="presence-local">${sp.local}</div>
@@ -679,6 +678,7 @@ function huntingRowHtml(r){
     <div>
       <div class="hunting-row-title">${FINDING_LABELS[r.finding]||r.finding}</div>
       <div class="hunting-row-sub">${parts.join(' &middot; ')}</div>
+      ${r.description?`<div class="hunting-row-sub" style="margin-top:2px;font-style:italic">${r.description}</div>`:''}
     </div>
     <span class="hunting-warn-icon">&#9888;</span>
   </div>`;
