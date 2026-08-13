@@ -99,13 +99,10 @@
     .breakdown-label{font-size:12px;color:#6b7280;font-weight:600}
     .breakdown-value-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
     .breakdown-value{font-size:38px;font-weight:800;color:var(--color-pine);line-height:1}
-    .breakdown-mini-grid{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-    .breakdown-mini{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-    .breakdown-mini-value{font-size:18px;font-weight:800;color:#1f2937;line-height:1}
-    .breakdown-mini-label{font-size:9.5px;color:#6b7280;margin-top:2px;max-width:80px;line-height:1.4}
     .breakdown-chart-wrap{width:100%;margin-top:14px}
     .breakdown-chart-labels{display:flex;margin-bottom:5px}
     .breakdown-chart-label{font-size:12px;font-weight:800;color:#1f2937;text-align:center;line-height:1}
+    .breakdown-chart-label-sub{font-size:9.5px;font-weight:500;color:#6b7280;margin-top:3px;line-height:1.3}
     .breakdown-chart{display:flex;height:10px;width:100%;border-radius:6px;overflow:hidden}
     .breakdown-chart-seg{height:100%}
 
@@ -246,16 +243,6 @@
           <span class="breakdown-label">Spesies terdeteksi</span>
           <div class="breakdown-value-row">
             <span class="breakdown-value" id="statSpeciesTotal">–</span>
-            <div class="breakdown-mini-grid">
-              <div class="breakdown-mini">
-                <span class="breakdown-mini-value" id="statSpeciesCt">–</span>
-                <span class="breakdown-mini-label">camera trap</span>
-              </div>
-              <div class="breakdown-mini">
-                <span class="breakdown-mini-value" id="statSpeciesBio">–</span>
-                <span class="breakdown-mini-label">bioacoustic</span>
-              </div>
-            </div>
           </div>
           <div class="breakdown-chart-wrap" id="statSpeciesChart"></div>
         </div>
@@ -263,16 +250,6 @@
           <span class="breakdown-label">Spesies terancam</span>
           <div class="breakdown-value-row">
             <span class="breakdown-value" id="statThreatenedTotal">–</span>
-            <div class="breakdown-mini-grid">
-              <div class="breakdown-mini">
-                <span class="breakdown-mini-value" id="statThreatenedEn">–</span>
-                <span class="breakdown-mini-label">Endangered</span>
-              </div>
-              <div class="breakdown-mini">
-                <span class="breakdown-mini-value" id="statThreatenedCr">–</span>
-                <span class="breakdown-mini-label">Critically Endangered</span>
-              </div>
-            </div>
           </div>
           <div class="breakdown-chart-wrap" id="statThreatenedChart"></div>
         </div>
@@ -632,14 +609,14 @@ function uniqueSpeciesSet(rows){
   return s;
 }
 function renderMiniBarChart(elId,segments){
-  // segments = [{value, color}, ...]
+  // segments = [{value, color, label}, ...]
   const el=document.getElementById(elId);
   const sum=segments.reduce((s,seg)=>s+seg.value,0);
   if(sum<=0){el.innerHTML='';return;}
   const labelsHtml=segments.map(seg=>{
     if(seg.value<=0)return'';
     const pct=(seg.value/sum*100).toFixed(1);
-    return `<div class="breakdown-chart-label" style="width:${pct}%">${seg.value}</div>`;
+    return `<div class="breakdown-chart-label" style="width:${pct}%">${seg.value}<div class="breakdown-chart-label-sub">${seg.label}</div></div>`;
   }).join('');
   const barHtml=segments.map(seg=>{
     if(seg.value<=0)return'';
@@ -654,11 +631,9 @@ function renderSpeciesCounts(){
   const ctSp=uniqueSpeciesSet(ctRows);
   const bioSp=uniqueSpeciesSet(bioRows);
   document.getElementById('statSpeciesTotal').textContent=allSp.size;
-  document.getElementById('statSpeciesCt').textContent=ctSp.size;
-  document.getElementById('statSpeciesBio').textContent=bioSp.size;
   renderMiniBarChart('statSpeciesChart',[
-    {value:ctSp.size,color:SOURCE_COLORS.cameratrap},
-    {value:bioSp.size,color:SOURCE_COLORS.bioacoustic}
+    {value:ctSp.size,color:SOURCE_COLORS.cameratrap,label:'camera trap'},
+    {value:bioSp.size,color:SOURCE_COLORS.bioacoustic,label:'bioacoustic'}
   ]);
 
   const iucnMap={};
@@ -670,11 +645,9 @@ function renderSpeciesCounts(){
   const counts={EN:0,CR:0};let total=0;
   Object.values(iucnMap).forEach(iucn=>{if(THREATENED_STATUSES.includes(iucn)){counts[iucn]++;total++;}});
   document.getElementById('statThreatenedTotal').textContent=total;
-  document.getElementById('statThreatenedEn').textContent=counts.EN;
-  document.getElementById('statThreatenedCr').textContent=counts.CR;
   renderMiniBarChart('statThreatenedChart',[
-    {value:counts.EN,color:IUCN_COLORS.EN},
-    {value:counts.CR,color:IUCN_COLORS.CR}
+    {value:counts.EN,color:IUCN_COLORS.EN,label:'Endangered'},
+    {value:counts.CR,color:IUCN_COLORS.CR,label:'Critically Endangered'}
   ]);
 }
 
