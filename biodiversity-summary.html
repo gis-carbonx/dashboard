@@ -81,7 +81,8 @@
     .cta-btn{
       background:var(--color-fire);border:1px solid var(--color-fire);color:#fff;font-size:11px;font-weight:600;
       padding:9px 20px;border-radius:20px;text-decoration:none;white-space:nowrap;
-      transition:opacity .15s;flex-shrink:0;
+      transition:opacity .15s;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+      min-width:130px;text-align:center;
     }
     .cta-btn:hover{opacity:.88}
 
@@ -319,7 +320,6 @@
 </div>
 
 <script>
-
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
@@ -336,14 +336,14 @@ const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef44
 const THREATENED_STATUSES=['EN','CR'];
 
 const TRIGGER_SPECIES=[
-  {latin:'Pongo pygmaeus',local:'Orangutan',iucn:'CR'},
-  {latin:'Manis javanica',local:'Trenggiling',iucn:'CR'},
-  {latin:'Rhinoplax vigil',local:'Rangkong Gading',iucn:'CR'}
+  {latin:'Pongo pygmaeus', local:'Orangutan',                                   iucn:'CR'},
+  {latin:'Manis javanica',          local:'Sunda Pangolin (Trenggiling)',       iucn:'CR'},
+  {latin:'Rhinoplax vigil',         local:'Helmeted Hornbill (Rangkong Gading)',iucn:'CR'}
 ];
 const APEX_PREDATOR_SPECIES=[
-  {latin:'Catopuma badia',local:'Kucing Merah',iucn:'EN'},
-  {latin:'Pardofelis marmorata',local:'Kucing Batu',iucn:'VU'},
-  {latin:'Prionailurus bengalensis',local:'Kucing Kuwuk',iucn:'LC'}
+  {latin:'Catopuma badia',          local:'Bay Cat (Kucing Merah)',             iucn:'EN'},
+  {latin:'Pardofelis marmorata',    local:'Marbled Cat (Kucing Batu)',          iucn:'VU'},
+  {latin:'Prionailurus bengalensis',local:'Leopard Cat (Kucing Kuwuk)',         iucn:'LC'}
 ];
 
 const FINDING_LABELS={
@@ -419,7 +419,6 @@ function fetchCsvHeader(url){
 function fetchJson(url){
   return fetch(url).then(r=>r.json()).catch(e=>{console.warn('JSON load failed:',url,e);return null;});
 }
-
 function pickFieldExactOrPartial(row,...patterns){
   const keys=Object.keys(row);
   const norm=s=>s.toString().trim().toLowerCase().replace(/[_\s]+/g,'-');
@@ -513,7 +512,7 @@ async function loadAll(){
   document.getElementById('bioLoading').style.display='none';
   document.getElementById('bioContentBody').style.display='block';
 }
-  
+
 function uniqueLocations(rows){
   const seen=new Set();const locs=[];
   rows.forEach(r=>{
@@ -567,6 +566,7 @@ function uniqueSpeciesSet(rows){
   return s;
 }
 function renderMiniBarChart(elId,segments){
+
   const el=document.getElementById(elId);
   const sum=segments.reduce((s,seg)=>s+seg.value,0);
   if(sum<=0){el.innerHTML='';return;}
@@ -652,12 +652,10 @@ function initPresenceMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
 
-  const markerLayer=L.layerGroup();
+  const markerLayer=L.layerGroup(); 
 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-
     const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
-
     markerLayer.addTo(map);
 
     const bounds=boundary.getBounds();
@@ -686,6 +684,7 @@ function initPresenceMap(){
   });
 
   Object.values(locationMap).forEach(loc=>{
+
     const pointSources=new Set();
     loc.species.forEach(s=>s.sources.forEach(src=>pointSources.add(src)));
     const isMixedSource=pointSources.size>1;
