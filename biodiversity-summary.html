@@ -672,18 +672,20 @@ function renderPresenceLists(){
 
 /* ============== PETA DETEKSI TRIGGER SPECIES & APEX PREDATOR ============== */
 const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
+const SOURCE_COLORS={cameratrap:'#356760',bioacoustic:'#f97316'};
+const SOURCE_LABELS={cameratrap:'Camera Trap',bioacoustic:'Bioacoustic'};
+
 function speciesLocations(latinName){
   const norm=s=>(s||'').trim().toLowerCase();
-  const seen=new Set();const locs=[];
+  const map={};
   [...ctRows,...bioRows].forEach(r=>{
     if(norm(r.Species)!==norm(latinName))return;
     if(isNaN(r.Latitude)||isNaN(r.Longitude))return;
     const key=r.Latitude.toFixed(5)+'_'+r.Longitude.toFixed(5);
-    if(seen.has(key))return;
-    seen.add(key);
-    locs.push({lat:r.Latitude,lon:r.Longitude});
+    if(!map[key])map[key]={lat:r.Latitude,lon:r.Longitude,sources:new Set()};
+    map[key].sources.add(r.Source);
   });
-  return locs;
+  return Object.values(map);
 }
 function initPresenceMap(){
   const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
@@ -712,37 +714,44 @@ function initPresenceMap(){
 
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
-  const legendParts=[];
 
   // Gabungkan dulu per lokasi (lat/lon yang sama) — supaya kalau beberapa spesies
   // terdeteksi di titik yang persis sama, cukup satu marker dengan popup berisi daftar spesiesnya.
   const locationMap={};
   allSpecies.forEach(sp=>{
     const locs=speciesLocations(sp.latin);
-    const color=IUCN_COLORS[sp.iucn]||'#94a3b8';
     locs.forEach(loc=>{
       const key=loc.lat.toFixed(5)+'_'+loc.lon.toFixed(5);
       if(!locationMap[key])locationMap[key]={lat:loc.lat,lon:loc.lon,species:[]};
-      locationMap[key].species.push({latin:sp.latin,color});
+      locationMap[key].species.push({latin:sp.latin,sources:loc.sources});
     });
-    legendParts.push(`<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${color}"></span>${sp.local.split(' (')[0]}</span>`);
   });
 
   Object.values(locationMap).forEach(loc=>{
-    const isMulti=loc.species.length>1;
-    const markerColor=isMulti?'#374151':loc.species[0].color;
-    const popupHtml=loc.species.map(s=>
-      `<div style="display:flex;align-items:center;gap:6px;padding:2px 0">
-         <span style="width:8px;height:8px;border-radius:50%;background:${s.color};flex-shrink:0"></span>
+    // Warna marker mengikuti SUMBER data (camera trap / bioacoustic), bukan per-spesies lagi.
+    const pointSources=new Set();
+    loc.species.forEach(s=>s.sources.forEach(src=>pointSources.add(src)));
+    const isMixedSource=pointSources.size>1;
+    const markerColor=isMixedSource?'#374151':SOURCE_COLORS[[...pointSources][0]]||'#94a3b8';
+
+    const popupHtml=loc.species.map(s=>{
+      const dotColor=s.sources.size>1?'#374151':SOURCE_COLORS[[...s.sources][0]]||'#94a3b8';
+      return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0">
+         <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>
          <i style="font-family:'Libre Franklin',sans-serif;font-size:12px">${s.latin}</i>
-       </div>`
-    ).join('');
-    L.circleMarker([loc.lat,loc.lon],{radius:isMulti?8:6,color:'#fff',weight:1.5,fillColor:markerColor,fillOpacity:.9})
+       </div>`;
+    }).join('');
+    const isMultiSpecies=loc.species.length>1;
+    L.circleMarker([loc.lat,loc.lon],{radius:isMultiSpecies?8:6,color:'#fff',weight:1.5,fillColor:markerColor,fillOpacity:.9})
       .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
       .addTo(markerLayer);
   });
 
-  legendEl.innerHTML=legendParts.join('')+'<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
+  // Legend disederhanakan jadi 2 kategori sumber data saja + batas Project Area.
+  legendEl.innerHTML=
+    `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.cameratrap}"></span>${SOURCE_LABELS.cameratrap}</span>`+
+    `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.bioacoustic}"></span>${SOURCE_LABELS.bioacoustic}</span>`+
+    '<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
 }
 
 /* ============== STATISTIK SPESIES AREA PROYEK ============== */
