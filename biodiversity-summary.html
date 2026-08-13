@@ -105,7 +105,7 @@
     .breakdown-mini-label{font-size:9.5px;color:#6b7280;margin-top:2px;max-width:80px;line-height:1.4}
 
     /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Peta deteksi) */
-    .presence-row-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+    .presence-row-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:18px;align-items:stretch}
     @media (max-width:920px){ .presence-row-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
     @media (max-width:620px){ .presence-row-grid{grid-template-columns:1fr} }
     .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
@@ -279,6 +279,11 @@
 
       <!-- TRIGGER SPECIES & APEX PREDATOR -->
       <div class="presence-row-grid">
+        <div class="presence-map-panel">
+          <div class="presence-panel-title">Detection Map</div>
+          <div id="presenceMap"></div>
+          <div class="presence-map-legend" id="presenceMapLegend"></div>
+        </div>
         <div class="presence-panel">
           <div class="presence-panel-title">Trigger Species Presence</div>
           <div id="triggerSpeciesList"></div>
@@ -286,11 +291,6 @@
         <div class="presence-panel">
           <div class="presence-panel-title">Apex Predator Presence</div>
           <div id="apexPredatorList"></div>
-        </div>
-        <div class="presence-map-panel">
-          <div class="presence-panel-title">Detection Map</div>
-          <div id="presenceMap"></div>
-          <div class="presence-map-legend" id="presenceMapLegend"></div>
         </div>
       </div>
 
