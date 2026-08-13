@@ -334,10 +334,9 @@ const GRID_URL='./assets/json/Grid.json';
 const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
 const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=94771341`;
 
-/* Sheet submission (Hunting Records). Asumsi tab "submission" = gid 0 (tab paling kiri).
-   Kalau ternyata gid-nya berbeda, ganti angka di bawah ini. */
+/* Sheet submission (Hunting Records), tab "submission" — gid dikonfirmasi dari URL Google Sheets. */
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
-const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=0`;
+const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=2076427902`;
 
 const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
 const THREATENED_STATUSES=['EN','CR'];
@@ -488,13 +487,27 @@ async function loadAll(){
   // I = data-survey-finding, J = data-survey-description, C = data-coordinate, K = link gambar.
   // Dicocokkan berdasarkan NAMA kolom (bukan huruf/index kolom tetap), supaya tidak gampang salah
   // kalau urutan kolom di sheet sedikit berbeda dari dugaan.
-  console.log('[Hunting] baris mentah dari sheet submission:',subRaw.length,subRaw.slice(0,2));
+  console.log('[Hunting] baris mentah dari sheet submission:',subRaw.length);
+  if(subRaw.length){
+    const actualHeaders=Object.keys(subRaw[0]);
+    console.log('[Hunting] header kolom yang benar-benar ke-fetch:',actualHeaders);
+    const looksRight=actualHeaders.some(h=>h.toLowerCase().includes('survey-finding'));
+    if(!looksRight){
+      console.warn('[Hunting] PERINGATAN: header di atas tidak mengandung "survey-finding" sama sekali. '+
+        'Ini tanda kuat gid=0 BUKAN tab "submission" yang benar, atau sheet belum di-share publik '+
+        '("Anyone with the link -> Viewer"). Buka tab submission di browser, lihat "#gid=..." di URL, '+
+        'lalu kabari angkanya supaya SUBMISSION_URL bisa diperbaiki.');
+    }
+  }else{
+    console.warn('[Hunting] 0 baris ter-fetch sama sekali. Kemungkinan besar sheet belum di-share publik, '+
+      'atau gid=0 salah / kosong. Cek juga tab Network di DevTools untuk lihat response mentahnya.');
+  }
   huntingRecords=subRaw.map(row=>{
     const findingRaw=pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding');
     return{
       coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
       description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
-      imageUrl:(pickFieldExactOrPartial(row,'data-survey-image','survey-image','data-survey-photo','photo','image','foto','gambar','attachment')||'').toString().trim(),
+      imageUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','data-survey-image','survey-image','photo','image','foto','gambar','attachment')||'').toString().trim(),
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
@@ -685,7 +698,7 @@ function renderHuntingRecords(){
   const listEl=document.getElementById('huntingList');
   const moreBtn=document.getElementById('huntingMoreBtn');
   if(!huntingRecords.length){
-    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang cocok. Kalau seharusnya ada data, cek: (1) sheet submission sudah di-share publik ("Anyone with the link → Viewer"), (2) tab "submission" memang di gid=0, (3) buka Console browser (F12) untuk lihat nilai kolom finding yang sebenarnya ada di sheet.</div>';
+    listEl.innerHTML='<div class="hunting-empty">Belum ada catatan perburuan yang cocok. Buka Console browser (F12) untuk lihat diagnosanya — kemungkinan besar tab "submission" bukan di gid=0 (buka tab submission di Google Sheets, lihat "#gid=..." di URL browser) atau sheet belum di-share publik ("Anyone with the link → Viewer").</div>';
     moreBtn.style.display='none';
     return;
   }
