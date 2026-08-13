@@ -687,10 +687,10 @@ function speciesLocations(latinName){
 }
 function initPresenceMap(){
   const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:14}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
 
-  const markerLayer=L.layerGroup();
+  const markerLayer=L.layerGroup(); // ditambahkan ke peta belakangan, supaya render di ATAS batas Project Area
 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
     // 1) Project Area ditambahkan LEBIH DULU -> jadi layer paling bawah.
@@ -713,16 +713,35 @@ function initPresenceMap(){
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
   const legendParts=[];
+
+  // Gabungkan dulu per lokasi (lat/lon yang sama) — supaya kalau beberapa spesies
+  // terdeteksi di titik yang persis sama, cukup satu marker dengan popup berisi daftar spesiesnya.
+  const locationMap={};
   allSpecies.forEach(sp=>{
     const locs=speciesLocations(sp.latin);
     const color=IUCN_COLORS[sp.iucn]||'#94a3b8';
     locs.forEach(loc=>{
-      L.circleMarker([loc.lat,loc.lon],{radius:6,color:'#fff',weight:1.5,fillColor:color,fillOpacity:.9})
-        .bindPopup(`<i style="font-family:'Libre Franklin',sans-serif;font-size:12px">${sp.latin}</i>`)
-        .addTo(markerLayer);
+      const key=loc.lat.toFixed(5)+'_'+loc.lon.toFixed(5);
+      if(!locationMap[key])locationMap[key]={lat:loc.lat,lon:loc.lon,species:[]};
+      locationMap[key].species.push({latin:sp.latin,color});
     });
     legendParts.push(`<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${color}"></span>${sp.local.split(' (')[0]}</span>`);
   });
+
+  Object.values(locationMap).forEach(loc=>{
+    const isMulti=loc.species.length>1;
+    const markerColor=isMulti?'#374151':loc.species[0].color;
+    const popupHtml=loc.species.map(s=>
+      `<div style="display:flex;align-items:center;gap:6px;padding:2px 0">
+         <span style="width:8px;height:8px;border-radius:50%;background:${s.color};flex-shrink:0"></span>
+         <i style="font-family:'Libre Franklin',sans-serif;font-size:12px">${s.latin}</i>
+       </div>`
+    ).join('');
+    L.circleMarker([loc.lat,loc.lon],{radius:isMulti?8:6,color:'#fff',weight:1.5,fillColor:markerColor,fillOpacity:.9})
+      .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
+      .addTo(markerLayer);
+  });
+
   legendEl.innerHTML=legendParts.join('')+'<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
 }
 
