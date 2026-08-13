@@ -163,7 +163,7 @@
     .map-zoom{position:absolute;bottom:16px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
-    .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
+    .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none;max-width:320px;text-align:center;line-height:1.5}
     .basemap-panel{position:absolute;bottom:16px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
     .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
@@ -502,30 +502,79 @@ let ctData=[],ctGridGeo=null,ctLoaded=false;
 const CTF={batch:'',site:'',kelas:'',spesies:'',iucn:'',callType:'',validated:''};
 let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[],allCtCallTypes=[],allCtValidated=[];
 
+function showLoadError(msg){
+  const el=document.getElementById('loadingOverlay');
+  el.textContent=msg;
+  el.style.display='block';
+  el.style.background='rgba(154,31,31,.92)';
+}
+
 function loadCameraData(){
   if(ctLoaded)return;
-  document.getElementById('loadingOverlay').style.display='block';
+  const overlay=document.getElementById('loadingOverlay');
+  overlay.textContent='Loading bioacoustic data…';
+  overlay.style.background='rgba(0,0,0,.75)';
+  overlay.style.display='block';
+
+  // Safety net: if loading takes too long (network stuck / sheet not shared
+  // publicly / CSV fetch hung with no error callback firing), stop the
+  // infinite spinner and tell the user what's likely wrong instead of
+  // leaving them staring at "Loading..." forever.
+  const safetyTimer=setTimeout(()=>{
+    if(!ctLoaded){
+      showLoadError('Gagal memuat data (timeout). Cek apakah Google Sheet sudah di-share "Anyone with the link -> Viewer", lalu refresh halaman.');
+    }
+  },20000);
+
   const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ctGridGeo=j;}).catch(e=>console.warn('Grid fail:',e));
+
   const p2=new Promise(resolve=>{
-    Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
-      const rows=res.data;
-      ctData=rows.slice(1).map(r=>{
-        const recorder=r[0]||'';
-        return{
-          Batch:r[1]||'',Site:recorder,CameraID:recorder,Recorder:recorder,FileName:r[2]||'',
-          Longitude:parseFloat(r[3]),Latitude:parseFloat(r[4]),
-          Date:r[5]||'',TimeFrac:parseFloat(r[6]),Class:r[7]||'',Species:r[8]||'',
-          LocalName:r[9]||'',IUCN:r[10]||'',CallType:r[11]||'',ValidatedBy:r[12]||'',Notes:r[13]||'',
-          Indep:1,Count:1
-        };
-      }).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
-      resolve();
-    }});
+    Papa.parse(CT_SHEET_URL,{
+      download:true,
+      header:false,
+      skipEmptyLines:true,
+      complete:(res)=>{
+        const rows=res.data||[];
+        if(!rows.length){
+          console.warn('CSV returned no rows - sheet may not be publicly shared, or gid is wrong.');
+        }
+        ctData=rows.slice(1).map(r=>{
+          const recorder=r[0]||'';
+          return{
+            Batch:r[1]||'',Site:recorder,CameraID:recorder,Recorder:recorder,FileName:r[2]||'',
+            Longitude:parseFloat(r[3]),Latitude:parseFloat(r[4]),
+            Date:r[5]||'',TimeFrac:parseFloat(r[6]),Class:r[7]||'',Species:r[8]||'',
+            LocalName:r[9]||'',IUCN:r[10]||'',CallType:r[11]||'',ValidatedBy:r[12]||'',Notes:r[13]||'',
+            Indep:1,Count:1
+          };
+        }).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
+        resolve();
+      },
+      error:(err)=>{
+        console.error('Papa.parse CSV load error:',err);
+        ctData=[];
+        resolve();
+      }
+    });
+  }).catch(e=>{
+    console.error('Unexpected CSV parse failure:',e);
+    ctData=[];
   });
+
   Promise.all([p1,p2]).then(()=>{
+    clearTimeout(safetyTimer);
     ctLoaded=true;
-    document.getElementById('loadingOverlay').style.display='none';
+    if(!ctData.length){
+      showLoadError('Data tidak termuat dari Google Sheets. Kemungkinan sheet belum di-share publik ("Anyone with the link -> Viewer") atau ada masalah koneksi. Cek console (F12) untuk detail error, lalu refresh.');
+      // Still initialize UI with empty data so the map/sidebar isn't broken.
+    }else{
+      document.getElementById('loadingOverlay').style.display='none';
+    }
     initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();
+  }).catch(e=>{
+    clearTimeout(safetyTimer);
+    console.error('loadCameraData Promise.all failed:',e);
+    showLoadError('Terjadi kesalahan saat memuat data. Cek console (F12) untuk detail, lalu refresh.');
   });
 }
 function ctSubset(ex){
