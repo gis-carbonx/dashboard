@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
@@ -27,9 +27,9 @@
     --color-bad:#c2543f;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;font-family:'Libre Franklin', sans-serif;background:var(--color-cream);color:var(--color-ink)}
+  html,body{height:100%;overflow:hidden;font-family:'Inter',Arial,Helvetica,sans-serif;background:var(--color-cream);color:var(--color-ink)}
   body{display:flex;flex-direction:column}
-  h1,h2,h3{font-family:'Libre Franklin',sans-serif;font-weight:600}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
 
   /* SITE NAVBAR */
   .site-navbar{
@@ -38,7 +38,7 @@
   }
   .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
   .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
-  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Libre Franklin',sans-serif}
+  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Inter',sans-serif}
   .site-navbar-menu{display:flex;gap:32px;justify-self:center}
   .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
   .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
@@ -62,7 +62,7 @@
   .page-topbar{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0}
   .page-topbar-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
   .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
-  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Libre Franklin',sans-serif}
+  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
   .update-chip{text-align:right;flex-shrink:0}
   .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
   .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
@@ -70,13 +70,13 @@
   /* SECTION TITLES */
   .section-title{display:flex;align-items:center;gap:10px;font-size:17px;color:var(--color-ink);margin:0 0 4px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
   .section-title:first-of-type{margin-top:0;padding-top:0}
-  .section-num{flex-shrink:0;width:22px;height:22px;border-radius:5px;background:var(--color-pine);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Libre Franklin',sans-serif}
-  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:8px 0 14px;font-family:'Libre Franklin',sans-serif}
+  .section-num{flex-shrink:0;width:22px;height:22px;border-radius:5px;background:var(--color-pine);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif}
+  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:8px 0 14px;font-family:'Inter',sans-serif}
 
   /* GENERIC PANEL */
   .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
-  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Libre Franklin',sans-serif}
-  .panel-heading small{display:block;font-size:10.5px;font-weight:500;color:var(--color-muted);font-family:'Libre Franklin',sans-serif;margin-top:2px}
+  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Source Serif 4',Georgia,serif}
+  .panel-heading small{display:block;font-size:10.5px;font-weight:500;color:var(--color-muted);font-family:'Inter',sans-serif;margin-top:2px}
 
   /* KPI CARDS */
   .kpi-row{display:grid;gap:14px;margin-bottom:6px}
@@ -89,7 +89,7 @@
   .kpi-label{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px}
   .kpi-value{font-size:30px;color:var(--color-pine);line-height:1.2;margin-top:6px}
   .kpi-value.sm{font-size:22px}
-  .kpi-sub{font-size:11px;color:var(--color-muted);margin-top:2px;font-family:'Libre Franklin',sans-serif}
+  .kpi-sub{font-size:11px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
   .kpi-progress{height:6px;background:var(--color-sand);border-radius:4px;margin-top:10px;overflow:hidden}
   .kpi-progress-fill{height:100%;background:var(--color-fern);border-radius:4px}
 
@@ -99,7 +99,7 @@
   @media (max-width:900px){ .two-col-row,.three-col-row{grid-template-columns:1fr} }
   .chart-wrap{position:relative;height:280px;margin-top:6px}
   .chart-wrap.short{height:220px}
-  .legend-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--color-muted);font-family:'Libre Franklin',sans-serif}
+  .legend-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
   .legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
 
   /* FLOW DIAGRAM */
@@ -107,7 +107,7 @@
   .flow-diagram{display:flex;align-items:center;gap:0;min-width:760px;padding:12px 4px}
   .flow-box{flex:0 0 auto;min-width:130px;border-radius:6px;padding:12px 14px;text-align:center}
   .flow-box .fb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
-  .flow-box .fb-value{font-size:20px;font-weight:800;margin-top:4px;font-family:'Libre Franklin',sans-serif}
+  .flow-box .fb-value{font-size:20px;font-weight:800;margin-top:4px;font-family:'Source Serif 4',Georgia,serif}
   .flow-box.main{background:var(--color-pine);color:#fff}
   .flow-box.mid{background:var(--color-fern);color:#fff}
   .flow-box.end{background:var(--color-moss);color:#fff}
@@ -120,14 +120,14 @@
   /* INDICATOR BARS */
   .indicator-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #EDE7D8}
   .indicator-row:last-child{border-bottom:none}
-  .indicator-label{flex:0 0 230px;font-size:11.5px;color:var(--color-ink);font-family:'Libre Franklin',sans-serif}
+  .indicator-label{flex:0 0 230px;font-size:11.5px;color:var(--color-ink);font-family:'Inter',sans-serif}
   .indicator-track{flex:1;height:9px;background:var(--color-sand);border-radius:5px;overflow:hidden}
   .indicator-fill{height:100%;background:var(--color-fern);border-radius:5px}
   .indicator-val{flex:0 0 44px;text-align:right;font-size:12px;font-weight:700;color:var(--color-pine)}
 
   /* TABLE */
   .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:auto}
-  table.data-tbl{width:100%;border-collapse:collapse;font-size:11.5px;font-family:'Libre Franklin',sans-serif;white-space:nowrap}
+  table.data-tbl{width:100%;border-collapse:collapse;font-size:11.5px;font-family:'Inter',sans-serif;white-space:nowrap}
   table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 14px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--color-sand)}
   table.data-tbl tbody td{padding:9px 14px;border-bottom:1px solid #EDE7D8;color:var(--color-ink);vertical-align:middle}
   table.data-tbl tbody tr:last-child td{border-bottom:none}
@@ -137,13 +137,13 @@
   .surv-good{background:#DCEEDD;color:#1a5c33}
   .surv-warn{background:#FDF0B0;color:#8a6300}
   .surv-bad{background:#FADBD8;color:#8a1f1f}
-  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Libre Franklin',sans-serif}
+  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
   .pg-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-ink)}
   .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
-  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Libre Franklin',sans-serif}
-  .error-msg{padding:16px;text-align:center;color:var(--color-bad);font-size:11.5px;font-family:'Libre Franklin',sans-serif}
+  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Inter',sans-serif}
+  .error-msg{padding:16px;text-align:center;color:var(--color-bad);font-size:11.5px;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
@@ -671,7 +671,7 @@ function renderSankey(totals, langsungBST){
     .attr('fill',d=>d.color).attr('rx',2);
   node.append('title').text(d=>`${d.id}: ${fmtInt(d.value)} bibit`);
 
-  svg.append('g').style('font','11px Libre Franklin, sans-serif').style('fill','#2b2b28')
+  svg.append('g').style('font','11px Inter, sans-serif').style('fill','#2b2b28')
     .selectAll('text').data(graph.nodes).join('text')
     .attr('x',d=>d.x1+6).attr('y',d=>(d.y1+d.y0)/2).attr('dy','0.35em')
     .attr('text-anchor','start')

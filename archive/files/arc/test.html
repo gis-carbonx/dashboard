@@ -12,9 +12,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -28,9 +27,9 @@
   --topbar-bg:#3A342C;--topbar-border:#4a4238;
   --accent:#c2703f;--ink:#2b2b28;--muted:#8a8a82;--card-radius:8px;
 }
-html,body{height:100%;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:#FFFAF3;overflow:hidden}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:var(--text);background:#FFFAF3;overflow:hidden}
 body{display:flex;flex-direction:column}
-h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
+h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
 
 /* DASHBOARD FRAME — kotak siku (90°) dengan margin di kiri/kanan/bawah, rata di atas dengan navbar */
 .dashboard-frame{
@@ -49,7 +48,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
   height:var(--site-nav-h);flex-shrink:0;
   display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
   padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
-  font-family:'Libre Franklin',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
 }
 .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
 .site-navbar-brand img{width:26px;height:26px;object-fit:contain}
@@ -70,7 +69,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .hdr-logo{height:36px;width:auto;object-fit:contain}
 .hdr-logo-fallback{width:36px;height:36px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--primary),var(--primary-lt));display:grid;place-items:center}
 .hdr-logo-fallback svg{width:20px;height:20px;fill:#fff}
-.hdr-title{font-family:'Libre Franklin',sans-serif;font-size:17px;font-weight:600;line-height:1.2;color:#fff}
+.hdr-title{font-family:'Source Serif 4',Georgia,serif;font-size:17px;font-weight:600;line-height:1.2;color:#fff}
 .hdr-sub{font-size:11.5px;color:rgba(255,255,255,.65);margin-top:2px}
 .menu-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);cursor:pointer;display:grid;place-items:center;color:rgba(255,255,255,.8);position:relative;z-index:1000}
 .menu-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff}
@@ -106,7 +105,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .sc{flex:1;min-width:195px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:5px;box-shadow:var(--shadow-sm);overflow:hidden}
 .sc-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-3)}
 .sc-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.sc-val{font-family:'Libre Franklin',sans-serif;font-size:26px;font-weight:600;line-height:1.1;letter-spacing:-.3px;color:var(--text)!important}
+.sc-val{font-family:'Source Serif 4',Georgia,serif;font-size:26px;font-weight:600;line-height:1.1;letter-spacing:-.3px;color:var(--text)!important}
 .sc-right-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-top:2px}
 .sc-pct-badge{font-size:10px;font-weight:700;color:var(--text)!important;white-space:nowrap}
 .sc-target-inline{font-size:9.5px;color:var(--text-3);white-space:nowrap;text-align:right}
@@ -123,14 +122,14 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .sc-sub-petani{font-size:9.5px;color:var(--text-3);white-space:nowrap}
 .sc-anggota{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;box-shadow:var(--shadow-sm);overflow:hidden}
 .sc-anggota-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-3)}
-.sc-anggota-val{font-family:'Libre Franklin',sans-serif;font-size:28px;font-weight:600;line-height:1;color:var(--text)!important;letter-spacing:-.5px}
+.sc-anggota-val{font-family:'Source Serif 4',Georgia,serif;font-size:28px;font-weight:600;line-height:1;color:var(--text)!important;letter-spacing:-.5px}
 .sc-anggota-gender{display:flex;flex-direction:column;gap:4px;margin-top:2px}
 .sc-anggota-row{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:var(--text)}
 .sc-pot-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:6px;box-shadow:var(--shadow-sm)}
 .sc-pot-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
 .sc-pot-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sc-pot-header-left{display:flex;align-items:baseline;gap:8px}
-.sc-pot-total{font-family:'Libre Franklin',sans-serif;font-size:26px;font-weight:600;color:var(--text)!important;letter-spacing:-.3px;line-height:1.1}
+.sc-pot-total{font-family:'Source Serif 4',Georgia,serif;font-size:26px;font-weight:600;color:var(--text)!important;letter-spacing:-.3px;line-height:1.1}
 .sc-pot-total-meta{font-size:10px;color:var(--text-3);font-weight:500}
 .sc-pot-sep{height:1px;background:var(--border-lt)}
 .sc-pot-rows{display:flex;flex-direction:column;gap:4px}
@@ -145,10 +144,10 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 /* REPORT LAYOUT — halaman jadi scrollable, senada dengan Monitoring Fire Event */
 .report-scroll{flex:1;min-height:0;overflow-y:auto}
 .report{max-width:1180px;margin:0 auto;padding:44px 36px 64px}
-.section-title{font-family:'Libre Franklin',sans-serif;font-size:17px;color:var(--text);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--border)}
+.section-title{font-family:'Source Serif 4',Georgia,serif;font-size:17px;color:var(--text);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--border)}
 .section-title:first-of-type{margin-top:0}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:20px 22px}
-.panel-heading{font-family:'Libre Franklin',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
+.panel-heading{font-family:'Source Serif 4',Georgia,serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
 .two-col-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch}
 @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
 .map-legend{display:flex;gap:16px;align-items:center;font-size:11px;color:var(--muted);padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
@@ -169,7 +168,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .kth-card.hidden-kth{opacity:.45}
 .kth-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:7px}
 .kth-info{flex:1;min-width:0}
-.kth-nm{font-family:'Libre Franklin',sans-serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
+.kth-nm{font-family:'Source Serif 4',Georgia,serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
 .kth-ds{font-size:10px;color:var(--text-2);margin-top:1px}
 .kth-actions{display:flex;gap:3px;flex-shrink:0}
 .kth-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:grid;place-items:center;color:var(--text-2)}
@@ -238,8 +237,8 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .detail-card-hd{padding:12px 14px;border-bottom:1px solid var(--border-lt);flex-shrink:0;background:#F1EEE2}
 .detail-hd-top{display:flex;align-items:flex-start;gap:8px}
 .detail-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
-.detail-hd-name{font-family:'Libre Franklin',sans-serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.3;flex:1;min-width:0}
-.detail-hd-id{font-size:10px;color:var(--text-3);font-family:'Libre Franklin',monospace;margin-top:2px;background:#f1f5f9;display:inline-block;padding:1px 6px;border-radius:5px}
+.detail-hd-name{font-family:'Source Serif 4',Georgia,serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.3;flex:1;min-width:0}
+.detail-hd-id{font-size:10px;color:var(--text-3);font-family:monospace;margin-top:2px;background:#f1f5f9;display:inline-block;padding:1px 6px;border-radius:5px}
 .detail-prog-chip{display:inline-flex;align-items:center;gap:6px;padding:2px 0;font-size:11px;font-weight:700;color:var(--text)!important;background:none!important;margin-top:6px}
 .detail-close-btn{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:grid;place-items:center;color:var(--text-3);flex-shrink:0}
 .detail-close-btn:hover{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
@@ -256,8 +255,8 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .d-row:last-child{border-bottom:none}
 .d-lbl{font-size:10px;color:var(--text-3);font-weight:500;white-space:nowrap;flex-shrink:0}
 .d-val{font-size:11px;font-weight:600;color:var(--text);text-align:right}
-.d-val.mono{font-family:'Libre Franklin',monospace;font-size:10px;color:var(--primary-md)}
-.d-luas{font-family:'Libre Franklin',sans-serif;font-size:27px;font-weight:600;color:var(--text);letter-spacing:-.5px;line-height:1}
+.d-val.mono{font-family:monospace;font-size:10px;color:var(--primary-md)}
+.d-luas{font-family:'Source Serif 4',Georgia,serif;font-size:27px;font-weight:600;color:var(--text);letter-spacing:-.5px;line-height:1}
 .d-luas-unit{font-size:11px;font-weight:500;color:var(--text-2);margin-left:3px}
 .d-carbon-block{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
 .d-carbon-val{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
@@ -266,7 +265,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .modal-hd-green{padding:14px 20px;background:var(--topbar-bg);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .modal-close-btn{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center}
 .modal-close-btn:hover{background:rgba(255,255,255,.25)}
-.modal-title{font-family:'Libre Franklin',sans-serif;font-size:17px;font-weight:600}
+.modal-title{font-family:'Source Serif 4',Georgia,serif;font-size:17px;font-weight:600}
 .modal-sub-txt{font-size:12px;opacity:.8;margin-top:1px}
 .modal-toolbar{display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:280px;display:flex;align-items:center}
@@ -288,7 +287,7 @@ h1,h2,h3,.serif{font-family:'Libre Franklin',sans-serif;font-weight:600}
 .strip-bar{display:flex;gap:8px;padding:10px 16px;background:var(--primary-bg);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
 .strip-card{flex:1;min-width:110px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:9px 12px}
 .strip-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:3px}
-.strip-val{font-family:'Libre Franklin',sans-serif;font-size:18px;font-weight:600;color:var(--text)!important;line-height:1.1}
+.strip-val{font-family:'Source Serif 4',Georgia,serif;font-size:18px;font-weight:600;color:var(--text)!important;line-height:1.1}
 .strip-sub{font-size:9px;color:var(--text-3);margin-top:2px;line-height:1.4}
 .pct-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;background:#e8f5e9;color:#166534}
 .pct-badge.mid{background:#fef9c3;color:#854d0e}
@@ -1567,7 +1566,7 @@ function openKTH(name,ids){
       <td style="color:var(--text-3);font-size:11px">${i+1}</td>
       <td style="padding:6px 4px"><button class="row-eye-btn" onclick="zoomToLahan('${esc(r.id)}')">${SEYE}</button></td>
       <td style="padding:6px 4px">${hasLink?`<a class="row-link-btn" href="${esc(r.link)}" target="_blank">${SLNK}</a>`:`<span class="row-link-btn no-link">${SLNK}</span>`}</td>
-      <td style="font-family:'Libre Franklin',monospace;font-size:11px">${esc(r.id)}</td>
+      <td style="font-family:monospace;font-size:11px">${esc(r.id)}</td>
       <td>${esc(r.petani)}</td><td>${esc(r.desa)}</td>
       <td><span class="prog-tag ${st?.tagCls||''}">${esc(st?.label||r.prog)}</span></td>
       <td style="font-weight:600">${fmt(r.luas)}</td>
@@ -2079,7 +2078,7 @@ function buildInsTbody(rows){
     }).join('');
     return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
       <td style="color:var(--text-3);font-size:10px">${i+1}</td>
-      <td style="font-family:'Libre Franklin',monospace;font-size:10px">${esc(r.id)}</td>
+      <td style="font-family:monospace;font-size:10px">${esc(r.id)}</td>
       <td style="font-weight:600">${esc(r.petani)}</td>
       <td>${esc(r.desa)}</td>
       <td style="color:var(--text-2)">${esc(r.dusun)||'—'}</td>
@@ -2170,7 +2169,7 @@ function buildTahunanTable(rows){
     const rowStatus=rowFullyPaid?'sudah':'belum';
     return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
       <td style="color:var(--text-3);font-size:10px">${i+1}</td>
-      <td style="font-family:'Libre Franklin',monospace;font-size:10px">${esc(r.id)}</td>
+      <td style="font-family:monospace;font-size:10px">${esc(r.id)}</td>
       <td style="font-weight:600">${esc(r.petani)}</td>
       <td>${esc(r.desa)}</td>
       <td style="color:var(--text-2)">${esc(r.dusun)||'—'}</td>

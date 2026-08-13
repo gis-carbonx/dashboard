@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bioacoustic Monitoring | Sanggala Corridor Project</title>
+  <title>Camera Trap Monitoring | Sanggala Corridor Project</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -20,10 +20,9 @@
       --color-pine:#356760;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
-    /* SITE NAVBAR (sama seperti index.html / list.html) */
     .site-navbar{
       flex-shrink:0;
       display:grid;
@@ -32,7 +31,7 @@
       padding:12px 32px;
       background-color:var(--color-cream);
       border-bottom:1px solid var(--color-sand);
-      font-family:'Libre Franklin',sans-serif;
+      font-family:'Montserrat',sans-serif;
     }
     .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
     .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
@@ -47,7 +46,7 @@
       .site-navbar-spacer{display:none}
     }
 
-    /* DASHBOARD ROOT wraps the entire bioacoustic monitoring app below the navbar */
+    /* DASHBOARD ROOT wraps the entire camera trap monitoring app below the navbar */
     /* DASHBOARD FRAME wraps the dashboard app with margin on left/right/bottom,
        flush with the navbar on top — memberi efek seperti panel yang ter-embed */
     .dashboard-frame{
@@ -112,7 +111,7 @@
     .filter-panel-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
     .f-group{}
     .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
-    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Libre Franklin',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
     .f-input:focus{border-color:#618273;background:#fff}
     .f-active-box{background:#FFFAF3;border:1px solid #DCDACC;border-radius:9px;padding:9px 10px}
     .f-active-label{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
@@ -120,7 +119,7 @@
     .f-pill{display:inline-flex;align-items:center;gap:4px;background:#DCDACC;border:1px solid #B5BBA9;color:#356760;border-radius:20px;padding:3px 9px 3px 10px;font-size:10px;font-weight:600}
     .f-pill-rm{cursor:pointer;font-size:12px;line-height:1;opacity:.65;margin-left:1px;font-weight:400}
     .f-pill-rm:hover{opacity:1}
-    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Libre Franklin',sans-serif;cursor:pointer;transition:all .15s}
+    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s}
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
     .icon-btn-wrap{position:relative}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
@@ -163,7 +162,7 @@
     .map-zoom{position:absolute;bottom:16px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
     .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
-    .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none;max-width:320px;text-align:center;line-height:1.5}
+    .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
     .basemap-panel{position:absolute;bottom:16px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
     .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
@@ -196,7 +195,7 @@
     .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#374151}
     .sp-desc-block{padding-top:2px}
     .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
-    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Libre Franklin',sans-serif}
+    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Montserrat',sans-serif}
     .sp-desc-source-tag:hover{color:#1f2937}
     .sp-desc-chevron{font-size:9px;color:#9ca3af;transition:transform .2s}
     .sp-desc-chevron.open{transform:rotate(180deg)}
@@ -226,12 +225,12 @@
 <div class="dashboard-frame">
 <div id="dashboardRoot">
 <div id="map"></div>
-<div class="loading-overlay" id="loadingOverlay">Loading bioacoustic data…</div>
+<div class="loading-overlay" id="loadingOverlay">Loading camera trap data…</div>
 
 <div class="top-bar">
   <div class="top-bar-left">
     <div class="top-bar-title">
-      <span class="top-bar-title-main">Bioacoustic Monitoring</span>
+      <span class="top-bar-title-main">Camera Trap Monitoring</span>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -250,7 +249,7 @@
 <div class="sidebar">
   <div class="sidebar-body">
 
-    <div id="bioSidebar">
+    <div id="cameraSidebar">
       <div class="sidebar-section-header" onclick="toggleSection('secCtLayers','chevCt1')">
         <span class="sidebar-section-title">Map Layers</span>
         <span class="sidebar-chevron open" id="chevCt1">▲</span>
@@ -265,11 +264,11 @@
           <label class="switch"><input type="checkbox" id="ctToggleLulc" checked><span class="sw-track"></span></label>
         </div>
         <div class="layer-item">
-          <div class="layer-item-left"><div class="layer-icon-sq" style="background:transparent;border:1px solid #808080;border-radius:2px"></div><span class="layer-label">Monitoring Grid</span></div>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:transparent;border:1px solid #808080;border-radius:2px"></div><span class="layer-label">Camera Trap Grid</span></div>
           <label class="switch"><input type="checkbox" id="ctToggleGrid" checked><span class="sw-track"></span></label>
         </div>
         <div class="layer-item">
-          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BFFF;border-radius:50%"></div><span class="layer-label">Recorder Locations</span></div>
+          <div class="layer-item-left"><div class="layer-icon-sq" style="background:#00BFFF;border-radius:50%"></div><span class="layer-label">Camera Locations</span></div>
           <label class="switch"><input type="checkbox" id="ctTogglePoints" checked><span class="sw-track"></span></label>
         </div>
       </div>
@@ -279,7 +278,7 @@
         <span class="sidebar-chevron open" id="chevCt2">▲</span>
       </div>
       <div id="secGridLeg">
-        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Independent Detections (per grid cell)</div>
+        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Independent Events (per grid cell)</div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:transparent;border:1px solid #555"></div><span>0 — no detections</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFFF00;opacity:.6"></div><span>1 – 5</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFA500;opacity:.72"></div><span>6 – 15</span></div>
@@ -288,7 +287,7 @@
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#7B0000;opacity:.9"></div><span>&gt; 60</span></div>
         <div style="display:flex;align-items:center;gap:6px;padding:6px 16px 2px">
           <div style="width:10px;height:10px;border-radius:50%;background:#00BFFF;flex-shrink:0"></div>
-          <span style="font-size:11px;color:#374151">Recorder Location</span>
+          <span style="font-size:11px;color:#374151">Camera Trap Location</span>
         </div>
         <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Grid 2 km × 2 km · Click grid to view details</div>
       </div>
@@ -302,7 +301,7 @@
       </div>
       <div class="info-hint">
         <div class="info-hint-icon">i</div>
-        <span>Click a grid cell to view detections. Click a recorder point to see species list.</span>
+        <span>Click a grid cell to view detections. Click a camera point to see species list.</span>
       </div>
     </div>
 
@@ -315,14 +314,14 @@
     <button class="filter-panel-close" id="filterClose">✕</button>
   </div>
   <div class="filter-panel-body">
-    <div id="bioFilters">
+    <div id="cameraFilters">
       <div class="f-group">
         <div class="f-label">Batch</div>
         <select class="f-input" id="ctFilterBatch"><option value="">All Batches</option></select>
       </div>
       <div class="f-group">
-        <div class="f-label">Recorder</div>
-        <select class="f-input" id="ctFilterSite"><option value="">All Recorders</option></select>
+        <div class="f-label">Site</div>
+        <select class="f-input" id="ctFilterSite"><option value="">All Sites</option></select>
       </div>
       <div class="f-group">
         <div class="f-label">Class</div>
@@ -335,14 +334,6 @@
       <div class="f-group">
         <div class="f-label">IUCN Status</div>
         <select class="f-input" id="ctFilterIucn"><option value="">All Statuses</option></select>
-      </div>
-      <div class="f-group">
-        <div class="f-label">Call Type</div>
-        <select class="f-input" id="ctFilterCallType"><option value="">All Call Types</option></select>
-      </div>
-      <div class="f-group">
-        <div class="f-label">Validated By</div>
-        <select class="f-input" id="ctFilterValidated"><option value="">All Sources</option></select>
       </div>
       <div class="f-active-box" id="ctActivePills" style="display:none">
         <div class="f-active-label">Active Filters</div>
@@ -440,10 +431,24 @@ function parseDateStr(s,fmt){
 }
 function fmtDate(d){return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'-';}
 
-function computeRecordingDays(filteredRows){
-  const seen=new Set();
-  filteredRows.forEach(r=>{if(r.Recorder&&r.Date)seen.add(`${r.Recorder}_${r.Date}`);});
-  return seen.size;
+function parseBatchLabel(label){
+  if(!label||!label.trim())return null;
+  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const parts=label.trim().split(/\s*[-–]+\s*/);
+  if(parts.length<2)return null;
+  function parseToken(tok){tok=tok.trim();const m=tok.match(/^([A-Za-z]{3})\s*(\d{2,4})$/);if(!m)return null;const mon=MON[m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()];if(mon===undefined)return null;const yr=m[2].length===2?(+m[2]<=50?2000+ +m[2]:1900+ +m[2]):+m[2];return{mon,yr};}
+  const s=parseToken(parts[0]),e=parseToken(parts[parts.length-1]);
+  if(!s||!e)return null;
+  const startDate=toMidnight(s.yr,s.mon,1),endDate=toMidnight(e.yr,e.mon+1,0);
+  const days=Math.round((endDate-startDate)/(1000*60*60*24))+1;
+  return{start:startDate,end:endDate,days};
+}
+function calcTrapNights(filteredRows){
+  const batchCams={};
+  filteredRows.forEach(r=>{if(!r.Batch)return;if(!batchCams[r.Batch])batchCams[r.Batch]=new Set();if(r.CameraID)batchCams[r.Batch].add(r.CameraID);});
+  let total=0;const detail=[];
+  Object.entries(batchCams).forEach(([batch,cams])=>{const parsed=parseBatchLabel(batch);if(!parsed)return;const nights=parsed.days*cams.size;total+=nights;detail.push({batch,days:parsed.days,cams:cams.size,nights});});
+  return{total,detail};
 }
 
 function fillCascadeSelect(id,allVals,availSet,currentVal,placeholder){
@@ -503,86 +508,35 @@ filterToggleBtn.addEventListener('click',e=>{e.stopPropagation();filterPanel.cla
 document.getElementById('filterClose').addEventListener('click',()=>{filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');});
 document.addEventListener('click',e=>{if(filterPanel.classList.contains('open')&&!filterPanel.contains(e.target)&&e.target!==filterToggleBtn){filterPanel.classList.remove('open');filterToggleBtn.classList.remove('active');}});
 
-const CT_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
+const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const CT_GRID_URL='./assets/json/Grid.json';
 let ctData=[],ctGridGeo=null,ctLoaded=false;
-const CTF={batch:'',site:'',kelas:'',spesies:'',iucn:'',callType:'',validated:''};
-let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[],allCtCallTypes=[],allCtValidated=[];
-
-function showLoadError(msg){
-  const el=document.getElementById('loadingOverlay');
-  el.textContent=msg;
-  el.style.display='block';
-  el.style.background='rgba(154,31,31,.92)';
-}
+const CTF={batch:'',site:'',kelas:'',spesies:'',iucn:''};
+let allCtBatches=[],allCtSites=[],allCtClasses=[],allCtSpecies=[],allCtIucns=[];
 
 function loadCameraData(){
   if(ctLoaded)return;
-  const overlay=document.getElementById('loadingOverlay');
-  overlay.textContent='Loading bioacoustic data…';
-  overlay.style.background='rgba(0,0,0,.75)';
-  overlay.style.display='block';
-
-  // Safety net: if loading takes too long (network stuck / sheet not shared
-  // publicly / CSV fetch hung with no error callback firing), stop the
-  // infinite spinner and tell the user what's likely wrong instead of
-  // leaving them staring at "Loading..." forever.
-  const safetyTimer=setTimeout(()=>{
-    if(!ctLoaded){
-      showLoadError('Gagal memuat data (timeout). Cek apakah Google Sheet sudah di-share "Anyone with the link -> Viewer", lalu refresh halaman.');
-    }
-  },20000);
-
+  document.getElementById('loadingOverlay').style.display='block';
   const p1=fetch(CT_GRID_URL).then(r=>r.json()).then(j=>{ctGridGeo=j;}).catch(e=>console.warn('Grid fail:',e));
-
   const p2=new Promise(resolve=>{
-    Papa.parse(CT_SHEET_URL,{
-      download:true,
-      header:false,
-      skipEmptyLines:true,
-      complete:(res)=>{
-        const rows=res.data||[];
-        if(!rows.length){
-          console.warn('CSV returned no rows - sheet may not be publicly shared, or gid is wrong.');
-        }
-        ctData=rows.slice(1).map(r=>{
-          const recorder=r[0]||'';
-          return{
-            Batch:r[1]||'',Site:recorder,CameraID:recorder,Recorder:recorder,FileName:r[2]||'',
-            Longitude:parseFloat(r[3]),Latitude:parseFloat(r[4]),
-            Date:r[5]||'',TimeFrac:parseFloat(r[6]),Class:r[7]||'',Species:r[8]||'',
-            LocalName:r[9]||'',IUCN:r[10]||'',CallType:r[11]||'',ValidatedBy:r[12]||'',Notes:r[13]||'',
-            Indep:1,Count:1
-          };
-        }).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
-        resolve();
-      },
-      error:(err)=>{
-        console.error('Papa.parse CSV load error:',err);
-        ctData=[];
-        resolve();
-      }
-    });
-  }).catch(e=>{
-    console.error('Unexpected CSV parse failure:',e);
-    ctData=[];
+    Papa.parse(CT_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
+      const rows=res.data;
+      ctData=rows.slice(1).map(r=>({
+        Batch:r[0]||'',StartDate:r[1]||'',EndDate:r[2]||'',Site:r[3]||'',
+        Latitude:parseFloat(r[4]),Longitude:parseFloat(r[5]),CameraID:r[6]||'',
+        Date:r[7]||'',Time:r[8]||'',Class:r[9]||'',Species:r[10]||'',
+        LocalName:r[11]||'',IUCN:r[12]||'',
+        Indep:Math.max(0,parseInt(r[13])||0),Count:Math.max(0,parseInt(r[14])||0),
+        FileType:r[15]||'',FileName:r[16]||'',Behavior:r[17]||'',Note:r[18]||''
+      })).filter(r=>!isNaN(r.Latitude)&&!isNaN(r.Longitude)&&r.Latitude!==0);
+      resolve();
+    }});
   });
-
   Promise.all([p1,p2]).then(()=>{
-    clearTimeout(safetyTimer);
     ctLoaded=true;
-    if(!ctData.length){
-      showLoadError('Data tidak termuat dari Google Sheets. Kemungkinan sheet belum di-share publik ("Anyone with the link -> Viewer") atau ada masalah koneksi. Cek console (F12) untuk detail error, lalu refresh.');
-      // Still initialize UI with empty data so the map/sidebar isn't broken.
-    }else{
-      document.getElementById('loadingOverlay').style.display='none';
-    }
+    document.getElementById('loadingOverlay').style.display='none';
     initCtDropdowns();buildCtGrid();buildCtPoints();updateCtStats();
-  }).catch(e=>{
-    clearTimeout(safetyTimer);
-    console.error('loadCameraData Promise.all failed:',e);
-    showLoadError('Terjadi kesalahan saat memuat data. Cek console (F12) untuk detail, lalu refresh.');
   });
 }
 function ctSubset(ex){
@@ -592,26 +546,22 @@ function ctSubset(ex){
     if(ex!=='kelas'  &&CTF.kelas  &&r.Class  !==CTF.kelas)  return false;
     if(ex!=='spesies'&&CTF.spesies&&r.Species!==CTF.spesies)return false;
     if(ex!=='iucn'   &&CTF.iucn   &&r.IUCN   !==CTF.iucn)   return false;
-    if(ex!=='callType'&&CTF.callType&&r.CallType!==CTF.callType)return false;
-    if(ex!=='validated'&&CTF.validated&&r.ValidatedBy!==CTF.validated)return false;
     return true;
   });
 }
 function getCtFiltered(){return ctSubset(null);}
 function initCtDropdowns(){
-  const batches=new Set(),sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set(),callTypes=new Set(),validated=new Set();
-  ctData.forEach(r=>{if(r.Batch)batches.add(r.Batch);if(r.Site)sites.add(r.Site);if(r.Class)classes.add(r.Class);if(r.Species)species.add(r.Species);if(r.IUCN)iucns.add(r.IUCN);if(r.CallType)callTypes.add(r.CallType);if(r.ValidatedBy)validated.add(r.ValidatedBy);});
-  allCtBatches=[...batches].sort();allCtSites=[...sites].sort();allCtClasses=[...classes].sort();allCtSpecies=[...species].sort();allCtIucns=[...iucns].sort();allCtCallTypes=[...callTypes].sort();allCtValidated=[...validated].sort();
+  const batches=new Set(),sites=new Set(),classes=new Set(),species=new Set(),iucns=new Set();
+  ctData.forEach(r=>{if(r.Batch)batches.add(r.Batch);if(r.Site)sites.add(r.Site);if(r.Class)classes.add(r.Class);if(r.Species)species.add(r.Species);if(r.IUCN)iucns.add(r.IUCN);});
+  allCtBatches=[...batches].sort();allCtSites=[...sites].sort();allCtClasses=[...classes].sort();allCtSpecies=[...species].sort();allCtIucns=[...iucns].sort();
   rebuildCtSelects();
 }
 function rebuildCtSelects(){
   fillCascadeSelect('ctFilterBatch',  allCtBatches, new Set(ctSubset('batch').map(r=>r.Batch).filter(Boolean)),    CTF.batch,  'All Batches');
-  fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),      CTF.site,   'All Recorders');
+  fillCascadeSelect('ctFilterSite',   allCtSites,   new Set(ctSubset('site').map(r=>r.Site).filter(Boolean)),      CTF.site,   'All Sites');
   fillCascadeSelect('ctFilterClass',  allCtClasses, new Set(ctSubset('kelas').map(r=>r.Class).filter(Boolean)),    CTF.kelas,  'All Classes');
   fillCascadeSelect('ctFilterSpecies',allCtSpecies, new Set(ctSubset('spesies').map(r=>r.Species).filter(Boolean)),CTF.spesies,'All Species');
   fillCascadeSelect('ctFilterIucn',   allCtIucns,   new Set(ctSubset('iucn').map(r=>r.IUCN).filter(Boolean)),      CTF.iucn,  'All Statuses');
-  fillCascadeSelect('ctFilterCallType',allCtCallTypes,new Set(ctSubset('callType').map(r=>r.CallType).filter(Boolean)),CTF.callType,'All Call Types');
-  fillCascadeSelect('ctFilterValidated',allCtValidated,new Set(ctSubset('validated').map(r=>r.ValidatedBy).filter(Boolean)),CTF.validated,'All Sources');
 }
 function updateCtFilterUI(){
   const pills=[];
@@ -620,8 +570,6 @@ function updateCtFilterUI(){
   if(CTF.kelas)  pills.push({label:CTF.kelas,    clear:`clearCtField('kelas')`});
   if(CTF.spesies)pills.push({label:CTF.spesies,  clear:`clearCtField('spesies')`});
   if(CTF.iucn)   pills.push({label:CTF.iucn,     clear:`clearCtField('iucn')`});
-  if(CTF.callType)pills.push({label:CTF.callType,clear:`clearCtField('callType')`});
-  if(CTF.validated)pills.push({label:CTF.validated,clear:`clearCtField('validated')`});
   buildPills(pills,'ctPillsWrap','ctActivePills');
   document.getElementById('filterBadge').style.display=pills.length?'flex':'none';
 }
@@ -631,8 +579,6 @@ function clearCtField(f){
   if(f==='kelas'){CTF.kelas='';document.getElementById('ctFilterClass').value='';}
   if(f==='spesies'){CTF.spesies='';document.getElementById('ctFilterSpecies').value='';}
   if(f==='iucn'){CTF.iucn='';document.getElementById('ctFilterIucn').value='';}
-  if(f==='callType'){CTF.callType='';document.getElementById('ctFilterCallType').value='';}
-  if(f==='validated'){CTF.validated='';document.getElementById('ctFilterValidated').value='';}
   applyCtFilters();
 }
 
@@ -694,12 +640,12 @@ function buildCtPoints(){
     const sites=[...new Set(rows.map(r=>r.Site).filter(Boolean))].join(' / ');
     const cameras=[...new Set(rows.map(r=>r.CameraID).filter(Boolean))];
     const spMap={};
-    rows.forEach(r=>{if(r.Species&&r.Indep>0){if(!spMap[r.Species])spMap[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0,callTypes:new Set()};spMap[r.Species].count+=r.Indep;if(r.CallType)spMap[r.Species].callTypes.add(r.CallType);}});
+    rows.forEach(r=>{if(r.Species&&r.Indep>0){if(!spMap[r.Species])spMap[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};spMap[r.Species].count+=r.Indep;}});
     const spRows=Object.entries(spMap).sort((a,b)=>b[1].count-a[1].count)
-      .map(([sp,d])=>`<tr><td style="padding:4px 7px;font-style:italic;font-size:12px;color:#356760;cursor:pointer;text-decoration:underline;text-decoration-color:transparent" onmouseover="this.style.textDecorationColor='#356760'" onmouseout="this.style.textDecorationColor='transparent'" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</td><td style="padding:4px 7px;font-size:11px">${d.local||'-'}</td><td style="padding:4px 7px;text-align:center"><span style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">${d.iucn||'-'}</span></td><td style="padding:4px 7px;font-size:10px;color:#6b7280">${[...d.callTypes].join(', ')||'-'}</td><td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
+      .map(([sp,d])=>`<tr><td style="padding:4px 7px;font-style:italic;font-size:12px;color:#356760;cursor:pointer;text-decoration:underline;text-decoration-color:transparent" onmouseover="this.style.textDecorationColor='#356760'" onmouseout="this.style.textDecorationColor='transparent'" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</td><td style="padding:4px 7px;font-size:11px">${d.local||'-'}</td><td style="padding:4px 7px;text-align:center"><span style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">${d.iucn||'-'}</span></td><td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
     const uid='ct_'+Math.random().toString(36).slice(2,6);
-    const avgLine=cameras.length>1?`<div><span style="color:#9ca3af">Avg / Recorder</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
-    const popup=`<div style="font-family:'Libre Franklin',Arial;font-size:12px;width:420px;max-width:420px"><b style="font-size:14px">${sites||'Recorder Location'}</b><hr style="margin:5px 0;border-color:#e5e7eb"><div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px"><div><span style="color:#9ca3af">Detections recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div><div><span style="color:#9ca3af">Recorders (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>${avgLine}</div><b>Species List</b><a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a><div id="${uid}" style="display:none;margin-top:6px;max-height:200px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f3f4f6;position:sticky;top:0"><th style="text-align:left;padding:4px 7px;font-size:11px">Species</th><th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th><th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th><th style="text-align:left;padding:4px 7px;font-size:11px">Call Type</th><th style="text-align:center;padding:4px 7px;font-size:11px">Count</th></tr></thead><tbody>${spRows||'<tr><td colspan="5" style="padding:8px;text-align:center;color:#9ca3af">No detections recorded</td></tr>'}</tbody></table></div></div>`;
+    const avgLine=cameras.length>1?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
+    const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px"><b style="font-size:14px">${sites||'Camera Location'}</b><hr style="margin:5px 0;border-color:#e5e7eb"><div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px"><div><span style="color:#9ca3af">Individuals recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div><div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>${avgLine}</div><b>Species List</b><a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a><div id="${uid}" style="display:none;margin-top:6px;max-height:200px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f3f4f6;position:sticky;top:0"><th style="text-align:left;padding:4px 7px;font-size:11px">Species</th><th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th><th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th><th style="text-align:center;padding:4px 7px;font-size:11px">Indep</th></tr></thead><tbody>${spRows||'<tr><td colspan="4" style="padding:8px;text-align:center;color:#9ca3af">No detections recorded</td></tr>'}</tbody></table></div></div>`;
     L.marker([loc.lat,loc.lon],{icon:L.divIcon({html:`<div style="width:14px;height:14px;border-radius:50%;background:#00BFFF;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})})
       .bindPopup(popup,{maxWidth:400}).addTo(ctPointLayer);
   });
@@ -714,7 +660,7 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
   const numCams=camsInCell.size,avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
   const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="gdp-class-row"><div class="gdp-class-icon">${classIcon(k)}</div><span class="gdp-class-name">${k}</span><div class="gdp-class-bar-wrap"><div class="gdp-class-bar" style="width:${totalInCell?Math.round(v/totalInCell*100):0}%"></div></div><span class="gdp-class-count">${v}</span><span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span></div>`).join('');
   const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
-  document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total detections recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/recorder (${numCams} rec)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Recorders Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Recorder</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
+  document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total individuals recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Cameras Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
   document.getElementById('gridDetailPanel').classList.add('open');
 }
 document.getElementById('gridDetailClose').onclick=()=>document.getElementById('gridDetailPanel').classList.remove('open');
@@ -779,29 +725,6 @@ async function fetchWikipediaDescription(latinName){
   }
 }
 
-/* ===== iNaturalist photos (supplementary — fills gaps when GBIF has none) ===== */
-async function fetchINatPhotos(latinName){
-  try{
-    const res=await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(latinName)}&rank=species,subspecies&per_page=5`).then(r=>r.ok?r.json():null);
-    if(!res||!res.results||!res.results.length)return[];
-    const norm=s=>(s||'').trim().toLowerCase();
-    const match=res.results.find(t=>norm(t.name)===norm(latinName))||res.results[0];
-    if(!match)return[];
-    const photos=[];
-    if(match.default_photo&&match.default_photo.medium_url)photos.push(match.default_photo.medium_url);
-    if(match.taxon_photos&&match.taxon_photos.length){
-      match.taxon_photos.forEach(tp=>{
-        const url=tp.photo&&(tp.photo.medium_url||tp.photo.url);
-        if(url)photos.push(url);
-      });
-    }
-    return[...new Set(photos)];
-  }catch(e){
-    console.warn('iNaturalist photo fetch failed:',e);
-    return[];
-  }
-}
-
 async function openSpeciesInfo(latinName,localName,iucn){
   if(!latinName)return;
   document.getElementById('spModalLatin').textContent=latinName;
@@ -819,25 +742,15 @@ async function openSpeciesInfo(latinName,localName,iucn){
 
     const occData=gbifOcc;
 
-    let gbifImages=[];
+    let images=[];
     if(occData&&occData.results){
       occData.results.forEach(res=>{
         if(res.media&&res.media.length){
-          res.media.forEach(m=>{if(m.identifier&&gbifImages.length<8)gbifImages.push(m.identifier);});
+          res.media.forEach(m=>{if(m.identifier&&images.length<8)images.push(m.identifier);});
         }
       });
     }
-    gbifImages=[...new Set(gbifImages)].slice(0,8);
-
-    let inatImages=[];
-    if(gbifImages.length<4){
-      inatImages=await fetchINatPhotos(latinName);
-    }
-
-    const images=[...new Set([...gbifImages,...inatImages])].slice(0,8);
-    const photoSources=[];
-    if(gbifImages.length)photoSources.push('GBIF');
-    if(inatImages.length)photoSources.push('iNaturalist');
+    images=[...new Set(images)].slice(0,8);
 
     const[gbifDescResult,wikiResult]=await Promise.all([
       fetchGbifDescription(gbifKey),
@@ -853,7 +766,6 @@ async function openSpeciesInfo(latinName,localName,iucn){
 
     const info={
       images,
-      photoSources,
       descriptions,
       gbifKey,
       gbifRank:gbifMatch&&gbifMatch.rank?gbifMatch.rank:null,
@@ -878,7 +790,7 @@ function toggleDescBlock(btn){
 function renderSpeciesInfo(latinName,iucn,info){
   const galleryHtml=info.images.length
     ? `<div class="sp-gallery">${info.images.map(src=>`<img src="${src}" alt="${latinName}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
-    : `<div class="sp-gallery-empty">Belum ada foto referensi yang ditemukan di GBIF maupun iNaturalist untuk spesies ini.</div>`;
+    : `<div class="sp-gallery-empty">Belum ada foto referensi (occurrence record dengan foto) yang ditemukan di GBIF untuk spesies ini.</div>`;
 
   const statusHtml=iucn
     ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
@@ -888,9 +800,7 @@ function renderSpeciesInfo(latinName,iucn,info){
     ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
 
-  const photoSourceLabel=(info.photoSources&&info.photoSources.length)?info.photoSources.join(', '):null;
-  const noteLine=photoSourceLabel?`Foto: ${photoSourceLabel}.`:'';
-  const linksHtml=noteLine?`<div class="sp-modal-source-note">${noteLine}</div>`:'';
+  const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF.</div>`;
 
   spModalBody.innerHTML=galleryHtml+statusHtml+descHtml+linksHtml;
 }
@@ -925,10 +835,12 @@ function updateCtStats(){
   const totalCam=new Set(filtered.map(r=>r.CameraID).filter(Boolean)).size;
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
-  const recordingDays=computeRecordingDays(filtered);
+  const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
+  const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
+  const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
   const monitoredGrids=computeMonitoredGrids(filtered);
   const totalLok=monitoredGrids.length;
-  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total Detections Recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Recorders Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Detections / Recorder</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Recording-Days</span><span class="ct-stat-inline-val">${recordingDays}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
@@ -947,11 +859,9 @@ document.getElementById('ctFilterSite').addEventListener('change',e=>{CTF.site=e
 document.getElementById('ctFilterClass').addEventListener('change',e=>{CTF.kelas=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterSpecies').addEventListener('change',e=>{CTF.spesies=e.target.value;applyCtFilters();});
 document.getElementById('ctFilterIucn').addEventListener('change',e=>{CTF.iucn=e.target.value;applyCtFilters();});
-document.getElementById('ctFilterCallType').addEventListener('change',e=>{CTF.callType=e.target.value;applyCtFilters();});
-document.getElementById('ctFilterValidated').addEventListener('change',e=>{CTF.validated=e.target.value;applyCtFilters();});
 document.getElementById('ctClearFilters').onclick=()=>{
-  CTF.batch='';CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';CTF.callType='';CTF.validated='';
-  ['ctFilterBatch','ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn','ctFilterCallType','ctFilterValidated'].forEach(id=>document.getElementById(id).value='');
+  CTF.batch='';CTF.site='';CTF.kelas='';CTF.spesies='';CTF.iucn='';
+  ['ctFilterBatch','ctFilterSite','ctFilterClass','ctFilterSpecies','ctFilterIucn'].forEach(id=>document.getElementById(id).value='');
   applyCtFilters();
 };
 

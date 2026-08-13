@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Community-Based Fire Management | Sanggala Corridor Project</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<title>Land Clearing Alert | Sanggala Corridor Project</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <style>
   :root{
@@ -18,10 +15,9 @@
     --color-pine:#356760;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;font-family:'Libre Franklin', sans-serif;background:var(--color-cream)}
+  html,body{height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--color-cream)}
   body{display:flex;flex-direction:column}
 
-  /* SITE NAVBAR (sama seperti index.html / list.html / patrol.html) */
   .site-navbar{
     flex-shrink:0;
     display:grid;
@@ -62,14 +58,13 @@
     padding:14px 20px;
     border-bottom:1px solid var(--color-sand);
     display:flex;align-items:center;justify-content:space-between;
-    gap:16px;
   }
   .frame-title{font-size:14px;font-weight:700;color:var(--color-pine)}
   .frame-sub{font-size:11px;color:var(--color-fern);margin-top:2px}
   .frame-open-link{
     font-size:11px;font-weight:600;color:var(--color-fern);text-decoration:none;
     border:1px solid var(--color-sand);padding:6px 12px;border-radius:6px;white-space:nowrap;
-    transition:background .15s,color .15s;flex-shrink:0;
+    transition:background .15s,color .15s;
   }
   .frame-open-link:hover{background:var(--color-cream);color:var(--color-pine)}
 
@@ -105,11 +100,11 @@
 <div class="dashboard-frame">
   <div class="frame-header">
     <div>
-      <div class="frame-title">Community-Based Fire Management</div>
-      <div class="frame-sub">Pengendalian &amp; Mitigasi Karhutla Berbasis Masyarakat — Penggalian Aspirasi</div>
+      <div class="frame-title">Land Clearing Alert</div>
+      <div class="frame-sub">Pemantauan titik pembukaan lahan, data dari Integrated Disturbance Alert GFW</div>
     </div>
     <a class="frame-open-link"
-       href="https://datastudio.google.com/u/1/reporting/9e65f375-32b9-4843-8095-8db7c16624d8/page/p_gnr7ymax3d"
+       href="https://datastudio.google.com/u/0/reporting/96534245-f196-4971-99b7-30bc0ebeb7a6/page/cw1dF"
        target="_blank" rel="noopener noreferrer">Buka di Looker Studio ↗</a>
   </div>
   <div class="iframe-wrap">
@@ -118,8 +113,8 @@
       <span>Memuat laporan Looker Studio…</span>
     </div>
     <iframe
-      src="https://lookerstudio.google.com/embed/reporting/9e65f375-32b9-4843-8095-8db7c16624d8/page/p_gnr7ymax3d"
-      title="Community-Based Fire Management"
+      src="https://lookerstudio.google.com/embed/reporting/96534245-f196-4971-99b7-30bc0ebeb7a6/page/cw1dF"
+      title="Land Clearing Alert"
       allowfullscreen
       onload="document.getElementById('loadingOverlay').style.display='none'">
     </iframe>

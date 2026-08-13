@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -25,9 +25,9 @@
     --color-muted:#8a8a82;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;font-family:'Libre Franklin', sans-serif;background:var(--color-cream);color:var(--color-ink)}
+  html,body{height:100%;overflow:hidden;font-family:'Inter',Arial,Helvetica,sans-serif;background:var(--color-cream);color:var(--color-ink)}
   body{display:flex;flex-direction:column}
-  h1,h2,h3{font-family:'Libre Franklin',sans-serif;font-weight:600}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
 
   /* SITE NAVBAR */
   .site-navbar{
@@ -36,7 +36,7 @@
   }
   .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
   .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
-  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Libre Franklin',sans-serif}
+  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine);font-family:'Inter',sans-serif}
   .site-navbar-menu{display:flex;gap:32px;justify-self:center}
   .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
   .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
@@ -67,7 +67,7 @@
     display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
   }
   .report-title{font-size:20px;color:#fff;letter-spacing:-.2px;font-weight:600}
-  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Libre Franklin',sans-serif}
+  .report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;font-family:'Inter',sans-serif}
   .update-chip{text-align:right;flex-shrink:0}
   .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
   .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
@@ -75,19 +75,19 @@
   /* SECTION TITLES */
   .section-title{font-size:17px;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
   .section-title:first-of-type{margin-top:0}
-  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:-10px 0 14px;font-family:'Libre Franklin',sans-serif}
+  .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:-10px 0 14px;font-family:'Inter',sans-serif}
   .section-subtitle a{color:var(--color-fern);font-weight:600;text-decoration:none}
   .section-subtitle a:hover{text-decoration:underline}
 
   /* GENERIC PANEL */
   .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
-  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Libre Franklin',sans-serif}
+  .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Source Serif 4',Georgia,serif}
 
   /* FDRS PANEL */
   .fdrs-panel{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
   .fdrs-panel-left{flex:1;min-width:200px}
   .fdrs-panel-title{font-size:16px;color:var(--color-ink)}
-  .fdrs-panel-sub{font-size:12px;color:var(--color-muted);margin-top:3px;font-family:'Libre Franklin',sans-serif}
+  .fdrs-panel-sub{font-size:12px;color:var(--color-muted);margin-top:3px;font-family:'Inter',sans-serif}
   .fdrs-panel-blok{text-align:center}
   .fdrs-blok-label{font-size:10px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
   .fdrs-badge{padding:9px 22px;border-radius:6px;font-size:14px;font-weight:800;letter-spacing:.5px;text-align:center}
@@ -103,27 +103,27 @@
   .fire-kpi-panel{display:flex;flex-direction:column;justify-content:center}
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:54px;color:var(--color-pine);line-height:1.1;margin-top:4px}
-  .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Libre Franklin',sans-serif}
+  .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
   .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:28px}
   .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
 
   .trend-panel{display:flex;flex-direction:column}
-  .trend-granularity{font-size:10px;font-weight:600;color:var(--color-muted);text-transform:none;font-family:'Libre Franklin',sans-serif}
+  .trend-granularity{font-size:10px;font-weight:600;color:var(--color-muted);text-transform:none;font-family:'Inter',sans-serif}
   .trend-chart-wrap{position:relative;flex:1;min-height:150px;margin-top:6px}
 
-  .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Libre Franklin',sans-serif}
+  .chip-btn{padding:5px 12px;border:1px solid var(--color-sand);border-radius:20px;background:#fff;font-size:11px;font-weight:600;color:var(--color-muted);cursor:pointer;font-family:'Inter',sans-serif}
   .chip-btn.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
   .chip-btn:hover:not(.active){border-color:var(--color-fern);color:var(--color-fern)}
   .chip-btn-accent{background:var(--color-fire);border-color:var(--color-fire);color:#fff}
   .chip-btn-accent:hover{opacity:.88}
-  .date-input-sm{padding:4px 8px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:var(--color-ink);background:#fff;font-family:'Libre Franklin',sans-serif}
+  .date-input-sm{padding:4px 8px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:var(--color-ink);background:#fff;font-family:'Inter',sans-serif}
 
   /* TWO COLUMN ROW (map + lokasi) */
   .two-col-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
   .map-panel{padding:0;overflow:hidden;display:flex;flex-direction:column}
   #map{width:100%;height:340px}
-  .map-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--color-muted);padding:12px 18px;border-top:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif}
+  .map-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--color-muted);padding:12px 18px;border-top:1px solid var(--color-sand);font-family:'Inter',sans-serif}
   .legend-line{display:inline-block;width:16px;height:2px;background:var(--color-pine);margin-right:5px;vertical-align:middle}
   .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 
@@ -131,21 +131,21 @@
   .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #EDE7D8}
   .blok-row:last-child{border-bottom:none}
   .blok-name{font-size:13px;font-weight:700;color:var(--color-ink)}
-  .blok-desa{font-size:10.5px;color:var(--color-muted);margin-top:2px;font-family:'Libre Franklin',sans-serif}
+  .blok-desa{font-size:10.5px;color:var(--color-muted);margin-top:2px;font-family:'Inter',sans-serif}
   .blok-count{font-size:19px;font-weight:800;color:var(--color-fire)}
 
   /* TABLE */
   .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:hidden}
-  table.data-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:'Libre Franklin',sans-serif}
+  table.data-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:'Inter',sans-serif}
   table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 16px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--color-sand)}
   table.data-tbl tbody td{padding:10px 16px;border-bottom:1px solid #EDE7D8;color:var(--color-ink);vertical-align:middle}
   table.data-tbl tbody tr:last-child td{border-bottom:none}
   table.data-tbl tbody tr:hover td{background:#FFFAF3}
   .tbl-time{font-weight:600;color:var(--color-ink);white-space:nowrap}
   .tbl-time-sub{font-size:10px;color:var(--color-muted)}
-  .tbl-coord{font-family:'Libre Franklin',monospace;font-size:11px;color:var(--color-muted);white-space:nowrap}
+  .tbl-coord{font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:var(--color-muted);white-space:nowrap}
   .blok-badge{display:inline-block;padding:2px 10px;border-radius:20px;background:var(--color-sand);color:var(--color-pine);font-size:10px;font-weight:700;white-space:nowrap}
-  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Libre Franklin',sans-serif}
+  .tbl-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 4px 0;font-size:11px;color:var(--color-muted);font-family:'Inter',sans-serif}
   .pg-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-ink)}
   .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
@@ -158,9 +158,9 @@
   .weather-row .panel:hover{box-shadow:0 4px 16px rgba(43,43,40,.06)}
   .weather-panel-head{display:flex;align-items:center;gap:8px}
   .weather-icon-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Libre Franklin',sans-serif}
-  .weather-current{font-size:26px;font-weight:700;color:var(--color-ink);margin-top:10px;font-family:'Libre Franklin',sans-serif;line-height:1}
-  .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Libre Franklin',sans-serif;margin-left:2px}
+  .weather-panel-title{font-size:10.5px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Inter',sans-serif}
+  .weather-current{font-size:26px;font-weight:700;color:var(--color-ink);margin-top:10px;font-family:'Source Serif 4',Georgia,serif;line-height:1}
+  .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Inter',sans-serif;margin-left:2px}
   .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
 
   /* FORECAST ROW (BMKG, 3-jam-an) */
@@ -169,14 +169,14 @@
   .forecast-scroll::-webkit-scrollbar{height:6px}
   .forecast-scroll::-webkit-scrollbar-thumb{background:var(--color-sand);border-radius:10px}
   .forecast-card{flex:0 0 118px;background:#fff;border:1px solid var(--color-sand);border-radius:8px;padding:14px 10px;text-align:center}
-  .forecast-day{font-size:11.5px;font-weight:700;color:var(--color-ink);font-family:'Libre Franklin',sans-serif}
-  .forecast-day-sub{font-size:10px;color:var(--color-muted);margin-top:1px;font-family:'Libre Franklin',sans-serif}
+  .forecast-day{font-size:11.5px;font-weight:700;color:var(--color-ink);font-family:'Inter',sans-serif}
+  .forecast-day-sub{font-size:10px;color:var(--color-muted);margin-top:1px;font-family:'Inter',sans-serif}
   .forecast-icon{width:34px;height:34px;margin:8px auto;display:block;object-fit:contain}
-  .forecast-desc{font-size:10.5px;color:var(--color-fern);font-family:'Libre Franklin',sans-serif;min-height:14px}
-  .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Libre Franklin',sans-serif;margin-top:4px}
-  .forecast-meta{font-size:10px;color:var(--color-muted);margin-top:6px;font-family:'Libre Franklin',sans-serif;line-height:1.6}
+  .forecast-desc{font-size:10.5px;color:var(--color-fern);font-family:'Inter',sans-serif;min-height:14px}
+  .forecast-temp{font-size:18px;font-weight:800;color:var(--color-pine);font-family:'Source Serif 4',Georgia,serif;margin-top:4px}
+  .forecast-meta{font-size:10px;color:var(--color-muted);margin-top:6px;font-family:'Inter',sans-serif;line-height:1.6}
 
-  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Libre Franklin',sans-serif}
+  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
@@ -392,7 +392,7 @@ function renderFireMarkers(rows){
   rows.forEach(r=>{
     if(r.lat===null||r.lon===null)return;
     L.circleMarker([r.lat,r.lon],{radius:6,color:'#fff',weight:1.5,fillColor:'#c2703f',fillOpacity:.9})
-      .bindPopup(`<div style="font-family:'Libre Franklin';font-size:12px">
+      .bindPopup(`<div style="font-family:Arial;font-size:12px">
         <b style="color:#a05a26">Titik Api</b><br>
         <b>Tanggal:</b> ${fmtDateID(r.dateObj)}${r.jam?' '+r.jam:''}<br>
         ${r.desa?`<b>Desa:</b> ${r.desa}<br>`:''}
