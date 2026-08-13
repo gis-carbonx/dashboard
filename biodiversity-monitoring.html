@@ -41,14 +41,15 @@
     }
 
     .dashboard-frame{
-      margin:0 28px 28px 28px;border-radius:0;overflow:hidden;
-      box-shadow:0 6px 22px rgba(0,0,0,.14);background:#fff;
+      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
     }
 
-    /* HEADER BAR */
-    .bio-header{
-      background:#4A3B2F;padding:22px 32px;display:flex;align-items:flex-start;justify-content:space-between;
-      flex-wrap:wrap;gap:16px;
+    /* HEADER BAR — background penuh lebar, konten di dalamnya dibatasi & ditengahkan */
+    .bio-header{background:#4A3B2F}
+    .bio-header-inner{
+      max-width:1180px;margin:0 auto;padding:22px 36px;
+      display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;
     }
     .bio-header-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.2px}
     .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px}
@@ -56,10 +57,11 @@
     .bio-header-updated-label{font-size:9px;font-weight:700;letter-spacing:.6px;color:rgba(255,255,255,.55);text-transform:uppercase}
     .bio-header-updated-value{font-size:12px;font-weight:600;color:#fff;margin-top:3px}
 
-    /* QUARTER SELECTOR BAR */
-    .quarter-bar{
-      background:var(--color-cream);border-bottom:1px solid var(--color-sand);
-      padding:12px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    /* QUARTER SELECTOR BAR — sama pola: background penuh, konten dibatasi & ditengahkan */
+    .quarter-bar{background:var(--color-cream);border-bottom:1px solid var(--color-sand)}
+    .quarter-bar-inner{
+      max-width:1180px;margin:0 auto;padding:12px 36px;
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     }
     .quarter-bar-label{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px}
     .quarter-bar-current{font-size:13px;font-weight:700;color:var(--color-pine)}
@@ -72,10 +74,9 @@
     }
     .quarter-select:focus{outline:none;border-color:var(--color-fern)}
 
-    /* CONTENT */
-    .bio-content{padding:28px 32px 40px}
-    .bio-note{font-size:12px;color:#6b7280;line-height:1.6;margin:14px 0 28px}
-    .bio-note.placeholder{color:#b45309;background:#fffbeb;border:1px dashed #fbbf24;border-radius:8px;padding:10px 14px}
+    /* CONTENT — dibatasi lebar & ditengahkan, ada ruang kiri-kanan */
+    .bio-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
+    .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:14px 0 28px}
 
     .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:8px}
     .stat-grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
@@ -115,20 +116,24 @@
 
 <div class="dashboard-frame">
   <div class="bio-header">
-    <div>
-      <div class="bio-header-title">Biodiversity Monitoring</div>
-      <div class="bio-header-date" id="bioTodayDate">–</div>
-    </div>
-    <div class="bio-header-right">
-      <div class="bio-header-updated-label">Terakhir Diperbarui</div>
-      <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
+    <div class="bio-header-inner">
+      <div>
+        <div class="bio-header-title">Biodiversity Monitoring</div>
+        <div class="bio-header-date" id="bioTodayDate">–</div>
+      </div>
+      <div class="bio-header-right">
+        <div class="bio-header-updated-label">Terakhir Diperbarui</div>
+        <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
+      </div>
     </div>
   </div>
 
   <div class="quarter-bar">
-    <span class="quarter-bar-label">Kuartal ditampilkan:</span>
-    <span class="quarter-bar-current" id="quarterCurrentLabel">–</span>
-    <select class="quarter-select" id="quarterSelect"></select>
+    <div class="quarter-bar-inner">
+      <span class="quarter-bar-label">Kuartal ditampilkan:</span>
+      <span class="quarter-bar-current" id="quarterCurrentLabel">–</span>
+      <select class="quarter-select" id="quarterSelect"></select>
+    </div>
   </div>
 
   <div id="bioContent">
@@ -159,11 +164,10 @@
         </div>
       </div>
 
-      <!-- PLACEHOLDER: kalimat ini statis / ditulis manual (tidak dihitung otomatis dari data).
-           Edit teks di bawah ini langsung sesuai kondisi lapangan sebenarnya. -->
-      <p class="bio-note placeholder">
-        [Placeholder — edit manual] Instalasi alat monitoring dilakukan di area tutupan lahan hutan yang tersebar di
-        <strong>X titik Blok 1</strong> dan <strong>Y titik Blok 2</strong>.
+      <!-- [placeholder 1] — dummy text, ganti dengan kalimat asli -->
+      <p class="bio-note">
+        [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat, tersebar di beberapa titik Blok 1 dan Blok 2.
       </p>
 
       <div class="stat-grid">
@@ -196,19 +200,25 @@
         </div>
       </div>
 
-      <!-- PLACEHOLDER: paragraf narasi, ganti dengan ringkasan asli. -->
-      <p class="bio-note placeholder">
-        [Placeholder — edit manual] Tuliskan di sini ringkasan naratif tentang tren wildlife records dan spesies
-        terancam pada kuartal ini, misalnya perubahan signifikan, lokasi baru, atau catatan khusus lapangan.
+      <!-- [placeholder 2] — dummy text, ganti dengan ringkasan asli -->
+      <p class="bio-note">
+        [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
       </p>
 
       <div class="section-title">Key Species Monitoring</div>
       <div class="stat-grid" id="keySpeciesGrid"></div>
 
-      <!-- PLACEHOLDER: paragraf narasi key species. -->
-      <p class="bio-note placeholder">
-        [Placeholder — edit manual] Tuliskan di sini ringkasan naratif tentang kondisi masing-masing key species,
-        misalnya lokasi deteksi baru, tren populasi relatif, atau ancaman yang teramati.
+      <!-- [placeholder 3] — dummy text, ganti dengan ringkasan asli -->
+      <p class="bio-note">
+        [placeholder 3] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
+        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
+        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
+        metus.
       </p>
 
     </div>
@@ -300,6 +310,12 @@ async function loadAllData(){
     const{year,q}=getQuarter(r.Date);
     qSet.set(quarterKey(year,q),{year,q});
   });
+
+  // Pastikan kuartal berjalan (hari ini) selalu ada di daftar pilihan,
+  // meskipun belum ada data sama sekali untuk kuartal itu.
+  const nowQ=getQuarter(new Date());
+  qSet.set(quarterKey(nowQ.year,nowQ.q),nowQ);
+
   allQuarters=[...qSet.values()].sort((a,b)=>a.year-b.year||a.q-b.q);
 
   if(!allQuarters.length){
@@ -307,7 +323,9 @@ async function loadAllData(){
     return;
   }
 
-  selectedQuarterIdx=allQuarters.length-1; // default: kuartal terbaru yang ada datanya
+  // Default: kuartal berjalan saat ini (bukan kuartal terakhir yang ada datanya).
+  // Kuartal-kuartal lain tetap bisa dipilih lewat dropdown.
+  selectedQuarterIdx=allQuarters.findIndex(qq=>qq.year===nowQ.year&&qq.q===nowQ.q);
 
   buildQuarterSelect();
   renderAll();
