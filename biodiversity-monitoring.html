@@ -141,7 +141,7 @@
         <div class="bio-header-date" id="bioTodayDate">–</div>
       </div>
       <div class="bio-header-right">
-        <div class="bio-header-updated-label">Terakhir Diperbarui</div>
+        <div class="bio-header-updated-label">Last Updated</div>
         <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
       </div>
     </div>
@@ -149,14 +149,14 @@
 
   <div class="quarter-bar">
     <div class="quarter-bar-inner">
-      <span class="quarter-bar-label">Kuartal ditampilkan:</span>
+      <span class="quarter-bar-label">Quarter displayed:</span>
       <span class="quarter-bar-current" id="quarterCurrentLabel">–</span>
       <select class="quarter-select" id="quarterSelect"></select>
     </div>
   </div>
 
   <div class="bio-scroll" id="bioContent">
-    <div class="loading-msg" id="bioLoading">Memuat data monitoring…</div>
+    <div class="loading-msg" id="bioLoading">Loading monitoring data…</div>
 
     <div class="bio-content" id="bioContentBody" style="display:none">
 
@@ -167,7 +167,7 @@
             <span class="stat-value" id="statCtInstalled">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statCtInstalledDelta">–</span>
-              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+              <span class="stat-delta-sub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -177,16 +177,16 @@
             <span class="stat-value" id="statBioInstalled">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statBioInstalledDelta">–</span>
-              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+              <span class="stat-delta-sub">vs previous quarter</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- [placeholder 1] — dummy text, ganti dengan kalimat asli -->
+      <!-- [placeholder 1] — dummy text, replace with the actual sentence -->
       <p class="bio-note">
         [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat, tersebar di beberapa titik Blok 1 dan Blok 2.
+        gravida odio dapibus feugiat, spread across several locations in Block 1 and Block 2.
       </p>
 
       <div class="stat-grid">
@@ -196,7 +196,7 @@
             <span class="stat-value" id="statWildlifeRecords">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statWildlifeRecordsDelta">–</span>
-              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+              <span class="stat-delta-sub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@
             <span class="stat-value" id="statThreatened">–</span>
             <div class="stat-delta">
               <span class="stat-delta-num" id="statThreatenedDelta">–</span>
-              <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+              <span class="stat-delta-sub">vs previous quarter</span>
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@
         </div>
       </div>
 
-      <!-- [placeholder 2] — dummy text, ganti dengan ringkasan asli -->
+      <!-- [placeholder 2] — dummy text, replace with the actual summary -->
       <p class="bio-note">
         [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
         gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
@@ -231,7 +231,7 @@
       <div class="section-title">Key Species Monitoring</div>
       <div class="stat-grid" id="keySpeciesGrid"></div>
 
-      <!-- [placeholder 3] — dummy text, ganti dengan ringkasan asli -->
+      <!-- [placeholder 3] — dummy text, replace with the actual summary -->
       <p class="bio-note">
         [placeholder 3] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
         gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
@@ -241,11 +241,11 @@
       </p>
 
       <div class="cta-bar">
-        <span class="cta-text">Detail sebaran data camera trap dapat dilihat melalui tautan berikut</span>
+        <span class="cta-text">Detailed camera trap distribution data can be viewed via the link below</span>
         <a href="cameratrap-monitoring.html" class="cta-btn">Camera Trap &rarr;</a>
       </div>
       <div class="cta-bar">
-        <span class="cta-text">Detail sebaran data bioacoustic dapat dilihat melalui tautan berikut</span>
+        <span class="cta-text">Detailed bioacoustic distribution data can be viewed via the link below</span>
         <a href="bioacoustic-monitoring.html" class="cta-btn">Bioacoustic &rarr;</a>
       </div>
 
@@ -291,11 +291,11 @@ function quarterKey(y,q){return `${y}-Q${q}`;}
 function quarterLabel(y,q){return `Q${q} ${y}`;}
 function quarterEndDate(y,q){return new Date(y,q*3,0,23,59,59);}
 function prevQuarter(y,q){return q===1?{year:y-1,q:4}:{year:y,q:q-1};}
-function fmtDateID(d){return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'–';}
+function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
 function fmtDateTimeID(d){
   if(!d)return '–';
-  const date=d.toLocaleDateString('id-ID',{year:'numeric',month:'2-digit',day:'2-digit'});
-  const time=d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const date=d.toLocaleDateString('en-GB',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const time=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
   return `${date} ${time} WIB`;
 }
 
@@ -347,7 +347,7 @@ async function loadAllData(){
   allQuarters=[...qSet.values()].sort((a,b)=>a.year-b.year||a.q-b.q);
 
   if(!allQuarters.length){
-    document.getElementById('bioLoading').textContent='Data tidak termuat. Cek apakah kedua Google Sheet sudah di-share publik ("Anyone with the link → Viewer"), lalu refresh.';
+    document.getElementById('bioLoading').textContent='Data failed to load. Check whether both Google Sheets have been shared publicly ("Anyone with the link → Viewer"), then refresh.';
     return;
   }
 
@@ -461,7 +461,7 @@ function renderAll(){
         <span class="stat-value">${val}</span>
         <div class="stat-delta">
           <span class="stat-delta-num${delta.negative?' negative':''}">${delta.text}</span>
-          <span class="stat-delta-sub">dibanding kuartal sebelumnya</span>
+          <span class="stat-delta-sub">vs previous quarter</span>
         </div>
       </div>`;
     grid.appendChild(card);
