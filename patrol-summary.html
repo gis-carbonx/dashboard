@@ -189,7 +189,6 @@
 </div>
 
 <script>
-
 const PATROL2026_SHEET_ID='1hk602TjSHz9Bo5RmYpY21effYYLL152ZSIJsl6VNS5g';
 const PATROL2026_URL=`https://docs.google.com/spreadsheets/d/${PATROL2026_SHEET_ID}/export?format=csv&gid=0`;
 
@@ -209,7 +208,7 @@ function parseDateTimeLoose(s){
   s=(s||'').trim();if(!s)return null;
   const [datePart,timePart]=s.split(' ');
   const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!dm){const d=new Date(s);return isNaN(d)?null:d;}
+  if(!dm)return null; 
   const day=+dm[1],month=+dm[2],year=+dm[3];
   let h=0,mi=0,se=0;
   if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
@@ -293,9 +292,8 @@ async function loadAll(){
   });
 
   document.getElementById('fireTodayDate').textContent=fmtDateID(new Date());
-  const allDates=[...patrolDates,...submissionRows.map(r=>r.dateObj)].filter(Boolean);
-  const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
-  document.getElementById('fireLastUpdated').textContent=fmtDateTimeID(maxDate);
+  const maxPatrolDate=patrolDates.length?new Date(Math.max(...patrolDates.map(d=>d.getTime()))):null;
+  document.getElementById('fireLastUpdated').textContent=fmtDateID(maxPatrolDate);
 
   document.getElementById('statPatrolDays').textContent=intersectCount;
   document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
