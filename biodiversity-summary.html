@@ -147,10 +147,18 @@
     .presence-map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:#6b7280}
     .presence-map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .patrol-findings-info-col{
+      display:none;position:relative;
       flex:1;min-width:260px;height:300px;background:#fff;
       border:1px solid var(--color-sand);border-radius:14px;overflow-y:auto;
     }
-    .species-info-title{padding:14px 18px 0;font-size:13px;font-weight:700;color:#1f2937;font-style:italic}
+    .patrol-findings-info-col.open{display:block}
+    .species-info-close{
+      position:absolute;top:10px;right:10px;z-index:1;
+      width:24px;height:24px;border-radius:6px;border:none;background:#f3f4f6;color:#6b7280;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;
+    }
+    .species-info-close:hover{background:#e5e7eb;color:#1f2937}
+    .species-info-title{padding:14px 40px 0 18px;font-size:13px;font-weight:700;color:#1f2937;font-style:italic}
     .species-info-local{padding:2px 18px 0;font-size:11px;color:#6b7280}
     .sp-gallery{display:flex;gap:6px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:thin}
     .sp-gallery img{height:100px;width:auto;border-radius:8px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
@@ -841,10 +849,17 @@ function toggleDescBlock(btn){
   body.classList.toggle('open',!isOpen);
   chevron.classList.toggle('open',!isOpen);
 }
+const SPECIES_INFO_CLOSE_BTN='<button type="button" class="species-info-close" onclick="closeSpeciesInfoPanel()">&#10005;</button>';
+function closeSpeciesInfoPanel(){
+  const panel=document.getElementById('speciesInfoPanel');
+  panel.classList.remove('open');
+  panel.innerHTML='';
+}
 async function openSpeciesInfoInline(latinName,localName,iucn){
   if(!latinName)return;
   const panel=document.getElementById('speciesInfoPanel');
-  panel.innerHTML='<div class="sp-modal-loading">Loading species info…</div>';
+  panel.classList.add('open');
+  panel.innerHTML=SPECIES_INFO_CLOSE_BTN+'<div class="sp-modal-loading">Loading species info…</div>';
 
   if(spInfoCache[latinName]){renderSpeciesInfoInline(latinName,localName,iucn,spInfoCache[latinName]);return;}
 
@@ -881,7 +896,7 @@ async function openSpeciesInfoInline(latinName,localName,iucn){
     renderSpeciesInfoInline(latinName,localName,iucn,info);
   }catch(err){
     console.warn('Species info fetch failed:',err);
-    panel.innerHTML='<div class="sp-modal-loading">Unable to load species info right now. Please try again later.</div>';
+    panel.innerHTML=SPECIES_INFO_CLOSE_BTN+'<div class="sp-modal-loading">Unable to load species info right now. Please try again later.</div>';
   }
 }
 function renderSpeciesInfoInline(latinName,localName,iucn,info){
@@ -896,6 +911,7 @@ function renderSpeciesInfoInline(latinName,localName,iucn,info){
     ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">No description found on GBIF or Wikipedia for this species.</div>`;
   panel.innerHTML=
+    SPECIES_INFO_CLOSE_BTN+
     `<div class="species-info-title">${latinName}</div>`+
     (localName?`<div class="species-info-local">${localName}</div>`:'')+
     galleryHtml+statusHtml+descHtml+
