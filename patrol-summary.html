@@ -99,13 +99,19 @@
     }
     #illegalMap,#bioMap{height:320px;width:100%}
 
-    /* PANEL TABEL DETAIL — di samping peta, kosong sampai salah satu panel kategori diklik */
+    /* PANEL TABEL DETAIL — disembunyikan TOTAL (display:none, termasuk border/kotaknya) sampai salah satu
+       panel kategori diklik dan tabelnya terisi (class .visible). Bisa ditutup lagi lewat tombol close (×). */
     .detection-table-panel{
-      flex:1;min-width:260px;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
-      padding:16px 18px;display:flex;flex-direction:column;height:320px;overflow:hidden;
+      display:none;flex:1;min-width:260px;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
+      padding:16px 18px;flex-direction:column;height:320px;overflow:hidden;position:relative;
     }
-    .detection-table-empty{margin:auto;color:#9ca3af;font-size:12px;text-align:center;padding:20px;line-height:1.6}
-    .detection-table-header{font-size:12.5px;font-weight:700;color:#1f2937;margin-bottom:10px;flex-shrink:0}
+    .detection-table-panel.visible{display:flex}
+    .detection-table-close{
+      position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;
+      font-size:17px;line-height:1;color:#9ca3af;padding:4px 6px;font-family:'Libre Franklin',sans-serif;
+    }
+    .detection-table-close:hover{color:#374151}
+    .detection-table-header{font-size:12.5px;font-weight:700;color:#1f2937;margin-bottom:10px;flex-shrink:0;padding-right:22px}
     .detection-table-count{font-weight:500;color:#6b7280}
     .detection-table-hint{font-size:10.5px;font-weight:500;color:#9ca3af;margin-bottom:10px;flex-shrink:0}
     .detection-table-scroll{flex:1;overflow-y:auto}
@@ -577,22 +583,28 @@ function render(){
   resetDetailTables();
 }
 
-/* ============== TABEL DETAIL (di samping peta) — kosong sampai panel kategori diklik ============== */
-const DETECTION_TABLE_EMPTY_MSG='';
-
+/* ============== TABEL DETAIL (di samping peta) — panel disembunyikan total sampai panel kategori diklik ============== */
 function resetDetailTables(){
   document.querySelectorAll('#illegalGrid .illegal-card, #bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-  document.getElementById('illegalTablePanel').innerHTML=DETECTION_TABLE_EMPTY_MSG;
-  document.getElementById('bioTablePanel').innerHTML=DETECTION_TABLE_EMPTY_MSG;
+  const illegalPanel=document.getElementById('illegalTablePanel');
+  const bioPanel=document.getElementById('bioTablePanel');
+  illegalPanel.innerHTML='';
+  illegalPanel.classList.remove('visible');
+  bioPanel.innerHTML='';
+  bioPanel.classList.remove('visible');
 }
 
 /* Render isi tabel detail: Description (kolom J), Coordinate (kolom C), Photo (kolom K) — hanya untuk baris
-   yang cocok kategori yang diklik. Klik satu baris -> peta zoom ke koordinat baris tersebut. */
-function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
+   yang cocok kategori yang diklik. Klik satu baris -> peta zoom ke koordinat baris tersebut.
+   Panel (border/background/kotak) HANYA tampil kalau ada baris untuk ditampilkan (class .visible),
+   dan bisa ditutup manual lewat tombol close (×) di pojok kanan atas. */
+function renderDetailTable(panelEl,mapInstance,rows,categoryLabel,cardGroupSelector){
   if(!rows.length){
     panelEl.innerHTML='';
+    panelEl.classList.remove('visible');
     return;
   }
+  panelEl.classList.add('visible');
   const rowsHtml=rows.map((r,i)=>{
     const photoHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank" rel="noopener">View &#8599;</a>`:'–';
     return `<tr data-idx="${i}">
@@ -602,6 +614,7 @@ function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
     </tr>`;
   }).join('');
   panelEl.innerHTML=`
+    <button type="button" class="detection-table-close" aria-label="Close">&times;</button>
     <div class="detection-table-header">${categoryLabel} <span class="detection-table-count">(${rows.length})</span></div>
     <div class="detection-table-scroll">
       <table class="detection-table">
@@ -609,6 +622,11 @@ function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
         <tbody>${rowsHtml}</tbody>
       </table>
     </div>`;
+  panelEl.querySelector('.detection-table-close').addEventListener('click',()=>{
+    panelEl.innerHTML='';
+    panelEl.classList.remove('visible');
+    if(cardGroupSelector)document.querySelectorAll(cardGroupSelector).forEach(c=>c.classList.remove('active'));
+  });
   panelEl.querySelectorAll('tbody tr').forEach(tr=>{
     tr.addEventListener('click',()=>{
       const r=rows[parseInt(tr.dataset.idx,10)];
@@ -627,7 +645,7 @@ function setupDetailTableClicks(){
       card.classList.add('active');
       const cat=card.dataset.category;
       const rows=currentFilteredSubmission.filter(r=>categoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('illegalTablePanel'),illegalMapInstance,rows,ILLEGAL_LABELS[cat]);
+      renderDetailTable(document.getElementById('illegalTablePanel'),illegalMapInstance,rows,ILLEGAL_LABELS[cat],'#illegalGrid .illegal-card');
     });
   });
   document.querySelectorAll('#bioGrid .illegal-card').forEach(card=>{
@@ -636,7 +654,7 @@ function setupDetailTableClicks(){
       card.classList.add('active');
       const cat=card.dataset.category;
       const rows=currentFilteredSubmission.filter(r=>bioCategoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('bioTablePanel'),bioMapInstance,rows,BIO_LABELS[cat]);
+      renderDetailTable(document.getElementById('bioTablePanel'),bioMapInstance,rows,BIO_LABELS[cat],'#bioGrid .illegal-card');
     });
   });
 }
