@@ -234,9 +234,14 @@
 
 <script>
 /* ============== KONFIGURASI SUMBER DATA ============== */
-/* Sheet "PATROL 2026", tab "A" (gid=0) — jadwal & luas area patroli */
+/* Sheet "PATROL 2026", tab "A" (gid=0) — jadwal & luas area patroli tahun 2026 */
 const PATROL2026_SHEET_ID='1hk602TjSHz9Bo5RmYpY21effYYLL152ZSIJsl6VNS5g';
 const PATROL2026_URL=`https://docs.google.com/spreadsheets/d/${PATROL2026_SHEET_ID}/export?format=csv&gid=0`;
+
+/* Sheet "PATROLI 2025", tab "REKAP ALL" (gid=0) — jadwal & luas area patroli tahun 2025.
+   Struktur kolom sama persis dengan PATROL 2026 (kolom B=Tanggal, kolom H=Luas Area Ha, data mulai baris 4). */
+const PATROL2025_SHEET_ID='1HvZ3dndlCCVxpzlX6XQ1JFYMyGes5U-SQGwd3AIxp7M';
+const PATROL2025_URL=`https://docs.google.com/spreadsheets/d/${PATROL2025_SHEET_ID}/export?format=csv&gid=0`;
 
 /* Sheet "forest_patrol_form", tab "submission" — laporan temuan lapangan */
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
@@ -338,20 +343,25 @@ let submissionRows=[];  // {dateObj, finding, categ, coordinate} dari sheet subm
 let currentYearFilter=null; // null = "Semua"
 
 async function loadAll(){
-  const [patrolRaw,subRaw]=await Promise.all([
+  const [patrol2026Raw,patrol2025Raw,subRaw]=await Promise.all([
     fetchCsv(PATROL2026_URL),
+    fetchCsv(PATROL2025_URL),
     fetchCsvHeader(SUBMISSION_URL)
   ]);
 
-  // Sheet PATROL 2026 — data mulai baris 4 (index 3). Kolom B (index1)=Tanggal Patroli, Kolom H (index7)=Luas Area (Ha)
-  const patrolRows=patrolRaw.slice(3);
-  patrolEntries=patrolRows.map(r=>{
-    const d=parseDateDMY((r[1]||'').toString());
-    const luasDirect=parseFloat((r[7]||'').toString().trim());
-    const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
-    const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
-    return{date:d,luas:isNaN(luas)?0:luas};
-  }).filter(e=>e.date);
+  // Sheet PATROL 2026 & PATROLI 2025 — struktur kolom sama: data mulai baris 4 (index 3).
+  // Kolom B (index1)=Tanggal Patroli, Kolom H (index7)=Luas Area (Ha)
+  function parsePatrolSheet(raw){
+    return raw.slice(3).map(r=>{
+      const d=parseDateDMY((r[1]||'').toString());
+      const luasDirect=parseFloat((r[7]||'').toString().trim());
+      const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
+      const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
+      return{date:d,luas:isNaN(luas)?0:luas};
+    }).filter(e=>e.date);
+  }
+  // Digabung jadi satu daftar — tanggal 2025 & 2026 (dan tahun lain kalau ditambahkan lagi nanti) diperlakukan sama
+  patrolEntries=[...parsePatrolSheet(patrol2026Raw),...parsePatrolSheet(patrol2025Raw)];
 
   // Sheet submission — data mulai baris 2 (otomatis, header:true). Kolom A=data-start_date,
   // Kolom H=data-survey-categ, Kolom I=data-survey-finding
