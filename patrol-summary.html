@@ -137,7 +137,7 @@
           <div class="stat-label">Patroli (hari)</div>
           <div class="stat-value-row">
             <span class="stat-value" id="statPatrolDays">–</span>
-            <span class="stat-sub-plain">hari patroli tercatat (irisan jadwal patroli &amp; laporan lapangan)</span>
+            <span class="stat-sub-plain">hari patroli tercatat (gabungan jadwal patroli &amp; laporan lapangan)</span>
           </div>
         </div>
         <div class="stat-card">
@@ -232,7 +232,13 @@ function parseDateTimeLoose(s){
   if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
   return new Date(year,month-1,day,h,mi,se);
 }
-function dateKey(d){return d?`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`:null;}
+/* Format kunci pembanding disamakan jadi string DD-MM-YYYY untuk kedua sumber data,
+   supaya gampang dibaca/dicocokkan (mis. hasil parseDateDMY & parseDateTimeLoose -> "11-02-2026"). */
+function dateKey(d){
+  if(!d)return null;
+  const pad=n=>String(n).padStart(2,'0');
+  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`;
+}
 function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
 function fmtDateTimeID(d){
   if(!d)return '–';
@@ -304,11 +310,13 @@ async function loadAll(){
     categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase()
   }));
 
-  // Patroli (hari) = irisan tanggal unik antara sheet PATROL 2026 (kolom B) dan sheet submission (kolom A)
+  // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A).
+  // Kedua sumber disamakan dulu ke format string DD-MM-YYYY (lihat dateKey), baru digabung ke satu Set
+  // supaya tanggal yang sama dari kedua sumber tidak dihitung dobel.
   const patrolDateKeys=new Set(patrolDates.map(dateKey).filter(Boolean));
   const submissionDateKeys=new Set(submissionRows.map(r=>dateKey(r.dateObj)).filter(Boolean));
-  let intersectCount=0;
-  patrolDateKeys.forEach(k=>{if(submissionDateKeys.has(k))intersectCount++;});
+  const combinedDateKeys=new Set([...patrolDateKeys,...submissionDateKeys]);
+  const uniquePatrolDayCount=combinedDateKeys.size;
 
   // Deteksi aktifitas ilegal, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
   let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
@@ -324,7 +332,7 @@ async function loadAll(){
   const maxPatrolDate=patrolDates.length?new Date(Math.max(...patrolDates.map(d=>d.getTime()))):null;
   document.getElementById('fireLastUpdated').textContent=fmtDateID(maxPatrolDate);
 
-  document.getElementById('statPatrolDays').textContent=intersectCount;
+  document.getElementById('statPatrolDays').textContent=uniquePatrolDayCount;
   document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
   document.getElementById('statLogging').textContent=loggingCount;
   document.getElementById('statHunting').textContent=huntingCount;
