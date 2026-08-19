@@ -127,14 +127,15 @@
     .presence-name{font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic}
     .presence-local{font-size:11px;color:#9ca3af;margin-top:1px}
     .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
+    .presence-last-detection{font-size:10px;color:#9ca3af;margin-top:2px}
     .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
 
     /* BIODIVERSITY PATROL FINDINGS — full-width detection map */
     .patrol-findings-section{margin-top:20px}
     .patrol-findings-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:12px}
-    .patrol-findings-map-wrap{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:340px}
+    .patrol-findings-map-wrap{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:300px;max-width:680px}
     #presenceMap{width:100%;height:100%}
-    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 2px 0}
+    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 2px 0;max-width:680px}
     .presence-map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:#6b7280}
     .presence-map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
@@ -683,10 +684,20 @@ function speciesDetectionCount(latinName){
   const norm=s=>(s||'').trim().toLowerCase();
   return [...ctRows,...bioRows].filter(r=>norm(r.Species)===norm(latinName)).reduce((s,r)=>s+r.Indep,0);
 }
+function speciesLastDetectionDate(latinName){
+  const norm=s=>(s||'').trim().toLowerCase();
+  let last=null;
+  [...ctRows,...bioRows].forEach(r=>{
+    if(norm(r.Species)!==norm(latinName))return;
+    if(r.Date&&(!last||r.Date>last))last=r.Date;
+  });
+  return last;
+}
 function renderPresenceRow(sp){
   const count=speciesDetectionCount(sp.latin);
+  const lastDate=count>0?speciesLastDetectionDate(sp.latin):null;
   const detectedHtml=count>0
-    ? `<div class="presence-detected">Detected ${count} times</div>`
+    ? `<div class="presence-detected">Detected ${count} times</div><div class="presence-last-detection">Last detection: ${fmtDateShort(lastDate)}</div>`
     : `<div class="presence-not-detected">Not yet detected</div>`;
   return `<div class="presence-row">
     <div class="presence-badge"><img src="${IUCN_LOGO_URL(sp.iucn)}" alt="${sp.iucn}" title="${sp.iucn}" onerror="this.parentElement.innerHTML='${sp.iucn}';this.parentElement.style.cssText='width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}'"></div>
