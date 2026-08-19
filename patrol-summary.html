@@ -223,6 +223,43 @@
         metus.
       </p>
 
+      <!-- TEMUAN PATROLI BIODIVERSITAS -->
+      <div class="section-title">Temuan patroli biodiversitas</div>
+
+      <!-- PETA TITIK TEMUAN -->
+      <div class="illegal-map-panel">
+        <div id="bioMap"></div>
+      </div>
+
+      <div class="illegal-grid">
+        <div class="illegal-card">
+          <div class="illegal-label"><span class="illegal-dot" id="dotDirect"></span>Perjumpaan Langsung</div>
+          <div class="illegal-value" id="statDirect">–</div>
+          <div class="illegal-sub">temuan tercatat</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label"><span class="illegal-dot" id="dotVoice"></span>Deteksi Suara</div>
+          <div class="illegal-value" id="statVoice">–</div>
+          <div class="illegal-sub">temuan tercatat</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label"><span class="illegal-dot" id="dotSign"></span>Tanda Keberadaan</div>
+          <div class="illegal-value" id="statSign">–</div>
+          <div class="illegal-sub">temuan tercatat</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label"><span class="illegal-dot" id="dotHabitat"></span>Temuan Habitat</div>
+          <div class="illegal-value" id="statHabitat">–</div>
+          <div class="illegal-sub">temuan tercatat</div>
+        </div>
+      </div>
+
+      <!-- [placeholder] -->
+      <p class="fire-note">
+        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
+      </p>
+
       <div class="cta-bar">
         <span class="cta-text">Dashboard visualisasi detail temuan patroli dapat dilihat melalui tautan berikut</span>
         <a href="https://gis-carbonx.github.io/dashboard/patrol.html" class="cta-btn">Visualisasi data patroli &rarr;</a>
@@ -263,6 +300,21 @@ function categoryOf(finding,categ){
   if(HUNTING_FINDINGS.includes(finding))return'hunting';
   if(finding==='mining')return'mining';
   if(categ==='illegal_activities')return'other';
+  return null;
+}
+
+/* Warna & label kategori temuan patroli biodiversitas (data-survey-categ = biodiversity) */
+const BIO_COLORS={direct:'#2563eb',voice:'#f59e0b',sign:'#16a34a',habitat:'#a855f7'};
+const BIO_LABELS={direct:'Perjumpaan Langsung',voice:'Deteksi Suara',sign:'Tanda Keberadaan',habitat:'Temuan Habitat'};
+
+/* Tentukan kategori satu baris submission untuk biodiversitas, berdasar data-survey-finding,
+   HANYA untuk baris yang data-survey-categ = biodiversity */
+function bioCategoryOf(finding,categ){
+  if(categ!=='biodiversity')return null;
+  if(finding==='direct_encounter')return'direct';
+  if(finding==='voice')return'voice';
+  if(finding==='footprint'||finding==='nest')return'sign';
+  if(finding==='rare_vegetation')return'habitat';
   return null;
 }
 
@@ -372,21 +424,26 @@ async function loadAll(){
     coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim()
   }));
 
-  // Header: tanggal hari ini & terakhir diperbarui (tanggal patroli TERAKHIR saja, dari sheet PATROL 2026 — tanpa jam,
-  // tidak terpengaruh filter tahun — selalu menunjukkan data patroli paling baru yang ada)
+  // Header: tanggal hari ini & terakhir diperbarui (tanggal aktivitas patroli TERAKHIR — tanpa jam — dari
+  // GABUNGAN sheet PATROL 2026/2025 & sheet submission, tidak terpengaruh filter tahun)
   document.getElementById('fireTodayDate').textContent=fmtDateID(new Date());
-  const allPatrolDates=patrolEntries.map(e=>e.date);
-  const maxPatrolDate=allPatrolDates.length?new Date(Math.max(...allPatrolDates.map(d=>d.getTime()))):null;
-  document.getElementById('fireLastUpdated').textContent=fmtDateID(maxPatrolDate);
+  const allActivityDates=[...patrolEntries.map(e=>e.date),...submissionRows.map(r=>r.dateObj)].filter(Boolean);
+  const maxActivityDate=allActivityDates.length?new Date(Math.max(...allActivityDates.map(d=>d.getTime()))):null;
+  document.getElementById('fireLastUpdated').textContent=fmtDateID(maxActivityDate);
 
-  // Lingkaran legenda di depan tiap panel — warnanya sama dengan warna marker di peta (ILLEGAL_COLORS)
+  // Lingkaran legenda di depan tiap panel — warnanya sama dengan warna marker di peta (ILLEGAL_COLORS/BIO_COLORS)
   document.getElementById('dotLogging').style.background=ILLEGAL_COLORS.logging;
   document.getElementById('dotHunting').style.background=ILLEGAL_COLORS.hunting;
   document.getElementById('dotMining').style.background=ILLEGAL_COLORS.mining;
   document.getElementById('dotOther').style.background=ILLEGAL_COLORS.other;
+  document.getElementById('dotDirect').style.background=BIO_COLORS.direct;
+  document.getElementById('dotVoice').style.background=BIO_COLORS.voice;
+  document.getElementById('dotSign').style.background=BIO_COLORS.sign;
+  document.getElementById('dotHabitat').style.background=BIO_COLORS.habitat;
 
   buildYearChips();
   initIllegalMap();
+  initBioMap();
   render();
 
   document.getElementById('fireLoading').style.display='none';
@@ -395,17 +452,20 @@ async function loadAll(){
 
 /* ============== FILTER TAHUN ============== */
 /* Daftar chip tahun dibuat otomatis dari tahun yang BENAR-BENAR ADA datanya di kedua sumber
-   (bukan hardcode) — jadi kalau tahun berikutnya sudah mulai ada data, chip-nya otomatis muncul. */
+   (bukan hardcode) — jadi kalau tahun berikutnya sudah mulai ada data, chip-nya otomatis muncul.
+   Default tampilan: tahun 2026 (kalau datanya ada), selain itu jatuh ke "Semua". */
 function buildYearChips(){
   const years=new Set();
   patrolEntries.forEach(e=>years.add(e.date.getFullYear()));
   submissionRows.forEach(r=>{if(r.dateObj)years.add(r.dateObj.getFullYear());});
   const sortedYears=[...years].sort((a,b)=>a-b);
+  const defaultYear=sortedYears.includes(2026)?2026:null;
 
   const chipsEl=document.getElementById('yearFilterChips');
-  const chipHtml=[`<button type="button" class="year-chip active" data-year="all">Semua</button>`]
-    .concat(sortedYears.map(y=>`<button type="button" class="year-chip" data-year="${y}">${y}</button>`));
+  const chipHtml=[`<button type="button" class="year-chip${defaultYear===null?' active':''}" data-year="all">Semua</button>`]
+    .concat(sortedYears.map(y=>`<button type="button" class="year-chip${y===defaultYear?' active':''}" data-year="${y}">${y}</button>`));
   chipsEl.innerHTML=chipHtml.join('');
+  currentYearFilter=defaultYear;
 
   chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -436,6 +496,10 @@ function render(){
   // Deteksi aktifitas ilegal + titik peta, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
   let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
   const illegalPoints=[];
+  // Temuan patroli biodiversitas + titik peta, berdasar kolom data-survey-finding (khusus data-survey-categ = biodiversity)
+  let directCount=0,voiceCount=0,signCount=0,habitatCount=0;
+  const bioPoints=[];
+
   filteredSubmission.forEach(r=>{
     const cat=categoryOf(r.finding,r.categ);
     if(cat==='logging')loggingCount++;
@@ -446,13 +510,28 @@ function render(){
       const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
       if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))illegalPoints.push({lat:parts[0],lon:parts[1],category:cat});
     }
+
+    const bioCat=bioCategoryOf(r.finding,r.categ);
+    if(bioCat==='direct')directCount++;
+    else if(bioCat==='voice')voiceCount++;
+    else if(bioCat==='sign')signCount++;
+    else if(bioCat==='habitat')habitatCount++;
+    if(bioCat&&r.coordinate){
+      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
+      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))bioPoints.push({lat:parts[0],lon:parts[1],category:bioCat});
+    }
   });
   document.getElementById('statLogging').textContent=loggingCount;
   document.getElementById('statHunting').textContent=huntingCount;
   document.getElementById('statMining').textContent=miningCount;
   document.getElementById('statOther').textContent=otherCount;
+  document.getElementById('statDirect').textContent=directCount;
+  document.getElementById('statVoice').textContent=voiceCount;
+  document.getElementById('statSign').textContent=signCount;
+  document.getElementById('statHabitat').textContent=habitatCount;
 
   renderIllegalPoints(illegalPoints);
+  renderBioPoints(bioPoints);
 }
 
 /* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
@@ -466,7 +545,7 @@ let pendingIllegalPoints=null;
 function initIllegalMap(){
   illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
-  illegalMapInstance.setView([0.8,110.3],11);
+  illegalMapInstance.setView([0.8,110.3],13);
 
   illegalMarkerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
 
@@ -476,7 +555,7 @@ function initIllegalMap(){
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
       illegalMapInstance.fitBounds(bounds,{padding:[16,16]});
-      illegalMapInstance.setZoom(13);
+      illegalMapInstance.setZoom(15);
     }
     illegalMapBoundaryReady=true;
     if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
@@ -499,6 +578,50 @@ function renderIllegalPoints(points){
       fillColor:ILLEGAL_COLORS[p.category]||'#6b7280',fillOpacity:.9
     }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${ILLEGAL_LABELS[p.category]}</b></div>`)
       .addTo(illegalMarkerLayer);
+  });
+}
+
+/* ============== PETA TEMUAN PATROLI BIODIVERSITAS ============== */
+let bioMapInstance=null;
+let bioMarkerLayer=null;
+let bioMapBoundaryReady=false;
+let pendingBioPoints=null;
+
+function initBioMap(){
+  bioMapInstance=L.map('bioMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(bioMapInstance);
+  bioMapInstance.setView([0.8,110.3],13);
+
+  bioMarkerLayer=L.layerGroup();
+
+  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
+    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(bioMapInstance);
+    bioMarkerLayer.addTo(bioMapInstance);
+    const bounds=boundary.getBounds();
+    if(bounds.isValid()){
+      bioMapInstance.fitBounds(bounds,{padding:[16,16]});
+      bioMapInstance.setZoom(15);
+    }
+    bioMapBoundaryReady=true;
+    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
+    setTimeout(()=>bioMapInstance.invalidateSize(),150);
+  }).catch(e=>{
+    console.warn('Gagal memuat batas Project Area:',e);
+    bioMarkerLayer.addTo(bioMapInstance);
+    bioMapBoundaryReady=true;
+    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
+  });
+}
+
+function renderBioPoints(points){
+  if(!bioMapBoundaryReady||!bioMarkerLayer){pendingBioPoints=points;return;}
+  bioMarkerLayer.clearLayers();
+  points.forEach(p=>{
+    L.circleMarker([p.lat,p.lon],{
+      radius:6,color:'#fff',weight:1.5,
+      fillColor:BIO_COLORS[p.category]||'#6b7280',fillOpacity:.9
+    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${BIO_LABELS[p.category]}</b></div>`)
+      .addTo(bioMarkerLayer);
   });
 }
 
