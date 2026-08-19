@@ -79,10 +79,11 @@
     .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
     .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
 
-    /* PETA DETEKSI AKTIFITAS ILEGAL */
+    /* PETA DETEKSI AKTIFITAS ILEGAL — lebar dipersempit supaya pas dengan cakupan area (tidak melebar penuh
+       ke kanan yang isinya citra kosong tanpa titik temuan) */
     .illegal-map-panel{
       background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
-      margin-bottom:18px;
+      margin-bottom:18px;max-width:620px;
     }
     #illegalMap{height:320px;width:100%}
 
@@ -272,6 +273,13 @@ function dateKey(d){
   const pad=n=>String(n).padStart(2,'0');
   return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`;
 }
+/* Batas wajar tahun data patroli — jaga-jaga menyaring tanggal "sampah" (mis. baris kosong/format
+   aneh yang lolos parsing tapi hasilnya tahun tidak masuk akal), supaya tidak menggelembungkan hitungan. */
+function isPlausiblePatrolYear(d){
+  if(!d)return false;
+  const y=d.getFullYear();
+  return y>=2024&&y<=2030;
+}
 function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
 function fmtDateTimeID(d){
   if(!d)return '–';
@@ -346,11 +354,16 @@ async function loadAll(){
 
   // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A).
   // Kedua sumber disamakan dulu ke format string DD-MM-YYYY (lihat dateKey), baru digabung ke satu Set
-  // supaya tanggal yang sama dari kedua sumber tidak dihitung dobel.
-  const patrolDateKeys=new Set(patrolDates.map(dateKey).filter(Boolean));
-  const submissionDateKeys=new Set(submissionRows.map(r=>dateKey(r.dateObj)).filter(Boolean));
+  // supaya tanggal yang sama dari kedua sumber tidak dihitung dobel. Tanggal di luar tahun 2024-2030
+  // disaring (lihat isPlausiblePatrolYear) untuk menghindari tanggal "sampah" dari baris yang salah parse.
+  const patrolDateKeys=new Set(patrolDates.filter(isPlausiblePatrolYear).map(dateKey).filter(Boolean));
+  const submissionDateKeys=new Set(submissionRows.map(r=>r.dateObj).filter(isPlausiblePatrolYear).map(dateKey).filter(Boolean));
   const combinedDateKeys=new Set([...patrolDateKeys,...submissionDateKeys]);
   const uniquePatrolDayCount=combinedDateKeys.size;
+  console.log('[Patroli Hari] unik dari sheet PATROL 2026:',patrolDateKeys.size);
+  console.log('[Patroli Hari] unik dari sheet submission:',submissionDateKeys.size);
+  console.log('[Patroli Hari] unik gabungan (union):',uniquePatrolDayCount);
+  console.log('[Patroli Hari] daftar tanggal gabungan:',[...combinedDateKeys].sort());
 
   // Deteksi aktifitas ilegal, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
   let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
