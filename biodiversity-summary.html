@@ -425,6 +425,9 @@ const BOUNDARY_URL='assets/json/CMI.json';
 /* Sheet "Patroli -rkt", tab "Ringkasan Petak" (gid taken from the provided link) */
 const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
 const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=94771341`;
+/* Tab "2026" pada spreadsheet yang sama — kolom B (index 1) berisi tanggal patroli,
+   dipakai untuk ikut menentukan "Last Updated". Data dimulai baris 4 ke bawah. */
+const PATROL_2026_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=801948062`;
 
 /* Submission sheet (Hunting Records), "submission" tab — gid confirmed from the Google Sheets URL. */
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
@@ -567,18 +570,22 @@ function pickFieldExactOrPartial(row,...patterns){
 }
 
 /* ============== LOAD & NORMALIZE DATA ============== */
-let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[];
+let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[],patrol2026Dates=[];
 
 async function loadAll(){
-  const[ctRaw,bioRaw,grid,boundary,patrolRaw,subRaw]=await Promise.all([
+  const[ctRaw,bioRaw,grid,boundary,patrolRaw,patrol2026Raw,subRaw]=await Promise.all([
     fetchCsv(CT_SHEET_URL),
     fetchCsv(BIO_SHEET_URL),
     fetchJson(GRID_URL),
     fetchJson(BOUNDARY_URL),
     fetchCsv(PATROL_URL),
+    fetchCsv(PATROL_2026_URL),
     fetchCsvHeader(SUBMISSION_URL)
   ]);
   boundaryGeo=boundary;
+
+  // Patrol dates from the "2026" tab, column B, starting at row 4 (index 3).
+  patrol2026Dates=patrol2026Raw.slice(3).map(r=>parseDateStr(r[1])).filter(Boolean);
 
   // Camera trap: Batch,StartDate,EndDate,Site,Latitude,Longitude,CameraID,Date,Time,Class,Species,LocalName,IUCN,Indep,Count,...
   ctRows=ctRaw.slice(1).map(r=>({
@@ -640,7 +647,8 @@ async function loadAll(){
   }
 
   document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
-  const allDates=[...ctRows,...bioRows].map(r=>r.Date).filter(Boolean);
+  // "Last Updated" = most recent date across camera trap, bioacoustic, AND the patrol "2026" tab.
+  const allDates=[...ctRows,...bioRows].map(r=>r.Date).filter(Boolean).concat(patrol2026Dates);
   const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
   document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
 
