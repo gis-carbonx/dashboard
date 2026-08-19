@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root{
@@ -77,10 +79,18 @@
     .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
     .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
 
+    /* PETA DETEKSI AKTIFITAS ILEGAL */
+    .illegal-map-panel{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
+      margin-bottom:18px;
+    }
+    #illegalMap{height:320px;width:100%}
+
     /* ILLEGAL ACTIVITY DETECTION CARDS */
     .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
     .illegal-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
-    .illegal-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
+    .illegal-label{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
+    .illegal-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
     .illegal-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:8px}
     .illegal-sub{font-size:11px;color:#6b7280;line-height:1.5}
 
@@ -157,24 +167,30 @@
 
       <!-- DETEKSI AKTIFITAS ILEGAL -->
       <div class="section-title">Deteksi aktifitas ilegal</div>
+
+      <!-- PETA TITIK DETEKSI -->
+      <div class="illegal-map-panel">
+        <div id="illegalMap"></div>
+      </div>
+
       <div class="illegal-grid">
         <div class="illegal-card">
-          <div class="illegal-label">Logging</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotLogging"></span>Logging</div>
           <div class="illegal-value" id="statLogging">–</div>
           <div class="illegal-sub">temuan tercatat</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label">Hunting</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotHunting"></span>Hunting</div>
           <div class="illegal-value" id="statHunting">–</div>
           <div class="illegal-sub">temuan tercatat</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label">Mining</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotMining"></span>Mining</div>
           <div class="illegal-value" id="statMining">–</div>
           <div class="illegal-sub">temuan tercatat</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label">Other</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotOther"></span>Other</div>
           <div class="illegal-value" id="statOther">–</div>
           <div class="illegal-sub">temuan tercatat</div>
         </div>
@@ -209,6 +225,23 @@ const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
 const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=2076427902`;
 
 const HUNTING_FINDINGS=['gunshot_sound','hunter_shelter','wildlife_trap'];
+
+/* Batas area proyek untuk overlay peta */
+const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
+
+/* Warna & label kategori deteksi aktifitas ilegal — dipakai untuk marker peta
+   SEKALIGUS untuk lingkaran legenda di depan tiap panel (satu sumber, tidak dobel-tulis warna). */
+const ILLEGAL_COLORS={logging:'#c2703f',hunting:'#dc2626',mining:'#7c3aed',other:'#6b7280'};
+const ILLEGAL_LABELS={logging:'Logging',hunting:'Hunting',mining:'Mining',other:'Other'};
+
+/* Tentukan kategori satu baris submission berdasar data-survey-finding (& data-survey-categ untuk "Other") */
+function categoryOf(finding,categ){
+  if(finding==='illegal_logging')return'logging';
+  if(HUNTING_FINDINGS.includes(finding))return'hunting';
+  if(finding==='mining')return'mining';
+  if(categ==='illegal_activities')return'other';
+  return null;
+}
 
 /* ============== HELPERS TANGGAL ============== */
 function toMidnight(y,m,d){return new Date(y,m,d);}
@@ -307,7 +340,8 @@ async function loadAll(){
   const submissionRows=subRaw.map(row=>({
     dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
     finding:(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim().toLowerCase(),
-    categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase()
+    categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase(),
+    coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim()
   }));
 
   // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A).
@@ -339,8 +373,58 @@ async function loadAll(){
   document.getElementById('statMining').textContent=miningCount;
   document.getElementById('statOther').textContent=otherCount;
 
+  // Lingkaran legenda di depan tiap panel — warnanya sama dengan warna marker di peta (ILLEGAL_COLORS)
+  document.getElementById('dotLogging').style.background=ILLEGAL_COLORS.logging;
+  document.getElementById('dotHunting').style.background=ILLEGAL_COLORS.hunting;
+  document.getElementById('dotMining').style.background=ILLEGAL_COLORS.mining;
+  document.getElementById('dotOther').style.background=ILLEGAL_COLORS.other;
+
+  // Titik lokasi tiap temuan ilegal (data-survey-categ = illegal_activities), diambil dari kolom data-coordinate
+  // (format "lat,lon"). Baris tanpa koordinat valid atau tanpa kategori yang dikenali diabaikan.
+  const illegalPoints=submissionRows.map(r=>{
+    const cat=categoryOf(r.finding,r.categ);
+    if(!cat||!r.coordinate)return null;
+    const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
+    if(parts.length<2||isNaN(parts[0])||isNaN(parts[1]))return null;
+    return{lat:parts[0],lon:parts[1],category:cat};
+  }).filter(Boolean);
+  initIllegalMap(illegalPoints);
+
   document.getElementById('fireLoading').style.display='none';
   document.getElementById('fireContentBody').style.display='block';
+}
+
+/* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
+function initIllegalMap(points){
+  const map=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  map.setView([0.8,110.3],11);
+
+  const markerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
+
+  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
+    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
+    markerLayer.addTo(map);
+    const bounds=boundary.getBounds();
+    if(bounds.isValid()){
+      map.fitBounds(bounds,{padding:[16,16]});
+      map.setZoom(13);
+    }
+    setTimeout(()=>map.invalidateSize(),150);
+  }).catch(e=>{
+    console.warn('Gagal memuat batas Project Area:',e);
+    markerLayer.addTo(map);
+  });
+
+  points.forEach(p=>{
+    L.circleMarker([p.lat,p.lon],{
+      radius:6,color:'#fff',weight:1.5,
+      fillColor:ILLEGAL_COLORS[p.category]||'#6b7280',fillOpacity:.9
+    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${ILLEGAL_LABELS[p.category]}</b></div>`)
+      .addTo(markerLayer);
+  });
+
+  setTimeout(()=>map.invalidateSize(),300);
 }
 
 loadAll();
