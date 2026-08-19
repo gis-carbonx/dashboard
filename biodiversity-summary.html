@@ -420,6 +420,7 @@ const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
 const GRID_URL='./assets/json/Grid.json';
+const BOUNDARY_URL='assets/json/CMI.json';
 
 /* Sheet "Patroli -rkt", tab "Ringkasan Petak" (gid taken from the provided link) */
 const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
@@ -498,6 +499,35 @@ function inFeature(lat,lon,feature){
   for(const poly of polys)if(pip(lat,lon,poly[0]))return true;
   return false;
 }
+/* Approximate polygon-polygon intersection test: true if any vertex of either
+   polygon falls inside the other. Good enough for simple grid-cell vs boundary checks
+   (grid cells are small rectangles, so a genuine overlap will always share a vertex
+   inside the other shape or vice versa). */
+function featureVertices(feature){
+  const g=feature.geometry;
+  const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+  const pts=[];
+  polys.forEach(poly=>poly.forEach(ring=>ring.forEach(pt=>pts.push(pt))));
+  return pts;
+}
+function featuresIntersect(featureA,featureB){
+  for(const pt of featureVertices(featureA)){
+    if(inFeature(pt[1],pt[0],featureB))return true;
+  }
+  for(const pt of featureVertices(featureB)){
+    if(inFeature(pt[1],pt[0],featureA))return true;
+  }
+  return false;
+}
+function countGridsIntersectingBoundary(){
+  if(!gridGeo||!gridGeo.features||!boundaryGeo||!boundaryGeo.features)return null;
+  let count=0;
+  gridGeo.features.forEach(gridFeat=>{
+    const hit=boundaryGeo.features.some(bFeat=>featuresIntersect(gridFeat,bFeat));
+    if(hit)count++;
+  });
+  return count;
+}
 
 /* ============== FETCH HELPERS ============== */
 function fetchCsv(url){
@@ -537,16 +567,18 @@ function pickFieldExactOrPartial(row,...patterns){
 }
 
 /* ============== LOAD & NORMALIZE DATA ============== */
-let ctRows=[],bioRows=[],gridGeo=null,patrolMap={},huntingRecords=[];
+let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[];
 
 async function loadAll(){
-  const[ctRaw,bioRaw,grid,patrolRaw,subRaw]=await Promise.all([
+  const[ctRaw,bioRaw,grid,boundary,patrolRaw,subRaw]=await Promise.all([
     fetchCsv(CT_SHEET_URL),
     fetchCsv(BIO_SHEET_URL),
     fetchJson(GRID_URL),
+    fetchJson(BOUNDARY_URL),
     fetchCsv(PATROL_URL),
     fetchCsvHeader(SUBMISSION_URL)
   ]);
+  boundaryGeo=boundary;
 
   // Camera trap: Batch,StartDate,EndDate,Site,Latitude,Longitude,CameraID,Date,Time,Class,Species,LocalName,IUCN,Indep,Count,...
   ctRows=ctRaw.slice(1).map(r=>({
@@ -636,7 +668,7 @@ function uniqueLocations(rows){
   return locs;
 }
 function renderMonitoringCoverage(){
-  const totalGrid=gridGeo&&gridGeo.features?gridGeo.features.length:null;
+  const totalGrid=countGridsIntersectingBoundary();
   let monitoredCount='–';
   if(gridGeo&&gridGeo.features){
     const locs=uniqueLocations([...ctRows,...bioRows]);
@@ -768,7 +800,6 @@ function renderPresenceLists(){
 }
 
 /* ============== DETECTION MAP — TRIGGER SPECIES & APEX PREDATOR ============== */
-const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
 const SOURCE_COLORS={cameratrap:'#356760',bioacoustic:'#8C9F8B'};
 const SOURCE_LABELS={cameratrap:'Camera Trap',bioacoustic:'Bioacoustic'};
 
@@ -927,9 +958,9 @@ function initPresenceMap(){
 
   const markerLayer=L.layerGroup(); // added to the map later, so it renders ABOVE the Project Area boundary
 
-  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
+  if(boundaryGeo){
     // 1) Project Area is added FIRST -> becomes the bottom-most layer.
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
+    const boundary=L.geoJSON(boundaryGeo,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
     // 2) Species location points are added AFTERWARD -> rendered above the Project Area boundary.
     markerLayer.addTo(map);
 
@@ -940,10 +971,10 @@ function initPresenceMap(){
       map.setZoom(13);
     }
     setTimeout(()=>map.invalidateSize(),150);
-  }).catch(e=>{
-    console.warn('Failed to load Project Area boundary:',e);
-    markerLayer.addTo(map); // tetap tampilkan titik walau boundary gagal dimuat
-  });
+  }else{
+    console.warn('Project Area boundary not available (failed to load).');
+    markerLayer.addTo(map); // still show points even if the boundary failed to load
+  }
 
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
