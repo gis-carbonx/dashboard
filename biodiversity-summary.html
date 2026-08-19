@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,7 +71,7 @@
     .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
     .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
 
-    /* GENERIC STAT GRID / CARD (dipakai di beberapa section) */
+    /* GENERIC STAT GRID / CARD (used in several sections) */
     .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}
     .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
     .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
@@ -80,7 +80,7 @@
     .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
     .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
 
-    /* CTA BAR — style disamakan dengan callout di monitoring-fire-event.html */
+    /* CTA BAR — style matched to the callout in monitoring-fire-event.html */
     .cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:14px 0}
     .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
     .cta-btn{
@@ -107,7 +107,7 @@
     .breakdown-chart{display:flex;height:10px;width:100%;border-radius:6px;overflow:hidden}
     .breakdown-chart-seg{height:100%}
 
-    /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Peta deteksi) */
+    /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Detection map) */
     .presence-row-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:18px;align-items:stretch}
     @media (max-width:920px){ .presence-row-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
     @media (max-width:620px){ .presence-row-grid{grid-template-columns:1fr} }
@@ -125,7 +125,7 @@
     .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
     .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
 
-    /* PETA DETEKSI TRIGGER SPECIES & APEX PREDATOR */
+    /* DETECTION MAP — TRIGGER SPECIES & APEX PREDATOR */
     .presence-map-panel{
       background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
       display:flex;flex-direction:column;min-height:260px;
@@ -201,31 +201,31 @@
         <div class="bio-header-date" id="bioTodayDate">–</div>
       </div>
       <div class="bio-header-right">
-        <div class="bio-header-updated-label">Terakhir Diperbarui</div>
+        <div class="bio-header-updated-label">Last Updated</div>
         <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
       </div>
     </div>
   </div>
 
   <div class="bio-scroll" id="bioContent">
-    <div class="loading-msg" id="bioLoading">Memuat data monitoring…</div>
+    <div class="loading-msg" id="bioLoading">Loading monitoring data…</div>
 
     <div class="bio-content" id="bioContentBody" style="display:none">
 
-      <!-- TOTAL TITIK MONITORING & CAKUPAN PATROLI -->
+      <!-- TOTAL MONITORING POINTS & PATROL COVERAGE -->
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-label">Total titik monitoring</div>
+          <div class="stat-label">Total monitoring points</div>
           <div class="stat-value-row">
             <span class="stat-value" id="statGridMonitored">–<span class="stat-value-suffix" id="statGridTotal"></span></span>
-            <span class="stat-sub-plain">grid terpasang alat monitoring</span>
+            <span class="stat-sub-plain">grid cells equipped with monitoring devices</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Total cakupan patroli</div>
+          <div class="stat-label">Total patrol coverage</div>
           <div class="stat-value-row">
             <span class="stat-value" id="statPatrolPct">–%</span>
-            <span class="stat-sub-plain" id="statPatrolSub">grid terpantau</span>
+            <span class="stat-sub-plain" id="statPatrolSub">grid cells patrolled</span>
           </div>
         </div>
       </div>
@@ -233,14 +233,14 @@
       <!-- SPESIES TERDETEKSI & TERANCAM -->
       <div class="breakdown-grid" style="margin-top:20px">
         <div class="breakdown-card">
-          <span class="breakdown-label">Spesies terdeteksi</span>
+          <span class="breakdown-label">Species detected</span>
           <div class="breakdown-value-row">
             <span class="breakdown-value" id="statSpeciesTotal">–</span>
             <div class="breakdown-chart-wrap" id="statSpeciesChart"></div>
           </div>
         </div>
         <div class="breakdown-card">
-          <span class="breakdown-label">Spesies terancam</span>
+          <span class="breakdown-label">Threatened species</span>
           <div class="breakdown-value-row">
             <span class="breakdown-value" id="statThreatenedTotal">–</span>
             <div class="breakdown-chart-wrap" id="statThreatenedChart"></div>
@@ -280,14 +280,14 @@
         metus.
       </p>
 
-      <!-- STATISTIK SPESIES AREA PROYEK SANGGALA -->
+      <!-- SPECIES STATISTICS — SANGGALA PROJECT AREA -->
       <div class="species-stat-panel">
-        <div class="species-stat-title">Statistik Spesies Area Proyek Sanggala</div>
+        <div class="species-stat-title">Species Statistics — Sanggala Project Area</div>
         <div class="species-stat-row">
           <div class="species-chart-wrap"><canvas id="chartSpeciesClass"></canvas></div>
           <table class="species-table">
-            <thead><tr><th>Species</th><th>Jumlah Deteksi</th></tr></thead>
-            <tbody id="topSpeciesTbody"><tr><td colspan="2" style="color:#9ca3af;padding:12px 0">Memuat…</td></tr></tbody>
+            <thead><tr><th>Species</th><th>Detection Count</th></tr></thead>
+            <tbody id="topSpeciesTbody"><tr><td colspan="2" style="color:#9ca3af;padding:12px 0">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -306,7 +306,7 @@
         <div class="hunting-panel-title"><span class="hunting-dot"></span>Hunting Records</div>
         <div class="hunting-tbl-wrap">
           <table class="hunting-table">
-            <thead><tr><th>Tanggal</th><th>Temuan</th><th>Koordinat</th><th>Deskripsi</th><th>Foto</th></tr></thead>
+            <thead><tr><th>Date</th><th>Finding</th><th>Coordinates</th><th>Description</th><th>Photo</th></tr></thead>
             <tbody id="huntingList"></tbody>
           </table>
         </div>
@@ -323,16 +323,16 @@
       </p>
 
       <div class="cta-bar">
-        <span class="cta-text">Detail sebaran data camera trap dapat dilihat melalui tautan berikut</span>
+        <span class="cta-text">Detailed camera trap distribution data is available via the link below</span>
         <a href="cameratrap-monitoring.html" class="cta-btn">Camera Trap &rarr;</a>
       </div>
       <div class="cta-bar">
-        <span class="cta-text">Detail sebaran data bioacoustic dapat dilihat melalui tautan berikut</span>
+        <span class="cta-text">Detailed bioacoustic distribution data is available via the link below</span>
         <a href="bioacoustic-monitoring.html" class="cta-btn">Bioacoustic &rarr;</a>
       </div>
       <div class="cta-bar">
-        <span class="cta-text">Laporan kuartal dapat dilihat melalui tautan berikut</span>
-        <a href="biodiversity-report.html" class="cta-btn">Laporan &rarr;</a>
+        <span class="cta-text">The quarterly report is available via the link below</span>
+        <a href="biodiversity-report.html" class="cta-btn">Report &rarr;</a>
       </div>
 
     </div>
@@ -340,18 +340,18 @@
 </div>
 
 <script>
-/* ============== KONFIGURASI SUMBER DATA ============== */
+/* ============== DATA SOURCE CONFIGURATION ============== */
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
 const GRID_URL='./assets/json/Grid.json';
 
-/* Sheet "Patroli -rkt", tab "Ringkasan Petak" (gid dari link yang diberikan) */
+/* Sheet "Patroli -rkt", tab "Ringkasan Petak" (gid taken from the provided link) */
 const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
 const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=94771341`;
 
-/* Sheet submission (Hunting Records), tab "submission" — gid dikonfirmasi dari URL Google Sheets. */
+/* Submission sheet (Hunting Records), "submission" tab — gid confirmed from the Google Sheets URL. */
 const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
 const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=2076427902`;
 
@@ -359,9 +359,9 @@ const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef44
 const IUCN_LOGO_URL=(code)=>`assets/logo/iucn/iucn-red-list-${(code||'').toLowerCase()}_orig.png`;
 const THREATENED_STATUSES=['EN','CR'];
 
-/* Daftar tetap — sama dengan Key Species di biodiversity-report.html,
-   ditambah daftar Apex Predator. IUCN di sini dipakai sebagai referensi tampilan
-   badge (tetap tampil walau spesies itu belum pernah terdeteksi di data). */
+/* Fixed list — same as the Key Species in biodiversity-report.html.
+   IUCN codes here are used for the badge display (shown even if the species
+   has never actually been detected in the data). */
 const TRIGGER_SPECIES=[
   {latin:'Pongo pygmaeus', local:'Orangutan',                                   iucn:'CR'},
   {latin:'Manis javanica',          local:'Sunda Pangolin (Trenggiling)',       iucn:'CR'},
@@ -370,13 +370,13 @@ const TRIGGER_SPECIES=[
 const APEX_PREDATOR_SPECIES=[]; // diisi otomatis saat data dimuat — lihat buildApexPredatorSpecies()
 
 const FINDING_LABELS={
-  wildlife_trap:'Jerat aktif ditemukan',
-  gunshot_sound:'Suara tembakan terdengar',
-  hunter_shelter:'Pondok pemburu ditemukan'
+  wildlife_trap:'Active snare/trap detected',
+  gunshot_sound:'Gunshot sound detected',
+  hunter_shelter:'Hunter shelter detected'
 };
 const HUNTING_FINDINGS=['gunshot_sound','wildlife_trap','hunter_shelter'];
 
-/* ============== HELPERS TANGGAL ============== */
+/* ============== DATE HELPERS ============== */
 function toMidnight(y,m,d){return new Date(y,m,d);}
 function parseDateStr(s){
   if(!s||!s.trim())return null;
@@ -409,7 +409,7 @@ function fmtDateTimeID(d){
 }
 function fmtDateShort(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'–';}
 
-/* ============== POINT-IN-POLYGON (untuk hitung grid termonitor) ============== */
+/* ============== POINT-IN-POLYGON (used to compute monitored grid cells) ============== */
 function pip(lat,lon,ring){
   let inside=false;
   for(let i=0,j=ring.length-1;i<ring.length;j=i++){
@@ -445,9 +445,9 @@ function fetchCsvHeader(url){
 function fetchJson(url){
   return fetch(url).then(r=>r.json()).catch(e=>{console.warn('JSON load failed:',url,e);return null;});
 }
-/* Cari nilai kolom dengan cocokkan nama header secara fleksibel (exact match dulu,
-   baru substring) — supaya tidak bergantung pada urutan/index kolom yang bisa berubah.
-   Underscore & strip dianggap setara ("base_info" akan cocok dengan pola "base-info"). */
+/* Look up a column value by flexibly matching the header name (exact match first,
+   then substring) — so it doesn't depend on a column order/index that could change.
+   Underscores and hyphens are treated as equivalent ("base_info" matches the "base-info" pattern). */
 function pickFieldExactOrPartial(row,...patterns){
   const keys=Object.keys(row);
   const norm=s=>s.toString().trim().toLowerCase().replace(/[_\s]+/g,'-');
@@ -462,7 +462,7 @@ function pickFieldExactOrPartial(row,...patterns){
   return undefined;
 }
 
-/* ============== LOAD & NORMALISASI ============== */
+/* ============== LOAD & NORMALIZE DATA ============== */
 let ctRows=[],bioRows=[],gridGeo=null,patrolMap={},huntingRecords=[];
 
 async function loadAll(){
@@ -497,24 +497,24 @@ async function loadAll(){
     if(label)patrolMap[label.toLowerCase()]=val;
   });
 
-  // Hunting records dari sheet submission — HANYA pakai kolom:
-  // I = data-survey-finding, J = data-survey-description, C = data-coordinate, K = link gambar.
-  // Dicocokkan berdasarkan NAMA kolom (bukan huruf/index kolom tetap), supaya tidak gampang salah
-  // kalau urutan kolom di sheet sedikit berbeda dari dugaan.
-  console.log('[Hunting] baris mentah dari sheet submission:',subRaw.length);
+  // Hunting records from the submission sheet — uses ONLY these columns:
+  // I = data-survey-finding, J = data-survey-description, C = data-coordinate, K = image link.
+  // Matched by COLUMN NAME (not fixed letter/index), so it's more resilient to small
+  // column-order differences in the sheet.
+  console.log('[Hunting] raw rows fetched from submission sheet:',subRaw.length);
   if(subRaw.length){
     const actualHeaders=Object.keys(subRaw[0]);
-    console.log('[Hunting] header kolom yang benar-benar ke-fetch:',actualHeaders);
+    console.log('[Hunting] headers actually fetched:',actualHeaders);
     const looksRight=actualHeaders.some(h=>h.toLowerCase().includes('survey-finding'));
     if(!looksRight){
-      console.warn('[Hunting] PERINGATAN: header di atas tidak mengandung "survey-finding" sama sekali. '+
-        'Ini tanda kuat gid=0 BUKAN tab "submission" yang benar, atau sheet belum di-share publik '+
-        '("Anyone with the link -> Viewer"). Buka tab submission di browser, lihat "#gid=..." di URL, '+
-        'lalu kabari angkanya supaya SUBMISSION_URL bisa diperbaiki.');
+      console.warn('[Hunting] WARNING: the headers above do not contain "survey-finding" at all. '+
+        'This is a strong sign that gid=0 is NOT the correct "submission" tab, or the sheet has not '+
+        'been shared publicly ("Anyone with the link -> Viewer"). Open the submission tab in your '+
+        'browser, check "#gid=..." in the URL, and report that number so SUBMISSION_URL can be fixed.');
     }
   }else{
-    console.warn('[Hunting] 0 baris ter-fetch sama sekali. Kemungkinan besar sheet belum di-share publik, '+
-      'atau gid=0 salah / kosong. Cek juga tab Network di DevTools untuk lihat response mentahnya.');
+    console.warn('[Hunting] 0 rows fetched at all. The sheet is most likely not shared publicly, '+
+      'or gid=0 is wrong/empty. Also check the Network tab in DevTools to inspect the raw response.');
   }
   huntingRecords=subRaw.map(row=>{
     const findingRaw=pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding');
@@ -526,11 +526,11 @@ async function loadAll(){
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
-  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); // terbaru dulu
-  console.log('[Hunting] jumlah baris cocok (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); // most recent first
+  console.log('[Hunting] matching rows (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
   if(subRaw.length&&!huntingRecords.length){
     const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
-    console.log('[Hunting] tidak ada yang cocok. Nilai unik kolom finding yang ditemukan di sheet:',[...findingValues]);
+    console.log('[Hunting] no matches found. Unique finding values present in the sheet:',[...findingValues]);
   }
 
   document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
@@ -551,7 +551,7 @@ async function loadAll(){
   document.getElementById('bioContentBody').style.display='block';
 }
 
-/* ============== TOTAL TITIK MONITORING ============== */
+/* ============== TOTAL MONITORING POINTS ============== */
 function uniqueLocations(rows){
   const seen=new Set();const locs=[];
   rows.forEach(r=>{
@@ -578,7 +578,7 @@ function renderMonitoringCoverage(){
   document.getElementById('statGridTotal').textContent=totalGrid!==null?`/${totalGrid}`:'';
 }
 
-/* ============== TOTAL CAKUPAN PATROLI (sheet Ringkasan Petak) ============== */
+/* ============== TOTAL PATROL COVERAGE (Ringkasan Petak sheet) ============== */
 function findPatrolValue(matchFn){
   for(const k in patrolMap){if(matchFn(k))return patrolMap[k];}
   return null;
@@ -587,7 +587,7 @@ function renderPatrolCoverage(){
   const totalOverallStr=findPatrolValue(k=>k.includes('total petak keseluruhan'));
   const totalOverall=parseInt((totalOverallStr||'').replace(/[^\d]/g,''))||0;
 
-  // Cari kolom "Total Petak Unik Tahun XXXX" dengan tahun TERBARU yang tersedia di sheet
+  // Find the "Total Petak Unik Tahun XXXX" column with the MOST RECENT year available in the sheet
   let best=null;
   for(const k in patrolMap){
     const m=k.match(/total petak unik tahun (\d{4})/);
@@ -598,7 +598,7 @@ function renderPatrolCoverage(){
 
   const pct=totalOverall?Math.round((uniqueYear/totalOverall)*1000)/10:0;
   document.getElementById('statPatrolPct').textContent=(totalOverall?pct:'–')+'%';
-  document.getElementById('statPatrolSub').textContent=`grid terpantau tahun ${yearLabel}`;
+  document.getElementById('statPatrolSub').textContent=`grid cells patrolled in ${yearLabel}`;
 }
 
 /* ============== SPESIES TERDETEKSI & TERANCAM ============== */
@@ -652,10 +652,10 @@ function renderSpeciesCounts(){
 
 /* ============== TRIGGER SPECIES / APEX PREDATOR PRESENCE ============== */
 function buildApexPredatorSpecies(){
-  // Apex Predator TIDAK di-hardcode — otomatis diambil dari data: spesies apapun yang
-  // nama lokalnya (LocalName) mengandung kata "kucing" (case-insensitive). Jadi kalau
-  // ada spesies kucing baru masuk ke data camera trap/bioacoustic, otomatis muncul di sini
-  // tanpa perlu ubah kode.
+  // Apex Predator is NOT hardcoded — it is derived automatically from the data: any species
+  // whose local name (LocalName) contains the word "kucing" (Indonesian for "cat", case-insensitive).
+  // So if a new feline species is added to the camera trap/bioacoustic data, it will automatically
+  // appear here without any code changes.
   const combined=[...ctRows,...bioRows];
   const map={};
   combined.forEach(r=>{
@@ -678,8 +678,8 @@ function speciesDetectionCount(latinName){
 function renderPresenceRow(sp){
   const count=speciesDetectionCount(sp.latin);
   const detectedHtml=count>0
-    ? `<div class="presence-detected">Terdeteksi ${count} kali</div>`
-    : `<div class="presence-not-detected">Belum terdeteksi</div>`;
+    ? `<div class="presence-detected">Detected ${count} times</div>`
+    : `<div class="presence-not-detected">Not yet detected</div>`;
   return `<div class="presence-row">
     <div class="presence-badge"><img src="${IUCN_LOGO_URL(sp.iucn)}" alt="${sp.iucn}" title="${sp.iucn}" onerror="this.parentElement.innerHTML='${sp.iucn}';this.parentElement.style.cssText='width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}'"></div>
     <div>
@@ -693,10 +693,10 @@ function renderPresenceLists(){
   document.getElementById('triggerSpeciesList').innerHTML=TRIGGER_SPECIES.map(renderPresenceRow).join('');
   document.getElementById('apexPredatorList').innerHTML=APEX_PREDATOR_SPECIES.length
     ? APEX_PREDATOR_SPECIES.map(renderPresenceRow).join('')
-    : '<div style="font-size:11px;color:#9ca3af;font-style:italic;padding:8px 0">Belum ada spesies "kucing" yang tercatat di data.</div>';
+    : '<div style="font-size:11px;color:#9ca3af;font-style:italic;padding:8px 0">No feline species have been recorded in the data yet.</div>';
 }
 
-/* ============== PETA DETEKSI TRIGGER SPECIES & APEX PREDATOR ============== */
+/* ============== DETECTION MAP — TRIGGER SPECIES & APEX PREDATOR ============== */
 const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
 const SOURCE_COLORS={cameratrap:'#356760',bioacoustic:'#8C9F8B'};
 const SOURCE_LABELS={cameratrap:'Camera Trap',bioacoustic:'Bioacoustic'};
@@ -718,12 +718,12 @@ function initPresenceMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
 
-  const markerLayer=L.layerGroup(); // ditambahkan ke peta belakangan, supaya render di ATAS batas Project Area
+  const markerLayer=L.layerGroup(); // added to the map later, so it renders ABOVE the Project Area boundary
 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    // 1) Project Area ditambahkan LEBIH DULU -> jadi layer paling bawah.
+    // 1) Project Area is added FIRST -> becomes the bottom-most layer.
     const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
-    // 2) Titik lokasi spesies ditambahkan SETELAHNYA -> render di atas batas Project Area.
+    // 2) Species location points are added AFTERWARD -> rendered above the Project Area boundary.
     markerLayer.addTo(map);
 
     const bounds=boundary.getBounds();
@@ -734,15 +734,15 @@ function initPresenceMap(){
     }
     setTimeout(()=>map.invalidateSize(),150);
   }).catch(e=>{
-    console.warn('Gagal memuat batas Project Area:',e);
+    console.warn('Failed to load Project Area boundary:',e);
     markerLayer.addTo(map); // tetap tampilkan titik walau boundary gagal dimuat
   });
 
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
 
-  // Gabungkan dulu per lokasi (lat/lon yang sama) — supaya kalau beberapa spesies
-  // terdeteksi di titik yang persis sama, cukup satu marker dengan popup berisi daftar spesiesnya.
+  // First group by location (identical lat/lon) — so if several species are detected at the
+  // exact same point, a single marker is enough, with a popup listing all species detected there.
   const locationMap={};
   allSpecies.forEach(sp=>{
     const locs=speciesLocations(sp.latin);
@@ -773,14 +773,14 @@ function initPresenceMap(){
       .addTo(markerLayer);
   });
 
-  // Legend disederhanakan jadi 2 kategori sumber data saja + batas Project Area.
+  // Legend simplified to just 2 data-source categories plus the Project Area boundary.
   legendEl.innerHTML=
     `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.cameratrap}"></span>${SOURCE_LABELS.cameratrap}</span>`+
     `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.bioacoustic}"></span>${SOURCE_LABELS.bioacoustic}</span>`+
     '<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
 }
 
-/* ============== STATISTIK SPESIES AREA PROYEK ============== */
+/* ============== SPECIES STATISTICS — PROJECT AREA ============== */
 let speciesClassChart=null;
 function renderSpeciesStats(){
   const combined=[...ctRows,...bioRows];
@@ -818,14 +818,14 @@ function renderSpeciesStats(){
   const tbody=document.getElementById('topSpeciesTbody');
   tbody.innerHTML=top.length
     ? top.map(([sp,count])=>`<tr><td>${sp}</td><td>${count}</td></tr>`).join('')
-    : '<tr><td colspan="2" style="color:#9ca3af;padding:12px 0">Belum ada data</td></tr>';
+    : '<tr><td colspan="2" style="color:#9ca3af;padding:12px 0">No data available</td></tr>';
 }
 
 /* ============== HUNTING RECORDS ============== */
 let huntingExpanded=false;
 const HUNTING_PREVIEW_COUNT=3;
 function huntingRowHtml(r){
-  const photoLink=r.imageUrl?`<a href="${r.imageUrl}" target="_blank" rel="noopener">Lihat foto &#8599;</a>`:'–';
+  const photoLink=r.imageUrl?`<a href="${r.imageUrl}" target="_blank" rel="noopener">View photo &#8599;</a>`:'–';
   return `<tr>
     <td class="hunting-date-cell">${fmtDateShort(r.dateObj)}</td>
     <td class="hunting-finding-cell">${FINDING_LABELS[r.finding]||r.finding}</td>
@@ -838,7 +838,7 @@ function renderHuntingRecords(){
   const listEl=document.getElementById('huntingList');
   const moreBtn=document.getElementById('huntingMoreBtn');
   if(!huntingRecords.length){
-    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">Belum ada catatan perburuan yang cocok. Buka Console browser (F12) untuk lihat diagnosanya — kemungkinan besar tab "submission" bukan di gid yang benar, atau sheet belum di-share publik ("Anyone with the link → Viewer").</td></tr>';
+    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">No matching hunting records found. Open the browser Console (F12) for diagnostics — the "submission" tab is most likely at the wrong gid, or the sheet has not been shared publicly ("Anyone with the link → Viewer").</td></tr>';
     moreBtn.style.display='none';
     return;
   }
