@@ -349,6 +349,19 @@ async function loadAll(){
     fetchCsvHeader(SUBMISSION_URL)
   ]);
 
+  // Debug: cek jumlah baris mentah yang benar-benar ke-fetch dari tiap sheet patroli.
+  // Kalau angkanya 0 (atau sangat kecil dibanding isi asli sheet), kemungkinan besar:
+  // (1) sheet belum di-share publik ("Anyone with the link -> Viewer"), atau
+  // (2) gid=0 BUKAN tab "REKAP ALL" yang benar.
+  console.log('[Patrol Sheets] baris mentah ter-fetch dari PATROL 2026:',patrol2026Raw.length);
+  console.log('[Patrol Sheets] baris mentah ter-fetch dari PATROLI 2025:',patrol2025Raw.length);
+  if(patrol2025Raw.length<5){
+    console.warn('[Patrol Sheets] PERINGATAN: PATROLI 2025 cuma dapat',patrol2025Raw.length,
+      'baris — jauh lebih sedikit dari isi asli sheet. Kemungkinan besar sheet PATROLI 2025 belum di-share '+
+      '"Anyone with the link -> Viewer", atau gid=0 bukan tab REKAP ALL yang benar. '+
+      'Cek juga tab Network di DevTools untuk lihat isi response CSV-nya (kalau isinya HTML halaman login Google, itu tandanya belum publik).');
+  }
+
   // Sheet PATROL 2026 & PATROLI 2025 — struktur kolom sama: data mulai baris 4 (index 3).
   // Kolom B (index1)=Tanggal Patroli, Kolom H (index7)=Luas Area (Ha)
   function parsePatrolSheet(raw){
@@ -361,7 +374,16 @@ async function loadAll(){
     }).filter(e=>e.date);
   }
   // Digabung jadi satu daftar — tanggal 2025 & 2026 (dan tahun lain kalau ditambahkan lagi nanti) diperlakukan sama
-  patrolEntries=[...parsePatrolSheet(patrol2026Raw),...parsePatrolSheet(patrol2025Raw)];
+  const entries2026=parsePatrolSheet(patrol2026Raw);
+  const entries2025=parsePatrolSheet(patrol2025Raw);
+  patrolEntries=[...entries2026,...entries2025];
+  console.log('[Patrol Sheets] baris valid (ada tanggal ke-parse) dari PATROL 2026:',entries2026.length);
+  console.log('[Patrol Sheets] baris valid (ada tanggal ke-parse) dari PATROLI 2025:',entries2025.length);
+  if(patrol2025Raw.length>=5&&entries2025.length===0){
+    console.warn('[Patrol Sheets] PERINGATAN: PATROLI 2025 berhasil ke-fetch tapi 0 baris punya tanggal valid. '+
+      'Kemungkinan besar kolom TANGGAL PATROLI tidak lagi di kolom B (index 1), atau formatnya bukan DD-MM-YYYY. '+
+      'Cek console.log baris mentahnya untuk lihat isi kolomnya.');
+  }
 
   // Sheet submission — data mulai baris 2 (otomatis, header:true). Kolom A=data-start_date,
   // Kolom H=data-survey-categ, Kolom I=data-survey-finding
