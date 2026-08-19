@@ -91,21 +91,26 @@
     }
     .cta-btn:hover{opacity:.88}
 
-    /* SPECIES BREAKDOWN CARD (Spesies terdeteksi / Spesies terancam) */
-    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,480px));gap:18px;margin-bottom:8px}
+    /* SPECIES BREAKDOWN CARD (Species Detected / Threatened Species) */
+    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,420px));gap:18px;margin-bottom:8px}
     .breakdown-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px;
       display:flex;flex-direction:column;gap:16px;
     }
-    .breakdown-label{font-size:12px;color:#6b7280;font-weight:600}
-    .breakdown-value-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
-    .breakdown-value{font-size:38px;font-weight:800;color:var(--color-pine);line-height:1}
-    .breakdown-chart-wrap{flex:1;min-width:140px}
-    .breakdown-chart-labels{display:flex;margin-bottom:5px}
-    .breakdown-chart-label{font-size:12px;font-weight:800;color:#1f2937;text-align:center;line-height:1}
-    .breakdown-chart-label-sub{font-size:9.5px;font-weight:500;color:#6b7280;margin-top:3px;line-height:1.3}
-    .breakdown-chart{display:flex;height:10px;width:100%;border-radius:6px;overflow:hidden}
-    .breakdown-chart-seg{height:100%}
+    .breakdown-card-head{display:flex;align-items:center;justify-content:space-between}
+    .breakdown-label{font-size:17px;font-weight:800;color:#1f2937}
+    .breakdown-info-icon{
+      width:20px;height:20px;border-radius:50%;border:1.5px solid #d1d5db;color:#9ca3af;
+      font-size:11px;font-weight:700;font-style:italic;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;cursor:default;
+    }
+    .breakdown-value{font-size:44px;font-weight:800;color:var(--color-pine);line-height:1}
+    .breakdown-divider{height:1px;background:#e5e7eb;width:100%}
+    .breakdown-sub-row{display:flex}
+    .breakdown-sub-col{display:flex;flex-direction:column;gap:6px}
+    .breakdown-sub-col+.breakdown-sub-col{border-left:1px solid #e5e7eb;margin-left:20px;padding-left:20px}
+    .breakdown-sub-label{font-size:12.5px;color:#9ca3af}
+    .breakdown-sub-value{font-size:20px;font-weight:800;color:#1f2937;line-height:1}
 
     /* SPECIES PRESENCE PANEL (Trigger species / Apex predator / Detection map) */
     .presence-row-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:18px;align-items:stretch}
@@ -230,20 +235,42 @@
         </div>
       </div>
 
-      <!-- SPESIES TERDETEKSI & TERANCAM -->
+      <!-- SPECIES DETECTED & THREATENED SPECIES -->
       <div class="breakdown-grid" style="margin-top:20px">
         <div class="breakdown-card">
-          <span class="breakdown-label">Species detected</span>
-          <div class="breakdown-value-row">
-            <span class="breakdown-value" id="statSpeciesTotal">–</span>
-            <div class="breakdown-chart-wrap" id="statSpeciesChart"></div>
+          <div class="breakdown-card-head">
+            <span class="breakdown-label">Species Detected</span>
+            <span class="breakdown-info-icon" title="Total unique species recorded across camera trap and bioacoustic data">i</span>
+          </div>
+          <span class="breakdown-value" id="statSpeciesTotal">–</span>
+          <div class="breakdown-divider"></div>
+          <div class="breakdown-sub-row">
+            <div class="breakdown-sub-col">
+              <span class="breakdown-sub-label">Camera Trap</span>
+              <span class="breakdown-sub-value" id="statSpeciesCt">–</span>
+            </div>
+            <div class="breakdown-sub-col">
+              <span class="breakdown-sub-label">Bioacoustic</span>
+              <span class="breakdown-sub-value" id="statSpeciesBio">–</span>
+            </div>
           </div>
         </div>
         <div class="breakdown-card">
-          <span class="breakdown-label">Threatened species</span>
-          <div class="breakdown-value-row">
-            <span class="breakdown-value" id="statThreatenedTotal">–</span>
-            <div class="breakdown-chart-wrap" id="statThreatenedChart"></div>
+          <div class="breakdown-card-head">
+            <span class="breakdown-label">Threatened Species</span>
+            <span class="breakdown-info-icon" title="Unique species with IUCN status Endangered or Critically Endangered">i</span>
+          </div>
+          <span class="breakdown-value" id="statThreatenedTotal">–</span>
+          <div class="breakdown-divider"></div>
+          <div class="breakdown-sub-row">
+            <div class="breakdown-sub-col">
+              <span class="breakdown-sub-label">Endangered</span>
+              <span class="breakdown-sub-value" id="statThreatenedEn">–</span>
+            </div>
+            <div class="breakdown-sub-col">
+              <span class="breakdown-sub-label">Critically Endangered</span>
+              <span class="breakdown-sub-value" id="statThreatenedCr">–</span>
+            </div>
           </div>
         </div>
       </div>
@@ -607,33 +634,14 @@ function uniqueSpeciesSet(rows){
   rows.forEach(r=>{if(r.Species&&r.Indep>0)s.add(r.Species.trim().toLowerCase());});
   return s;
 }
-function renderMiniBarChart(elId,segments){
-  // segments = [{value, color, label}, ...]
-  const el=document.getElementById(elId);
-  const sum=segments.reduce((s,seg)=>s+seg.value,0);
-  if(sum<=0){el.innerHTML='';return;}
-  const labelsHtml=segments.map(seg=>{
-    if(seg.value<=0)return'';
-    const pct=(seg.value/sum*100).toFixed(1);
-    return `<div class="breakdown-chart-label" style="width:${pct}%">${seg.value}<div class="breakdown-chart-label-sub">${seg.label}</div></div>`;
-  }).join('');
-  const barHtml=segments.map(seg=>{
-    if(seg.value<=0)return'';
-    const pct=(seg.value/sum*100).toFixed(1);
-    return `<div class="breakdown-chart-seg" style="width:${pct}%;background:${seg.color}"></div>`;
-  }).join('');
-  el.innerHTML=`<div class="breakdown-chart-labels">${labelsHtml}</div><div class="breakdown-chart">${barHtml}</div>`;
-}
 function renderSpeciesCounts(){
   const combined=[...ctRows,...bioRows];
   const allSp=uniqueSpeciesSet(combined);
   const ctSp=uniqueSpeciesSet(ctRows);
   const bioSp=uniqueSpeciesSet(bioRows);
   document.getElementById('statSpeciesTotal').textContent=allSp.size;
-  renderMiniBarChart('statSpeciesChart',[
-    {value:ctSp.size,color:SOURCE_COLORS.cameratrap,label:'camera trap'},
-    {value:bioSp.size,color:SOURCE_COLORS.bioacoustic,label:'bioacoustic'}
-  ]);
+  document.getElementById('statSpeciesCt').textContent=ctSp.size;
+  document.getElementById('statSpeciesBio').textContent=bioSp.size;
 
   const iucnMap={};
   combined.forEach(r=>{
@@ -644,10 +652,8 @@ function renderSpeciesCounts(){
   const counts={EN:0,CR:0};let total=0;
   Object.values(iucnMap).forEach(iucn=>{if(THREATENED_STATUSES.includes(iucn)){counts[iucn]++;total++;}});
   document.getElementById('statThreatenedTotal').textContent=total;
-  renderMiniBarChart('statThreatenedChart',[
-    {value:counts.EN,color:IUCN_COLORS.EN,label:'Endangered'},
-    {value:counts.CR,color:IUCN_COLORS.CR,label:'Critically Endangered'}
-  ]);
+  document.getElementById('statThreatenedEn').textContent=counts.EN;
+  document.getElementById('statThreatenedCr').textContent=counts.CR;
 }
 
 /* ============== TRIGGER SPECIES / APEX PREDATOR PRESENCE ============== */
