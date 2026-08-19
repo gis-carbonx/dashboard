@@ -70,9 +70,20 @@
     .fire-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
     .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
 
+    /* FILTER TAHUN — mengikuti style "Filter Chip Buttons" pada design system Sanggala Corridor Project */
+    .year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+    .year-filter-label{font-size:12px;font-weight:600;color:#6b7280}
+    .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+    .year-chip{
+      padding:6px 16px;border-radius:20px;border:1px solid var(--color-sand);
+      background:var(--color-cream);color:#374151;font-size:12px;font-weight:600;
+      cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
+    }
+    .year-chip:hover{background:var(--color-sage)}
+    .year-chip.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+
     /* STAT CARD (Patroli hari / Patrol coverage) */
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}
-    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
     .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
     .stat-value-row{display:flex;align-items:center;gap:22px}
     .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
@@ -141,6 +152,12 @@
     <div class="loading-msg" id="fireLoading">Memuat data patroli…</div>
 
     <div class="fire-content" id="fireContentBody" style="display:none">
+
+      <!-- FILTER TAHUN — otomatis terisi dari tahun yang benar-benar ada datanya (lihat buildYearChips) -->
+      <div class="year-filter-bar">
+        <span class="year-filter-label">Filter Tahun</span>
+        <div class="year-filter-chips" id="yearFilterChips"></div>
+      </div>
 
       <!-- PATROLI (HARI) & PATROL COVERAGE (HA) -->
       <div class="stat-grid">
@@ -266,19 +283,12 @@ function parseDateTimeLoose(s){
   if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
   return new Date(year,month-1,day,h,mi,se);
 }
-/* Format kunci pembanding disamakan jadi string DD-MM-YYYY untuk kedua sumber data,
+/* Kunci pembanding tanggal disamakan jadi string DD-MM-YYYY untuk kedua sumber data,
    supaya gampang dibaca/dicocokkan (mis. hasil parseDateDMY & parseDateTimeLoose -> "11-02-2026"). */
 function dateKey(d){
   if(!d)return null;
   const pad=n=>String(n).padStart(2,'0');
   return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`;
-}
-/* Batas wajar tahun data patroli — jaga-jaga menyaring tanggal "sampah" (mis. baris kosong/format
-   aneh yang lolos parsing tapi hasilnya tahun tidak masuk akal), supaya tidak menggelembungkan hitungan. */
-function isPlausiblePatrolYear(d){
-  if(!d)return false;
-  const y=d.getFullYear();
-  return y>=2024&&y<=2030;
 }
 function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
 function fmtDateTimeID(d){
@@ -323,6 +333,10 @@ function pickFieldExactOrPartial(row,...patterns){
 }
 
 /* ============== LOAD & NORMALISASI ============== */
+let patrolEntries=[];   // {date, luas} dari sheet PATROL 2026
+let submissionRows=[];  // {dateObj, finding, categ, coordinate} dari sheet submission
+let currentYearFilter=null; // null = "Semua"
+
 async function loadAll(){
   const [patrolRaw,subRaw]=await Promise.all([
     fetchCsv(PATROL2026_URL),
@@ -331,60 +345,29 @@ async function loadAll(){
 
   // Sheet PATROL 2026 — data mulai baris 4 (index 3). Kolom B (index1)=Tanggal Patroli, Kolom H (index7)=Luas Area (Ha)
   const patrolRows=patrolRaw.slice(3);
-  const patrolDates=[];
-  let totalCoverage=0;
-  patrolRows.forEach(r=>{
+  patrolEntries=patrolRows.map(r=>{
     const d=parseDateDMY((r[1]||'').toString());
-    if(d)patrolDates.push(d);
-    const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
-    // fallback: kalau formatnya sudah pakai titik desimal standar (mis. "400.7"), coba parse langsung dulu
     const luasDirect=parseFloat((r[7]||'').toString().trim());
+    const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
     const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
-    if(!isNaN(luas))totalCoverage+=luas;
-  });
+    return{date:d,luas:isNaN(luas)?0:luas};
+  }).filter(e=>e.date);
 
   // Sheet submission — data mulai baris 2 (otomatis, header:true). Kolom A=data-start_date,
   // Kolom H=data-survey-categ, Kolom I=data-survey-finding
-  const submissionRows=subRaw.map(row=>({
+  submissionRows=subRaw.map(row=>({
     dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
     finding:(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim().toLowerCase(),
     categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase(),
     coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim()
   }));
 
-  // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A).
-  // Kedua sumber disamakan dulu ke format string DD-MM-YYYY (lihat dateKey), baru digabung ke satu Set
-  // supaya tanggal yang sama dari kedua sumber tidak dihitung dobel. Tanggal di luar tahun 2024-2030
-  // disaring (lihat isPlausiblePatrolYear) untuk menghindari tanggal "sampah" dari baris yang salah parse.
-  const patrolDateKeys=new Set(patrolDates.filter(isPlausiblePatrolYear).map(dateKey).filter(Boolean));
-  const submissionDateKeys=new Set(submissionRows.map(r=>r.dateObj).filter(isPlausiblePatrolYear).map(dateKey).filter(Boolean));
-  const combinedDateKeys=new Set([...patrolDateKeys,...submissionDateKeys]);
-  const uniquePatrolDayCount=combinedDateKeys.size;
-  console.log('[Patroli Hari] unik dari sheet PATROL 2026:',patrolDateKeys.size);
-  console.log('[Patroli Hari] unik dari sheet submission:',submissionDateKeys.size);
-  console.log('[Patroli Hari] unik gabungan (union):',uniquePatrolDayCount);
-  console.log('[Patroli Hari] daftar tanggal gabungan:',[...combinedDateKeys].sort());
-
-  // Deteksi aktifitas ilegal, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
-  let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
-  submissionRows.forEach(r=>{
-    if(r.finding==='illegal_logging')loggingCount++;
-    else if(HUNTING_FINDINGS.includes(r.finding))huntingCount++;
-    else if(r.finding==='mining')miningCount++;
-    else if(r.categ==='illegal_activities')otherCount++;
-  });
-
-  // Header: tanggal hari ini & terakhir diperbarui (tanggal patroli TERAKHIR saja, dari sheet PATROL 2026 — tanpa jam)
+  // Header: tanggal hari ini & terakhir diperbarui (tanggal patroli TERAKHIR saja, dari sheet PATROL 2026 — tanpa jam,
+  // tidak terpengaruh filter tahun — selalu menunjukkan data patroli paling baru yang ada)
   document.getElementById('fireTodayDate').textContent=fmtDateID(new Date());
-  const maxPatrolDate=patrolDates.length?new Date(Math.max(...patrolDates.map(d=>d.getTime()))):null;
+  const allPatrolDates=patrolEntries.map(e=>e.date);
+  const maxPatrolDate=allPatrolDates.length?new Date(Math.max(...allPatrolDates.map(d=>d.getTime()))):null;
   document.getElementById('fireLastUpdated').textContent=fmtDateID(maxPatrolDate);
-
-  document.getElementById('statPatrolDays').textContent=uniquePatrolDayCount;
-  document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
-  document.getElementById('statLogging').textContent=loggingCount;
-  document.getElementById('statHunting').textContent=huntingCount;
-  document.getElementById('statMining').textContent=miningCount;
-  document.getElementById('statOther').textContent=otherCount;
 
   // Lingkaran legenda di depan tiap panel — warnanya sama dengan warna marker di peta (ILLEGAL_COLORS)
   document.getElementById('dotLogging').style.background=ILLEGAL_COLORS.logging;
@@ -392,52 +375,121 @@ async function loadAll(){
   document.getElementById('dotMining').style.background=ILLEGAL_COLORS.mining;
   document.getElementById('dotOther').style.background=ILLEGAL_COLORS.other;
 
-  // Titik lokasi tiap temuan ilegal (data-survey-categ = illegal_activities), diambil dari kolom data-coordinate
-  // (format "lat,lon"). Baris tanpa koordinat valid atau tanpa kategori yang dikenali diabaikan.
-  const illegalPoints=submissionRows.map(r=>{
-    const cat=categoryOf(r.finding,r.categ);
-    if(!cat||!r.coordinate)return null;
-    const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-    if(parts.length<2||isNaN(parts[0])||isNaN(parts[1]))return null;
-    return{lat:parts[0],lon:parts[1],category:cat};
-  }).filter(Boolean);
-  initIllegalMap(illegalPoints);
+  buildYearChips();
+  initIllegalMap();
+  render();
 
   document.getElementById('fireLoading').style.display='none';
   document.getElementById('fireContentBody').style.display='block';
 }
 
-/* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
-function initIllegalMap(points){
-  const map=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
-  map.setView([0.8,110.3],11);
+/* ============== FILTER TAHUN ============== */
+/* Daftar chip tahun dibuat otomatis dari tahun yang BENAR-BENAR ADA datanya di kedua sumber
+   (bukan hardcode) — jadi kalau tahun berikutnya sudah mulai ada data, chip-nya otomatis muncul. */
+function buildYearChips(){
+  const years=new Set();
+  patrolEntries.forEach(e=>years.add(e.date.getFullYear()));
+  submissionRows.forEach(r=>{if(r.dateObj)years.add(r.dateObj.getFullYear());});
+  const sortedYears=[...years].sort((a,b)=>a-b);
 
-  const markerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
+  const chipsEl=document.getElementById('yearFilterChips');
+  const chipHtml=[`<button type="button" class="year-chip active" data-year="all">Semua</button>`]
+    .concat(sortedYears.map(y=>`<button type="button" class="year-chip" data-year="${y}">${y}</button>`));
+  chipsEl.innerHTML=chipHtml.join('');
+
+  chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      chipsEl.querySelectorAll('.year-chip').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentYearFilter=btn.dataset.year==='all'?null:parseInt(btn.dataset.year,10);
+      render();
+    });
+  });
+}
+
+/* ============== RENDER (dipanggil ulang tiap kali filter tahun berubah) ============== */
+function render(){
+  const filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
+  const filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
+
+  // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A),
+  // dibatasi sesuai filter tahun yang aktif.
+  const patrolDateKeys=new Set(filteredPatrol.map(e=>dateKey(e.date)).filter(Boolean));
+  const submissionDateKeys=new Set(filteredSubmission.map(r=>dateKey(r.dateObj)).filter(Boolean));
+  const combinedDateKeys=new Set([...patrolDateKeys,...submissionDateKeys]);
+  document.getElementById('statPatrolDays').textContent=combinedDateKeys.size;
+
+  // Patrol coverage (ha)
+  const totalCoverage=filteredPatrol.reduce((sum,e)=>sum+e.luas,0);
+  document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
+
+  // Deteksi aktifitas ilegal + titik peta, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
+  let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
+  const illegalPoints=[];
+  filteredSubmission.forEach(r=>{
+    const cat=categoryOf(r.finding,r.categ);
+    if(cat==='logging')loggingCount++;
+    else if(cat==='hunting')huntingCount++;
+    else if(cat==='mining')miningCount++;
+    else if(cat==='other')otherCount++;
+    if(cat&&r.coordinate){
+      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
+      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))illegalPoints.push({lat:parts[0],lon:parts[1],category:cat});
+    }
+  });
+  document.getElementById('statLogging').textContent=loggingCount;
+  document.getElementById('statHunting').textContent=huntingCount;
+  document.getElementById('statMining').textContent=miningCount;
+  document.getElementById('statOther').textContent=otherCount;
+
+  renderIllegalPoints(illegalPoints);
+}
+
+/* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
+let illegalMapInstance=null;
+let illegalMarkerLayer=null;
+let illegalMapBoundaryReady=false;
+let pendingIllegalPoints=null;
+
+/* Setup peta & batas Project Area SEKALI SAJA saat data pertama kali dimuat — supaya ganti filter tahun
+   tidak perlu fetch ulang boundary/tile, cukup ganti titik markernya lewat renderIllegalPoints(). */
+function initIllegalMap(){
+  illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
+  illegalMapInstance.setView([0.8,110.3],11);
+
+  illegalMarkerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
-    markerLayer.addTo(map);
+    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(illegalMapInstance);
+    illegalMarkerLayer.addTo(illegalMapInstance);
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
-      map.fitBounds(bounds,{padding:[16,16]});
-      map.setZoom(13);
+      illegalMapInstance.fitBounds(bounds,{padding:[16,16]});
+      illegalMapInstance.setZoom(13);
     }
-    setTimeout(()=>map.invalidateSize(),150);
+    illegalMapBoundaryReady=true;
+    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
+    setTimeout(()=>illegalMapInstance.invalidateSize(),150);
   }).catch(e=>{
     console.warn('Gagal memuat batas Project Area:',e);
-    markerLayer.addTo(map);
+    illegalMarkerLayer.addTo(illegalMapInstance);
+    illegalMapBoundaryReady=true;
+    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
   });
+}
 
+/* Ganti titik marker di peta sesuai hasil filter tahun terbaru, tanpa perlu setup ulang peta/boundary. */
+function renderIllegalPoints(points){
+  if(!illegalMapBoundaryReady||!illegalMarkerLayer){pendingIllegalPoints=points;return;}
+  illegalMarkerLayer.clearLayers();
   points.forEach(p=>{
     L.circleMarker([p.lat,p.lon],{
       radius:6,color:'#fff',weight:1.5,
       fillColor:ILLEGAL_COLORS[p.category]||'#6b7280',fillOpacity:.9
     }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${ILLEGAL_LABELS[p.category]}</b></div>`)
-      .addTo(markerLayer);
+      .addTo(illegalMarkerLayer);
   });
-
-  setTimeout(()=>map.invalidateSize(),300);
 }
 
 loadAll();
