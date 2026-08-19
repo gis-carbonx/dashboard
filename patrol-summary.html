@@ -111,7 +111,7 @@
     .detection-table-scroll{flex:1;overflow-y:auto}
     table.detection-table{width:100%;border-collapse:collapse;font-size:11.5px}
     table.detection-table thead th{
-      position:sticky;top:0;background:var(--color-cream);color:var(--color-pine);text-align:left;
+      position:sticky;top:0;background:#fff;color:var(--color-pine);text-align:left;
       padding:6px 8px;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700;
       border-bottom:1px solid var(--color-sand);
     }
@@ -220,9 +220,7 @@
         <div class="illegal-map-panel">
           <div id="illegalMap"></div>
         </div>
-        <div class="detection-table-panel" id="illegalTablePanel">
-          <div class="detection-table-empty">Click a category panel below to view detailed findings.</div>
-        </div>
+        <div class="detection-table-panel" id="illegalTablePanel"></div>
       </div>
 
       <div class="illegal-grid" id="illegalGrid">
@@ -265,9 +263,7 @@
         <div class="illegal-map-panel">
           <div id="bioMap"></div>
         </div>
-        <div class="detection-table-panel" id="bioTablePanel">
-          <div class="detection-table-empty">Click a category panel below to view detailed findings.</div>
-        </div>
+        <div class="detection-table-panel" id="bioTablePanel"></div>
       </div>
 
       <div class="illegal-grid" id="bioGrid">
@@ -582,19 +578,19 @@ function render(){
 }
 
 /* ============== TABEL DETAIL (di samping peta) — kosong sampai panel kategori diklik ============== */
-const DETECTION_TABLE_EMPTY_MSG='Click a category panel below to view detailed findings.';
+const DETECTION_TABLE_EMPTY_MSG='';
 
 function resetDetailTables(){
   document.querySelectorAll('#illegalGrid .illegal-card, #bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-  document.getElementById('illegalTablePanel').innerHTML=`<div class="detection-table-empty">${DETECTION_TABLE_EMPTY_MSG}</div>`;
-  document.getElementById('bioTablePanel').innerHTML=`<div class="detection-table-empty">${DETECTION_TABLE_EMPTY_MSG}</div>`;
+  document.getElementById('illegalTablePanel').innerHTML=DETECTION_TABLE_EMPTY_MSG;
+  document.getElementById('bioTablePanel').innerHTML=DETECTION_TABLE_EMPTY_MSG;
 }
 
 /* Render isi tabel detail: Description (kolom J), Coordinate (kolom C), Photo (kolom K) — hanya untuk baris
    yang cocok kategori yang diklik. Klik satu baris -> peta zoom ke koordinat baris tersebut. */
 function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
   if(!rows.length){
-    panelEl.innerHTML=`<div class="detection-table-empty">No ${categoryLabel} findings for the selected year.</div>`;
+    panelEl.innerHTML='';
     return;
   }
   const rowsHtml=rows.map((r,i)=>{
@@ -607,7 +603,6 @@ function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
   }).join('');
   panelEl.innerHTML=`
     <div class="detection-table-header">${categoryLabel} <span class="detection-table-count">(${rows.length})</span></div>
-    <div class="detection-table-hint">Click a row to zoom to its location on the map</div>
     <div class="detection-table-scroll">
       <table class="detection-table">
         <thead><tr><th>Description</th><th>Coordinate</th><th>Photo</th></tr></thead>
