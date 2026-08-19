@@ -92,15 +92,44 @@
 
     /* PETA DETEKSI AKTIFITAS ILEGAL — lebar dipersempit supaya pas dengan cakupan area (tidak melebar penuh
        ke kanan yang isinya citra kosong tanpa titik temuan) */
+    .detection-row{display:flex;gap:18px;align-items:stretch;margin-bottom:18px;flex-wrap:wrap}
     .illegal-map-panel{
       background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
-      margin-bottom:18px;max-width:620px;
+      flex:0 0 620px;max-width:620px;
     }
     #illegalMap,#bioMap{height:320px;width:100%}
 
+    /* PANEL TABEL DETAIL — di samping peta, kosong sampai salah satu panel kategori diklik */
+    .detection-table-panel{
+      flex:1;min-width:260px;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
+      padding:16px 18px;display:flex;flex-direction:column;height:320px;overflow:hidden;
+    }
+    .detection-table-empty{margin:auto;color:#9ca3af;font-size:12px;text-align:center;padding:20px;line-height:1.6}
+    .detection-table-header{font-size:12.5px;font-weight:700;color:#1f2937;margin-bottom:10px;flex-shrink:0}
+    .detection-table-count{font-weight:500;color:#6b7280}
+    .detection-table-hint{font-size:10.5px;font-weight:500;color:#9ca3af;margin-bottom:10px;flex-shrink:0}
+    .detection-table-scroll{flex:1;overflow-y:auto}
+    table.detection-table{width:100%;border-collapse:collapse;font-size:11.5px}
+    table.detection-table thead th{
+      position:sticky;top:0;background:var(--color-cream);color:var(--color-pine);text-align:left;
+      padding:6px 8px;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700;
+      border-bottom:1px solid var(--color-sand);
+    }
+    table.detection-table tbody td{padding:7px 8px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top}
+    table.detection-table tbody tr{cursor:pointer;transition:background .1s}
+    table.detection-table tbody tr:hover td{background:#FFFAF3}
+    table.detection-table tbody tr:last-child td{border-bottom:none}
+    table.detection-table tbody td:last-child a{color:var(--color-fern);font-weight:600;text-decoration:none}
+    table.detection-table tbody td:last-child a:hover{text-decoration:underline}
+
     /* ILLEGAL ACTIVITY DETECTION CARDS */
     .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
-    .illegal-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
+    .illegal-card{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      cursor:pointer;transition:box-shadow .15s,border-color .15s;
+    }
+    .illegal-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.06)}
+    .illegal-card.active{border-color:var(--color-pine);box-shadow:0 3px 10px rgba(53,103,96,.15)}
     .illegal-label{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
     .illegal-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
     .illegal-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:8px}
@@ -186,28 +215,33 @@
       <!-- DETEKSI AKTIFITAS ILEGAL -->
       <div class="section-title">Illegal Activity Detection</div>
 
-      <!-- PETA TITIK DETEKSI -->
-      <div class="illegal-map-panel">
-        <div id="illegalMap"></div>
+      <!-- PETA TITIK DETEKSI + TABEL DETAIL (kosong sampai salah satu panel kategori di klik) -->
+      <div class="detection-row">
+        <div class="illegal-map-panel">
+          <div id="illegalMap"></div>
+        </div>
+        <div class="detection-table-panel" id="illegalTablePanel">
+          <div class="detection-table-empty">Click a category panel below to view detailed findings.</div>
+        </div>
       </div>
 
-      <div class="illegal-grid">
-        <div class="illegal-card">
+      <div class="illegal-grid" id="illegalGrid">
+        <div class="illegal-card" data-category="logging">
           <div class="illegal-label"><span class="illegal-dot" id="dotLogging"></span>Logging</div>
           <div class="illegal-value" id="statLogging">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="hunting">
           <div class="illegal-label"><span class="illegal-dot" id="dotHunting"></span>Hunting</div>
           <div class="illegal-value" id="statHunting">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="mining">
           <div class="illegal-label"><span class="illegal-dot" id="dotMining"></span>Mining</div>
           <div class="illegal-value" id="statMining">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="other">
           <div class="illegal-label"><span class="illegal-dot" id="dotOther"></span>Other</div>
           <div class="illegal-value" id="statOther">–</div>
           <div class="illegal-sub">findings recorded</div>
@@ -226,28 +260,33 @@
       <!-- TEMUAN PATROLI BIODIVERSITAS -->
       <div class="section-title">Biodiversity Patrol Findings</div>
 
-      <!-- PETA TITIK TEMUAN -->
-      <div class="illegal-map-panel">
-        <div id="bioMap"></div>
+      <!-- PETA TITIK TEMUAN + TABEL DETAIL (kosong sampai salah satu panel kategori di klik) -->
+      <div class="detection-row">
+        <div class="illegal-map-panel">
+          <div id="bioMap"></div>
+        </div>
+        <div class="detection-table-panel" id="bioTablePanel">
+          <div class="detection-table-empty">Click a category panel below to view detailed findings.</div>
+        </div>
       </div>
 
-      <div class="illegal-grid">
-        <div class="illegal-card">
+      <div class="illegal-grid" id="bioGrid">
+        <div class="illegal-card" data-category="direct">
           <div class="illegal-label"><span class="illegal-dot" id="dotDirect"></span>Direct Encounter</div>
           <div class="illegal-value" id="statDirect">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="voice">
           <div class="illegal-label"><span class="illegal-dot" id="dotVoice"></span>Voice Detection</div>
           <div class="illegal-value" id="statVoice">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="sign">
           <div class="illegal-label"><span class="illegal-dot" id="dotSign"></span>Sign of Presence</div>
           <div class="illegal-value" id="statSign">–</div>
           <div class="illegal-sub">findings recorded</div>
         </div>
-        <div class="illegal-card">
+        <div class="illegal-card" data-category="habitat">
           <div class="illegal-label"><span class="illegal-dot" id="dotHabitat"></span>Vegetation Finding</div>
           <div class="illegal-value" id="statHabitat">–</div>
           <div class="illegal-sub">findings recorded</div>
@@ -416,12 +455,15 @@ async function loadAll(){
   patrolEntries=[...parsePatrolSheet(patrol2026Raw),...parsePatrolSheet(patrol2025Raw)];
 
   // Sheet submission — data mulai baris 2 (otomatis, header:true). Kolom A=data-start_date,
-  // Kolom H=data-survey-categ, Kolom I=data-survey-finding
+  // Kolom C=data-coordinate, Kolom H=data-survey-categ, Kolom I=data-survey-finding,
+  // Kolom J=data-survey-description, Kolom K=link foto
   submissionRows=subRaw.map(row=>({
     dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
     finding:(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim().toLowerCase(),
     categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase(),
-    coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim()
+    coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
+    description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
+    photoUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','link-foto','foto','photo','image','gambar','attachment')||'').toString().trim()
   }));
 
   // Header: tanggal hari ini & terakhir diperbarui (tanggal aktivitas patroli TERAKHIR — tanpa jam — dari
@@ -444,6 +486,7 @@ async function loadAll(){
   buildYearChips();
   initIllegalMap();
   initBioMap();
+  setupDetailTableClicks();
   render();
 
   document.getElementById('fireLoading').style.display='none';
@@ -478,9 +521,12 @@ function buildYearChips(){
 }
 
 /* ============== RENDER (dipanggil ulang tiap kali filter tahun berubah) ============== */
+let currentFilteredSubmission=[]; // dipakai ulang saat panel kategori diklik (lihat setupDetailTableClicks)
+
 function render(){
   const filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
   const filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
+  currentFilteredSubmission=filteredSubmission;
 
   // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A),
   // dibatasi sesuai filter tahun yang aktif.
@@ -532,6 +578,72 @@ function render(){
 
   renderIllegalPoints(illegalPoints);
   renderBioPoints(bioPoints);
+  resetDetailTables();
+}
+
+/* ============== TABEL DETAIL (di samping peta) — kosong sampai panel kategori diklik ============== */
+const DETECTION_TABLE_EMPTY_MSG='Click a category panel below to view detailed findings.';
+
+function resetDetailTables(){
+  document.querySelectorAll('#illegalGrid .illegal-card, #bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('illegalTablePanel').innerHTML=`<div class="detection-table-empty">${DETECTION_TABLE_EMPTY_MSG}</div>`;
+  document.getElementById('bioTablePanel').innerHTML=`<div class="detection-table-empty">${DETECTION_TABLE_EMPTY_MSG}</div>`;
+}
+
+/* Render isi tabel detail: Description (kolom J), Coordinate (kolom C), Photo (kolom K) — hanya untuk baris
+   yang cocok kategori yang diklik. Klik satu baris -> peta zoom ke koordinat baris tersebut. */
+function renderDetailTable(panelEl,mapInstance,rows,categoryLabel){
+  if(!rows.length){
+    panelEl.innerHTML=`<div class="detection-table-empty">No ${categoryLabel} findings for the selected year.</div>`;
+    return;
+  }
+  const rowsHtml=rows.map((r,i)=>{
+    const photoHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank" rel="noopener">View &#8599;</a>`:'–';
+    return `<tr data-idx="${i}">
+      <td>${r.description||'–'}</td>
+      <td>${r.coordinate||'–'}</td>
+      <td>${photoHtml}</td>
+    </tr>`;
+  }).join('');
+  panelEl.innerHTML=`
+    <div class="detection-table-header">${categoryLabel} <span class="detection-table-count">(${rows.length})</span></div>
+    <div class="detection-table-hint">Click a row to zoom to its location on the map</div>
+    <div class="detection-table-scroll">
+      <table class="detection-table">
+        <thead><tr><th>Description</th><th>Coordinate</th><th>Photo</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+  panelEl.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      const r=rows[parseInt(tr.dataset.idx,10)];
+      if(!r||!r.coordinate||!mapInstance)return;
+      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
+      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))mapInstance.setView([parts[0],parts[1]],17);
+    });
+  });
+}
+
+/* Pasang klik listener di panel kategori SEKALI SAJA (elemen kartu statis, tidak dibuat ulang tiap render) */
+function setupDetailTableClicks(){
+  document.querySelectorAll('#illegalGrid .illegal-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      document.querySelectorAll('#illegalGrid .illegal-card').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      const cat=card.dataset.category;
+      const rows=currentFilteredSubmission.filter(r=>categoryOf(r.finding,r.categ)===cat);
+      renderDetailTable(document.getElementById('illegalTablePanel'),illegalMapInstance,rows,ILLEGAL_LABELS[cat]);
+    });
+  });
+  document.querySelectorAll('#bioGrid .illegal-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      document.querySelectorAll('#bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      const cat=card.dataset.category;
+      const rows=currentFilteredSubmission.filter(r=>bioCategoryOf(r.finding,r.categ)===cat);
+      renderDetailTable(document.getElementById('bioTablePanel'),bioMapInstance,rows,BIO_LABELS[cat]);
+    });
+  });
 }
 
 /* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
