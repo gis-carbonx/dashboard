@@ -142,37 +142,37 @@
         <div class="fire-header-date" id="fireTodayDate">–</div>
       </div>
       <div class="fire-header-right">
-        <div class="fire-header-updated-label">Terakhir Diperbarui</div>
+        <div class="fire-header-updated-label">Last Updated</div>
         <div class="fire-header-updated-value" id="fireLastUpdated">–</div>
       </div>
     </div>
   </div>
 
   <div class="fire-scroll" id="fireContent">
-    <div class="loading-msg" id="fireLoading">Memuat data patroli…</div>
+    <div class="loading-msg" id="fireLoading">Loading patrol data…</div>
 
     <div class="fire-content" id="fireContentBody" style="display:none">
 
       <!-- FILTER TAHUN — otomatis terisi dari tahun yang benar-benar ada datanya (lihat buildYearChips) -->
       <div class="year-filter-bar">
-        <span class="year-filter-label">Filter Tahun</span>
+        <span class="year-filter-label">Year Filter</span>
         <div class="year-filter-chips" id="yearFilterChips"></div>
       </div>
 
       <!-- PATROLI (HARI) & PATROL COVERAGE (HA) -->
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-label">Patroli (hari)</div>
+          <div class="stat-label">Patrol (days)</div>
           <div class="stat-value-row">
             <span class="stat-value" id="statPatrolDays">–</span>
-            <span class="stat-sub-plain">hari patroli tercatat (gabungan jadwal patroli &amp; laporan lapangan)</span>
+            <span class="stat-sub-plain">patrol days recorded (combined patrol schedule &amp; field reports)</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Patrol coverage (ha)</div>
+          <div class="stat-label">Patrol Coverage (ha)</div>
           <div class="stat-value-row">
             <span class="stat-value" id="statPatrolCoverage">–</span>
-            <span class="stat-sub-plain">total luas area yang dipatroli</span>
+            <span class="stat-sub-plain">total area patrolled</span>
           </div>
         </div>
       </div>
@@ -184,7 +184,7 @@
       </p>
 
       <!-- DETEKSI AKTIFITAS ILEGAL -->
-      <div class="section-title">Deteksi aktifitas ilegal</div>
+      <div class="section-title">Illegal Activity Detection</div>
 
       <!-- PETA TITIK DETEKSI -->
       <div class="illegal-map-panel">
@@ -195,22 +195,22 @@
         <div class="illegal-card">
           <div class="illegal-label"><span class="illegal-dot" id="dotLogging"></span>Logging</div>
           <div class="illegal-value" id="statLogging">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
           <div class="illegal-label"><span class="illegal-dot" id="dotHunting"></span>Hunting</div>
           <div class="illegal-value" id="statHunting">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
           <div class="illegal-label"><span class="illegal-dot" id="dotMining"></span>Mining</div>
           <div class="illegal-value" id="statMining">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
           <div class="illegal-label"><span class="illegal-dot" id="dotOther"></span>Other</div>
           <div class="illegal-value" id="statOther">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
       </div>
 
@@ -224,7 +224,7 @@
       </p>
 
       <!-- TEMUAN PATROLI BIODIVERSITAS -->
-      <div class="section-title">Temuan patroli biodiversitas</div>
+      <div class="section-title">Biodiversity Patrol Findings</div>
 
       <!-- PETA TITIK TEMUAN -->
       <div class="illegal-map-panel">
@@ -233,24 +233,24 @@
 
       <div class="illegal-grid">
         <div class="illegal-card">
-          <div class="illegal-label"><span class="illegal-dot" id="dotDirect"></span>Perjumpaan Langsung</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotDirect"></span>Direct Encounter</div>
           <div class="illegal-value" id="statDirect">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label"><span class="illegal-dot" id="dotVoice"></span>Deteksi Suara</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotVoice"></span>Voice Detection</div>
           <div class="illegal-value" id="statVoice">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label"><span class="illegal-dot" id="dotSign"></span>Tanda Keberadaan</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotSign"></span>Sign of Presence</div>
           <div class="illegal-value" id="statSign">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
         <div class="illegal-card">
-          <div class="illegal-label"><span class="illegal-dot" id="dotHabitat"></span>Temuan Habitat</div>
+          <div class="illegal-label"><span class="illegal-dot" id="dotHabitat"></span>Vegetation Finding</div>
           <div class="illegal-value" id="statHabitat">–</div>
-          <div class="illegal-sub">temuan tercatat</div>
+          <div class="illegal-sub">findings recorded</div>
         </div>
       </div>
 
@@ -261,8 +261,8 @@
       </p>
 
       <div class="cta-bar">
-        <span class="cta-text">Dashboard visualisasi detail temuan patroli dapat dilihat melalui tautan berikut</span>
-        <a href="https://gis-carbonx.github.io/dashboard/patrol.html" class="cta-btn">Visualisasi data patroli &rarr;</a>
+        <span class="cta-text">A detailed visualization of patrol findings is available via the link below</span>
+        <a href="https://gis-carbonx.github.io/dashboard/patrol.html" class="cta-btn">View Patrol Data Visualization &rarr;</a>
       </div>
 
     </div>
@@ -305,7 +305,7 @@ function categoryOf(finding,categ){
 
 /* Warna & label kategori temuan patroli biodiversitas (data-survey-categ = biodiversity) */
 const BIO_COLORS={direct:'#2563eb',voice:'#f59e0b',sign:'#16a34a',habitat:'#a855f7'};
-const BIO_LABELS={direct:'Perjumpaan Langsung',voice:'Deteksi Suara',sign:'Tanda Keberadaan',habitat:'Temuan Habitat'};
+const BIO_LABELS={direct:'Direct Encounter',voice:'Voice Detection',sign:'Sign of Presence',habitat:'Vegetation Finding'};
 
 /* Tentukan kategori satu baris submission untuk biodiversitas, berdasar data-survey-finding,
    HANYA untuk baris yang data-survey-categ = biodiversity */
@@ -462,7 +462,7 @@ function buildYearChips(){
   const defaultYear=sortedYears.includes(2026)?2026:null;
 
   const chipsEl=document.getElementById('yearFilterChips');
-  const chipHtml=[`<button type="button" class="year-chip${defaultYear===null?' active':''}" data-year="all">Semua</button>`]
+  const chipHtml=[`<button type="button" class="year-chip${defaultYear===null?' active':''}" data-year="all">All</button>`]
     .concat(sortedYears.map(y=>`<button type="button" class="year-chip${y===defaultYear?' active':''}" data-year="${y}">${y}</button>`));
   chipsEl.innerHTML=chipHtml.join('');
   currentYearFilter=defaultYear;
