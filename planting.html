@@ -67,15 +67,6 @@ body{display:flex;flex-direction:column}
 .hdr-logo-fallback svg{width:20px;height:20px;fill:#fff}
 .hdr-title{font-size:15px;font-weight:700;line-height:1.2}
 .hdr-sub{font-size:12px;color:var(--text-2)}
-.menu-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:grid;place-items:center;color:var(--text-2);position:relative;z-index:1000}
-.menu-btn:hover{background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
-.menu-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.menu-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:220px;z-index:1001;display:none}
-.menu-dropdown.open{display:block}
-.menu-hd{padding:8px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);border-bottom:1px solid var(--border-lt)}
-.menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;font-weight:500;color:var(--text);text-decoration:none;cursor:pointer;border:none;background:none;width:100%;text-align:left}
-.menu-item:hover{background:var(--primary-bg);color:var(--primary-md)}
-.menu-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--text-2)}
 .filter-bar{height:var(--filter-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0;z-index:10;overflow-x:auto}
 .filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3);white-space:nowrap}
 .filter-presets{display:flex;gap:4px}
@@ -208,9 +199,6 @@ body{display:flex;flex-direction:column}
 .detail-close-btn svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
 .detail-scroll{flex:1;overflow-y:auto;padding:12px 14px}
 .detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:20px;text-align:center}
-.detail-empty-icon{width:44px;height:44px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:grid;place-items:center}
-.detail-empty-icon svg{width:20px;height:20px;stroke:var(--text-3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.detail-empty-txt{font-size:11px;color:var(--text-3);font-weight:500;line-height:1.5}
 .d-block{margin-bottom:14px}
 .d-block:last-child{margin-bottom:0}
 .d-block-ttl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.55px;color:var(--text-3);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border-lt)}
@@ -347,20 +335,6 @@ body{display:flex;flex-direction:column}
     <div>
       <div class="hdr-title">Sebaran Lahan Garapan Masyarakat</div>
       <div class="hdr-sub">Implementasi Program PT Citra Mulia Inti</div>
-    </div>
-  </div>
-  <div style="position:relative;z-index:1000">
-    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <div class="menu-dropdown" id="menuDropdown">
-      <div class="menu-hd">Peta Digital Lainnya</div>
-      <a class="menu-item" href="https://gis-carbonx.github.io/patrol-vis-map/" target="_blank">
-        <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Patrol-CT Monitoring
-      </a>
-      <div class="menu-hd" style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0">Versi</div>
-      <div class="menu-item" style="cursor:default;opacity:.7;padding:8px 14px">v2.3</div>
     </div>
   </div>
 </header>
@@ -556,7 +530,7 @@ body{display:flex;flex-direction:column}
           <div class="detail-dot" id="detailDot" style="background:var(--primary)"></div>
           <div style="flex:1;min-width:0">
             <div class="detail-hd-name" id="detailName">Informasi Lahan</div>
-            <div class="detail-hd-id" id="detailId">Klik polygon di peta</div>
+            <div class="detail-hd-id" id="detailId" style="display:none"></div>
           </div>
           <button class="detail-close-btn" id="detailCloseBtn" onclick="clearDetail()" style="display:none">
             <svg viewBox="0 0 14 14"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
@@ -567,10 +541,7 @@ body{display:flex;flex-direction:column}
         </div>
       </div>
       <div class="detail-scroll">
-        <div class="detail-empty" id="detailEmpty">
-          <div class="detail-empty-icon"><svg viewBox="0 0 24 24"><polygon points="3,11 12,2 21,11 21,21 15,21 15,15 9,15 9,21 3,21"/></svg></div>
-          <div class="detail-empty-txt">Klik polygon di peta untuk melihat detail lahan</div>
-        </div>
+        <div class="detail-empty" id="detailEmpty"></div>
         <div id="detailContent" style="display:none"></div>
       </div>
     </div>
@@ -606,6 +577,7 @@ body{display:flex;flex-direction:column}
           </button>
           <div class="dl-dropdown-menu" id="kthDlMenu">
             <button class="dl-item" onclick="downloadCSV();closeAllDlMenus()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="13" x2="16" y2="13"/></svg>CSV</button>
+            <button class="dl-item" onclick="downloadKTHExcel();closeAllDlMenus()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l2 3 2-3m-4 0l2-3 2 3"/></svg>Excel</button>
             <button class="dl-item" onclick="downloadKTHWord();closeAllDlMenus()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Word</button>
             <button class="dl-item" onclick="downloadKTHPDF();closeAllDlMenus()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>PDF</button>
           </div>
@@ -979,18 +951,6 @@ document.addEventListener('click',e=>{
   const p=document.querySelector('.basemap-panel');
   if(p&&!p.contains(e.target)&&bmOpen){bmOpen=false;document.getElementById('basemapPillsWrap').classList.remove('open');document.getElementById('basemapCaret').textContent='▼';}
 });
-
-// ── MENU ──
-function toggleMenu(){
-  const dd=document.getElementById('menuDropdown');dd.classList.toggle('open');
-  if(dd.classList.contains('open'))setTimeout(()=>document.addEventListener('click',closeMenuOut),10);
-  else document.removeEventListener('click',closeMenuOut);
-}
-function closeMenuOut(e){
-  if(!document.getElementById('menuBtn').contains(e.target)&&!document.getElementById('menuDropdown').contains(e.target)){
-    document.getElementById('menuDropdown').classList.remove('open');document.removeEventListener('click',closeMenuOut);
-  }
-}
 
 // ── MODAL HELPERS ──
 function closeModal(id){
@@ -1437,7 +1397,8 @@ function showDetail(id){
   selectedLahanId=id;e.layer.setStyle({weight:3.5,fillOpacity:.92});e.layer.bringToFront();
   document.getElementById('detailDot').style.background=st.dot;
   document.getElementById('detailName').textContent='Informasi Lahan';
-  document.getElementById('detailId').textContent=row.id;
+  const detailIdEl=document.getElementById('detailId');
+  detailIdEl.textContent=row.id;detailIdEl.style.display='inline-block';
   document.getElementById('detailCloseBtn').style.display='grid';
   const bi=document.getElementById('detailProgBadgeInner');
   document.getElementById('detailProgBadge').style.display='block';
@@ -1462,7 +1423,8 @@ function clearDetail(){
   selectedLahanId=null;
   document.getElementById('detailDot').style.background='var(--primary)';
   document.getElementById('detailName').textContent='Informasi Lahan';
-  document.getElementById('detailId').textContent='Klik polygon di peta';
+  const detailIdEl=document.getElementById('detailId');
+  detailIdEl.textContent='';detailIdEl.style.display='none';
   document.getElementById('detailCloseBtn').style.display='none';
   document.getElementById('detailProgBadge').style.display='none';
   document.getElementById('detailEmpty').style.display='flex';
@@ -1562,6 +1524,15 @@ function downloadCSV(){
   const rows=getKTHRows();if(!rows.length)return;
   const hdr=['No','ID Lahan','Grid','Nama Petani','KTH','Desa','Tipe','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi','Link Dokumen'];
   dlCSV([hdr,...rows.map((r,i)=>[i+1,r.id,r.grid,r.petani,r.kth,r.desa,r.tipe,PROG[r.prog]?.label||r.prog,r.luas,r.tglPartisipasi,r.tglRealisasi,r.link||''])],`KTH_${currentKTH.replace(/\s+/g,'_')}.csv`);
+}
+function downloadKTHExcel(){
+  const rows=getKTHRows();if(!rows.length){alert('Tidak ada data.');return;}
+  if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
+  const hdr=['No','ID Lahan','Grid','Nama Petani','KTH','Desa','Tipe','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi','Link Dokumen'];
+  const body=rows.map((r,i)=>[i+1,r.id,r.grid,r.petani,r.kth,r.desa,r.tipe,PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),r.tglPartisipasi,r.tglRealisasi,r.link||'']);
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...body]);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');
+  XLSX.writeFile(wb,`KTH_${currentKTH.replace(/\s+/g,'_')}.xlsx`);
 }
 function downloadKTHPDF(){
   const rows=getKTHRows();if(!rows.length){alert('Tidak ada data.');return;}
