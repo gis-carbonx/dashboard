@@ -96,7 +96,7 @@
       background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
       margin-bottom:18px;max-width:620px;
     }
-    #illegalMap{height:320px;width:100%}
+    #illegalMap,#bioMap{height:320px;width:100%}
 
     /* ILLEGAL ACTIVITY DETECTION CARDS */
     .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
@@ -545,7 +545,7 @@ let pendingIllegalPoints=null;
 function initIllegalMap(){
   illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
-  illegalMapInstance.setView([0.8,110.3],13);
+  illegalMapInstance.setView([0.8,110.3],11);
 
   illegalMarkerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
 
@@ -555,7 +555,7 @@ function initIllegalMap(){
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
       illegalMapInstance.fitBounds(bounds,{padding:[16,16]});
-      illegalMapInstance.setZoom(15);
+      illegalMapInstance.setZoom(11);
     }
     illegalMapBoundaryReady=true;
     if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
@@ -590,7 +590,7 @@ let pendingBioPoints=null;
 function initBioMap(){
   bioMapInstance=L.map('bioMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(bioMapInstance);
-  bioMapInstance.setView([0.8,110.3],13);
+  bioMapInstance.setView([0.8,110.3],11);
 
   bioMarkerLayer=L.layerGroup();
 
@@ -600,7 +600,7 @@ function initBioMap(){
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
       bioMapInstance.fitBounds(bounds,{padding:[16,16]});
-      bioMapInstance.setZoom(15);
+      bioMapInstance.setZoom(11);
     }
     bioMapBoundaryReady=true;
     if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
