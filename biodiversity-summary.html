@@ -117,27 +117,57 @@
     @media (max-width:620px){ .presence-row-grid{grid-template-columns:1fr} }
     .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
     .presence-panel-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:12px}
-    .presence-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+    .presence-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
     .presence-row:last-child{border-bottom:none}
+    .presence-row-left{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0}
+    .presence-row-right{flex-shrink:0;text-align:right;padding-left:8px}
     .presence-badge{
       width:34px;height:34px;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
     }
     .presence-badge img{width:100%;height:100%;object-fit:contain}
-    .presence-name{font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic}
+    .presence-name{
+      font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic;cursor:pointer;
+      text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s;
+    }
+    .presence-name:hover{text-decoration-color:#1f2937}
     .presence-local{font-size:11px;color:#9ca3af;margin-top:1px}
     .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
-    .presence-last-detection{font-size:10px;color:#9ca3af;margin-top:2px}
+    .presence-last-detection{font-size:10.5px;color:#9ca3af;white-space:nowrap}
     .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
 
-    /* BIODIVERSITY PATROL FINDINGS — full-width detection map */
+    /* BIODIVERSITY PATROL FINDINGS — detection map + inline species info panel */
     .patrol-findings-section{margin-top:20px}
     .patrol-findings-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:12px}
-    .patrol-findings-map-wrap{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:300px;max-width:680px}
+    .patrol-findings-row{display:flex;gap:18px;flex-wrap:wrap}
+    .patrol-findings-map-col{flex:1.6;min-width:320px}
+    .patrol-findings-map-wrap{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:300px}
     #presenceMap{width:100%;height:100%}
-    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 2px 0;max-width:680px}
+    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 2px 0}
     .presence-map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:#6b7280}
     .presence-map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .patrol-findings-info-col{
+      flex:1;min-width:260px;height:300px;background:#fff;
+      border:1px solid var(--color-sand);border-radius:14px;overflow-y:auto;
+    }
+    .species-info-title{padding:14px 18px 0;font-size:13px;font-weight:700;color:#1f2937;font-style:italic}
+    .species-info-local{padding:2px 18px 0;font-size:11px;color:#6b7280}
+    .sp-gallery{display:flex;gap:6px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:thin}
+    .sp-gallery img{height:100px;width:auto;border-radius:8px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
+    .sp-gallery-empty{padding:14px 18px 4px;font-size:11px;color:#9ca3af;font-style:italic}
+    .sp-modal-status{display:flex;align-items:center;gap:8px;padding:12px 18px 0}
+    .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
+    .sp-modal-desc{padding:10px 18px 6px;font-size:11.5px;line-height:1.6;color:#374151}
+    .sp-desc-block{padding-top:2px}
+    .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
+    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Libre Franklin',sans-serif}
+    .sp-desc-source-tag:hover{color:#1f2937}
+    .sp-desc-chevron{font-size:9px;color:#9ca3af;transition:transform .2s}
+    .sp-desc-chevron.open{transform:rotate(180deg)}
+    .sp-desc-body{overflow:hidden;max-height:0;transition:max-height .2s ease}
+    .sp-desc-body.open{max-height:1000px}
+    .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
+    .sp-modal-source-note{padding:0 18px 14px;font-size:9px;color:#9ca3af}
 
     /* SPECIES STATISTICS PANEL */
     .species-stat-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
@@ -283,10 +313,15 @@
       <!-- BIODIVERSITY PATROL FINDINGS — full-width detection map -->
       <div class="patrol-findings-section">
         <div class="patrol-findings-title">Biodiversity Patrol Findings</div>
-        <div class="patrol-findings-map-wrap">
-          <div id="presenceMap"></div>
+        <div class="patrol-findings-row">
+          <div class="patrol-findings-map-col">
+            <div class="patrol-findings-map-wrap">
+              <div id="presenceMap"></div>
+            </div>
+            <div class="presence-map-legend" id="presenceMapLegend"></div>
+          </div>
+          <div class="patrol-findings-info-col" id="speciesInfoPanel"></div>
         </div>
-        <div class="presence-map-legend" id="presenceMapLegend"></div>
       </div>
 
       <!-- TRIGGER SPECIES & APEX PREDATOR -->
@@ -697,15 +732,23 @@ function renderPresenceRow(sp){
   const count=speciesDetectionCount(sp.latin);
   const lastDate=count>0?speciesLastDetectionDate(sp.latin):null;
   const detectedHtml=count>0
-    ? `<div class="presence-detected">Detected ${count} times</div><div class="presence-last-detection">Last detection: ${fmtDateShort(lastDate)}</div>`
+    ? `<div class="presence-detected">Detected ${count} times</div>`
     : `<div class="presence-not-detected">Not yet detected</div>`;
+  const lastDetectionHtml=count>0
+    ? `<span class="presence-last-detection">Last detection: ${fmtDateShort(lastDate)}</span>`
+    : '';
+  const latinEsc=sp.latin.replace(/'/g,"\\'");
+  const localEsc=(sp.local||'').replace(/'/g,"\\'");
   return `<div class="presence-row">
-    <div class="presence-badge"><img src="${IUCN_LOGO_URL(sp.iucn)}" alt="${sp.iucn}" title="${sp.iucn}" onerror="this.parentElement.innerHTML='${sp.iucn}';this.parentElement.style.cssText='width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}'"></div>
-    <div>
-      <div class="presence-name">${sp.latin}</div>
-      <div class="presence-local">${sp.local}</div>
-      ${detectedHtml}
+    <div class="presence-row-left">
+      <div class="presence-badge"><img src="${IUCN_LOGO_URL(sp.iucn)}" alt="${sp.iucn}" title="${sp.iucn}" onerror="this.parentElement.innerHTML='${sp.iucn}';this.parentElement.style.cssText='width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;background:${IUCN_COLORS[sp.iucn]||'#94a3b8'}'"></div>
+      <div>
+        <div class="presence-name" onclick="handleSpeciesClick('${latinEsc}','${localEsc}','${sp.iucn||''}')">${sp.latin}</div>
+        <div class="presence-local">${sp.local}</div>
+        ${detectedHtml}
+      </div>
     </div>
+    <div class="presence-row-right">${lastDetectionHtml}</div>
   </div>`;
 }
 function renderPresenceLists(){
@@ -732,8 +775,136 @@ function speciesLocations(latinName){
   });
   return Object.values(map);
 }
+function zoomToSpecies(latinName){
+  if(!presenceMapInstance)return;
+  const locs=speciesLocations(latinName);
+  if(!locs.length)return;
+  if(locs.length===1){
+    presenceMapInstance.setView([locs[0].lat,locs[0].lon],15);
+  }else{
+    const bounds=L.latLngBounds(locs.map(l=>[l.lat,l.lon]));
+    presenceMapInstance.fitBounds(bounds,{padding:[30,30],maxZoom:15});
+  }
+}
+function handleSpeciesClick(latinName,localName,iucn){
+  zoomToSpecies(latinName);
+  openSpeciesInfoInline(latinName,localName,iucn);
+}
+
+/* ============== SPECIES INFO PANEL (GBIF + Wikipedia) — inline, no modal ==============
+   Ported from cameratrap-monitoring.html's species info modal, adapted to render inline
+   into #speciesInfoPanel instead of a popup overlay. */
+const IUCN_FULL={LC:'Least Concern',NT:'Near Threatened',VU:'Vulnerable',EN:'Endangered',CR:'Critically Endangered',EW:'Extinct in the Wild',EX:'Extinct',DD:'Data Deficient',NE:'Not Evaluated'};
+const spInfoCache={};
+const GBIF_PROVIDER_PRIORITY=['catalogue of life','iucn','fauna europaea','encyclopedia of life','eol'];
+function providerRank(sourceStr){
+  if(!sourceStr)return GBIF_PROVIDER_PRIORITY.length;
+  const s=sourceStr.toLowerCase();
+  for(let i=0;i<GBIF_PROVIDER_PRIORITY.length;i++){if(s.includes(GBIF_PROVIDER_PRIORITY[i]))return i;}
+  return GBIF_PROVIDER_PRIORITY.length;
+}
+async function fetchGbifDescription(gbifKey){
+  if(!gbifKey)return{status:'not_found'};
+  try{
+    const res=await fetch(`https://api.gbif.org/v1/species/${gbifKey}/descriptions?limit=20`).then(r=>r.ok?r.json():null);
+    if(!res||!res.results||!res.results.length)return{status:'not_found'};
+    const candidates=res.results.filter(d=>d.description&&d.description.length>40);
+    if(!candidates.length)return{status:'not_found'};
+    const engFirst=candidates.filter(d=>d.language==='eng');
+    const pool=engFirst.length?engFirst:candidates;
+    pool.sort((a,b)=>{
+      const ra=providerRank(a.source),rb=providerRank(b.source);
+      if(ra!==rb)return ra-rb;
+      return (b.description?b.description.length:0)-(a.description?a.description.length:0);
+    });
+    const best=pool[0];
+    return{status:'ok',text:best.description.replace(/<[^>]+>/g,'').trim(),provider:best.source||null};
+  }catch(e){
+    console.warn('GBIF description fetch failed:',e);
+    return{status:'error'};
+  }
+}
+async function fetchWikipediaDescription(latinName){
+  try{
+    const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(latinName.replace(/\s+/g,'_'))}`).then(r=>r.ok?r.json():null);
+    if(!res||!res.extract||res.extract.length<30)return{status:'not_found'};
+    return{status:'ok',text:res.extract.trim()};
+  }catch(e){
+    console.warn('Wikipedia fetch failed:',e);
+    return{status:'error'};
+  }
+}
+function toggleDescBlock(btn){
+  const chevron=btn.querySelector('.sp-desc-chevron');
+  const body=btn.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chevron.classList.toggle('open',!isOpen);
+}
+async function openSpeciesInfoInline(latinName,localName,iucn){
+  if(!latinName)return;
+  const panel=document.getElementById('speciesInfoPanel');
+  panel.innerHTML='<div class="sp-modal-loading">Loading species info…</div>';
+
+  if(spInfoCache[latinName]){renderSpeciesInfoInline(latinName,localName,iucn,spInfoCache[latinName]);return;}
+
+  try{
+    const gbifMatch=await fetch(`https://api.gbif.org/v1/species/match?name=${encodeURIComponent(latinName)}`).then(r=>r.ok?r.json():null).catch(()=>null);
+    const gbifKey=gbifMatch&&gbifMatch.usageKey?gbifMatch.usageKey:null;
+
+    const gbifOcc=await fetch(`https://api.gbif.org/v1/occurrence/search?scientific_name=${encodeURIComponent(latinName)}&media_type=StillImage&limit=8`).then(r=>r.ok?r.json():null).catch(()=>null);
+
+    let images=[];
+    if(gbifOcc&&gbifOcc.results){
+      gbifOcc.results.forEach(res=>{
+        if(res.media&&res.media.length){
+          res.media.forEach(m=>{if(m.identifier&&images.length<8)images.push(m.identifier);});
+        }
+      });
+    }
+    images=[...new Set(images)].slice(0,8);
+
+    const[gbifDescResult,wikiResult]=await Promise.all([
+      fetchGbifDescription(gbifKey),
+      fetchWikipediaDescription(latinName)
+    ]);
+    const descriptions=[];
+    if(gbifDescResult.status==='ok'){
+      descriptions.push({text:gbifDescResult.text,source:gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF'});
+    }
+    if(wikiResult.status==='ok'){
+      descriptions.push({text:wikiResult.text,source:'Wikipedia'});
+    }
+
+    const info={images,descriptions};
+    spInfoCache[latinName]=info;
+    renderSpeciesInfoInline(latinName,localName,iucn,info);
+  }catch(err){
+    console.warn('Species info fetch failed:',err);
+    panel.innerHTML='<div class="sp-modal-loading">Unable to load species info right now. Please try again later.</div>';
+  }
+}
+function renderSpeciesInfoInline(latinName,localName,iucn,info){
+  const panel=document.getElementById('speciesInfoPanel');
+  const galleryHtml=info.images.length
+    ? `<div class="sp-gallery">${info.images.map(src=>`<img src="${src}" alt="${latinName}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
+    : `<div class="sp-gallery-empty">No reference photos found on GBIF for this species.</div>`;
+  const statusHtml=iucn
+    ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
+    : '';
+  const descHtml=info.descriptions.length
+    ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
+    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">No description found on GBIF or Wikipedia for this species.</div>`;
+  panel.innerHTML=
+    `<div class="species-info-title">${latinName}</div>`+
+    (localName?`<div class="species-info-local">${localName}</div>`:'')+
+    galleryHtml+statusHtml+descHtml+
+    `<div class="sp-modal-source-note">Photo: GBIF.</div>`;
+}
+let presenceMapInstance=null;
 function initPresenceMap(){
   const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  presenceMapInstance=map;
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
 
