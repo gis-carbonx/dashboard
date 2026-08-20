@@ -26,7 +26,6 @@
     html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
-    /* SITE NAVBAR (sama seperti index.html / list.html / dashboard lain) */
     .site-navbar{
       flex-shrink:0;
       display:grid;
@@ -50,7 +49,6 @@
       .site-navbar-spacer{display:none}
     }
 
-    /* DASHBOARD FRAME — kotak siku 90°, margin di kiri/kanan/bawah, rata di atas dengan navbar */
     .dashboard-frame{
       flex:1;min-height:0;
       margin:0 28px 28px 28px;
@@ -844,7 +842,6 @@ fetch('assets/json/CMI.json').then(r=>r.json()).then(j=>{
 });
 function resetView(){if(mapBounds)map.fitBounds(mapBounds,{paddingTopLeft:[0,0]});}
 
-/* ===== UKUR JARAK (sederhana) ===== */
 (function(){
   let measuring=false,points=[],markers=[],line=null;
   const btn=document.getElementById('measureToggleBtn');
@@ -1340,7 +1337,6 @@ updateGfwLegendVisibility();
 updateFireLegendVisibility();
 updateFindingsLegendVisibility();
 
-/* ===================== EXPORT ===================== */
 const exportToggleBtn=document.getElementById('exportToggleBtn');
 const exportPanel=document.getElementById('exportPanel');
 exportToggleBtn.addEventListener('click',e=>{
