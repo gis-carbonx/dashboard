@@ -29,7 +29,6 @@
   body{display:flex;flex-direction:column}
   h1,h2,h3{font-family:'Libre Franklin',sans-serif;font-weight:600}
 
-  /* SITE NAVBAR */
   .site-navbar{
     flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
     padding:10px 32px;background-color:var(--color-cream);border-bottom:1px solid var(--color-sand);
@@ -47,7 +46,6 @@
     .site-navbar-spacer{display:none}
   }
 
-  /* DASHBOARD FRAME */
   .dashboard-frame{
     flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--color-sand);
     overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
@@ -57,7 +55,6 @@
   .report-scroll{flex:1;min-height:0;overflow-y:auto}
   .report{max-width:1180px;margin:0 auto;padding:44px 36px 64px}
 
-  /* HEADER */
   .fire-topbar{
     background:#3A342C;border-bottom:1px solid #4a4238;
     padding:14px 0;
@@ -72,18 +69,15 @@
   .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
   .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
-  /* SECTION TITLES */
   .section-title{font-size:17px;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;padding-top:32px;border-bottom:1px solid var(--color-sand)}
   .section-title:first-of-type{margin-top:0}
   .section-subtitle{font-size:11.5px;color:var(--color-muted);margin:-10px 0 14px;font-family:'Libre Franklin',sans-serif}
   .section-subtitle a{color:var(--color-fern);font-weight:600;text-decoration:none}
   .section-subtitle a:hover{text-decoration:underline}
 
-  /* GENERIC PANEL */
   .panel{background:#fff;border:1px solid var(--color-sand);border-radius:6px;padding:20px 22px}
   .panel-heading{font-size:14px;font-weight:700;color:var(--color-ink);margin-bottom:12px;font-family:'Libre Franklin',sans-serif}
 
-  /* FDRS PANEL */
   .fdrs-panel{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
   .fdrs-panel-left{flex:1;min-width:200px}
   .fdrs-panel-title{font-size:16px;color:var(--color-ink)}
@@ -96,7 +90,6 @@
   .fdrs-high{background:#FCE0C4;color:#9a4b0c}
   .fdrs-extreme{background:#FADBD8;color:#8a1f1f}
 
-  /* FIRE KPI PANEL + TREND ROW */
   .kpi-trend-row{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .kpi-trend-row{grid-template-columns:1fr} }
 
@@ -118,7 +111,6 @@
   .chip-btn-accent:hover{opacity:.88}
   .date-input-sm{padding:4px 8px;border:1px solid var(--color-sand);border-radius:20px;font-size:10.5px;color:var(--color-ink);background:#fff;font-family:'Libre Franklin',sans-serif}
 
-  /* TWO COLUMN ROW (map + lokasi) */
   .two-col-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
   .map-panel{padding:0;overflow:hidden;display:flex;flex-direction:column}
@@ -134,7 +126,6 @@
   .blok-desa{font-size:10.5px;color:var(--color-muted);margin-top:2px;font-family:'Libre Franklin',sans-serif}
   .blok-count{font-size:19px;font-weight:800;color:var(--color-fire)}
 
-  /* TABLE */
   .tbl-wrap{border:1px solid var(--color-sand);border-radius:6px;overflow:hidden}
   table.data-tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:'Libre Franklin',sans-serif}
   table.data-tbl thead th{background:var(--color-cream);color:var(--color-pine);padding:10px 16px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--color-sand)}
@@ -150,7 +141,6 @@
   .pg-btn:hover:not(:disabled){background:var(--color-sage);color:#fff;border-color:var(--color-sage)}
   .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
-  /* WEATHER ROW */
   .weather-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
   @media (max-width:760px){ .weather-row{grid-template-columns:1fr 1fr} }
   @media (max-width:420px){ .weather-row{grid-template-columns:1fr} }
@@ -163,7 +153,6 @@
   .weather-current span{font-size:11px;font-weight:600;color:var(--color-muted);font-family:'Libre Franklin',sans-serif;margin-left:2px}
   .weather-chart-wrap{position:relative;height:64px;margin-top:14px;overflow:hidden;border-top:1px solid #f1efe6;padding-top:10px}
 
-  /* FORECAST ROW (BMKG, 3-jam-an) */
   .forecast-panel{background:transparent;overflow:hidden}
   .forecast-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
   .forecast-scroll::-webkit-scrollbar{height:6px}
@@ -210,7 +199,6 @@
   <div class="report-scroll">
   <div class="report">
 
-    <!-- ANALISA PERBANDINGAN HISTORIS -->
     <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:18px 0;margin-bottom:24px">
       <div style="max-width:640px">
         <div style="font-size:13px;color:var(--color-ink);line-height:1.6">
@@ -222,7 +210,6 @@
       </a>
     </div>
 
-    <!-- FDRS -->
     <div class="panel fdrs-panel">
       <div class="fdrs-panel-left">
         <div class="fdrs-panel-title">Rating Bahaya Kebakaran</div>
@@ -238,7 +225,6 @@
       </div>
     </div>
 
-    <!-- TITIK API KPI + TREN -->
     <div class="two-col-row kpi-trend-row" style="margin-top:16px">
       <div class="panel fire-kpi-panel">
         <div class="fire-kpi-label">Titik Api</div>
@@ -262,7 +248,6 @@
       </div>
     </div>
 
-    <!-- PETA -->
     <h2 class="section-title">Peta Sebaran Titik Api</h2>
     <div class="two-col-row">
       <div class="panel map-panel">
@@ -278,7 +263,6 @@
       </div>
     </div>
 
-    <!-- DATA TABLE -->
     <h2 class="section-title">Data Titik Api Terbaru</h2>
     <div class="tbl-wrap">
       <table class="data-tbl">
@@ -294,7 +278,6 @@
       <button class="pg-btn" id="pgNext">&rsaquo;</button>
     </div>
 
-    <!-- KONDISI CUACA -->
     <h2 class="section-title">Kondisi Cuaca</h2>
     <div class="weather-row">
       <div class="panel">
@@ -319,7 +302,6 @@
       </div>
     </div>
 
-    <!-- PREDIKSI CUACA -->
     <h2 class="section-title">Prediksi Cuaca</h2>
     <div class="section-subtitle">Balai Karangan, Sanggau &middot; Sumber: <a href="https://www.bmkg.go.id/cuaca/prakiraan-cuaca/61.03.07.2001" target="_blank" rel="noopener">BMKG</a></div>
     <div class="panel forecast-panel">
@@ -373,7 +355,6 @@ function fmtDateShort(d){return d?`${d.getDate()} ${MN_SHORT[d.getMonth()]}`:'�
 
 document.getElementById('reportDateToday').textContent=fmtDateID(new Date());
 
-/* ============ MAP ============ */
 const map=L.map('map',{zoomControl:true,attributionControl:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
 map.setView([0.8,110.3],11);
@@ -404,7 +385,6 @@ function renderFireMarkers(rows){
   });
 }
 
-/* ============ TABLE ============ */
 function renderTable(){
   const start=(currentPage-1)*PAGE_SIZE;
   const pageRows=filteredFire.slice(start,start+PAGE_SIZE);
@@ -430,7 +410,6 @@ document.getElementById('pgNext').addEventListener('click',()=>{
   if(currentPage<totalPages){currentPage++;renderTable();}
 });
 
-/* ============ LOKASI TITIK API ============ */
 function renderBlokSummary(rows){
   const groups={};
   rows.forEach(r=>{
@@ -447,10 +426,9 @@ function renderBlokSummary(rows){
     </div>`).join('') : '<div class="loading-msg">Tidak ada data</div>';
 }
 
-/* ============ TREN KEJADIAN TITIK API (granularitas otomatis) ============ */
 let fireTrendChartInst=null;
 function isoWeekKey(d){
-  // Kunci minggu berdasarkan hari Senin sebagai awal minggu
+
   const dt=new Date(d);const day=(dt.getDay()+6)%7; // 0=Senin
   dt.setDate(dt.getDate()-day);dt.setHours(0,0,0,0);
   return dateKey(dt);
@@ -460,7 +438,6 @@ function renderFireTrendChart(){
   const canvas=document.getElementById('chartFireTrend');
   if(!canvas)return;
 
-  // Tentukan granularitas dari rentang tanggal yang sedang aktif
   let spanDays=7;
   if(filterRangeStart&&filterRangeEnd){
     spanDays=Math.max(1,Math.round((filterRangeEnd-filterRangeStart)/(1000*60*60*24))+1);
@@ -495,8 +472,6 @@ function renderFireTrendChart(){
     }
   }
 
-  // Buat dulu seluruh urutan bucket kosong (0) sepanjang rentang filter yang aktif,
-  // supaya hari/minggu/bulan TANPA kejadian titik api tetap muncul di grafik.
   if(filterRangeStart&&filterRangeEnd){
     const cursor=new Date(filterRangeStart);
     const step=granularity==='day'?1:(granularity==='week'?7:0);
@@ -510,7 +485,6 @@ function renderFireTrendChart(){
     }
   }
 
-  // Isi jumlah kejadian sesungguhnya ke bucket yang sudah dibuat (atau bucket baru kalau di luar rentang)
   rows.forEach(r=>{
     if(!r.dateObj)return;
     const b=bucketInfoFor(r.dateObj);
@@ -537,7 +511,6 @@ function renderFireTrendChart(){
   });
 }
 
-/* ============ FILTER ============ */
 let currentPreset='7d';
 let maxFireDate=null;
 let customStart=null,customEnd=null;
@@ -606,7 +579,6 @@ document.querySelectorAll('.chip-btn[data-preset]').forEach(btn=>{
   });
 });
 
-/* ============ LOAD FIRE DATA ============ */
 Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
   const rows=res.data;
   const dataRows=rows.slice(3290);
@@ -635,7 +607,6 @@ Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,comple
   document.getElementById('tblBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:#a5382c;padding:20px">Gagal memuat data titik api.</td></tr>';
 }});
 
-/* ============ WEATHER ============ */
 const WEATHER_ICON=(w)=>{
   const s=(w||'').toLowerCase();
   if(s.includes('thunder'))return'⛈️';
@@ -651,8 +622,6 @@ const charts={};
 function buildChart(canvasId,labels,data,color){
   const ctx=document.getElementById(canvasId);
   if(charts[canvasId])charts[canvasId].destroy();
-  // Reset atribut ukuran canvas secara eksplisit — mencegah grafik "membesar" terus
-  // setiap kali di-render ulang (bug umum Chart.js kalau canvas tidak direset).
   ctx.removeAttribute('width');ctx.removeAttribute('height');
   ctx.style.width='';ctx.style.height='';
   charts[canvasId]=new Chart(ctx,{
@@ -746,7 +715,7 @@ Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(re
   const now=new Date();
   const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   let upcoming=forecastBmkg.filter(d=>d.dateObj>=todayStart);
-  if(!upcoming.length)upcoming=forecastBmkg.slice(); // fallback: tampilkan semua data
+  if(!upcoming.length)upcoming=forecastBmkg.slice();
 
   const listEl=document.getElementById('forecastList');
   listEl.innerHTML = upcoming.length ? upcoming.map(d=>`
@@ -812,7 +781,6 @@ fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   document.getElementById('fdrsDate').textContent='Gagal memuat data FDRS';
 });
 
-/* ============ RUNTIME ============ */
 Papa.parse(RUNTIME_URL,{download:true,header:true,skipEmptyLines:true,complete:(res)=>{
   const row=res.data[0];
   document.getElementById('lastUpdate').textContent = row && row['Last_Run'] ? str(row['Last_Run']) : '–';
