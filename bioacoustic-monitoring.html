@@ -23,7 +23,6 @@
     html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
-    /* SITE NAVBAR (sama seperti index.html / list.html) */
     .site-navbar{
       flex-shrink:0;
       display:grid;
@@ -47,9 +46,6 @@
       .site-navbar-spacer{display:none}
     }
 
-    /* DASHBOARD ROOT wraps the entire bioacoustic monitoring app below the navbar */
-    /* DASHBOARD FRAME wraps the dashboard app with margin on left/right/bottom,
-       flush with the navbar on top — memberi efek seperti panel yang ter-embed */
     .dashboard-frame{
       flex:1;min-height:0;
       margin:0 28px 28px 28px;
@@ -174,7 +170,6 @@
     .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
     .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
 
-    /* SPECIES INFO MODAL */
     .sp-modal-overlay{position:fixed;inset:0;z-index:5000;background:transparent;display:none;align-items:center;justify-content:center;padding:24px;pointer-events:none}
     .sp-modal-overlay.open{pointer-events:auto}
     .sp-modal-overlay.open{display:flex}
@@ -393,10 +388,9 @@
   <div class="gdp-body" id="gridDetailBody"></div>
 </div>
 
-</div><!-- /#dashboardRoot -->
-</div><!-- /.dashboard-frame -->
+</div>
+</div>
 
-<!-- SPECIES INFO MODAL -->
 <div class="sp-modal-overlay" id="spModalOverlay">
   <div class="sp-modal">
     <div class="sp-modal-head">
@@ -524,10 +518,6 @@ function loadCameraData(){
   overlay.style.background='rgba(0,0,0,.75)';
   overlay.style.display='block';
 
-  // Safety net: if loading takes too long (network stuck / sheet not shared
-  // publicly / CSV fetch hung with no error callback firing), stop the
-  // infinite spinner and tell the user what's likely wrong instead of
-  // leaving them staring at "Loading..." forever.
   const safetyTimer=setTimeout(()=>{
     if(!ctLoaded){
       showLoadError('Gagal memuat data (timeout). Cek apakah Google Sheet sudah di-share "Anyone with the link -> Viewer", lalu refresh halaman.');
@@ -574,7 +564,7 @@ function loadCameraData(){
     ctLoaded=true;
     if(!ctData.length){
       showLoadError('Data tidak termuat dari Google Sheets. Kemungkinan sheet belum di-share publik ("Anyone with the link -> Viewer") atau ada masalah koneksi. Cek console (F12) untuk detail error, lalu refresh.');
-      // Still initialize UI with empty data so the map/sidebar isn't broken.
+
     }else{
       document.getElementById('loadingOverlay').style.display='none';
     }
@@ -719,17 +709,12 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
 }
 document.getElementById('gridDetailClose').onclick=()=>document.getElementById('gridDetailPanel').classList.remove('open');
 
-/* ===================== SPECIES INFO MODAL (GBIF + Wikipedia) ===================== */
 const spInfoCache={};
 const spModalOverlay=document.getElementById('spModalOverlay');
 const spModalBody=document.getElementById('spModalBody');
 document.getElementById('spModalClose').onclick=()=>spModalOverlay.classList.remove('open');
 spModalOverlay.addEventListener('click',e=>{if(e.target===spModalOverlay)spModalOverlay.classList.remove('open');});
 
-/* ===== GBIF species descriptions (primary) ===== */
-/* Provider priority — lower index = more trusted. Matched against the
-   'source' field GBIF returns for each description entry (case-insensitive,
-   substring match). Adjust this list any time to change priority. */
 const GBIF_PROVIDER_PRIORITY=[
   'catalogue of life',
   'iucn',
@@ -767,7 +752,6 @@ async function fetchGbifDescription(gbifKey){
   }
 }
 
-/* ===== Wikipedia summary (fallback) ===== */
 async function fetchWikipediaDescription(latinName){
   try{
     const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(latinName.replace(/\s+/g,'_'))}`).then(r=>r.ok?r.json():null);
@@ -779,7 +763,6 @@ async function fetchWikipediaDescription(latinName){
   }
 }
 
-/* ===== iNaturalist photos (supplementary — fills gaps when GBIF has none) ===== */
 async function fetchINatPhotos(latinName){
   try{
     const res=await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(latinName)}&rank=species,subspecies&per_page=5`).then(r=>r.ok?r.json():null);
