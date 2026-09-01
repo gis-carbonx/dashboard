@@ -103,20 +103,6 @@ body{display:flex;flex-direction:column}
 .sc-anggota-val{font-size:25px;font-weight:800;line-height:1;color:var(--text)!important;letter-spacing:-1px}
 .sc-anggota-gender{display:flex;flex-direction:column;gap:4px;margin-top:2px}
 .sc-anggota-row{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:var(--text)}
-.sc-pot-card{flex:1;min-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:6px;box-shadow:var(--shadow-sm)}
-.sc-pot-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
-.sc-pot-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.sc-pot-header-left{display:flex;align-items:baseline;gap:8px}
-.sc-pot-total{font-size:21px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px;line-height:1.1}
-.sc-pot-total-meta{font-size:10px;color:var(--text-3);font-weight:500}
-.sc-pot-sep{height:1px;background:var(--border-lt)}
-.sc-pot-rows{display:flex;flex-direction:column;gap:4px}
-.sc-pot-row-main{display:flex;align-items:center;gap:6px}
-.sc-pot-row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sc-pot-row-label{font-size:11px;font-weight:700;color:var(--text);flex:1}
-.sc-pot-row-vals{display:flex;align-items:center;gap:6px}
-.sc-pot-row-ha{font-size:11px;font-weight:700;color:var(--text)!important}
-.sc-pot-row-petani{font-size:9.5px;color:var(--text-3)}
 .btn-detail-pot{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:10px;font-weight:700;color:var(--text-2);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
 .btn-detail-pot:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
 .app-body{flex:1;min-height:0;display:flex;overflow:hidden;gap:8px;padding:0 12px 10px 12px}
@@ -331,7 +317,7 @@ body{display:flex;flex-direction:column}
 <header class="hdr">
   <div class="hdr-left">
     <div>
-      <div class="hdr-title">Sebaran Lahan Garapan Masyarakat</div>
+      <div class="hdr-title">Kegiatan Agroforestri</div>
       <div class="hdr-sub">Implementasi Program PT Citra Mulia Inti</div>
     </div>
   </div>
@@ -446,19 +432,14 @@ body{display:flex;flex-direction:column}
       <div class="sc-anggota-row"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span id="sPmp" style="color:var(--text-2);font-size:10px;font-weight:600">—</span></div>
     </div>
   </div>
-  <div class="sc-pot-card">
-    <div class="sc-pot-lbl">Potential Farmer for ARR</div>
-    <div class="sc-pot-header">
-      <div class="sc-pot-header-left">
-        <div class="sc-pot-total" id="potTotalHa">— ha</div>
-        <div class="sc-pot-total-meta" id="potTotalPetani">— petani</div>
-      </div>
-      <button class="btn-detail-pot" onclick="openCapaianModal()">Detail Tabel</button>
+  <div class="sc">
+    <div class="sc-lbl">Jumlah Tanaman</div>
+    <div class="sc-top-row">
+      <div class="sc-val" id="sTanamanTotal">—</div>
     </div>
-    <div class="sc-pot-sep"></div>
-    <div class="sc-pot-rows">
-      <div class="sc-pot-row-main"><span class="sc-pot-row-dot" style="background:#40c074"></span><span class="sc-pot-row-label">Agroforestri</span><div class="sc-pot-row-vals"><span class="sc-pot-row-ha" id="potAgroHa">—</span><span class="sc-pot-row-petani" id="potAgroPetani">— petani</span></div></div>
-      <div class="sc-pot-row-main"><span class="sc-pot-row-dot" style="background:#ff8c38"></span><span class="sc-pot-row-label">Tembawang</span><div class="sc-pot-row-vals"><span class="sc-pot-row-ha" id="potTembHa">—</span><span class="sc-pot-row-petani" id="potTembPetani">— petani</span></div></div>
+    <div class="sc-subs">
+      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#40c074"></span><span class="sc-sub-label">Agroforestri</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTanamanAgro">—</span></div></div>
+      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Tembawang</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTanamanTemb">—</span></div></div>
     </div>
   </div>
 </div>
@@ -507,10 +488,8 @@ body{display:flex;flex-direction:column}
           <div class="basemap-pills">
             <div class="bm-pill" id="bm_esri_imagery" onclick="switchBasemap('esri_imagery')"><div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/16/26" alt=""></div><div class="bm-name">ESRI St</div></div>
             <div class="bm-pill" id="bm_google_satellite" onclick="switchBasemap('google_satellite')"><div class="bm-thumb-wrap"><img src="https://mt1.google.com/vt/lyrs=s&x=26&y=16&z=5" alt=""></div><div class="bm-name">Google</div></div>
-            <div class="bm-pill" id="bm_esri_topo" onclick="switchBasemap('esri_topo')"><div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/5/16/26" alt=""></div><div class="bm-name">Topo</div></div>
+            <div class="bm-pill active" id="bm_esri_topo" onclick="switchBasemap('esri_topo')"><div class="bm-thumb-wrap"><img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/5/16/26" alt=""></div><div class="bm-name">Topo</div></div>
             <div class="bm-pill" id="bm_osm" onclick="switchBasemap('osm')"><div class="bm-thumb-wrap"><img src="https://tile.openstreetmap.org/5/26/16.png" alt=""></div><div class="bm-name">Streets</div></div>
-            <div class="bm-pill active" id="bm_carto_light" onclick="switchBasemap('carto_light')"><div class="bm-thumb-wrap"><img src="https://basemaps.cartocdn.com/light_all/5/26/16.png" alt=""></div><div class="bm-name">Light</div></div>
-            <div class="bm-pill" id="bm_carto_dark" onclick="switchBasemap('carto_dark')"><div class="bm-thumb-wrap" style="background:#1a1a2e"><img src="https://basemaps.cartocdn.com/dark_all/5/26/16.png" alt=""></div><div class="bm-name">Dark</div></div>
           </div>
         </div>
       </div>
@@ -840,11 +819,12 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN',FOLLOWUP_NAME='FOLLOW_UP_PETANI';
+const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN',FOLLOWUP_NAME='FOLLOW_UP_PETANI',CUML_NAME='Planting Cumulative Area';
 const CACHE_BUST='?v='+Date.now();
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
 const FU_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(FOLLOWUP_NAME)}`;
+const CUML_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CUML_NAME)}`;
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 const CP_CLASS={
@@ -873,6 +853,7 @@ const INS_STAGES=[
 ];
 
 let sheetMap={},featureMap={},kthMaster={},kthBounds={},targetData={},followUpData=[],_rawRows=[];
+let cumulativeData={general:{agro:0,temb:0},byYear:{}};
 let currentKTH=null,currentPreset='ytd',filterYear=null,filterMonth=null,selectedLahanId=null;
 let cpFilteredRows=[],cpActiveMinat='',insRawData=[],insActiveYear='all',insFilteredRows=[];
 let grafikChart=null,grafikTab='bulanan',bmOpen=false;
@@ -903,17 +884,15 @@ const BASEMAPS={
   google_satellite:L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{attribution:'Google',maxZoom:20}),
   esri_topo:       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19}),
   osm:             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'OSM',maxZoom:19}),
-  carto_light:     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',subdomains:'abcd',maxZoom:20}),
-  carto_dark:      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',subdomains:'abcd',maxZoom:20}),
 };
-let curBM='carto_light';
+let curBM='esri_topo';
 const map=L.map('map',{zoomControl:false,fadeAnimation:false,zoomAnimation:false,markerZoomAnimation:false,preferCanvas:true});
 L.control.zoom({position:'topright'}).addTo(map);
 L.control.scale({position:'bottomright',metric:true,imperial:false}).addTo(map);
 map.setView([1.0,111.5],9);
 new ResizeObserver(()=>map.invalidateSize({animate:false,pan:false})).observe(document.getElementById('mapWrap'));
 requestAnimationFrame(()=>{
-  BASEMAPS.carto_light.addTo(map);
+  BASEMAPS.esri_topo.addTo(map);
   map.getPane('tilePane').style.willChange='auto';
   requestAnimationFrame(()=>map.invalidateSize({animate:false,pan:false}));
 });
@@ -1040,7 +1019,7 @@ function getActiveTarget(){
 }
 function getActiveEnrTarget(){
   if(currentPreset==='all'){let p=0,l=0,f=false;Object.values(targetData).forEach(td=>{p+=td.enp_utama||0;l+=td.enl_utama||0;f=true;});return f?{enp:p,enl:l}:{enp:null,enl:null};}
-  if(currentPreset==='ytd'||currentPreset==='year'){const yr=currentPreset==='ytd'?new Date().getFullYear():filterYear;const td=targetData[yr];return td?{enp:td.enp_total??null,enl:td.enl_total??null}:{enp:null,enl:null};}
+  if(currentPreset==='ytd'||currentPreset==='year'){const yr=currentPreset==='ytd'?new Date().getFullYear():filterYear;const td=targetData[yr];return td?{enp:td.enp_utama??null,enl:td.enl_utama??null}:{enp:null,enl:null};}
   if(currentPreset==='month'){const td=targetData[filterYear];if(!td?.monthlyEnr)return{enp:null,enl:null};const mo=td.monthlyEnr[filterMonth]||{};return{enp:mo.enp??null,enl:mo.enl??null};}
   if(currentPreset==='week'){const wk=getSelectedWeek();if(!wk)return{enp:null,enl:null};const td=targetData[wk.fri.getFullYear()];if(!td?.monthlyEnr)return{enp:null,enl:null};const mo=td.monthlyEnr[wk.fri.getMonth()]||{};return{enp:mo.enp??null,enl:mo.enl??null};}
   return{enp:null,enl:null};
@@ -1052,16 +1031,17 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+"
 (async function boot(){
   try{
     setLoad('Memuat data spreadsheet...');
-    const [csvTxt,tgtTxt,fuTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>'')]);
+    const [csvTxt,tgtTxt,fuTxt,cumlTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>''),getText(CUML_URL).catch(()=>'')]);
     parseSheet(csvTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(fuTxt)parseFollowUp(fuTxt);
+    if(cumlTxt)parseCumulativeSheet(cumlTxt);
     populateYearDropdowns();
     setLoad('Memuat GeoJSON...');
     const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
     setLoad('Merender peta...');
     renderCMI(cmiJ);renderAgro(agroJ);
-    setPreset('ytd');fitAll();hideLoad();updatePotCard();
+    setPreset('ytd');fitAll();hideLoad();renderTanamanPanel();
   }catch(err){console.error('BOOT ERROR:',err);setLoad('⚠ '+String(err?.message||err),true);}
 })();
 
@@ -1172,17 +1152,31 @@ function parseFollowUp(csv){
 }
 function yearFrom(s){const m=str(s).match(/(\d{4})/);return m?+m[1]:null;}
 
-function updatePotCard(){
-  let totA=0,totT=0;const pA=new Set(),pT=new Set(),pAll=new Set();
-  followUpData.forEach(r=>{
-    const a=(r.pot_agr_reg||0)+(r.pot_bpo||0),t=(r.pot_tbw||0)+(r.pot_mtl||0);
-    totA+=a;totT+=t;
-    const k=r.nama?.trim().toLowerCase();if(!k)return;
-    if(a)pA.add(k);if(t)pT.add(k);pAll.add(k);
+function parseCumulativeSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  cumulativeData={general:{agro:0,temb:0},byYear:{}};
+  data.forEach((row,i)=>{
+    if(i===0)return;
+    const agro=num(row[6]),temb=num(row[12]);
+    if(i===1)cumulativeData.general={agro,temb};
+    const yr=parseInt(str(row[0]));
+    if(!isNaN(yr))cumulativeData.byYear[yr]={agro,temb};
   });
-  setText('potTotalHa',fmt(totA+totT)+' ha');setText('potTotalPetani',pAll.size+' petani');
-  setText('potAgroHa',fmt(totA)+' ha');setText('potAgroPetani',pA.size+' petani');
-  setText('potTembHa',fmt(totT)+' ha');setText('potTembPetani',pT.size+' petani');
+}
+
+function renderTanamanPanel(){
+  let src=null;
+  if(currentPreset==='year'&&filterYear!==null)src=cumulativeData.byYear[filterYear]||null;
+  else src=cumulativeData.general;
+  if(src){
+    setText('sTanamanAgro',fmtInt(src.agro));
+    setText('sTanamanTemb',fmtInt(src.temb));
+    setText('sTanamanTotal',fmtInt(src.agro+src.temb));
+  }else{
+    setText('sTanamanAgro','—');
+    setText('sTanamanTemb','—');
+    setText('sTanamanTotal','—');
+  }
 }
 
 function renderCMI(gj){L.geoJSON(gj,{style:()=>({color:'#475569',weight:2.5,dashArray:'8 5',fillOpacity:0,opacity:.9})}).addTo(lgCMI);}
@@ -1218,7 +1212,7 @@ function applyFilter(){
     const show=ids.has(id)&&kthVis[e.row.kth]!==false;
     show?(!lg.hasLayer(e.layer)&&lg.addLayer(e.layer)):(lg.hasLayer(e.layer)&&lg.removeLayer(e.layer));
   });
-  calcStats(ids);renderKTHList(ids);updateFilterInfo(ids.size);
+  calcStats(ids);renderKTHList(ids);updateFilterInfo(ids.size);renderTanamanPanel();
   if(currentKTH&&document.getElementById('kthModal').style.display!=='none')openKTH(currentKTH,ids);
   if(selectedLahanId&&!ids.has(selectedLahanId))clearDetail();
 }
