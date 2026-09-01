@@ -6,7 +6,7 @@
   <title>Biodiversity Report | Sanggala Corridor Project</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root{
@@ -19,14 +19,14 @@
       --color-delta:#f97316;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
+    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
     .site-navbar{
       flex-shrink:0;
       display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
       padding:12px 32px;background-color:var(--color-cream);
-      border-bottom:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif;
+      border-bottom:1px solid var(--color-sand);font-family:'Montserrat',sans-serif;
     }
     .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
     .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
@@ -68,7 +68,7 @@
     .quarter-bar-current{font-size:13px;font-weight:700;color:var(--color-pine)}
     .quarter-select{
       margin-left:auto;padding:7px 30px 7px 12px;border:1.5px solid var(--color-sand);border-radius:8px;
-      font-size:12px;font-family:'Libre Franklin',sans-serif;color:#374151;background:#fff;
+      font-size:12px;font-family:'Montserrat',sans-serif;color:#374151;background:#fff;
       appearance:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23356760'/%3E%3C/svg%3E");
       background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;
@@ -246,7 +246,7 @@
 
 <script>
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
-const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=414415821`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
 
@@ -301,10 +301,10 @@ async function loadAllData(){
   const [ctRaw,bioRaw]=await Promise.all([fetchCsv(CT_SHEET_URL),fetchCsv(BIO_SHEET_URL)]);
 
   ctRows=ctRaw.slice(1).map(r=>{
-    const d=parseDateStr(r[7]);
+    const d=parseDateStr(r[10]);
     return{
-      UnitID:r[6]||'',Date:d,Species:(r[10]||'').trim(),LocalName:r[11]||'',IUCN:r[12]||'',
-      Indep:Math.max(0,parseInt(r[13])||0),Source:'cameratrap'
+      UnitID:r[9]||'',Date:d,Species:(r[14]||'').trim(),LocalName:r[15]||'',IUCN:r[16]||'',
+      Indep:Math.max(0,parseInt(r[17])||0),Source:'cameratrap'
     };
   }).filter(r=>r.Date&&r.UnitID);
 
@@ -361,7 +361,6 @@ function buildQuarterSelect(){
     renderAll();
   });
 }
-
 function rowsInQuarter(rows,year,q){
   return rows.filter(r=>{const g=getQuarter(r.Date);return g.year===year&&g.q===q;});
 }
@@ -411,7 +410,6 @@ function fmtDelta(curr,prev){
   return{text:`${sign}${diff}`,negative:diff<0};
 }
 
-/* ============== RENDER ============== */
 function renderAll(){
   const isAll=selectedQuarterIdx==='all';
   let year,q,prev;
