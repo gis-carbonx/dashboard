@@ -91,13 +91,7 @@
       background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px 18px;
       display:flex;flex-direction:column;gap:9px;
     }
-    .breakdown-card-head{display:flex;align-items:center;justify-content:space-between}
     .breakdown-label{font-size:13.5px;font-weight:800;color:#1f2937}
-    .breakdown-info-icon{
-      width:16px;height:16px;border-radius:50%;border:1.5px solid #d1d5db;color:#9ca3af;
-      font-size:9px;font-weight:700;font-style:italic;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;cursor:default;
-    }
     .breakdown-value{font-size:30px;font-weight:800;color:var(--color-pine);line-height:1}
     .breakdown-divider{height:1px;background:#e5e7eb;width:100%}
     .breakdown-sub-row{display:flex}
@@ -264,10 +258,7 @@
 
       <div class="breakdown-grid" style="margin-top:20px">
         <div class="breakdown-card">
-          <div class="breakdown-card-head">
-            <span class="breakdown-label">Species Detected</span>
-            <span class="breakdown-info-icon" title="Total unique species recorded across camera trap and bioacoustic data">i</span>
-          </div>
+          <span class="breakdown-label">Species Detected</span>
           <span class="breakdown-value" id="statSpeciesTotal">–</span>
           <div class="breakdown-divider"></div>
           <div class="breakdown-sub-row">
@@ -282,10 +273,7 @@
           </div>
         </div>
         <div class="breakdown-card">
-          <div class="breakdown-card-head">
-            <span class="breakdown-label">Threatened Species</span>
-            <span class="breakdown-info-icon" title="Unique species with IUCN status Endangered or Critically Endangered">i</span>
-          </div>
+          <span class="breakdown-label">Threatened Species</span>
           <span class="breakdown-value" id="statThreatenedTotal">–</span>
           <div class="breakdown-divider"></div>
           <div class="breakdown-sub-row">
@@ -394,14 +382,12 @@
 </div>
 
 <script>
-
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=414415821`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=2033661649`;
 const GRID_URL='./assets/json/Grid.json';
 const BOUNDARY_URL='assets/json/CMI.json';
-
 const PATROL_SHEET_ID='1Hf1ETojFQiuDtVwWISVCBvXL9jc_JvJEU6OPW8m6-5Y';
 const PATROL_URL=`https://docs.google.com/spreadsheets/d/${PATROL_SHEET_ID}/export?format=csv&gid=94771341`;
 
@@ -594,7 +580,7 @@ async function loadAll(){
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
-  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); // most recent first
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); 
   console.log('[Hunting] matching rows (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
   if(subRaw.length&&!huntingRecords.length){
     const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
@@ -908,6 +894,7 @@ function initPresenceMap(){
   map.setView([0.8,110.3],11);
 
   const markerLayer=L.layerGroup(); 
+
   if(boundaryGeo){
 
     const boundary=L.geoJSON(boundaryGeo,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
@@ -917,7 +904,7 @@ function initPresenceMap(){
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
       map.fitBounds(bounds,{padding:[16,16]});
-
+   
       map.setZoom(13);
     }
     setTimeout(()=>map.invalidateSize(),150);
@@ -928,7 +915,6 @@ function initPresenceMap(){
 
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
   const legendEl=document.getElementById('presenceMapLegend');
-
   const locationMap={};
   allSpecies.forEach(sp=>{
     const locs=speciesLocations(sp.latin);
@@ -940,6 +926,7 @@ function initPresenceMap(){
   });
 
   Object.values(locationMap).forEach(loc=>{
+
     const pointSources=new Set();
     loc.species.forEach(s=>s.sources.forEach(src=>pointSources.add(src)));
     const isMixedSource=pointSources.size>1;
@@ -992,7 +979,6 @@ function renderSpeciesStats(){
       }
     }
   });
-
   const spTotals={};
   const spLastDate={};
   combined.forEach(r=>{
