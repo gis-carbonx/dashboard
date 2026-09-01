@@ -432,14 +432,20 @@ body{display:flex;flex-direction:column}
       <div class="sc-anggota-row"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span id="sPmp" style="color:var(--text-2);font-size:10px;font-weight:600">—</span></div>
     </div>
   </div>
-  <div class="sc">
+  <div class="sc" style="min-width:280px;flex:1.4">
     <div class="sc-lbl">Jumlah Tanaman</div>
     <div class="sc-top-row">
       <div class="sc-val" id="sTanamanTotal">—</div>
     </div>
-    <div class="sc-subs">
-      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#40c074"></span><span class="sc-sub-label">Agroforestri</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTanamanAgro">—</span></div></div>
-      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Tembawang</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTanamanTemb">—</span></div></div>
+    <div class="sc-subs" style="gap:7px;margin-top:2px">
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div class="sc-sub-left"><span class="dot" style="background:#40c074"></span><span class="sc-sub-label" style="font-weight:700;color:var(--text);overflow:visible;white-space:normal">Agroforestri</span></div>
+        <div style="font-size:9.5px;line-height:1.35;color:var(--text-2);padding-left:11px" id="sTanamanAgroDesc">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label" style="font-weight:700;color:var(--text);overflow:visible;white-space:normal">Tembawang</span></div>
+        <div style="font-size:9.5px;line-height:1.35;color:var(--text-2);padding-left:11px" id="sTanamanTembDesc">—</div>
+      </div>
     </div>
   </div>
 </div>
@@ -853,7 +859,7 @@ const INS_STAGES=[
 ];
 
 let sheetMap={},featureMap={},kthMaster={},kthBounds={},targetData={},followUpData=[],_rawRows=[];
-let cumulativeData={general:{agro:0,temb:0},byYear:{}};
+let cumulativeData={general:null,byYear:{}};
 let currentKTH=null,currentPreset='ytd',filterYear=null,filterMonth=null,selectedLahanId=null;
 let cpFilteredRows=[],cpActiveMinat='',insRawData=[],insActiveYear='all',insFilteredRows=[];
 let grafikChart=null,grafikTab='bulanan',bmOpen=false;
@@ -1154,28 +1160,37 @@ function yearFrom(s){const m=str(s).match(/(\d{4})/);return m?+m[1]:null;}
 
 function parseCumulativeSheet(csv){
   const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
-  cumulativeData={general:{agro:0,temb:0},byYear:{}};
+  cumulativeData={general:null,byYear:{}};
   data.forEach((row,i)=>{
     if(i===0)return;
-    const agro=num(row[6]),temb=num(row[12]);
-    if(i===1)cumulativeData.general={agro,temb};
+    const rec={
+      agroTotal:num(row[3]),   agroPlanted:num(row[4]),   agroTanaman:num(row[6]),
+      tembTotal:num(row[9]),   tembPlanted:num(row[10]),  tembTanaman:num(row[12]),
+    };
+    if(i===1)cumulativeData.general=rec;
     const yr=parseInt(str(row[0]));
-    if(!isNaN(yr))cumulativeData.byYear[yr]={agro,temb};
+    if(!isNaN(yr))cumulativeData.byYear[yr]=rec;
   });
+}
+
+function tanamanDesc(planted,total,tanaman){
+  const pct=total>0?(planted/total*100):0;
+  return `${fmt(planted)} ha ditanam dari ${fmt(total)} ha (${pct.toFixed(1)}%) · ${fmtInt(tanaman)} tanaman`;
 }
 
 function renderTanamanPanel(){
   let src=null;
   if(currentPreset==='year'&&filterYear!==null)src=cumulativeData.byYear[filterYear]||null;
+  else if(currentPreset==='ytd')src=cumulativeData.byYear[new Date().getFullYear()]||cumulativeData.general;
   else src=cumulativeData.general;
   if(src){
-    setText('sTanamanAgro',fmtInt(src.agro));
-    setText('sTanamanTemb',fmtInt(src.temb));
-    setText('sTanamanTotal',fmtInt(src.agro+src.temb));
+    setText('sTanamanTotal',fmtInt(src.agroTanaman+src.tembTanaman));
+    setText('sTanamanAgroDesc',tanamanDesc(src.agroPlanted,src.agroTotal,src.agroTanaman));
+    setText('sTanamanTembDesc',tanamanDesc(src.tembPlanted,src.tembTotal,src.tembTanaman));
   }else{
-    setText('sTanamanAgro','—');
-    setText('sTanamanTemb','—');
     setText('sTanamanTotal','—');
+    setText('sTanamanAgroDesc','—');
+    setText('sTanamanTembDesc','—');
   }
 }
 
