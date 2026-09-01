@@ -396,7 +396,7 @@
 <script>
 
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
-const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=0`;
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=414415821`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
 const GRID_URL='./assets/json/Grid.json';
@@ -474,6 +474,7 @@ function inFeature(lat,lon,feature){
   for(const poly of polys)if(pip(lat,lon,poly[0]))return true;
   return false;
 }
+
 function featureVertices(feature){
   const g=feature.geometry;
   const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
@@ -551,9 +552,9 @@ async function loadAll(){
   patrol2026Dates=patrol2026Raw.slice(3).map(r=>parseDateStr(r[1])).filter(Boolean);
 
   ctRows=ctRaw.slice(1).map(r=>({
-    Latitude:parseFloat(r[4]),Longitude:parseFloat(r[5]),UnitID:r[6]||'',Date:parseDateStr(r[7]),
-    Class:r[9]||'',Species:(r[10]||'').trim(),LocalName:r[11]||'',IUCN:r[12]||'',
-    Indep:Math.max(0,parseInt(r[13])||0),Source:'cameratrap'
+    Latitude:parseFloat(r[7]),Longitude:parseFloat(r[8]),UnitID:r[9]||'',Date:parseDateStr(r[10]),
+    Class:r[13]||'',Species:(r[14]||'').trim(),LocalName:r[15]||'',IUCN:r[16]||'',
+    Indep:Math.max(0,parseInt(r[17])||0),Source:'cameratrap'
   })).filter(r=>r.Species&&!isNaN(r.Latitude)&&!isNaN(r.Longitude));
 
   bioRows=bioRaw.slice(1).map(r=>({
@@ -595,7 +596,7 @@ async function loadAll(){
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
-  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); 
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); // most recent first
   console.log('[Hunting] matching rows (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
   if(subRaw.length&&!huntingRecords.length){
     const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
@@ -696,7 +697,7 @@ function renderSpeciesCounts(){
 }
 
 function buildApexPredatorSpecies(){
-  
+
   const combined=[...ctRows,...bioRows];
   const map={};
   combined.forEach(r=>{
@@ -913,7 +914,7 @@ function initPresenceMap(){
   if(boundaryGeo){
 
     const boundary=L.geoJSON(boundaryGeo,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
-   
+
     markerLayer.addTo(map);
 
     const bounds=boundary.getBounds();
@@ -960,6 +961,7 @@ function initPresenceMap(){
       .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
       .addTo(markerLayer);
   });
+
   legendEl.innerHTML=
     `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.cameratrap}"></span>${SOURCE_LABELS.cameratrap}</span>`+
     `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.bioacoustic}"></span>${SOURCE_LABELS.bioacoustic}</span>`+
