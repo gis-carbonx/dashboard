@@ -248,7 +248,7 @@
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
 const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=414415821`;
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
-const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=0`;
+const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=2033661649`;
 
 const THREATENED_STATUSES=['VU','EN','CR'];
 
@@ -309,9 +309,9 @@ async function loadAllData(){
   }).filter(r=>r.Date&&r.UnitID);
 
   bioRows=bioRaw.slice(1).map(r=>{
-    const d=parseDateStr(r[5]);
+    const d=parseDateStr(r[7]);
     return{
-      UnitID:r[0]||'',Date:d,Species:(r[8]||'').trim(),LocalName:r[9]||'',IUCN:r[10]||'',
+      UnitID:r[0]||'',Date:d,Species:(r[10]||'').trim(),LocalName:r[11]||'',IUCN:r[12]||'',
       Indep:1,Source:'bioacoustic'
     };
   }).filter(r=>r.Date&&r.UnitID);
@@ -361,6 +361,7 @@ function buildQuarterSelect(){
     renderAll();
   });
 }
+
 function rowsInQuarter(rows,year,q){
   return rows.filter(r=>{const g=getQuarter(r.Date);return g.year===year&&g.q===q;});
 }
