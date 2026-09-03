@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://unpkg.com/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js" defer></script>
+  <script src="https://unpkg.com/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <style>
     :root{
       --color-cream:#FFFAF3;
@@ -58,6 +58,7 @@
     .ce-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
     .ce-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
 
+    /* CONTENT */
     .ce-scroll{flex:1;min-height:0;overflow-y:auto}
     .ce-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
     .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
@@ -139,6 +140,7 @@
     <div class="loading-msg" id="ceLoading">Loading community engagement data…</div>
 
     <div class="ce-content" id="ceContentBody" style="display:none">
+
       <div class="year-filter-bar">
         <span class="year-filter-label">Year Filter</span>
         <div class="year-filter-chips" id="yearFilterChips">
@@ -172,6 +174,7 @@
         </div>
       </div>
 
+      <!-- PROJECT OBJECTIVE FOR COMMUNITY BENEFITS -->
       <div class="section-title">Project Objective for Community Benefits</div>
 
       <div class="illegal-grid" id="objectiveGrid">
@@ -215,8 +218,7 @@
 const COMDEV_SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c';
 const COMDEV_BASE_URL=`https://docs.google.com/spreadsheets/d/${COMDEV_SHEET_ID}/export?format=csv&gid=0`;
 const COMDEV_SUMMARY_URL=`${COMDEV_BASE_URL}&range=A1:R2`;
-const COMDEV_INDIVIDUALS_URL=`${COMDEV_BASE_URL}&range=A5:H20000`; 
-  
+const COMDEV_INDIVIDUALS_URL=`${COMDEV_BASE_URL}&range=A5:H2337`; 
 const COL={D:3,F:5,G:6,H:7,M:12,N:13,O:14,P:15,Q:16,R:17};
 
 let desaChartInstance=null;
@@ -243,8 +245,8 @@ async function loadAll(){
     fetchCsv(COMDEV_SUMMARY_URL),
     fetchCsv(COMDEV_INDIVIDUALS_URL)
   ]);
-  const row1=summaryRows[0]||[];
-  const row2=summaryRows[1]||[];
+  const row1=summaryRows[0]||[];  // baris 1 di sheet
+  const row2=summaryRows[1]||[];  // baris 2 di sheet
 
   const totalBeneficiaries=row1[COL.G];
   const male=row2[COL.G];
@@ -275,14 +277,14 @@ async function loadAll(){
 }
 
 function renderDesaChart(rows){
-  const counts={}; 
+  const counts={}; // { desaName: {male:0, female:0, total:0} }
 
   for(let i=0;i<rows.length;i++){
     const r=rows[i];
     if(!r)continue;
     const desa=(r[COL.D]||'').toString().trim();
     const nama=(r[COL.F]||'').toString().trim();
-    if(!desa||!nama)continue; 
+    if(!desa||!nama)continue; // lewati baris kosong/bukan data individu
 
     if(!counts[desa])counts[desa]={male:0,female:0,total:0};
     const isMale=(r[COL.G]||'').toString().trim()!=='';
@@ -327,7 +329,7 @@ function renderDesaChart(rows){
   });
 }
 
-loadAll();
+document.addEventListener('DOMContentLoaded',loadAll);
 </script>
 <script src="auth-guard.js"></script>
 </body>
