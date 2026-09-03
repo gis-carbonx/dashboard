@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root{
       --color-cream:#FFFAF3;
@@ -73,8 +74,16 @@
     .year-chip.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
     .year-chip:disabled{opacity:.45;cursor:not-allowed}
 
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,340px));gap:18px;margin-bottom:8px}
-    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
+    .beneficiary-row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;align-items:stretch}
+    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px;flex:0 0 320px}
+    .chart-panel{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      flex:1;min-width:340px;display:flex;flex-direction:column;
+    }
+    .chart-panel-canvas-wrap{position:relative;flex:1;min-height:220px;margin-top:6px}
+    @media (max-width:760px){
+      .stat-card{flex:1 1 100%}
+    }
     .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
     .stat-value-row{display:flex;align-items:center;gap:22px}
     .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
@@ -85,13 +94,17 @@
     .stat-breakdown-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
     .stat-breakdown-text{font-size:12px;color:#374151}
     .stat-breakdown-text b{color:var(--color-pine);font-size:13px}
-    .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
+
+    .illegal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:8px}
     .illegal-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      background:#fff;border:1px solid var(--color-sand);border-radius:12px;padding:14px 14px;
+      min-width:0;
     }
-    .illegal-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
-    .illegal-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:8px}
-    .illegal-sub{font-size:11px;color:#6b7280;line-height:1.5}
+    .illegal-label{font-size:10.5px;color:#6b7280;font-weight:600;margin-bottom:10px;line-height:1.35}
+    .illegal-value{font-size:24px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:6px}
+    .illegal-sub{font-size:10px;color:#6b7280;line-height:1.4}
+    @media (max-width:900px){.illegal-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:560px){.illegal-grid{grid-template-columns:repeat(2,1fr)}}
 
     .ce-note{font-size:11px;color:#9ca3af;line-height:1.6;margin-top:22px}
 
@@ -136,7 +149,7 @@
         </div>
       </div>
 
-      <div class="stat-grid">
+      <div class="beneficiary-row">
         <div class="stat-card">
           <div class="stat-label">Total Beneficiaries</div>
           <div class="stat-value-row">
@@ -150,6 +163,12 @@
             <div class="stat-breakdown-item">
               <span class="stat-breakdown-text"><b id="statFemale">–</b> Perempuan</span>
             </div>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="stat-label">Participants by Village</div>
+          <div class="chart-panel-canvas-wrap">
+            <canvas id="desaChart"></canvas>
           </div>
         </div>
       </div>
@@ -197,7 +216,12 @@
 const COMDEV_SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c';
 const COMDEV_URL=`https://docs.google.com/spreadsheets/d/${COMDEV_SHEET_ID}/export?format=csv&gid=0`;
 
-const COL={G:6,H:7,M:12,N:13,O:14,P:15,Q:16,R:17};
+
+const COL={D:3,F:5,G:6,H:7,M:12,N:13,O:14,P:15,Q:16,R:17};
+
+const DATA_START_ROW_INDEX=4;
+
+let desaChartInstance=null;
 
 function fmtNumberID(n){
   const v=parseFloat(n);
@@ -218,8 +242,8 @@ async function loadAll(){
   document.getElementById('ceTodayDate').textContent=fmtDateID(new Date());
 
   const rows=await fetchCsv(COMDEV_URL);
-  const row1=rows[0]||[];  // baris 1 di sheet
-  const row2=rows[1]||[];  // baris 2 di sheet
+  const row1=rows[0]||[]; 
+  const row2=rows[1]||[]; 
 
   const totalBeneficiaries=row1[COL.G];
   const male=row2[COL.G];
@@ -243,8 +267,63 @@ async function loadAll(){
   document.getElementById('statHcv6').textContent=fmtNumberID(hcv6);
   document.getElementById('statCapacity').textContent=fmtNumberID(capacity);
 
+  renderDesaChart(rows);
+
   document.getElementById('ceLoading').style.display='none';
   document.getElementById('ceContentBody').style.display='block';
+}
+
+function renderDesaChart(rows){
+  const counts={}; 
+
+  for(let i=DATA_START_ROW_INDEX;i<rows.length;i++){
+    const r=rows[i];
+    if(!r)continue;
+    const desa=(r[COL.D]||'').toString().trim();
+    const nama=(r[COL.F]||'').toString().trim();
+    if(!desa||!nama)continue; /
+
+    if(!counts[desa])counts[desa]={male:0,female:0,total:0};
+    const isMale=(r[COL.G]||'').toString().trim()!=='';
+    const isFemale=(r[COL.H]||'').toString().trim()!=='';
+    if(isMale)counts[desa].male++;
+    if(isFemale)counts[desa].female++;
+    counts[desa].total++;
+  }
+
+  const desaNames=Object.keys(counts).sort((a,b)=>counts[b].total-counts[a].total);
+  const maleData=desaNames.map(d=>counts[d].male);
+  const femaleData=desaNames.map(d=>counts[d].female);
+
+  const wrap=document.querySelector('.chart-panel-canvas-wrap');
+  const neededHeight=Math.max(220,desaNames.length*30);
+  wrap.style.height=neededHeight+'px';
+
+  const ctx=document.getElementById('desaChart').getContext('2d');
+  if(desaChartInstance)desaChartInstance.destroy();
+  desaChartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:desaNames,
+      datasets:[
+        {label:'Laki-laki',data:maleData,backgroundColor:'#618273',borderRadius:3,maxBarThickness:16},
+        {label:'Perempuan',data:femaleData,backgroundColor:'#DCAE7D',borderRadius:3,maxBarThickness:16}
+      ]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',align:'end',labels:{font:{family:"'Libre Franklin',sans-serif",size:11},boxWidth:12,color:'#374151'}},
+        tooltip:{bodyFont:{family:"'Libre Franklin',sans-serif"},titleFont:{family:"'Libre Franklin',sans-serif"}}
+      },
+      scales:{
+        x:{stacked:true,beginAtZero:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10},color:'#6b7280'},grid:{color:'#f3f4f6'}},
+        y:{stacked:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10.5},color:'#374151'},grid:{display:false}}
+      }
+    }
+  });
 }
 
 loadAll();
