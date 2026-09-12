@@ -825,12 +825,11 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN',FOLLOWUP_NAME='FOLLOW_UP_PETANI',CUML_NAME='Planting Cumulative Area';
+const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN',FOLLOWUP_NAME='FOLLOW_UP_PETANI';
 const CACHE_BUST='?v='+Date.now();
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
 const FU_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(FOLLOWUP_NAME)}`;
-const CUML_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CUML_NAME)}`;
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 const CP_CLASS={
@@ -859,7 +858,6 @@ const INS_STAGES=[
 ];
 
 let sheetMap={},featureMap={},kthMaster={},kthBounds={},targetData={},followUpData=[],_rawRows=[];
-let cumulativeData={general:null,byYear:{}};
 let currentKTH=null,currentPreset='ytd',filterYear=null,filterMonth=null,selectedLahanId=null;
 let cpFilteredRows=[],cpActiveMinat='',insRawData=[],insActiveYear='all',insFilteredRows=[];
 let grafikChart=null,grafikTab='bulanan',bmOpen=false;
@@ -1006,8 +1004,8 @@ function parseDate(s){
 function fmtDate(s){if(!s||!str(s))return'';const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):s;}
 function yearOf(r){const d=parseDate(r.tglPartisipasi);return d?d.getFullYear():null;}
 
-function rowInRange(row){
-  const d=parseDate(row.tglPartisipasi);if(!d)return currentPreset==='all';
+function rowInRangeField(row,field){
+  const d=parseDate(row[field]);if(!d)return currentPreset==='all';
   if(currentPreset==='all')return true;
   if(currentPreset==='year')return filterYear!==null&&d.getFullYear()===filterYear;
   if(currentPreset==='month')return filterYear!==null&&filterMonth!==null&&d.getFullYear()===filterYear&&d.getMonth()===filterMonth;
@@ -1015,6 +1013,7 @@ function rowInRange(row){
   if(currentPreset==='week'){const wk=getSelectedWeek();return wk?d>=wk.sat&&d<=wk.fri:false;}
   return false;
 }
+function rowInRange(row){return rowInRangeField(row,'tglPartisipasi');}
 function rowsInMonth(yr,mo){return Object.values(sheetMap).filter(r=>{const d=parseDate(r.tglPartisipasi);return d&&d.getFullYear()===yr&&d.getMonth()===mo;});}
 function getActiveTarget(){
   if(currentPreset==='all'){let a=0,t=0,f=false;Object.values(targetData).forEach(td=>{a+=td.agro_utama||0;t+=td.temb_utama||0;f=true;});return f?{agro:a,temb:t}:{agro:null,temb:null};}
@@ -1037,11 +1036,10 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+"
 (async function boot(){
   try{
     setLoad('Memuat data spreadsheet...');
-    const [csvTxt,tgtTxt,fuTxt,cumlTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>''),getText(CUML_URL).catch(()=>'')]);
+    const [csvTxt,tgtTxt,fuTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>'')]);
     parseSheet(csvTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(fuTxt)parseFollowUp(fuTxt);
-    if(cumlTxt)parseCumulativeSheet(cumlTxt);
     populateYearDropdowns();
     setLoad('Memuat GeoJSON...');
     const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
@@ -1092,6 +1090,7 @@ function parseSheet(csv){
     const dusun     =str(raw['AS']||raw['Dusun']      ||raw['dusun']      ||k(44)||'');
     const luasAgro  =num(raw['AT']||raw['Luas_Agro']  ||raw['luas_agro']  ||k(45)||0);
     const luasTemb  =num(raw['AU']||raw['Luas_Temb']  ||raw['luas_temb']  ||k(46)||0);
+    const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
@@ -1099,7 +1098,7 @@ function parseSheet(csv){
     const _luasAgro = luasAgro>0 ? luasAgro : aReg+aBPO;
     const _luasTemb = luasTemb>0 ? luasTemb : tReg+tMTL;
     const luasAgroAT=luasAgro,luasTembAU=luasTemb;
-    sheetMap[id]={id,kth,grid,luas:_luasAgro+_luasTemb,tipe,petani,jk,desa,dusun,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasAgroAT,luasTembAU,luasENL,luasENP,tanamanKarbon,link,prog,nominalStages,pupukCair,pupukPadat,tglBPO,insentifMTL,tglMTL};
+    sheetMap[id]={id,kth,grid,luas:_luasAgro+_luasTemb,tipe,petani,jk,desa,dusun,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasAgroAT,luasTembAU,luasENL,luasENP,tanamanKarbon,link,prog,nominalStages,pupukCair,pupukPadat,tglBPO,insentifMTL,tglMTL,jumlahTanaman};
   });
 }
 
@@ -1158,40 +1157,26 @@ function parseFollowUp(csv){
 }
 function yearFrom(s){const m=str(s).match(/(\d{4})/);return m?+m[1]:null;}
 
-function parseCumulativeSheet(csv){
-  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
-  cumulativeData={general:null,byYear:{}};
-  data.forEach((row,i)=>{
-    if(i===0)return;
-    const rec={
-      agroTotal:num(row[3]),   agroPlanted:num(row[4]),   agroTanaman:num(row[6]),
-      tembTotal:num(row[9]),   tembPlanted:num(row[10]),  tembTanaman:num(row[12]),
-    };
-    if(i===1)cumulativeData.general=rec;
-    const yr=parseInt(str(row[0]));
-    if(!isNaN(yr))cumulativeData.byYear[yr]=rec;
-  });
-}
-
 function tanamanDesc(planted,total,tanaman){
-  const pct=total>0?(planted/total*100):0;
+  if(total===null||total===undefined||total<=0){
+    return `${fmt(planted)} ha ditanam · ${fmtInt(tanaman)} tanaman`;
+  }
+  const pct=planted/total*100;
   return `${fmt(planted)} ha ditanam dari ${fmt(total)} ha (${pct.toFixed(1)}%) · ${fmtInt(tanaman)} tanaman`;
 }
 
 function renderTanamanPanel(){
-  let src=null;
-  if(currentPreset==='year'&&filterYear!==null)src=cumulativeData.byYear[filterYear]||null;
-  else if(currentPreset==='ytd')src=cumulativeData.byYear[new Date().getFullYear()]||cumulativeData.general;
-  else src=cumulativeData.general;
-  if(src){
-    setText('sTanamanTotal',fmtInt(src.agroTanaman+src.tembTanaman));
-    setText('sTanamanAgroDesc',tanamanDesc(src.agroPlanted,src.agroTotal,src.agroTanaman));
-    setText('sTanamanTembDesc',tanamanDesc(src.tembPlanted,src.tembTotal,src.tembTanaman));
-  }else{
-    setText('sTanamanTotal','—');
-    setText('sTanamanAgroDesc','—');
-    setText('sTanamanTembDesc','—');
-  }
+  const tgt=getActiveTarget();
+  let agroHa=0,tembHa=0,agroTan=0,tembTan=0;
+  Object.values(sheetMap).forEach(r=>{
+    if(!rowInRangeField(r,'tglRealisasi'))return;
+    const grp=PROG[r.prog]?.group;
+    if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
+    else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
+  });
+  setText('sTanamanTotal',fmtInt(agroTan+tembTan));
+  setText('sTanamanAgroDesc',tanamanDesc(agroHa,tgt.agro,agroTan));
+  setText('sTanamanTembDesc',tanamanDesc(tembHa,tgt.temb,tembTan));
 }
 
 function renderCMI(gj){L.geoJSON(gj,{style:()=>({color:'#475569',weight:2.5,dashArray:'8 5',fillOpacity:0,opacity:.9})}).addTo(lgCMI);}
@@ -1257,8 +1242,11 @@ function calcStats(ids){
     tRegDisp+=r.tReg;
     tMTLDisp+=r.tMTL;
     if(r.petani){
-      const pk=r.petani.toLowerCase();uniq.add(pk);
-      if(r.jk.toLowerCase().includes('laki'))laki.add(pk);else if(r.jk.toLowerCase().includes('perempuan'))pmp.add(pk);
+      const pk=r.petani.toLowerCase();
+      if(str(r.jk).trim()){
+        uniq.add(pk);
+        if(r.jk.toLowerCase().includes('laki'))laki.add(pk);else if(r.jk.toLowerCase().includes('perempuan'))pmp.add(pk);
+      }
       if(r.aReg>0)pAR.add(pk);if(r.aBPO>0)pAB.add(pk);if(r.tReg>0)pTR.add(pk);if(r.tMTL>0)pTM.add(pk);
     }
   });
