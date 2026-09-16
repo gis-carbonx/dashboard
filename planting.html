@@ -1166,17 +1166,24 @@ function tanamanDesc(planted,total,tanaman){
 }
 
 function renderTanamanPanel(){
-  const tgt=getActiveTarget();
   let agroHa=0,tembHa=0,agroTan=0,tembTan=0;
+  let agroTotalHa=0,tembTotalHa=0;
   Object.values(sheetMap).forEach(r=>{
-    if(!rowInRangeField(r,'tglRealisasi'))return;
     const grp=PROG[r.prog]?.group;
-    if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
-    else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
+    // total lahan yang sudah masuk/terdaftar (Tgl_Partisipasi, kolom J) pada periode filter
+    if(rowInRange(r)&&parseDate(r.tglPartisipasi)){
+      if(grp==='agro')agroTotalHa+=r.luasAgro;
+      else if(grp==='temb')tembTotalHa+=r.luasTemb;
+    }
+    // luas yang sudah ditanam: harus punya Tgl_Realisasi (kolom K) DAN jumlah tanaman terisi (kolom AX > 0)
+    if(rowInRangeField(r,'tglRealisasi')&&parseDate(r.tglRealisasi)&&r.jumlahTanaman>0){
+      if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
+      else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
+    }
   });
   setText('sTanamanTotal',fmtInt(agroTan+tembTan));
-  setText('sTanamanAgroDesc',tanamanDesc(agroHa,tgt.agro,agroTan));
-  setText('sTanamanTembDesc',tanamanDesc(tembHa,tgt.temb,tembTan));
+  setText('sTanamanAgroDesc',tanamanDesc(agroHa,agroTotalHa,agroTan));
+  setText('sTanamanTembDesc',tanamanDesc(tembHa,tembTotalHa,tembTan));
 }
 
 function renderCMI(gj){L.geoJSON(gj,{style:()=>({color:'#475569',weight:2.5,dashArray:'8 5',fillOpacity:0,opacity:.9})}).addTo(lgCMI);}
