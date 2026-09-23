@@ -66,6 +66,7 @@ body{display:flex;flex-direction:column}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
 .card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
 .card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
+.card-sub-pct{font-size:11px;color:var(--text-2);font-weight:600;margin-top:7px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -209,6 +210,20 @@ function computeTanamanTotal(){
   return total;
 }
 
+function computeTarget(){
+  if(currentYear==='all'){
+    let agro=0,temb=0,found=false;
+    Object.values(targetData).forEach(td=>{agro+=td.agro_utama||0;temb+=td.temb_utama||0;found=true;});
+    return found?{agro,temb}:{agro:null,temb:null};
+  }
+  const td=targetData[+currentYear];
+  return td?{agro:td.agro_total??null,temb:td.temb_total??null}:{agro:null,temb:null};
+}
+function pctText(val,target){
+  if(target===null||target===undefined||target<=0)return'';
+  return(val/target*100).toFixed(1)+'% dari target';
+}
+
 function computePesertaTotal(){
   const all=new Set();
   Object.values(sheetMap).forEach(r=>{
@@ -252,6 +267,8 @@ function render(){
   const tanamanTotal=computeTanamanTotal();
   const kthCount=computeKTHCount();
   const petakCount=computePetakCount();
+  const tgt=computeTarget();
+  const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
 
   const body=`
@@ -268,6 +285,7 @@ function render(){
       <div class="card">
         <div class="card-lbl">Total Lahan</div>
         <div class="card-val-lg">${fmt(totalHa)} ha</div>
+        ${totalTgt!==null?`<div class="card-sub-pct">${pctText(totalHa,totalTgt)}</div>`:''}
       </div>
       <div class="card">
         <div class="card-lbl">Unik Peserta Program</div>
@@ -281,10 +299,12 @@ function render(){
       <div class="card">
         <div class="card-lbl">Agroforestri</div>
         <div class="card-val-lg">${fmt(areas.agro)} ha</div>
+        ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
       </div>
       <div class="card">
         <div class="card-lbl">Tembawang</div>
         <div class="card-val-lg">${fmt(areas.temb)} ha</div>
+        ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
       </div>
     </div>
 
