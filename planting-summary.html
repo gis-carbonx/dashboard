@@ -59,12 +59,13 @@ body{display:flex;flex-direction:column}
 .sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .sub-title:not(:first-of-type){margin-top:28px}
+.page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
 .grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px}
 
-.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow-sm)}
-.card-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
-.card-val-lg{font-size:30px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px;line-height:1.15;margin-top:8px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
+.card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -241,7 +242,7 @@ function render(){
     <div class="sec-title">Summary</div>
     <div class="sub-title">Agroforestry and Restoration</div>
 
-    <div class="grid-row r2">
+    <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Total Lahan</div>
         <div class="card-val-lg">${fmt(totalHa)} ha</div>
@@ -250,6 +251,14 @@ function render(){
         <div class="card-lbl">Peserta KTH</div>
         <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
       </div>
+    </div>
+
+    <p class="page-note">
+      [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+      gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
+    </p>
+
+    <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Agroforestri</div>
         <div class="card-val-lg">${fmt(areas.agro)} ha</div>
@@ -258,6 +267,14 @@ function render(){
         <div class="card-lbl">Tembawang</div>
         <div class="card-val-lg">${fmt(areas.temb)} ha</div>
       </div>
+    </div>
+
+    <p class="page-note">
+      [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
+      gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
+    </p>
+
+    <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Jumlah Tanaman</div>
         <div class="card-val-lg">${fmtInt(tanamanTotal)}</div>
@@ -265,7 +282,7 @@ function render(){
     </div>
 
     <div class="sub-title">Enrichment</div>
-    <div class="grid-row r2">
+    <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Program Enrichment</div>
         <div class="card-val-lg">${fmt(enrTotalHa)} ha</div>
