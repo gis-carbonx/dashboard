@@ -54,12 +54,12 @@ body{display:flex;flex-direction:column}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.6;margin:12px 0 0}
 
 .filter-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:52px}
+.filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:46px}
 .explore-filters{display:flex;gap:8px;flex-wrap:wrap}
-.fpill{padding:6px 15px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer}
+.fpill{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer}
 .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
-.kth-select{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none}
+.kth-select{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none}
 .kth-select:focus{border-color:var(--primary)}
 
 .search-input{width:100%;padding:9px 14px;border-radius:20px;border:1px solid var(--border);font-size:12.5px;color:var(--text);background:#fff;outline:none;margin-bottom:14px}
@@ -70,29 +70,29 @@ body{display:flex;flex-direction:column}
 .explore-row{display:flex;gap:16px;align-items:flex-start}
 .lahan-list-wrap{flex:1;min-width:0;transition:flex .25s ease}
 .lahan-list{border:1px solid var(--border);border-radius:14px;overflow-y:auto;max-height:520px;background:#fff}
-.lahan-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
+.lahan-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .lahan-row:last-child{border-bottom:none}
 .lahan-row:hover{background:var(--primary-bg)}
 .lahan-row.active{background:var(--primary-bg)}
 .lahan-row-main{display:flex;align-items:center;gap:10px;min-width:0}
 .lahan-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.lahan-row-id{font-size:12.5px;font-weight:700;color:var(--text)}
-.lahan-row-sub{font-size:11px;color:var(--text-2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.lahan-row-id{font-size:11.5px;font-weight:700;color:var(--text)}
+.lahan-row-sub{font-size:10px;color:var(--text-2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
 .lahan-row-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.lahan-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
-.lahan-row-ha{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;min-width:58px;text-align:right}
+.lahan-badge{font-size:11px;font-weight:700;white-space:nowrap}
+.lahan-row-ha{font-size:11.5px;font-weight:700;color:var(--text);white-space:nowrap;min-width:54px;text-align:right}
 .lahan-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:12.5px}
 
 .detail-panel{width:0;flex-shrink:0;overflow:hidden;border:1px solid var(--border);border-radius:14px;background:#fff;transition:width .25s ease}
-.detail-panel.open{width:300px}
-.detail-panel-inner{width:300px}
+.detail-panel.open{width:400px}
+.detail-panel-inner{width:400px}
 .detail-panel-hd{padding:14px 16px;background:var(--primary);color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .detail-panel-title{font-size:13px;font-weight:700}
-.detail-panel-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.18);white-space:nowrap;display:inline-block;margin-top:6px}
+.detail-panel-badge{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);white-space:nowrap;display:inline-block;margin-top:5px}
 .detail-close{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
 .detail-close:hover{background:rgba(255,255,255,.25)}
-.detail-mini-map{height:160px;width:100%}
-.detail-mini-map-empty{height:160px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:11px;background:var(--bg);text-align:center;padding:0 16px}
+.detail-mini-map{height:260px;width:100%}
+.detail-mini-map-empty{height:260px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:11px;background:var(--bg);text-align:center;padding:0 16px}
 .detail-list{padding:14px 16px 16px}
 .detail-row{display:flex;flex-direction:column;gap:1px;padding:7px 0;border-bottom:1px solid var(--border-lt);font-size:12px}
 .detail-row:last-child{border-bottom:none}
@@ -268,11 +268,11 @@ function renderList(){
         <span class="lahan-dot" style="background:${st.dot}"></span>
         <div>
           <div class="lahan-row-id">${esc(r.id)}</div>
-          <div class="lahan-row-sub">${esc(r.petani)||'—'} · ${esc(r.desa)||'—'}</div>
+          <div class="lahan-row-sub">${esc(r.petani)||'—'}</div>
         </div>
       </div>
       <div class="lahan-row-right">
-        <span class="lahan-badge" style="background:${st.dot}22;color:${st.dot}">${esc(st.label)}</span>
+        <span class="lahan-badge" style="color:${st.dot}">${esc(st.label)}</span>
         <span class="lahan-row-ha">${fmt(luas)} ha</span>
       </div>
     </div>`;
