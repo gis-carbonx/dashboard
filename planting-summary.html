@@ -222,7 +222,6 @@ function computePesertaTotal(){
 function computeKTHCount(){
   const set=new Set();
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglPartisipasi'))return;
     if(r.kth&&r.kth.trim())set.add(r.kth.trim().toLowerCase());
   });
   return set.size;
@@ -252,7 +251,7 @@ function render(){
   const tanamanTotal=computeTanamanTotal();
   const kthCount=computeKTHCount();
   const petakCount=computePetakCount();
-  const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana hingga saat ini terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
+  const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
 
   const body=`
     <div class="filter-row">
