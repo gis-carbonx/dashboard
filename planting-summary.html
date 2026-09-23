@@ -222,7 +222,8 @@ function computePesertaTotal(){
 function computeKTHCount(){
   const set=new Set();
   Object.values(sheetMap).forEach(r=>{
-    if(r.kth&&r.kth.trim())set.add(r.kth.trim().toLowerCase());
+    const v=str(r.kth).trim();
+    if(v&&v.toLowerCase().includes('kth'))set.add(v.toLowerCase());
   });
   return set.size;
 }
