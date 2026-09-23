@@ -1,161 +1,79 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fire and Forest Patrol Protection | Sanggala Corridor Project</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    :root{
-      --color-cream:#FFFAF3;
-      --color-sand:#DCDACC;
-      --color-sage:#B5BBA9;
-      --color-moss:#8C9F8B;
-      --color-fern:#618273;
-      --color-pine:#356760;
-      --color-delta:#f97316;
-      --color-fire:#c2703f;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
-    body{display:flex;flex-direction:column}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Planting Summary</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
+  --dark:#3A342C;
+  --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
+  --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 14px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.2);
+}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
 
-    /* SITE NAVBAR */
-    .site-navbar{
-      flex-shrink:0;
-      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-      padding:12px 32px;background-color:var(--color-cream);
-      border-bottom:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif;
-    }
-    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
-    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
-    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
-    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
-    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
-    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
-    .site-navbar-spacer{justify-self:end}
-    @media (max-width:768px){
-      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
-      .site-navbar-menu{gap:14px;justify-self:end}
-      .site-navbar-spacer{display:none}
-    }
+.site-navbar{
+  flex-shrink:0;
+  height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
+  font-family:'Libre Franklin',system-ui,sans-serif;
+}
+.site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.site-navbar-brand img{width:26px;height:26px;object-fit:contain}
+.site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:#356760}
+.site-navbar-menu{display:flex;gap:32px;justify-self:center}
+.site-navbar-menu a{text-decoration:none;color:#618273;font-size:13px;font-weight:500}
+.site-navbar-menu a:hover,.site-navbar-menu a.active{color:#356760}
+.site-navbar-spacer{justify-self:end}
+@media (max-width:768px){
+  .site-navbar{grid-template-columns:auto auto;padding:0 16px}
+  .site-navbar-menu{gap:14px;justify-self:end}
+  .site-navbar-spacer{display:none}
+}
 
-    .dashboard-frame{
-      flex:1;min-height:0;
-      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
-      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
-      display:flex;flex-direction:column;
-    }
+.dashboard-frame{flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;overflow:hidden;display:flex;flex-direction:column}
 
-    /* HEADER BAR — sama persis dengan bio-header di biodiversity-summary.html */
-    .fire-header{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0;flex-shrink:0}
-    .fire-header-inner{
-      max-width:1180px;margin:0 auto;padding:0 36px;
-      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
-    }
-    .fire-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
-    .fire-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
-    .fire-header-right{text-align:right;flex-shrink:0}
-    .fire-header-updated-label{font-size:9.5px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.55);text-transform:uppercase}
-    .fire-header-updated-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+.hero{background:var(--dark);color:#fff;padding:14px 0;flex-shrink:0}
+.hero-inner{max-width:1180px;margin:0 auto;padding:0 36px}
+.hero-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+.hero-date{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
 
-    /* CONTENT */
-    .fire-scroll{flex:1;min-height:0;overflow-y:auto}
-    .fire-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
-    .fire-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
-    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
+.page-scroll{flex:1;min-height:0;overflow-y:auto}
+.page-body-inner{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
 
-    /* FILTER TAHUN — mengikuti style "Filter Chip Buttons" pada design system Sanggala Corridor Project */
-    .year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
-    .year-filter-label{font-size:12px;font-weight:600;color:#6b7280}
-    .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
-    .year-chip{
-      padding:6px 16px;border-radius:20px;border:1px solid var(--color-sand);
-      background:var(--color-cream);color:#374151;font-size:12px;font-weight:600;
-      cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
-    }
-    .year-chip:hover{background:var(--color-sage)}
-    .year-chip.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+.filter-row{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap}
+.filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
+.fpill{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
 
-    /* STAT CARD (Patroli hari / Patrol coverage) */
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
-    .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
-    .stat-value-row{display:flex;align-items:center;gap:22px}
-    .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
-    .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
-    .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
+.sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
+.sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
+.sub-title:not(:first-of-type){margin-top:28px}
 
-    /* PETA DETEKSI AKTIFITAS ILEGAL — lebar dipersempit supaya pas dengan cakupan area (tidak melebar penuh
-       ke kanan yang isinya citra kosong tanpa titik temuan) */
-    .detection-row{display:flex;gap:18px;align-items:stretch;margin-bottom:18px;flex-wrap:wrap}
-    .illegal-map-panel{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
-      flex:0 0 620px;max-width:620px;
-    }
-    #illegalMap,#bioMap{height:320px;width:100%}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px}
 
-    /* PANEL TABEL DETAIL — disembunyikan TOTAL (display:none, termasuk border/kotaknya) sampai salah satu
-       panel kategori diklik dan tabelnya terisi (class .visible). Bisa ditutup lagi lewat tombol close (×). */
-    .detection-table-panel{
-      display:none;flex:1;min-width:260px;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
-      padding:16px 18px;flex-direction:column;height:320px;overflow:hidden;position:relative;
-    }
-    .detection-table-panel.visible{display:flex}
-    .detection-table-close{
-      position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;
-      font-size:17px;line-height:1;color:#9ca3af;padding:4px 6px;font-family:'Libre Franklin',sans-serif;
-    }
-    .detection-table-close:hover{color:#374151}
-    .detection-table-header{font-size:12.5px;font-weight:700;color:#1f2937;margin-bottom:10px;flex-shrink:0;padding-right:22px}
-    .detection-table-count{font-weight:500;color:#6b7280}
-    .detection-table-hint{font-size:10.5px;font-weight:500;color:#9ca3af;margin-bottom:10px;flex-shrink:0}
-    .detection-table-scroll{flex:1;overflow-y:auto}
-    table.detection-table{width:100%;border-collapse:collapse;font-size:11.5px}
-    table.detection-table thead th{
-      position:sticky;top:0;background:#fff;color:var(--color-pine);text-align:left;
-      padding:6px 8px;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700;
-      border-bottom:1px solid var(--color-sand);
-    }
-    table.detection-table tbody td{padding:7px 8px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top}
-    table.detection-table tbody tr{cursor:pointer;transition:background .1s}
-    table.detection-table tbody tr:hover td{background:#FFFAF3}
-    table.detection-table tbody tr:last-child td{border-bottom:none}
-    table.detection-table tbody td:last-child a{color:var(--color-fern);font-weight:600;text-decoration:none}
-    table.detection-table tbody td:last-child a:hover{text-decoration:underline}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
+.card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
 
-    /* ILLEGAL ACTIVITY DETECTION CARDS */
-    .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
-    .illegal-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
-      cursor:pointer;transition:box-shadow .15s,border-color .15s;
-    }
-    .illegal-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.06)}
-    .illegal-card.active{border-color:var(--color-pine);box-shadow:0 3px 10px rgba(53,103,96,.15)}
-    .illegal-label{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
-    .illegal-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
-    .illegal-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:8px}
-    .illegal-sub{font-size:11px;color:#6b7280;line-height:1.5}
+.loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
-    /* CTA BAR */
-    .cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:14px 0}
-    .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
-    .cta-btn{
-      background:var(--color-fire);border:1px solid var(--color-fire);color:#fff;font-size:11px;font-weight:600;
-      padding:9px 20px;border-radius:20px;text-decoration:none;white-space:nowrap;
-      transition:opacity .15s;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
-      min-width:160px;text-align:center;
-    }
-    .cta-btn:hover{opacity:.88}
-
-    .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
-  </style>
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
 </head>
 <body>
+
 <header class="site-navbar">
   <div class="site-navbar-brand">
     <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
@@ -170,588 +88,210 @@
 </header>
 
 <div class="dashboard-frame">
-  <div class="fire-header">
-    <div class="fire-header-inner">
-      <div>
-        <div class="fire-header-title">Fire and Forest Patrol Protection</div>
-        <div class="fire-header-date" id="fireTodayDate">–</div>
-      </div>
-      <div class="fire-header-right">
-        <div class="fire-header-updated-label">Last Updated</div>
-        <div class="fire-header-updated-value" id="fireLastUpdated">–</div>
-      </div>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-title">Planning and Planting</div>
+      <div class="hero-sub">Implementasi Program PT Citra Mulia Inti</div>
+      <div class="hero-date" id="heroDate">Memuat tanggal...</div>
     </div>
   </div>
 
-  <div class="fire-scroll" id="fireContent">
-    <div class="loading-msg" id="fireLoading">Loading patrol data…</div>
-
-    <div class="fire-content" id="fireContentBody" style="display:none">
-
-      <!-- FILTER TAHUN — otomatis terisi dari tahun yang benar-benar ada datanya (lihat buildYearChips) -->
-      <div class="year-filter-bar">
-        <span class="year-filter-label">Year Filter</span>
-        <div class="year-filter-chips" id="yearFilterChips"></div>
-      </div>
-
-      <!-- PATROLI (HARI) & PATROL COVERAGE (HA) -->
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Patrol (days)</div>
-          <div class="stat-value-row">
-            <span class="stat-value" id="statPatrolDays">–</span>
-            <span class="stat-sub-plain">patrol days recorded (combined patrol schedule &amp; field reports)</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Patrol Coverage (ha)</div>
-          <div class="stat-value-row">
-            <span class="stat-value" id="statPatrolCoverage">–</span>
-            <span class="stat-sub-plain">total area patrolled</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- [placeholder] -->
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-      </p>
-
-      <!-- DETEKSI AKTIFITAS ILEGAL -->
-      <div class="section-title">Illegal Activity Detection</div>
-
-      <!-- PETA TITIK DETEKSI + TABEL DETAIL (kosong sampai salah satu panel kategori di klik) -->
-      <div class="detection-row">
-        <div class="illegal-map-panel">
-          <div id="illegalMap"></div>
-        </div>
-        <div class="detection-table-panel" id="illegalTablePanel"></div>
-      </div>
-
-      <div class="illegal-grid" id="illegalGrid">
-        <div class="illegal-card" data-category="logging">
-          <div class="illegal-label"><span class="illegal-dot" id="dotLogging"></span>Logging</div>
-          <div class="illegal-value" id="statLogging">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="hunting">
-          <div class="illegal-label"><span class="illegal-dot" id="dotHunting"></span>Hunting</div>
-          <div class="illegal-value" id="statHunting">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="mining">
-          <div class="illegal-label"><span class="illegal-dot" id="dotMining"></span>Mining</div>
-          <div class="illegal-value" id="statMining">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="other">
-          <div class="illegal-label"><span class="illegal-dot" id="dotOther"></span>Other</div>
-          <div class="illegal-value" id="statOther">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-      </div>
-
-      <!-- [placeholder] -->
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
-        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
-        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
-        metus.
-      </p>
-
-      <!-- TEMUAN PATROLI BIODIVERSITAS -->
-      <div class="section-title">Biodiversity Patrol Findings</div>
-
-      <!-- PETA TITIK TEMUAN + TABEL DETAIL (kosong sampai salah satu panel kategori di klik) -->
-      <div class="detection-row">
-        <div class="illegal-map-panel">
-          <div id="bioMap"></div>
-        </div>
-        <div class="detection-table-panel" id="bioTablePanel"></div>
-      </div>
-
-      <div class="illegal-grid" id="bioGrid">
-        <div class="illegal-card" data-category="direct">
-          <div class="illegal-label"><span class="illegal-dot" id="dotDirect"></span>Direct Encounter</div>
-          <div class="illegal-value" id="statDirect">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="voice">
-          <div class="illegal-label"><span class="illegal-dot" id="dotVoice"></span>Voice Detection</div>
-          <div class="illegal-value" id="statVoice">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="sign">
-          <div class="illegal-label"><span class="illegal-dot" id="dotSign"></span>Sign of Presence</div>
-          <div class="illegal-value" id="statSign">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-        <div class="illegal-card" data-category="habitat">
-          <div class="illegal-label"><span class="illegal-dot" id="dotHabitat"></span>Vegetation Finding</div>
-          <div class="illegal-value" id="statHabitat">–</div>
-          <div class="illegal-sub">findings recorded</div>
-        </div>
-      </div>
-
-      <!-- [placeholder] -->
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-      </p>
-
-      <div class="cta-bar">
-        <span class="cta-text">A detailed visualization of patrol findings is available via the link below</span>
-        <a href="https://gis-carbonx.github.io/dashboard/patrol.html" class="cta-btn">View Patrol Data Visualization &rarr;</a>
-      </div>
-
-    </div>
+  <div class="page-scroll">
+    <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data ringkasan...</div></div>
   </div>
 </div>
 
 <script>
-/* ============== KONFIGURASI SUMBER DATA ============== */
-/* Sheet "PATROL 2026", tab "A" (gid=0) — jadwal & luas area patroli tahun 2026 */
-const PATROL2026_SHEET_ID='1hk602TjSHz9Bo5RmYpY21effYYLL152ZSIJsl6VNS5g';
-const PATROL2026_URL=`https://docs.google.com/spreadsheets/d/${PATROL2026_SHEET_ID}/export?format=csv&gid=0`;
+'use strict';
+const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
+const CACHE_BUST='?v='+Date.now();
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
 
-/* Sheet "PATROLI 2025", tab "REKAP ALL" (gid=0) — jadwal & luas area patroli tahun 2025.
-   Struktur kolom sama persis dengan PATROL 2026 (kolom B=Tanggal, kolom H=Luas Area Ha, data mulai baris 4). */
-const PATROL2025_SHEET_ID='1HvZ3dndlCCVxpzlX6XQ1JFYMyGes5U-SQGwd3AIxp7M';
-const PATROL2025_URL=`https://docs.google.com/spreadsheets/d/${PATROL2025_SHEET_ID}/export?format=csv&gid=0`;
+const str=v=>(v??'').toString().trim();
+const num=v=>parseFloat(str(v))||0;
+const fmt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-/* Sheet "forest_patrol_form", tab "submission" — laporan temuan lapangan */
-const SUBMISSION_SHEET_ID='1x3XIpaWUaBnrVb7dITNfP8J206V-B91XKgLyQSLsyxg';
-const SUBMISSION_URL=`https://docs.google.com/spreadsheets/d/${SUBMISSION_SHEET_ID}/export?format=csv&gid=2076427902`;
-
-const HUNTING_FINDINGS=['gunshot_sound','hunter_shelter','wildlife_trap'];
-
-/* Batas area proyek untuk overlay peta */
-const PROJECT_BOUNDARY_URL='assets/json/CMI.json';
-
-/* Warna & label kategori deteksi aktifitas ilegal — dipakai untuk marker peta
-   SEKALIGUS untuk lingkaran legenda di depan tiap panel (satu sumber, tidak dobel-tulis warna). */
-const ILLEGAL_COLORS={logging:'#c2703f',hunting:'#dc2626',mining:'#7c3aed',other:'#6b7280'};
-const ILLEGAL_LABELS={logging:'Logging',hunting:'Hunting',mining:'Mining',other:'Other'};
-
-/* Tentukan kategori satu baris submission berdasar data-survey-finding (& data-survey-categ untuk "Other") */
-function categoryOf(finding,categ){
-  if(finding==='illegal_logging')return'logging';
-  if(HUNTING_FINDINGS.includes(finding))return'hunting';
-  if(finding==='mining')return'mining';
-  if(categ==='illegal_activities')return'other';
-  return null;
+function parseDate(s){
+  if(!s)return null;const c=str(s).trim();
+  const m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
+  const d=new Date(c);return isNaN(d)?null:d;
 }
-
-/* Warna & label kategori temuan patroli biodiversitas (data-survey-categ = biodiversity) */
-const BIO_COLORS={direct:'#2563eb',voice:'#f59e0b',sign:'#16a34a',habitat:'#a855f7'};
-const BIO_LABELS={direct:'Direct Encounter',voice:'Voice Detection',sign:'Sign of Presence',habitat:'Vegetation Finding'};
-
-/* Tentukan kategori satu baris submission untuk biodiversitas, berdasar data-survey-finding,
-   HANYA untuk baris yang data-survey-categ = biodiversity */
-function bioCategoryOf(finding,categ){
-  if(categ!=='biodiversity')return null;
-  if(finding==='direct_encounter')return'direct';
-  if(finding==='voice')return'voice';
-  if(finding==='footprint'||finding==='nest')return'sign';
-  if(finding==='rare_vegetation')return'habitat';
-  return null;
-}
-
-/* ============== HELPERS TANGGAL ============== */
-function toMidnight(y,m,d){return new Date(y,m,d);}
-/* Format "11-02-2026" -> DD-MM-YYYY (sheet PATROL 2026, kolom B) */
-function parseDateDMY(s){
-  if(!s||!s.trim())return null;
-  const m=s.trim().match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-  if(!m)return null;
-  return toMidnight(+m[3],+m[2]-1,+m[1]);
-}
-/* Format sheet submission (data-start_date), contoh "03/11/2025 14:07:00" atau "12/08/2026 15:50:00"
-   -> SELALU DD/MM/YYYY HH:mm:ss (bukan MM/DD/YYYY). Beda format dengan sheet PATROL 2026
-   yang pakai "-" tanpa jam (lihat parseDateDMY di atas) — jangan ditukar/disamakan. */
-function parseDateTimeLoose(s){
-  s=(s||'').trim();if(!s)return null;
-  const [datePart,timePart]=s.split(' ');
-  const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!dm)return null; // format tak dikenali -> jangan ditebak pakai new Date() (bisa salah baca sbg MM/DD/YYYY)
-  const day=+dm[1],month=+dm[2],year=+dm[3];
-  let h=0,mi=0,se=0;
-  if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
-  return new Date(year,month-1,day,h,mi,se);
-}
-/* Kunci pembanding tanggal disamakan jadi string DD-MM-YYYY untuk kedua sumber data,
-   supaya gampang dibaca/dicocokkan (mis. hasil parseDateDMY & parseDateTimeLoose -> "11-02-2026"). */
-function dateKey(d){
-  if(!d)return null;
-  const pad=n=>String(n).padStart(2,'0');
-  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`;
-}
-function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
-function fmtDateTimeID(d){
-  if(!d)return '–';
-  const date=d.toLocaleDateString('en-GB',{year:'numeric',month:'2-digit',day:'2-digit'});
-  const time=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
-  return `${date} ${time} WIB`;
-}
-function fmtNumberID(n){return n.toLocaleString('id-ID',{maximumFractionDigits:1});}
-
-/* ============== FETCH HELPERS ============== */
-function fetchCsv(url){
-  return new Promise((resolve)=>{
-    Papa.parse(url,{download:true,header:false,skipEmptyLines:true,
-      complete:(res)=>resolve(res.data||[]),
-      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
-    });
-  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
-}
-function fetchCsvHeader(url){
-  return new Promise((resolve)=>{
-    Papa.parse(url,{download:true,header:true,skipEmptyLines:true,
-      complete:(res)=>resolve(res.data||[]),
-      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
-    });
-  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
-}
-/* Cari nilai kolom berdasarkan nama header secara fleksibel (exact match dulu, baru substring)
-   — supaya tidak bergantung pada urutan/index kolom yang bisa berubah. */
-function pickFieldExactOrPartial(row,...patterns){
-  const keys=Object.keys(row);
-  const norm=s=>s.toString().trim().toLowerCase().replace(/[_\s]+/g,'-');
-  for(const want of patterns){
-    const exact=keys.find(k=>norm(k)===norm(want));
-    if(exact!==undefined)return row[exact];
-  }
-  for(const want of patterns){
-    const partial=keys.find(k=>norm(k).includes(norm(want)));
-    if(partial!==undefined)return row[partial];
-  }
+function pickCI(raw,keys,...names){
+  const norm=s=>s.toString().trim().toLowerCase();
+  const wanted=names.map(norm);
+  for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-
-/* ============== LOAD & NORMALISASI ============== */
-let patrolEntries=[];   // {date, luas} dari sheet PATROL 2026
-let submissionRows=[];  // {dateObj, finding, categ, coordinate} dari sheet submission
-let currentYearFilter=null; // null = "Semua"
-
-async function loadAll(){
-  const [patrol2026Raw,patrol2025Raw,subRaw]=await Promise.all([
-    fetchCsv(PATROL2026_URL),
-    fetchCsv(PATROL2025_URL),
-    fetchCsvHeader(SUBMISSION_URL)
-  ]);
-
-  // Sheet PATROL 2026 & PATROLI 2025 — struktur kolom sama: data mulai baris 4 (index 3).
-  // Kolom B (index1)=Tanggal Patroli, Kolom H (index7)=Luas Area (Ha)
-  function parsePatrolSheet(raw){
-    return raw.slice(3).map(r=>{
-      const d=parseDateDMY((r[1]||'').toString());
-      const luasDirect=parseFloat((r[7]||'').toString().trim());
-      const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
-      const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
-      return{date:d,luas:isNaN(luas)?0:luas};
-    }).filter(e=>e.date);
-  }
-  // Digabung jadi satu daftar — tanggal 2025 & 2026 (dan tahun lain kalau ditambahkan lagi nanti) diperlakukan sama
-  patrolEntries=[...parsePatrolSheet(patrol2026Raw),...parsePatrolSheet(patrol2025Raw)];
-
-  // Sheet submission — data mulai baris 2 (otomatis, header:true). Kolom A=data-start_date,
-  // Kolom C=data-coordinate, Kolom H=data-survey-categ, Kolom I=data-survey-finding,
-  // Kolom J=data-survey-description, Kolom K=link foto
-  submissionRows=subRaw.map(row=>({
-    dateObj:parseDateTimeLoose(pickFieldExactOrPartial(row,'data-start_date','start_date','start-date')),
-    finding:(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim().toLowerCase(),
-    categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase(),
-    coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
-    description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
-    photoUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','link-foto','foto','photo','image','gambar','attachment')||'').toString().trim()
-  }));
-
-  // Header: tanggal hari ini & terakhir diperbarui (tanggal aktivitas patroli TERAKHIR — tanpa jam — dari
-  // GABUNGAN sheet PATROL 2026/2025 & sheet submission, tidak terpengaruh filter tahun)
-  document.getElementById('fireTodayDate').textContent=fmtDateID(new Date());
-  const allActivityDates=[...patrolEntries.map(e=>e.date),...submissionRows.map(r=>r.dateObj)].filter(Boolean);
-  const maxActivityDate=allActivityDates.length?new Date(Math.max(...allActivityDates.map(d=>d.getTime()))):null;
-  document.getElementById('fireLastUpdated').textContent=fmtDateID(maxActivityDate);
-
-  // Lingkaran legenda di depan tiap panel — warnanya sama dengan warna marker di peta (ILLEGAL_COLORS/BIO_COLORS)
-  document.getElementById('dotLogging').style.background=ILLEGAL_COLORS.logging;
-  document.getElementById('dotHunting').style.background=ILLEGAL_COLORS.hunting;
-  document.getElementById('dotMining').style.background=ILLEGAL_COLORS.mining;
-  document.getElementById('dotOther').style.background=ILLEGAL_COLORS.other;
-  document.getElementById('dotDirect').style.background=BIO_COLORS.direct;
-  document.getElementById('dotVoice').style.background=BIO_COLORS.voice;
-  document.getElementById('dotSign').style.background=BIO_COLORS.sign;
-  document.getElementById('dotHabitat').style.background=BIO_COLORS.habitat;
-
-  buildYearChips();
-  initIllegalMap();
-  initBioMap();
-  setupDetailTableClicks();
-  render();
-
-  document.getElementById('fireLoading').style.display='none';
-  document.getElementById('fireContentBody').style.display='block';
+function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
+  if(aReg>0)return'Agro_Reg';if(aBPO>0)return'Agro_BPO';
+  if(tReg>0)return'Temb_Reg';if(tMTL>0)return'Temb_MTL';
+  const t=tipe.toLowerCase();
+  return t.includes('tembawang')?'Temb_Reg':t.includes('agro')?'Agro_Reg':null;
 }
 
-/* ============== FILTER TAHUN ============== */
-/* Daftar chip tahun dibuat otomatis dari tahun yang BENAR-BENAR ADA datanya di kedua sumber
-   (bukan hardcode) — jadi kalau tahun berikutnya sudah mulai ada data, chip-nya otomatis muncul.
-   Default tampilan: tahun 2026 (kalau datanya ada), selain itu jatuh ke "Semua". */
-function buildYearChips(){
-  const years=new Set();
-  patrolEntries.forEach(e=>years.add(e.date.getFullYear()));
-  submissionRows.forEach(r=>{if(r.dateObj)years.add(r.dateObj.getFullYear());});
-  const sortedYears=[...years].sort((a,b)=>a-b);
-  const defaultYear=sortedYears.includes(2026)?2026:null;
+let sheetMap={},targetData={},currentYear='all',years=[];
 
-  const chipsEl=document.getElementById('yearFilterChips');
-  const chipHtml=[`<button type="button" class="year-chip${defaultYear===null?' active':''}" data-year="all">All</button>`]
-    .concat(sortedYears.map(y=>`<button type="button" class="year-chip${y===defaultYear?' active':''}" data-year="${y}">${y}</button>`));
-  chipsEl.innerHTML=chipHtml.join('');
-  currentYearFilter=defaultYear;
+async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-  chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      chipsEl.querySelectorAll('.year-chip').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      currentYearFilter=btn.dataset.year==='all'?null:parseInt(btn.dataset.year,10);
-      render();
-    });
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  data.forEach(raw=>{
+    const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
+    const kth=str(raw['KTH']||raw['C']||''),tipe=str(raw['Tipe']||raw['E']||'');
+    const petani=str(raw['Petani']||raw['F']||''),jk=str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']||raw['G']||'');
+    const tglPartisipasi=str(raw['Tgl_Partisipasi']||raw['Tgl Partisipasi']||raw['J']||'');
+    const tglRealisasi=str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']||raw['K']||'');
+    const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||raw['L']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||raw['M']||0);
+    const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||raw['N']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||raw['O']||0);
+    const keys=Object.keys(raw);
+    const k=i=>keys[i]?str(raw[keys[i]]):'';
+    const luasAgro=num(raw['AT']||raw['Luas_Agro']||raw['luas_agro']||k(45)||0);
+    const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
+    const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const luasENL=num(pickCI(raw,keys,'ENL'));
+    const luasENP=num(pickCI(raw,keys,'ENP'));
+    const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
+    if(!prog&&luasENL<=0&&luasENP<=0)return;
+    const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
+    const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman};
   });
 }
 
-/* ============== RENDER (dipanggil ulang tiap kali filter tahun berubah) ============== */
-let currentFilteredSubmission=[]; // dipakai ulang saat panel kategori diklik (lihat setupDetailTableClicks)
+function parseTargetSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  targetData={};
+  data.forEach((row,i)=>{
+    if(!i)return;
+    const uraian=str(row[0]).toLowerCase(),tahun=parseInt(str(row[2]));
+    if(!uraian||isNaN(tahun)||tahun<2000)return;
+    const isA=uraian.includes('agro')&&!uraian.includes('bpo');
+    const isT=uraian==='tembawang';
+    const isENP=uraian==='pa'||uraian.includes('protected');
+    const isENL=uraian==='loa'||uraian.includes('logged');
+    if(!isA&&!isT&&!isENP&&!isENL)return;
+    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0,enp_utama:0,enl_utama:0,enp_total:0,enl_total:0};
+    const td=targetData[tahun];
+    const utama=parseFloat(str(row[1]))||0,total=parseFloat(str(row[15]))||0;
+    if(isA){td.agro_utama+=utama;td.agro_total+=total;}
+    if(isT){td.temb_utama+=utama;td.temb_total+=total;}
+    if(isENP){td.enp_utama+=utama;td.enp_total+=total;}
+    if(isENL){td.enl_utama+=utama;td.enl_total+=total;}
+  });
+}
+
+function matchesFilter(row,field){
+  const d=parseDate(row[field]);
+  if(!d)return false;
+  if(currentYear==='all')return true;
+  return d.getFullYear()===+currentYear;
+}
+
+function computeAreas(){
+  let agro=0,temb=0,enp=0,enl=0;
+  Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglPartisipasi'))return;
+    agro+=r.luasAgro;temb+=r.luasTemb;enp+=r.luasENP;enl+=r.luasENL;
+  });
+  return{agro,temb,enp,enl};
+}
+
+function computeTanamanTotal(){
+  let total=0;
+  Object.values(sheetMap).forEach(r=>{
+    if(matchesFilter(r,'tglRealisasi')&&r.jumlahTanaman>0)total+=r.jumlahTanaman;
+  });
+  return total;
+}
+
+function computePesertaTotal(){
+  const all=new Set();
+  Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglPartisipasi'))return;
+    if(!r.petani||!str(r.jk).trim())return;
+    all.add(r.petani.toLowerCase());
+  });
+  return all.size;
+}
+
+function setFilter(y){
+  currentYear=y;
+  document.querySelectorAll('.fpill').forEach(b=>b.classList.toggle('active',b.dataset.val===String(y)));
+  render();
+}
 
 function render(){
-  const filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
-  const filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
-  currentFilteredSubmission=filteredSubmission;
+  const areas=computeAreas();
+  const totalHa=areas.agro+areas.temb;
+  const enrTotalHa=areas.enp+areas.enl;
+  const pesertaTotal=computePesertaTotal();
+  const tanamanTotal=computeTanamanTotal();
 
-  // Patroli (hari) = tanggal unik dari GABUNGAN (union) sheet PATROL 2026 (kolom B) dan sheet submission (kolom A),
-  // dibatasi sesuai filter tahun yang aktif.
-  const patrolDateKeys=new Set(filteredPatrol.map(e=>dateKey(e.date)).filter(Boolean));
-  const submissionDateKeys=new Set(filteredSubmission.map(r=>dateKey(r.dateObj)).filter(Boolean));
-  const combinedDateKeys=new Set([...patrolDateKeys,...submissionDateKeys]);
-  document.getElementById('statPatrolDays').textContent=combinedDateKeys.size;
+  const body=`
+    <div class="filter-row">
+      <span class="filter-lbl">Filter</span>
+      <button class="fpill${currentYear==='all'?' active':''}" data-val="all" onclick="setFilter('all')">All</button>
+      ${years.map(y=>`<button class="fpill${currentYear===String(y)?' active':''}" data-val="${y}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
 
-  // Patrol coverage (ha)
-  const totalCoverage=filteredPatrol.reduce((sum,e)=>sum+e.luas,0);
-  document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
+    <div class="sec-title">Summary</div>
+    <div class="sub-title">Agroforestry and Restoration</div>
 
-  // Deteksi aktifitas ilegal + titik peta, berdasar kolom data-survey-finding (& data-survey-categ untuk "Other")
-  let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
-  const illegalPoints=[];
-  // Temuan patroli biodiversitas + titik peta, berdasar kolom data-survey-finding (khusus data-survey-categ = biodiversity)
-  let directCount=0,voiceCount=0,signCount=0,habitatCount=0;
-  const bioPoints=[];
+    <div class="grid-row r2">
+      <div class="card">
+        <div class="card-lbl">Total Lahan</div>
+        <div class="card-val-lg">${fmt(totalHa)} ha</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Peserta KTH</div>
+        <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Agroforestri</div>
+        <div class="card-val-lg">${fmt(areas.agro)} ha</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Tembawang</div>
+        <div class="card-val-lg">${fmt(areas.temb)} ha</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Jumlah Tanaman</div>
+        <div class="card-val-lg">${fmtInt(tanamanTotal)}</div>
+      </div>
+    </div>
 
-  filteredSubmission.forEach(r=>{
-    const cat=categoryOf(r.finding,r.categ);
-    if(cat==='logging')loggingCount++;
-    else if(cat==='hunting')huntingCount++;
-    else if(cat==='mining')miningCount++;
-    else if(cat==='other')otherCount++;
-    if(cat&&r.coordinate){
-      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))illegalPoints.push({lat:parts[0],lon:parts[1],category:cat});
-    }
-
-    const bioCat=bioCategoryOf(r.finding,r.categ);
-    if(bioCat==='direct')directCount++;
-    else if(bioCat==='voice')voiceCount++;
-    else if(bioCat==='sign')signCount++;
-    else if(bioCat==='habitat')habitatCount++;
-    if(bioCat&&r.coordinate){
-      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))bioPoints.push({lat:parts[0],lon:parts[1],category:bioCat});
-    }
-  });
-  document.getElementById('statLogging').textContent=loggingCount;
-  document.getElementById('statHunting').textContent=huntingCount;
-  document.getElementById('statMining').textContent=miningCount;
-  document.getElementById('statOther').textContent=otherCount;
-  document.getElementById('statDirect').textContent=directCount;
-  document.getElementById('statVoice').textContent=voiceCount;
-  document.getElementById('statSign').textContent=signCount;
-  document.getElementById('statHabitat').textContent=habitatCount;
-
-  renderIllegalPoints(illegalPoints);
-  renderBioPoints(bioPoints);
-  resetDetailTables();
+    <div class="sub-title">Enrichment</div>
+    <div class="grid-row r2">
+      <div class="card">
+        <div class="card-lbl">Program Enrichment</div>
+        <div class="card-val-lg">${fmt(enrTotalHa)} ha</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('pageBody').innerHTML=body;
 }
 
-/* ============== TABEL DETAIL (di samping peta) — panel disembunyikan total sampai panel kategori diklik ============== */
-function resetDetailTables(){
-  document.querySelectorAll('#illegalGrid .illegal-card, #bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-  const illegalPanel=document.getElementById('illegalTablePanel');
-  const bioPanel=document.getElementById('bioTablePanel');
-  illegalPanel.innerHTML='';
-  illegalPanel.classList.remove('visible');
-  bioPanel.innerHTML='';
-  bioPanel.classList.remove('visible');
-}
-
-/* Render isi tabel detail: Description (kolom J), Coordinate (kolom C), Photo (kolom K) — hanya untuk baris
-   yang cocok kategori yang diklik. Klik satu baris -> peta zoom ke koordinat baris tersebut.
-   Panel (border/background/kotak) HANYA tampil kalau ada baris untuk ditampilkan (class .visible),
-   dan bisa ditutup manual lewat tombol close (×) di pojok kanan atas. */
-function renderDetailTable(panelEl,mapInstance,rows,categoryLabel,cardGroupSelector){
-  if(!rows.length){
-    panelEl.innerHTML='';
-    panelEl.classList.remove('visible');
-    return;
+(async function boot(){
+  try{
+    document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const [csvTxt,tgtTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>'')]);
+    parseSheet(csvTxt);
+    if(tgtTxt)parseTargetSheet(tgtTxt);
+    const yrsData=new Set();
+    Object.values(sheetMap).forEach(r=>{const d=parseDate(r.tglPartisipasi);if(d)yrsData.add(d.getFullYear());});
+    Object.keys(targetData).forEach(y=>yrsData.add(+y));
+    years=[...yrsData].sort((a,b)=>a-b);
+    currentYear=years.length?String(years[years.length-1]):'all';
+    render();
+  }catch(err){
+    console.error('LOAD ERROR:',err);
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
   }
-  panelEl.classList.add('visible');
-  const rowsHtml=rows.map((r,i)=>{
-    const photoHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank" rel="noopener">View &#8599;</a>`:'–';
-    return `<tr data-idx="${i}">
-      <td>${r.description||'–'}</td>
-      <td>${r.coordinate||'–'}</td>
-      <td>${photoHtml}</td>
-    </tr>`;
-  }).join('');
-  panelEl.innerHTML=`
-    <button type="button" class="detection-table-close" aria-label="Close">&times;</button>
-    <div class="detection-table-header">${categoryLabel} <span class="detection-table-count">(${rows.length})</span></div>
-    <div class="detection-table-scroll">
-      <table class="detection-table">
-        <thead><tr><th>Description</th><th>Coordinate</th><th>Photo</th></tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>`;
-  panelEl.querySelector('.detection-table-close').addEventListener('click',()=>{
-    panelEl.innerHTML='';
-    panelEl.classList.remove('visible');
-    if(cardGroupSelector)document.querySelectorAll(cardGroupSelector).forEach(c=>c.classList.remove('active'));
-  });
-  panelEl.querySelectorAll('tbody tr').forEach(tr=>{
-    tr.addEventListener('click',()=>{
-      const r=rows[parseInt(tr.dataset.idx,10)];
-      if(!r||!r.coordinate||!mapInstance)return;
-      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))mapInstance.setView([parts[0],parts[1]],17);
-    });
-  });
-}
-
-/* Pasang klik listener di panel kategori SEKALI SAJA (elemen kartu statis, tidak dibuat ulang tiap render) */
-function setupDetailTableClicks(){
-  document.querySelectorAll('#illegalGrid .illegal-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      document.querySelectorAll('#illegalGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-      card.classList.add('active');
-      const cat=card.dataset.category;
-      const rows=currentFilteredSubmission.filter(r=>categoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('illegalTablePanel'),illegalMapInstance,rows,ILLEGAL_LABELS[cat],'#illegalGrid .illegal-card');
-    });
-  });
-  document.querySelectorAll('#bioGrid .illegal-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      document.querySelectorAll('#bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-      card.classList.add('active');
-      const cat=card.dataset.category;
-      const rows=currentFilteredSubmission.filter(r=>bioCategoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('bioTablePanel'),bioMapInstance,rows,BIO_LABELS[cat],'#bioGrid .illegal-card');
-    });
-  });
-}
-
-/* ============== PETA DETEKSI AKTIFITAS ILEGAL ============== */
-let illegalMapInstance=null;
-let illegalMarkerLayer=null;
-let illegalMapBoundaryReady=false;
-let pendingIllegalPoints=null;
-
-/* Setup peta & batas Project Area SEKALI SAJA saat data pertama kali dimuat — supaya ganti filter tahun
-   tidak perlu fetch ulang boundary/tile, cukup ganti titik markernya lewat renderIllegalPoints(). */
-function initIllegalMap(){
-  illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
-  illegalMapInstance.setView([0.8,110.3],11);
-
-  illegalMarkerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
-
-  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(illegalMapInstance);
-    illegalMarkerLayer.addTo(illegalMapInstance);
-    const bounds=boundary.getBounds();
-    if(bounds.isValid()){
-      illegalMapInstance.fitBounds(bounds,{padding:[16,16]});
-      illegalMapInstance.setZoom(11);
-    }
-    illegalMapBoundaryReady=true;
-    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
-    setTimeout(()=>illegalMapInstance.invalidateSize(),150);
-  }).catch(e=>{
-    console.warn('Gagal memuat batas Project Area:',e);
-    illegalMarkerLayer.addTo(illegalMapInstance);
-    illegalMapBoundaryReady=true;
-    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
-  });
-}
-
-/* Ganti titik marker di peta sesuai hasil filter tahun terbaru, tanpa perlu setup ulang peta/boundary. */
-function renderIllegalPoints(points){
-  if(!illegalMapBoundaryReady||!illegalMarkerLayer){pendingIllegalPoints=points;return;}
-  illegalMarkerLayer.clearLayers();
-  points.forEach(p=>{
-    L.circleMarker([p.lat,p.lon],{
-      radius:6,color:'#fff',weight:1.5,
-      fillColor:ILLEGAL_COLORS[p.category]||'#6b7280',fillOpacity:.9
-    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${ILLEGAL_LABELS[p.category]}</b></div>`)
-      .addTo(illegalMarkerLayer);
-  });
-}
-
-/* ============== PETA TEMUAN PATROLI BIODIVERSITAS ============== */
-let bioMapInstance=null;
-let bioMarkerLayer=null;
-let bioMapBoundaryReady=false;
-let pendingBioPoints=null;
-
-function initBioMap(){
-  bioMapInstance=L.map('bioMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(bioMapInstance);
-  bioMapInstance.setView([0.8,110.3],11);
-
-  bioMarkerLayer=L.layerGroup();
-
-  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(bioMapInstance);
-    bioMarkerLayer.addTo(bioMapInstance);
-    const bounds=boundary.getBounds();
-    if(bounds.isValid()){
-      bioMapInstance.fitBounds(bounds,{padding:[16,16]});
-      bioMapInstance.setZoom(11);
-    }
-    bioMapBoundaryReady=true;
-    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
-    setTimeout(()=>bioMapInstance.invalidateSize(),150);
-  }).catch(e=>{
-    console.warn('Gagal memuat batas Project Area:',e);
-    bioMarkerLayer.addTo(bioMapInstance);
-    bioMapBoundaryReady=true;
-    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
-  });
-}
-
-function renderBioPoints(points){
-  if(!bioMapBoundaryReady||!bioMarkerLayer){pendingBioPoints=points;return;}
-  bioMarkerLayer.clearLayers();
-  points.forEach(p=>{
-    L.circleMarker([p.lat,p.lon],{
-      radius:6,color:'#fff',weight:1.5,
-      fillColor:BIO_COLORS[p.category]||'#6b7280',fillOpacity:.9
-    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${BIO_LABELS[p.category]}</b></div>`)
-      .addTo(bioMarkerLayer);
-  });
-}
-
-loadAll();
+})();
 </script>
-<script src="auth-guard.js"></script>
 </body>
 </html>
