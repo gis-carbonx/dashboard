@@ -298,15 +298,17 @@ function openDetail(id){
   const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
   document.getElementById('detailTitle').textContent=r.id;
   document.getElementById('detailBadge').textContent=st.label;
-  document.getElementById('detailList').innerHTML=`
-    <div class="detail-row"><span class="detail-row-lbl">Petani</span><span class="detail-row-val">${esc(r.petani)||'—'}</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">Desa</span><span class="detail-row-val">${esc(r.desa)||'—'}</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">KTH</span><span class="detail-row-val">${esc(r.kth)||'—'}</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">Luas</span><span class="detail-row-val">${fmt(luas)} ha</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">Tgl Partisipasi</span><span class="detail-row-val">${fmtDate(r.tglPartisipasi)||'—'}</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">Tgl Realisasi</span><span class="detail-row-val">${fmtDate(r.tglRealisasi)||'—'}</span></div>
-    <div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${r.jumlahTanaman>0?fmtInt(r.jumlahTanaman)+' tanaman':'—'}</span></div>
-  `;
+  const rows=[];
+  rows.push(`<div class="detail-row"><span class="detail-row-lbl">Petani</span><span class="detail-row-val">${esc(r.petani)||'—'}</span></div>`);
+  rows.push(`<div class="detail-row"><span class="detail-row-lbl">Desa</span><span class="detail-row-val">${esc(r.desa)||'—'}</span></div>`);
+  rows.push(`<div class="detail-row"><span class="detail-row-lbl">KTH</span><span class="detail-row-val">${esc(r.kth)||'—'}</span></div>`);
+  rows.push(`<div class="detail-row"><span class="detail-row-lbl">Luas</span><span class="detail-row-val">${fmt(luas)} ha</span></div>`);
+  const tglGabung=fmtDate(r.tglPartisipasi);
+  if(tglGabung)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Tanggal Bergabung Program</span><span class="detail-row-val">${tglGabung}</span></div>`);
+  const tglTanam=fmtDate(r.tglRealisasi);
+  if(tglTanam)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Tanggal Penanaman</span><span class="detail-row-val">${tglTanam}</span></div>`);
+  if(r.jumlahTanaman>0)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${fmtInt(r.jumlahTanaman)} tanaman</span></div>`);
+  document.getElementById('detailList').innerHTML=rows.join('');
   const panel=document.getElementById('detailPanel');
   const wasOpen=panel.classList.contains('open');
   panel.classList.add('open');
