@@ -212,7 +212,7 @@ function computePesertaTotal(){
   const all=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
-    if(!r.petani||!str(r.jk).trim())return;
+    if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
     all.add(r.petani.toLowerCase());
   });
   return all.size;
