@@ -219,6 +219,25 @@ function computePesertaTotal(){
   return all.size;
 }
 
+function computeKTHCount(){
+  const set=new Set();
+  Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglPartisipasi'))return;
+    if(r.kth&&r.kth.trim())set.add(r.kth.trim().toLowerCase());
+  });
+  return set.size;
+}
+
+function computePetakCount(){
+  let n=0;
+  Object.values(sheetMap).forEach(r=>{if(matchesFilter(r,'tglPartisipasi'))n++;});
+  return n;
+}
+
+function yearLabel(){
+  return currentYear==='all'?'semua tahun':String(currentYear);
+}
+
 function setFilter(y){
   currentYear=y;
   document.querySelectorAll('.fpill').forEach(b=>b.classList.toggle('active',b.dataset.val===String(y)));
@@ -231,6 +250,9 @@ function render(){
   const enrTotalHa=areas.enp+areas.enl;
   const pesertaTotal=computePesertaTotal();
   const tanamanTotal=computeTanamanTotal();
+  const kthCount=computeKTHCount();
+  const petakCount=computePetakCount();
+  const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana hingga saat ini terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
 
   const body=`
     <div class="filter-row">
@@ -248,15 +270,12 @@ function render(){
         <div class="card-val-lg">${fmt(totalHa)} ha</div>
       </div>
       <div class="card">
-        <div class="card-lbl">Peserta KTH</div>
+        <div class="card-lbl">Unik Peserta Program</div>
         <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
       </div>
     </div>
 
-    <p class="page-note">
-      [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-      gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-    </p>
+    <p class="page-note">${note1}</p>
 
     <div class="grid-row">
       <div class="card">
