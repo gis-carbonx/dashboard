@@ -202,6 +202,15 @@ function computeAreas(){
   return{agro,temb,enp,enl};
 }
 
+function computeSubAreas(){
+  let aRegHa=0,aBPOHa=0,tRegHa=0,tMTLHa=0;
+  Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglPartisipasi'))return;
+    aRegHa+=r.aReg;aBPOHa+=r.aBPO;tRegHa+=r.tReg;tMTLHa+=r.tMTL;
+  });
+  return{aRegHa,aBPOHa,tRegHa,tMTLHa};
+}
+
 function computeTanamanTotal(){
   let total=0;
   Object.values(sheetMap).forEach(r=>{
@@ -270,6 +279,8 @@ function render(){
   const tgt=computeTarget();
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
+  const sub=computeSubAreas();
+  const note2=`Luasan program agroforestry tersusun atas ${fmt(sub.aBPOHa)} ha sub program bantuan pupuk organik, dan ${fmt(sub.aRegHa)} ha luasan agroforestry reguler. Sedangkan program tembawang, tersusun atas ${fmt(sub.tMTLHa)} ha sub program menjaga tutupan lahan, dan ${fmt(sub.tRegHa)} ha luasan tembawang reguler.`;
 
   const body=`
     <div class="filter-row">
@@ -308,10 +319,7 @@ function render(){
       </div>
     </div>
 
-    <p class="page-note">
-      [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-      gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-    </p>
+    <p class="page-note">${note2}</p>
 
     <div class="grid-row">
       <div class="card">
