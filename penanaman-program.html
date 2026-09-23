@@ -11,13 +11,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
 :root{
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
   --dark:#3A342C;
   --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
   --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
-  --shadow-lg:0 20px 60px rgba(0,0,0,.2);
 }
 html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
 body{display:flex;flex-direction:column}
@@ -26,7 +25,6 @@ body{display:flex;flex-direction:column}
   flex-shrink:0;
   height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
   padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
-  font-family:'Libre Franklin',system-ui,sans-serif;
 }
 .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
 .site-navbar-brand img{width:26px;height:26px;object-fit:contain}
@@ -52,52 +50,54 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .page-body-inner{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
 
-.sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
-.sub-title:not(:first-of-type){margin-top:28px}
-.page-note{font-size:12px;color:var(--text-2);line-height:1.6;margin:10px 0 0}
+.page-note{font-size:12px;color:var(--text-2);line-height:1.6;margin:12px 0 0}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
-.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
-.card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
-.card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
-
-.explore-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.search-input{flex:1;min-width:220px;padding:9px 14px;border-radius:20px;border:1px solid var(--border);font-size:12.5px;font-family:inherit;color:var(--text);background:#fff;outline:none}
-.search-input:focus{border-color:var(--primary)}
+.filter-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:52px}
 .explore-filters{display:flex;gap:8px;flex-wrap:wrap}
-.fpill{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.fpill{padding:6px 15px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer}
 .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
-.explore-count{font-size:11.5px;color:var(--text-3);margin-bottom:10px}
+.kth-select{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none}
+.kth-select:focus{border-color:var(--primary)}
 
-.lahan-list{border:1px solid var(--border);border-radius:14px;overflow-y:auto;max-height:460px;background:#fff}
+.search-input{width:100%;padding:9px 14px;border-radius:20px;border:1px solid var(--border);font-size:12.5px;color:var(--text);background:#fff;outline:none;margin-bottom:14px}
+.search-input:focus{border-color:var(--primary)}
+
+.explore-count{font-size:11.5px;color:var(--text-3);margin:14px 0 10px}
+
+.explore-row{display:flex;gap:16px;align-items:flex-start}
+.lahan-list-wrap{flex:1;min-width:0;transition:flex .25s ease}
+.lahan-list{border:1px solid var(--border);border-radius:14px;overflow-y:auto;max-height:520px;background:#fff}
 .lahan-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border-lt);cursor:pointer;transition:background .12s}
 .lahan-row:last-child{border-bottom:none}
 .lahan-row:hover{background:var(--primary-bg)}
+.lahan-row.active{background:var(--primary-bg)}
 .lahan-row-main{display:flex;align-items:center;gap:10px;min-width:0}
 .lahan-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.lahan-row-id{font-size:12.5px;font-weight:700;color:var(--text);font-family:ui-monospace,monospace}
-.lahan-row-sub{font-size:11px;color:var(--text-2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.lahan-row-id{font-size:12.5px;font-weight:700;color:var(--text)}
+.lahan-row-sub{font-size:11px;color:var(--text-2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
 .lahan-row-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .lahan-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .lahan-row-ha{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;min-width:58px;text-align:right}
 .lahan-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:12.5px}
 
-.modal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.4);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-card{background:#fff;border-radius:14px;width:min(420px,94vw);max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
-.modal-hd{padding:16px 18px;background:var(--primary);color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.modal-hd-title{font-size:13px;font-weight:700;font-family:ui-monospace,monospace}
-.modal-hd-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.18);white-space:nowrap;display:inline-block;margin-top:6px}
-.modal-close{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:15px;cursor:pointer;flex-shrink:0}
-.modal-close:hover{background:rgba(255,255,255,.25)}
-.lahan-mini-map{height:170px;width:100%}
-.lahan-mini-map-empty{height:170px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:11.5px;background:var(--bg);text-align:center;padding:0 20px}
-.lahan-detail-list{padding:14px 18px 18px}
-.detail-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-lt);font-size:12.5px}
+.detail-panel{width:0;flex-shrink:0;overflow:hidden;border:1px solid var(--border);border-radius:14px;background:#fff;transition:width .25s ease}
+.detail-panel.open{width:300px}
+.detail-panel-inner{width:300px}
+.detail-panel-hd{padding:14px 16px;background:var(--primary);color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.detail-panel-title{font-size:13px;font-weight:700}
+.detail-panel-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.18);white-space:nowrap;display:inline-block;margin-top:6px}
+.detail-close{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
+.detail-close:hover{background:rgba(255,255,255,.25)}
+.detail-mini-map{height:160px;width:100%}
+.detail-mini-map-empty{height:160px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:11px;background:var(--bg);text-align:center;padding:0 16px}
+.detail-list{padding:14px 16px 16px}
+.detail-row{display:flex;flex-direction:column;gap:1px;padding:7px 0;border-bottom:1px solid var(--border-lt);font-size:12px}
 .detail-row:last-child{border-bottom:none}
-.detail-row-lbl{color:var(--text-2)}
-.detail-row-val{font-weight:700;color:var(--text);text-align:right}
+.detail-row-lbl{color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+.detail-row-val{font-weight:700;color:var(--text)}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -131,20 +131,6 @@ body{display:flex;flex-direction:column}
 
   <div class="page-scroll">
     <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data lahan...</div></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="lahanModal" style="display:none" onclick="if(event.target===this)closeLahanModal()">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-hd">
-      <div>
-        <div class="modal-hd-title" id="modalId">—</div>
-        <div class="modal-hd-badge" id="modalBadge"></div>
-      </div>
-      <button class="modal-close" onclick="closeLahanModal()">✕</button>
-    </div>
-    <div id="lahanMapWrap"><div class="lahan-mini-map" id="lahanMiniMap"></div></div>
-    <div class="lahan-detail-list" id="lahanDetailList"></div>
   </div>
 </div>
 
@@ -183,7 +169,9 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
   return t.includes('tembawang')?'Temb_Reg':t.includes('agro')?'Agro_Reg':null;
 }
 
-let sheetMap={},agroGeoJSON=null,searchQuery='',progFilter='all',miniMapInstance=null;
+let sheetMap={},agroGeoJSON=null,miniMapInstance=null,activeId=null;
+let searchQuery='',progFilter='all',yearFilter='all',kthFilter='';
+let years=[],kthNames=[];
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
@@ -210,10 +198,15 @@ function parseSheet(csv){
   });
 }
 
-function computeTotals(){
-  let agro=0,temb=0;
-  Object.values(sheetMap).forEach(r=>{agro+=r.luasAgro;temb+=r.luasTemb;});
-  return{agro,temb,total:agro+temb};
+function setupFilterOptions(){
+  const yrs=new Set();
+  const kthSet=new Set();
+  Object.values(sheetMap).forEach(r=>{
+    const d=parseDate(r.tglPartisipasi);if(d)yrs.add(d.getFullYear());
+    if(r.kth&&r.kth.trim())kthSet.add(r.kth.trim());
+  });
+  years=[...yrs].sort((a,b)=>a-b);
+  kthNames=[...kthSet].sort((a,b)=>a.localeCompare(b));
 }
 
 async function loadGeoJSON(){
@@ -241,19 +234,36 @@ function matchesProg(r,f){
   if(f==='all')return true;
   return PROG[r.prog]?.group===f;
 }
+function matchesYear(r,y){
+  if(y==='all')return true;
+  const d=parseDate(r.tglPartisipasi);
+  return d&&d.getFullYear()===+y;
+}
+function matchesKTH(r,k){
+  if(!k)return true;
+  return r.kth===k;
+}
+
+function getFilteredRows(){
+  const q=searchQuery.trim().toLowerCase();
+  return Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter)&&matchesYear(r,yearFilter)&&matchesKTH(r,kthFilter));
+}
 
 function renderList(){
-  const q=searchQuery.trim().toLowerCase();
-  const rows=Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter));
+  const rows=getFilteredRows();
   const countEl=document.getElementById('exploreCount');
   if(countEl)countEl.textContent=`${rows.length} lahan ditemukan`;
   const listEl=document.getElementById('lahanList');
   if(!listEl)return;
-  if(!rows.length){listEl.innerHTML='<div class="lahan-empty">Tidak ada lahan yang cocok.</div>';return;}
+  if(!rows.length){
+    listEl.innerHTML='<div class="lahan-empty">Tidak ada lahan yang cocok.</div>';
+    closeDetail();
+    return;
+  }
   listEl.innerHTML=rows.map(r=>{
     const st=PROG[r.prog];
     const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
-    return`<div class="lahan-row" data-id="${esc(r.id)}">
+    return`<div class="lahan-row${r.id===activeId?' active':''}" data-id="${esc(r.id)}">
       <div class="lahan-row-main">
         <span class="lahan-dot" style="background:${st.dot}"></span>
         <div>
@@ -268,23 +278,28 @@ function renderList(){
     </div>`;
   }).join('');
   listEl.querySelectorAll('.lahan-row').forEach(el=>{
-    el.addEventListener('click',()=>openLahanModal(el.dataset.id));
+    el.addEventListener('click',()=>openDetail(el.dataset.id));
   });
+  // kalau lahan yang sedang aktif sudah tidak ada di hasil filter, tutup panel detail
+  if(activeId&&!rows.some(r=>r.id===activeId))closeDetail();
 }
 
-function setProgFilter(f){
-  progFilter=f;
-  document.querySelectorAll('#progFilters .fpill').forEach(b=>b.classList.toggle('active',b.dataset.prog===f));
-  renderList();
+function setProgFilter(f){progFilter=f;syncPillActive('progFilters',f);renderList();}
+function setYearFilter(y){yearFilter=y;syncPillActive('yearFilters',y);renderList();}
+function setKTHFilter(v){kthFilter=v;renderList();}
+function syncPillActive(wrapId,val){
+  document.querySelectorAll(`#${wrapId} .fpill`).forEach(b=>b.classList.toggle('active',b.dataset.val===String(val)));
 }
 
-function openLahanModal(id){
+function openDetail(id){
   const r=sheetMap[id];if(!r)return;
+  activeId=id;
+  document.querySelectorAll('.lahan-row').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
   const st=PROG[r.prog];
   const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
-  document.getElementById('modalId').textContent=r.id;
-  document.getElementById('modalBadge').textContent=st.label;
-  document.getElementById('lahanDetailList').innerHTML=`
+  document.getElementById('detailTitle').textContent=r.id;
+  document.getElementById('detailBadge').textContent=st.label;
+  document.getElementById('detailList').innerHTML=`
     <div class="detail-row"><span class="detail-row-lbl">Petani</span><span class="detail-row-val">${esc(r.petani)||'—'}</span></div>
     <div class="detail-row"><span class="detail-row-lbl">Desa</span><span class="detail-row-val">${esc(r.desa)||'—'}</span></div>
     <div class="detail-row"><span class="detail-row-lbl">KTH</span><span class="detail-row-val">${esc(r.kth)||'—'}</span></div>
@@ -293,52 +308,84 @@ function openLahanModal(id){
     <div class="detail-row"><span class="detail-row-lbl">Tgl Realisasi</span><span class="detail-row-val">${fmtDate(r.tglRealisasi)||'—'}</span></div>
     <div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${r.jumlahTanaman>0?fmtInt(r.jumlahTanaman)+' tanaman':'—'}</span></div>
   `;
-  document.getElementById('lahanModal').style.display='flex';
-  renderMiniMap(id,st);
+  const panel=document.getElementById('detailPanel');
+  const wasOpen=panel.classList.contains('open');
+  panel.classList.add('open');
+  if(miniMapInstance){miniMapInstance.remove();miniMapInstance=null;}
+  const delay=wasOpen?0:280;
+  setTimeout(()=>renderMiniMap(id,st),delay);
 }
 
 function renderMiniMap(id,st){
-  const wrap=document.getElementById('lahanMapWrap');
-  if(miniMapInstance){miniMapInstance.remove();miniMapInstance=null;}
+  const wrap=document.getElementById('detailMapWrap');
   const feat=findFeature(id);
   if(!feat){
-    wrap.innerHTML='<div class="lahan-mini-map-empty">Bentuk lahan tidak tersedia untuk petak ini</div>';
+    wrap.innerHTML='<div class="detail-mini-map-empty">Bentuk lahan tidak tersedia untuk petak ini</div>';
     return;
   }
-  wrap.innerHTML='<div class="lahan-mini-map" id="lahanMiniMap"></div>';
-  miniMapInstance=L.map('lahanMiniMap',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false});
+  wrap.innerHTML='<div class="detail-mini-map" id="detailMiniMap"></div>';
+  miniMapInstance=L.map('detailMiniMap',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(miniMapInstance);
   const layer=L.geoJSON(feat,{style:{color:st.dot,weight:2,fillColor:st.dot,fillOpacity:.5}}).addTo(miniMapInstance);
   try{miniMapInstance.fitBounds(layer.getBounds().pad(0.4));}catch(e){}
-  setTimeout(()=>{if(miniMapInstance)miniMapInstance.invalidateSize();},80);
+  setTimeout(()=>{if(miniMapInstance)miniMapInstance.invalidateSize();},60);
 }
 
-function closeLahanModal(){
-  document.getElementById('lahanModal').style.display='none';
+function closeDetail(){
+  activeId=null;
+  document.querySelectorAll('.lahan-row').forEach(el=>el.classList.remove('active'));
+  const panel=document.getElementById('detailPanel');
+  if(panel)panel.classList.remove('open');
   if(miniMapInstance){miniMapInstance.remove();miniMapInstance=null;}
 }
 
 function renderPage(){
-  const totals=computeTotals();
   document.getElementById('pageBody').innerHTML=`
-    <div class="sec-title">Summary</div>
-    <div class="grid-row">
-      <div class="card"><div class="card-lbl">Total Lahan</div><div class="card-val-lg">${fmt(totals.total)} ha</div></div>
-      <div class="card"><div class="card-lbl">Lahan Agroforestri</div><div class="card-val-lg">${fmt(totals.agro)} ha</div></div>
-      <div class="card"><div class="card-lbl">Lahan Tembawang</div><div class="card-val-lg">${fmt(totals.temb)} ha</div></div>
-    </div>
-
     <div class="sub-title">Eksplor Lahan</div>
-    <div class="explore-toolbar">
-      <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
-      <div class="explore-filters" id="progFilters">
-        <button type="button" class="fpill active" data-prog="all" onclick="setProgFilter('all')">Semua</button>
-        <button type="button" class="fpill" data-prog="agro" onclick="setProgFilter('agro')">Agroforestri</button>
-        <button type="button" class="fpill" data-prog="temb" onclick="setProgFilter('temb')">Tembawang</button>
+    <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
+
+    <div class="filter-group">
+      <span class="filter-lbl">Tahun</span>
+      <div class="explore-filters" id="yearFilters">
+        <button type="button" class="fpill active" data-val="all" onclick="setYearFilter('all')">Semua</button>
+        ${years.map(y=>`<button type="button" class="fpill" data-val="${y}" onclick="setYearFilter('${y}')">${y}</button>`).join('')}
       </div>
     </div>
+    <div class="filter-group">
+      <span class="filter-lbl">Program</span>
+      <div class="explore-filters" id="progFilters">
+        <button type="button" class="fpill active" data-val="all" onclick="setProgFilter('all')">Semua</button>
+        <button type="button" class="fpill" data-val="agro" onclick="setProgFilter('agro')">Agroforestri</button>
+        <button type="button" class="fpill" data-val="temb" onclick="setProgFilter('temb')">Tembawang</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-lbl">KTH</span>
+      <select class="kth-select" id="kthSelect" onchange="setKTHFilter(this.value)">
+        <option value="">Semua KTH</option>
+        ${kthNames.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}
+      </select>
+    </div>
+
     <div class="explore-count" id="exploreCount">— lahan ditemukan</div>
-    <div class="lahan-list" id="lahanList"></div>
+    <div class="explore-row">
+      <div class="lahan-list-wrap">
+        <div class="lahan-list" id="lahanList"></div>
+      </div>
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-panel-inner">
+          <div class="detail-panel-hd">
+            <div>
+              <div class="detail-panel-title" id="detailTitle">—</div>
+              <div class="detail-panel-badge" id="detailBadge"></div>
+            </div>
+            <button type="button" class="detail-close" onclick="closeDetail()">✕</button>
+          </div>
+          <div id="detailMapWrap"><div class="detail-mini-map" id="detailMiniMap"></div></div>
+          <div class="detail-list" id="detailList"></div>
+        </div>
+      </div>
+    </div>
     <p class="page-note">Klik salah satu lahan pada daftar untuk melihat detail lengkap beserta bentuk petaknya.</p>
   `;
   document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderList();});
@@ -350,6 +397,7 @@ function renderPage(){
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
     const [csvTxt]=await Promise.all([getText(CSV_URL),loadGeoJSON()]);
     parseSheet(csvTxt);
+    setupFilterOptions();
     renderPage();
   }catch(err){
     console.error('LOAD ERROR:',err);
