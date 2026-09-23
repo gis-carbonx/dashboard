@@ -60,68 +60,14 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .sub-title:not(:first-of-type){margin-top:28px}
 
-.grid-row{display:grid;gap:16px;margin-bottom:16px}
-.grid-row.r1{grid-template-columns:1fr 1.6fr}
-.grid-row.r2{grid-template-columns:1fr 1fr 1fr}
-@media(max-width:980px){.grid-row.r1,.grid-row.r2{grid-template-columns:1fr}}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px}
 
-.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;justify-content:center}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow-sm)}
 .card-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
-.card-sub-lbl{font-size:10.5px;color:var(--text-2);margin-top:3px;max-width:360px;line-height:1.4}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:8px}
-.card-val{font-size:25px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px;line-height:1.15}
-.card-target{text-align:right;flex-shrink:0}
-.card-pct{font-size:12px;font-weight:700;color:var(--text)!important;white-space:nowrap}
-.card-target-sub{font-size:10px;color:var(--text-3);margin-top:2px;white-space:nowrap}
-.progress{height:5px;background:#EDE7D8;border-radius:3px;overflow:hidden;margin:11px 0 13px}
-.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary-lt),var(--primary))}
-.sub-rows{display:flex;flex-direction:column;gap:7px}
-.sub-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
-.sub-row-left{display:flex;align-items:center;gap:7px;min-width:0}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sub-row-name{color:var(--text-2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sub-row-right{display:flex;align-items:baseline;gap:5px;flex-shrink:0}
-.sub-row-val{font-weight:700;color:var(--text)!important}
-.sub-row-meta{font-size:10px;color:var(--text-3);font-weight:500;white-space:nowrap}
-
-.tanaman-total{font-size:25px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px}
-.tanaman-block{margin-top:12px;display:flex;flex-direction:column;gap:11px}
-.tanaman-name{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text)}
-.tanaman-desc{font-size:10.5px;color:var(--text-2);margin-left:13px;margin-top:2px;line-height:1.4}
-
-.kth-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-.kth-total-wrap{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;text-align:right}
-.kth-total{font-size:25px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px;line-height:1.1}
-.kth-total-lbl{font-size:9.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;white-space:nowrap}
-.kth-bar{display:flex;width:100%;height:9px;border-radius:6px;overflow:hidden;margin:16px 0 16px;background:var(--border-lt)}
-.kth-seg{height:100%}
-.kth-list{display:flex;flex-wrap:wrap;gap:16px 28px}
-.kth-item{min-width:126px}
-.kth-item-top{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px}
-.kth-item-pct{font-size:15px;font-weight:800;color:var(--text)!important;margin:3px 0 1px}
-.kth-item-name{font-size:11.5px;font-weight:600;color:var(--text)}
-.kth-item-count{font-size:10.5px;color:var(--text-2);margin-top:1px}
-.kth-item-gender{font-size:9.5px;color:var(--text-3);margin-top:3px;display:flex;gap:10px}
-.kth-empty{font-size:12px;color:var(--text-3);padding:8px 0}
-
-.card-detail-btn{padding:5px 13px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:10.5px;font-weight:700;color:var(--text-2);cursor:pointer;font-family:inherit}
-.card-detail-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.card-val-lg{font-size:30px;font-weight:800;color:var(--text)!important;letter-spacing:-.5px;line-height:1.15;margin-top:8px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
-.modal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-card{background:#fff;border-radius:14px;width:min(420px,94vw);box-shadow:var(--shadow-lg);overflow:hidden}
-.modal-hd{padding:14px 18px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:14px;font-weight:700}
-.modal-close{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:15px;cursor:pointer}
-.modal-close:hover{background:rgba(255,255,255,.25)}
-.modal-body{padding:18px}
-.modal-grp{margin-bottom:16px}
-.modal-grp:last-child{margin-bottom:0}
-.modal-grp-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border-lt)}
-.modal-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12.5px}
-.modal-row-lbl{color:var(--text-2)}
-.modal-row-val{font-weight:700;color:var(--text)}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
@@ -155,30 +101,12 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 
-<div class="modal-overlay" id="enrModal" style="display:none" onclick="if(event.target===this)closeEnrModal()">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-hd">
-      <div class="modal-title">Detail Program Enrichment</div>
-      <button class="modal-close" onclick="closeEnrModal()">✕</button>
-    </div>
-    <div class="modal-body" id="enrModalBody"></div>
-  </div>
-</div>
-
 <script>
 'use strict';
 const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
 const CACHE_BUST='?v='+Date.now();
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
-
-const PROG={
-  Agro_Reg:{label:'Agro Reguler',group:'agro',dot:'#1a6b3a'},
-  Agro_BPO:{label:'Bantuan Pupuk Organik',group:'agro',dot:'#0d5c8a'},
-  Temb_Reg:{label:'Temb. Reguler',group:'temb',dot:'#b84c00'},
-  Temb_MTL:{label:'Menjaga Tutupan Lahan',group:'temb',dot:'#7b1fa2'},
-};
-const KTH_COLORS=['#356760','#618273','#8C9F8B','#B5BBA9','#94a89c','#6f8378'];
 
 const str=v=>(v??'').toString().trim();
 const num=v=>parseFloat(str(v))||0;
@@ -263,16 +191,6 @@ function matchesFilter(row,field){
   return d.getFullYear()===+currentYear;
 }
 
-function computeTarget(){
-  if(currentYear==='all'){
-    let agro=0,temb=0,enp=0,enl=0,found=false;
-    Object.values(targetData).forEach(td=>{agro+=td.agro_utama||0;temb+=td.temb_utama||0;enp+=td.enp_utama||0;enl+=td.enl_utama||0;found=true;});
-    return found?{agro,temb,enp,enl}:{agro:null,temb:null,enp:null,enl:null};
-  }
-  const td=targetData[+currentYear];
-  return td?{agro:td.agro_total??null,temb:td.temb_total??null,enp:td.enp_total??null,enl:td.enl_total??null}:{agro:null,temb:null,enp:null,enl:null};
-}
-
 function computeAreas(){
   let agro=0,temb=0,enp=0,enl=0;
   Object.values(sheetMap).forEach(r=>{
@@ -282,77 +200,22 @@ function computeAreas(){
   return{agro,temb,enp,enl};
 }
 
-function computeSubProgram(){
-  let aRegHa=0,aBPOHa=0,tRegHa=0,tMTLHa=0;
-  const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new Set();
+function computeTanamanTotal(){
+  let total=0;
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglPartisipasi'))return;
-    aRegHa+=r.aReg;aBPOHa+=r.aBPO;tRegHa+=r.tReg;tMTLHa+=r.tMTL;
-    const pk=r.petani?.toLowerCase();
-    if(pk){if(r.aReg>0)pAR.add(pk);if(r.aBPO>0)pAB.add(pk);if(r.tReg>0)pTR.add(pk);if(r.tMTL>0)pTM.add(pk);}
+    if(matchesFilter(r,'tglRealisasi')&&r.jumlahTanaman>0)total+=r.jumlahTanaman;
   });
-  return{aRegHa,aBPOHa,tRegHa,tMTLHa,pAR:pAR.size,pAB:pAB.size,pTR:pTR.size,pTM:pTM.size};
+  return total;
 }
 
-function computeTanaman(){
-  let agroHa=0,tembHa=0,agroTan=0,tembTan=0,agroTotalHa=0,tembTotalHa=0;
-  Object.values(sheetMap).forEach(r=>{
-    const grp=PROG[r.prog]?.group;
-    if(matchesFilter(r,'tglPartisipasi')){
-      if(grp==='agro')agroTotalHa+=r.luasAgro;else if(grp==='temb')tembTotalHa+=r.luasTemb;
-    }
-    if(matchesFilter(r,'tglRealisasi')&&r.jumlahTanaman>0){
-      if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
-      else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
-    }
-  });
-  return{agroHa,tembHa,agroTan,tembTan,agroTotalHa,tembTotalHa};
-}
-
-function computeKTH(){
-  const byKTH={};
+function computePesertaTotal(){
+  const all=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
     if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
-    const pk=r.petani.toLowerCase();
-    if(!byKTH[r.kth])byKTH[r.kth]={all:new Set(),laki:new Set(),pmp:new Set()};
-    byKTH[r.kth].all.add(pk);
-    const jkLow=r.jk.toLowerCase();
-    if(jkLow.includes('laki'))byKTH[r.kth].laki.add(pk);
-    else if(jkLow.includes('perempuan'))byKTH[r.kth].pmp.add(pk);
+    all.add(r.petani.toLowerCase());
   });
-  const list=Object.entries(byKTH).filter(([n])=>n).map(([name,v])=>({name,total:v.all.size,laki:v.laki.size,pmp:v.pmp.size})).sort((a,b)=>b.total-a.total);
-  const grandTotal=list.reduce((s,k)=>s+k.total,0);
-  return{list,grandTotal};
-}
-
-function computeEnrichmentBreakdown(){
-  let enpTReg=0,enpBPO=0,enpMTL=0,enlTReg=0,enlMTL=0;
-  Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglPartisipasi'))return;
-    if(r.luasENP>0){
-      enpTReg+=r.luasENP-r.aBPO-r.tMTL;enpBPO+=r.aBPO;enpMTL+=r.tMTL;
-    }else if(r.luasENL>0){
-      enlTReg+=r.luasENL-r.tMTL;enlMTL+=r.tMTL;
-    }
-  });
-  return{enpTReg,enpBPO,enpMTL,enlTReg,enlMTL};
-}
-
-function pctLine(val,target){
-  if(target===null||target===undefined||target<=0)return{pctTxt:'',barPct:0};
-  const p=val/target*100;
-  return{pctTxt:p.toFixed(1)+'% dari target',barPct:Math.min(100,p)};
-}
-function targetSub(target){
-  if(target===null||target===undefined)return'';
-  const yLbl=currentYear==='all'?'':' '+currentYear;
-  return`Target${yLbl}: ${fmt(target)} ha`;
-}
-function tanamanDesc(planted,total,tanaman){
-  if(total===null||total===undefined||total<=0)return`${fmt(planted)} ha ditanam · ${fmtInt(tanaman)} tanaman`;
-  const pct=planted/total*100;
-  return`${fmt(planted)} ha ditanam dari ${fmt(total)} ha (${pct.toFixed(1)}%) · ${fmtInt(tanaman)} tanaman`;
+  return all.size;
 }
 
 function setFilter(y){
@@ -362,39 +225,11 @@ function setFilter(y){
 }
 
 function render(){
-  const tgt=computeTarget();
   const areas=computeAreas();
-  const sub=computeSubProgram();
-  const tan=computeTanaman();
-  const kth=computeKTH();
-
   const totalHa=areas.agro+areas.temb;
-  const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
-  const totalLine=pctLine(totalHa,totalTgt);
-  const agroLine=pctLine(areas.agro,tgt.agro);
-  const tembLine=pctLine(areas.temb,tgt.temb);
   const enrTotalHa=areas.enp+areas.enl;
-  const enrTgt=(tgt.enp!==null&&tgt.enl!==null)?tgt.enp+tgt.enl:null;
-  const enrLine=pctLine(enrTotalHa,enrTgt);
-
-  // KTH bar segments
-  let barSegs='';
-  kth.list.forEach((k,i)=>{
-    const pct=kth.grandTotal>0?(k.total/kth.grandTotal*100):0;
-    const color=KTH_COLORS[i%KTH_COLORS.length];
-    barSegs+=`<div class="kth-seg" style="width:${pct}%;background:${color}"></div>`;
-  });
-
-  const kthItems=kth.list.length?kth.list.map((k,i)=>{
-    const pct=kth.grandTotal>0?(k.total/kth.grandTotal*100):0;
-    const color=KTH_COLORS[i%KTH_COLORS.length];
-    return`<div class="kth-item">
-      <div class="kth-item-top"><span class="dot" style="background:${color}"></span>${esc(k.name)}</div>
-      <div class="kth-item-pct">${pct.toFixed(1)}%</div>
-      <div class="kth-item-count">${k.total} peserta</div>
-      <div class="kth-item-gender">L: ${k.laki}&nbsp;&nbsp;P: ${k.pmp}</div>
-    </div>`;
-  }).join(''):'<div class="kth-empty">Belum ada data peserta KTH untuk periode ini.</div>';
+  const pesertaTotal=computePesertaTotal();
+  const tanamanTotal=computeTanamanTotal();
 
   const body=`
     <div class="filter-row">
@@ -406,130 +241,39 @@ function render(){
     <div class="sec-title">Summary</div>
     <div class="sub-title">Agroforestry and Restoration</div>
 
-    <div class="grid-row r1">
-      <div class="card">
-        <div class="card-lbl">Total Lahan</div>
-        <div class="card-top">
-          <div class="card-val">${fmt(totalHa)} ha</div>
-          <div class="card-target">
-            ${totalLine.pctTxt?`<div class="card-pct">${totalLine.pctTxt}</div>`:''}
-            ${totalTgt!==null?`<div class="card-target-sub">${targetSub(totalTgt)}</div>`:''}
-          </div>
-        </div>
-        <div class="progress"><div class="progress-fill" style="width:${totalLine.barPct}%"></div></div>
-        <div class="sub-rows">
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:#40c074"></span><span class="sub-row-name">Agroforestri</span></div><span class="sub-row-val">${fmt(areas.agro)} ha</span></div>
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:#ff8c38"></span><span class="sub-row-name">Tembawang</span></div><span class="sub-row-val">${fmt(areas.temb)} ha</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="kth-card-top">
-          <div>
-            <div class="card-lbl">Peserta KTH</div>
-            <div class="card-sub-lbl">Jumlah petani yang tergabung dalam kelompok tani hutan (KTH)</div>
-          </div>
-          <div class="kth-total-wrap">
-            <div class="kth-total">${kth.grandTotal}</div>
-            <div class="kth-total-lbl">Total Peserta</div>
-          </div>
-        </div>
-        <div class="kth-bar">${barSegs}</div>
-        <div class="kth-list">${kthItems}</div>
-      </div>
-    </div>
-
     <div class="grid-row r2">
       <div class="card">
-        <div class="card-lbl">Agroforestri</div>
-        <div class="card-top">
-          <div class="card-val">${fmt(areas.agro)} ha</div>
-          <div class="card-target">
-            ${agroLine.pctTxt?`<div class="card-pct">${agroLine.pctTxt}</div>`:''}
-            ${tgt.agro!==null?`<div class="card-target-sub">${targetSub(tgt.agro)}</div>`:''}
-          </div>
-        </div>
-        <div class="progress"><div class="progress-fill" style="width:${agroLine.barPct}%"></div></div>
-        <div class="sub-rows">
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:${PROG.Agro_Reg.dot}"></span><span class="sub-row-name">Agro Reguler</span></div><div class="sub-row-right"><span class="sub-row-val">${fmt(sub.aRegHa)} ha</span><span class="sub-row-meta">${sub.pAR} petani</span></div></div>
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:${PROG.Agro_BPO.dot}"></span><span class="sub-row-name">Bantuan Pupuk Organik</span></div><div class="sub-row-right"><span class="sub-row-val">${fmt(sub.aBPOHa)} ha</span><span class="sub-row-meta">${sub.pAB} petani</span></div></div>
-        </div>
+        <div class="card-lbl">Total Lahan</div>
+        <div class="card-val-lg">${fmt(totalHa)} ha</div>
       </div>
-
+      <div class="card">
+        <div class="card-lbl">Peserta KTH</div>
+        <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Agroforestri</div>
+        <div class="card-val-lg">${fmt(areas.agro)} ha</div>
+      </div>
       <div class="card">
         <div class="card-lbl">Tembawang</div>
-        <div class="card-top">
-          <div class="card-val">${fmt(areas.temb)} ha</div>
-          <div class="card-target">
-            ${tembLine.pctTxt?`<div class="card-pct">${tembLine.pctTxt}</div>`:''}
-            ${tgt.temb!==null?`<div class="card-target-sub">${targetSub(tgt.temb)}</div>`:''}
-          </div>
-        </div>
-        <div class="progress"><div class="progress-fill" style="width:${tembLine.barPct}%;background:linear-gradient(90deg,#ffb27a,#b84c00)"></div></div>
-        <div class="sub-rows">
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:${PROG.Temb_Reg.dot}"></span><span class="sub-row-name">Temb. Reguler</span></div><div class="sub-row-right"><span class="sub-row-val">${fmt(sub.tRegHa)} ha</span><span class="sub-row-meta">${sub.pTR} petani</span></div></div>
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:${PROG.Temb_MTL.dot}"></span><span class="sub-row-name">Menjaga Tutupan Lahan</span></div><div class="sub-row-right"><span class="sub-row-val">${fmt(sub.tMTLHa)} ha</span><span class="sub-row-meta">${sub.pTM} petani</span></div></div>
-        </div>
+        <div class="card-val-lg">${fmt(areas.temb)} ha</div>
       </div>
-
       <div class="card">
         <div class="card-lbl">Jumlah Tanaman</div>
-        <div class="tanaman-total">${fmtInt(tan.agroTan+tan.tembTan)}</div>
-        <div class="tanaman-block">
-          <div>
-            <div class="tanaman-name"><span class="dot" style="background:#40c074"></span>Agroforestri</div>
-            <div class="tanaman-desc">${tanamanDesc(tan.agroHa,tan.agroTotalHa,tan.agroTan)}</div>
-          </div>
-          <div>
-            <div class="tanaman-name"><span class="dot" style="background:#ff8c38"></span>Tembawang</div>
-            <div class="tanaman-desc">${tanamanDesc(tan.tembHa,tan.tembTotalHa,tan.tembTan)}</div>
-          </div>
-        </div>
+        <div class="card-val-lg">${fmtInt(tanamanTotal)}</div>
       </div>
     </div>
 
     <div class="sub-title">Enrichment</div>
     <div class="grid-row r2">
       <div class="card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-          <div class="card-lbl">Program Enrichment</div>
-          <button class="card-detail-btn" onclick="openEnrModal()">Detail</button>
-        </div>
-        <div class="card-top" style="margin-top:6px">
-          <div class="card-val">${fmt(enrTotalHa)} ha</div>
-          <div class="card-target">
-            ${enrLine.pctTxt?`<div class="card-pct">${enrLine.pctTxt}</div>`:''}
-            ${enrTgt!==null?`<div class="card-target-sub">${targetSub(enrTgt)}</div>`:''}
-          </div>
-        </div>
-        <div class="progress"><div class="progress-fill" style="width:${enrLine.barPct}%;background:linear-gradient(90deg,#7dd3fc,#0369a1)"></div></div>
-        <div class="sub-rows">
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:#0ea5e9"></span><span class="sub-row-name">ENP (Protected Area)</span></div><span class="sub-row-val">${fmt(areas.enp)} ha</span></div>
-          <div class="sub-row"><div class="sub-row-left"><span class="dot" style="background:#f59e0b"></span><span class="sub-row-name">ENL (Logged Over Area)</span></div><span class="sub-row-val">${fmt(areas.enl)} ha</span></div>
-        </div>
+        <div class="card-lbl">Program Enrichment</div>
+        <div class="card-val-lg">${fmt(enrTotalHa)} ha</div>
       </div>
     </div>
   `;
   document.getElementById('pageBody').innerHTML=body;
 }
-
-function openEnrModal(){
-  const b=computeEnrichmentBreakdown();
-  document.getElementById('enrModalBody').innerHTML=`
-    <div class="modal-grp">
-      <div class="modal-grp-ttl">ENP (Protected Area)</div>
-      <div class="modal-row"><span class="modal-row-lbl">Pengkayaan</span><span class="modal-row-val">${fmt(b.enpTReg)} ha</span></div>
-      <div class="modal-row"><span class="modal-row-lbl">Bantuan Pupuk Organik</span><span class="modal-row-val">${fmt(b.enpBPO)} ha</span></div>
-      <div class="modal-row"><span class="modal-row-lbl">Menjaga Tutupan Lahan</span><span class="modal-row-val">${fmt(b.enpMTL)} ha</span></div>
-    </div>
-    <div class="modal-grp">
-      <div class="modal-grp-ttl">ENL (Logged Over Area)</div>
-      <div class="modal-row"><span class="modal-row-lbl">Pengkayaan</span><span class="modal-row-val">${fmt(b.enlTReg)} ha</span></div>
-      <div class="modal-row"><span class="modal-row-lbl">Menjaga Tutupan Lahan</span><span class="modal-row-val">${fmt(b.enlMTL)} ha</span></div>
-    </div>`;
-  document.getElementById('enrModal').style.display='flex';
-}
-function closeEnrModal(){document.getElementById('enrModal').style.display='none';}
 
 (async function boot(){
   try{
