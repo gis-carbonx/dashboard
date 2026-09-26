@@ -188,7 +188,7 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
 }
 
 let sheetMap={},agroGeoJSON=null,miniMapInstance=null,activeId=null;
-let searchQuery='',progFilter='all',yearFilter='all',kthFilter='';
+let searchQuery='',progFilter='all',yearFilter='all',kthFilter='',statusFilter='all';
 let years=[],kthNames=[];
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
@@ -280,10 +280,14 @@ function matchesKTH(r,k){
   if(!k)return true;
   return r.kth===k;
 }
+function matchesStatus(r,f){
+  if(f==='all')return true;
+  return !!parseDate(r.tglRealisasi)&&r.jumlahTanaman>0;
+}
 
 function getFilteredRows(){
   const q=searchQuery.trim().toLowerCase();
-  return Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter)&&matchesYear(r,yearFilter)&&matchesKTH(r,kthFilter));
+  return Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter)&&matchesYear(r,yearFilter)&&matchesKTH(r,kthFilter)&&matchesStatus(r,statusFilter));
 }
 
 function renderList(){
@@ -347,6 +351,7 @@ function renderStats(){
 function setProgFilter(f){progFilter=f;syncPillActive('progFilters',f);renderList();}
 function setYearFilter(y){yearFilter=y;syncPillActive('yearFilters',y);renderList();}
 function setKTHFilter(v){kthFilter=v;renderList();}
+function setStatusFilter(f){statusFilter=f;syncPillActive('statusFilters',f);renderList();}
 function syncPillActive(wrapId,val){
   document.querySelectorAll(`#${wrapId} .fpill`).forEach(b=>b.classList.toggle('active',b.dataset.val===String(val)));
 }
@@ -452,6 +457,13 @@ function renderPage(){
         <button type="button" class="fpill" data-val="temb" onclick="setProgFilter('temb')">Reforestasi</button>
         <button type="button" class="fpill" data-val="mtl" onclick="setProgFilter('mtl')">MTL</button>
         <button type="button" class="fpill" data-val="bpo" onclick="setProgFilter('bpo')">BPO</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-lbl">Status</span>
+      <div class="explore-filters" id="statusFilters">
+        <button type="button" class="fpill active" data-val="all" onclick="setStatusFilter('all')">Semua</button>
+        <button type="button" class="fpill" data-val="ditanam" onclick="setStatusFilter('ditanam')">Penanaman</button>
       </div>
     </div>
     <div class="filter-group">
