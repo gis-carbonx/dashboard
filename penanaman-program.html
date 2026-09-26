@@ -49,6 +49,12 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .page-body-inner{max-width:1180px;margin:0 auto;padding:16px 32px;height:100%;display:flex;flex-direction:column;min-height:0}
 
+.stat-row{display:flex;gap:16px;margin-bottom:16px;flex-shrink:0}
+.stat-card{flex:1;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px}
+.stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.stat-val{font-size:24px;font-weight:700;color:var(--primary);margin-top:4px}
+.stat-sub{font-size:11px;color:var(--text-2);margin-top:4px}
+
 .sub-title{font-size:13px;font-weight:700;color:var(--text);margin:0 0 8px;flex-shrink:0}
 .page-note{font-size:10.5px;color:var(--text-2);line-height:1.5;margin:8px 0 0;flex-shrink:0}
 
@@ -123,7 +129,7 @@ body{display:flex;flex-direction:column}
 <div class="dashboard-frame">
   <div class="hero">
     <div class="hero-inner">
-      <div class="hero-title">Penanaman Program</div>
+      <div class="hero-title">ARR</div>
       <div class="hero-date" id="heroDate">Memuat tanggal...</div>
     </div>
   </div>
@@ -143,7 +149,7 @@ const AGRO_JSON_URL='assets/json/agro.json'+CACHE_BUST;
 const PROG={
   Agro_Reg:{label:'Agro Reguler',group:'agro',dot:'#1a6b3a'},
   Agro_BPO:{label:'Bantuan Pupuk Organik',group:'agro',dot:'#0d5c8a'},
-  Temb_Reg:{label:'Temb. Reguler',group:'temb',dot:'#b84c00'},
+  Temb_Reg:{label:'Reforestasi',group:'temb',dot:'#b84c00'},
   Temb_MTL:{label:'Menjaga Tutupan Lahan',group:'temb',dot:'#7b1fa2'},
 };
 
@@ -190,7 +196,7 @@ function parseSheet(csv){
     const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
     const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
-    if(!prog)return; // fokus halaman ini: lahan program Agroforestri/Tembawang saja
+    if(!prog)return; 
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
     sheetMap[id]={id,kth,desa,petani,tglPartisipasi,tglRealisasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,jumlahTanaman};
@@ -266,8 +272,8 @@ function renderList(){
       <div class="lahan-row-main">
         <span class="lahan-dot" style="background:${st.dot}"></span>
         <div>
-          <div class="lahan-row-id">${esc(r.id)}</div>
-          <div class="lahan-row-sub">${esc(r.petani)||'—'}</div>
+          <div class="lahan-row-id">${esc(r.petani)||'—'}</div>
+          <div class="lahan-row-sub">${esc(r.id)}</div>
         </div>
       </div>
       <div class="lahan-row-right">
@@ -279,8 +285,30 @@ function renderList(){
   listEl.querySelectorAll('.lahan-row').forEach(el=>{
     el.addEventListener('click',()=>openDetail(el.dataset.id));
   });
-  // kalau lahan yang sedang aktif sudah tidak ada di hasil filter, tutup panel detail
   if(activeId&&!rows.some(r=>r.id===activeId))closeDetail();
+  renderStats();
+}
+
+function computeStats(){
+  const rows=getFilteredRows();
+  let luasTotal=0,tanamanTotal=0,luasTertanam=0;
+  rows.forEach(r=>{
+    const st=PROG[r.prog];
+    const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
+    luasTotal+=luas;
+    tanamanTotal+=r.jumlahTanaman;
+    if(r.jumlahTanaman>0)luasTertanam+=luas;
+  });
+  return{luasTotal,tanamanTotal,luasTertanam};
+}
+function renderStats(){
+  const s=computeStats();
+  const luasEl=document.getElementById('statLuasVal');
+  const tanamanEl=document.getElementById('statTanamanVal');
+  const tanamanSubEl=document.getElementById('statTanamanSub');
+  if(luasEl)luasEl.textContent=fmt(s.luasTotal)+' ha';
+  if(tanamanEl)tanamanEl.textContent=fmtInt(s.tanamanTotal)+' tanaman';
+  if(tanamanSubEl)tanamanSubEl.textContent=fmt(s.luasTertanam)+' ha tertanam';
 }
 
 function setProgFilter(f){progFilter=f;syncPillActive('progFilters',f);renderList();}
@@ -342,6 +370,18 @@ function closeDetail(){
 
 function renderPage(){
   document.getElementById('pageBody').innerHTML=`
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-lbl">Luasan</div>
+        <div class="stat-val" id="statLuasVal">— ha</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Jumlah Tanaman</div>
+        <div class="stat-val" id="statTanamanVal">—</div>
+        <div class="stat-sub" id="statTanamanSub">— ha tertanam</div>
+      </div>
+    </div>
+
     <div class="sub-title">Eksplor Lahan</div>
     <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
 
@@ -357,7 +397,7 @@ function renderPage(){
       <div class="explore-filters" id="progFilters">
         <button type="button" class="fpill active" data-val="all" onclick="setProgFilter('all')">Semua</button>
         <button type="button" class="fpill" data-val="agro" onclick="setProgFilter('agro')">Agroforestri</button>
-        <button type="button" class="fpill" data-val="temb" onclick="setProgFilter('temb')">Tembawang</button>
+        <button type="button" class="fpill" data-val="temb" onclick="setProgFilter('temb')">Reforestasi</button>
       </div>
     </div>
     <div class="filter-group">
