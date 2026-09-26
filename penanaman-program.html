@@ -49,11 +49,11 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .page-body-inner{max-width:1180px;margin:0 auto;padding:16px 32px;height:100%;display:flex;flex-direction:column;min-height:0}
 
-.stat-row{display:flex;gap:16px;margin-bottom:16px;flex-shrink:0}
-.stat-card{flex:1;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px}
-.stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
-.stat-val{font-size:24px;font-weight:700;color:var(--primary);margin-top:4px}
-.stat-sub{font-size:11px;color:var(--text-2);margin-top:4px}
+.stat-row{display:flex;gap:14px;margin-bottom:14px;flex-shrink:0}
+.stat-card{flex:0 0 190px;width:190px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 14px}
+.stat-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.stat-val{font-size:19px;font-weight:700;color:var(--primary);margin-top:3px}
+.stat-sub{font-size:10.5px;color:var(--text-2);margin-top:2px}
 
 .sub-title{font-size:13px;font-weight:700;color:var(--text);margin:0 0 8px;flex-shrink:0}
 .page-note{font-size:10.5px;color:var(--text-2);line-height:1.5;margin:8px 0 0;flex-shrink:0}
@@ -196,7 +196,7 @@ function parseSheet(csv){
     const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
     const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
-    if(!prog)return; 
+    if(!prog)return; // fokus halaman ini: lahan program Agroforestri/Reforestasi saja
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
     sheetMap[id]={id,kth,desa,petani,tglPartisipasi,tglRealisasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,jumlahTanaman};
@@ -235,9 +235,10 @@ function matchesSearch(r,q){
   const hay=(r.id+' '+r.petani+' '+r.desa+' '+r.kth).toLowerCase();
   return hay.includes(q);
 }
+const PROG_FILTER_MAP={agro:'Agro_Reg',temb:'Temb_Reg',mtl:'Temb_MTL',bpo:'Agro_BPO'};
 function matchesProg(r,f){
   if(f==='all')return true;
-  return PROG[r.prog]?.group===f;
+  return r.prog===PROG_FILTER_MAP[f];
 }
 function matchesYear(r,y){
   if(y==='all')return true;
@@ -285,6 +286,7 @@ function renderList(){
   listEl.querySelectorAll('.lahan-row').forEach(el=>{
     el.addEventListener('click',()=>openDetail(el.dataset.id));
   });
+  // kalau lahan yang sedang aktif sudah tidak ada di hasil filter, tutup panel detail
   if(activeId&&!rows.some(r=>r.id===activeId))closeDetail();
   renderStats();
 }
@@ -382,7 +384,6 @@ function renderPage(){
       </div>
     </div>
 
-    <div class="sub-title">Eksplor Lahan</div>
     <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
 
     <div class="filter-group">
@@ -398,6 +399,8 @@ function renderPage(){
         <button type="button" class="fpill active" data-val="all" onclick="setProgFilter('all')">Semua</button>
         <button type="button" class="fpill" data-val="agro" onclick="setProgFilter('agro')">Agroforestri</button>
         <button type="button" class="fpill" data-val="temb" onclick="setProgFilter('temb')">Reforestasi</button>
+        <button type="button" class="fpill" data-val="mtl" onclick="setProgFilter('mtl')">MTL</button>
+        <button type="button" class="fpill" data-val="bpo" onclick="setProgFilter('bpo')">BPO</button>
       </div>
     </div>
     <div class="filter-group">
