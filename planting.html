@@ -379,7 +379,7 @@ body{display:flex;flex-direction:column}
     <div class="sc-week-acc" id="sWeekAcc" style="display:none"></div>
     <div class="sc-subs">
       <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#40c074"></span><span class="sc-sub-label">Agroforestri</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTotalAgroSub">—</span></div></div>
-      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Tembawang</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTotalTembSub">—</span></div></div>
+      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Reforestasi</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTotalTembSub">—</span></div></div>
     </div>
   </div>
   <div class="sc">
@@ -396,7 +396,7 @@ body{display:flex;flex-direction:column}
     </div>
   </div>
   <div class="sc">
-    <div class="sc-lbl">Tembawang</div>
+    <div class="sc-lbl">Reforestasi</div>
     <div class="sc-top-row">
       <div class="sc-val" id="sTembHa">—</div>
       <div class="sc-right-info" id="sTembRightInfo" style="display:none"><span class="sc-pct-badge" id="sTembPct">—</span><span class="sc-target-inline" id="sTembTarget">—</span></div>
@@ -404,7 +404,7 @@ body{display:flex;flex-direction:column}
     <div class="prog-bar-wrap"><div class="prog-bar-fill" id="sTembProgBar" style="width:0%;background:linear-gradient(90deg,#ff8c38,var(--c-temb))"></div></div>
     <div class="sc-week-acc" id="sTembWeekAcc" style="display:none"></div>
     <div class="sc-subs">
-      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Temb. Reguler</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTembRegHa">—</span><span class="sc-sub-petani" id="sTembRegPetani"></span></div></div>
+      <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label">Reforestasi</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTembRegHa">—</span><span class="sc-sub-petani" id="sTembRegPetani"></span></div></div>
       <div class="sc-sub-row"><div class="sc-sub-left"><span class="dot" style="background:#ce6be8"></span><span class="sc-sub-label">Menjaga Tutupan Lahan</span></div><div class="sc-sub-right"><span class="sc-sub-ha" id="sTembMTLHa">—</span><span class="sc-sub-petani" id="sTembMTLPetani"></span></div></div>
     </div>
   </div>
@@ -443,7 +443,7 @@ body{display:flex;flex-direction:column}
         <div style="font-size:9.5px;line-height:1.35;color:var(--text-2);padding-left:11px" id="sTanamanAgroDesc">—</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:1px">
-        <div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label" style="font-weight:700;color:var(--text);overflow:visible;white-space:normal">Tembawang</span></div>
+        <div class="sc-sub-left"><span class="dot" style="background:#ff8c38"></span><span class="sc-sub-label" style="font-weight:700;color:var(--text);overflow:visible;white-space:normal">Reforestasi</span></div>
         <div style="font-size:9.5px;line-height:1.35;color:var(--text-2);padding-left:11px" id="sTanamanTembDesc">—</div>
       </div>
     </div>
@@ -464,7 +464,7 @@ body{display:flex;flex-direction:column}
         <div class="sb-sec">
           <div class="sec-ttl">Kontrol Layer</div>
           <div class="lyr-row" onclick="toggleLayer('agro')"><div class="toggle" id="tog-agro"></div><span class="lyr-lbl">Lahan Agroforestri</span></div>
-          <div class="lyr-row" onclick="toggleLayer('temb')"><div class="toggle" id="tog-temb"></div><span class="lyr-lbl">Lahan Tembawang</span></div>
+          <div class="lyr-row" onclick="toggleLayer('temb')"><div class="toggle" id="tog-temb"></div><span class="lyr-lbl">Lahan Reforestasi</span></div>
           <div class="lyr-row" onclick="toggleLayer('cmi')"><div class="toggle" id="tog-cmi"></div><span class="lyr-lbl">Batas Area CMI</span></div>
         </div>
         <div class="sb-sec">
@@ -472,7 +472,7 @@ body{display:flex;flex-direction:column}
           <div class="leg-grid">
             <div class="leg-item"><div class="leg-sq" style="background:#40c074;border-color:#40c074"></div><span>Agro Reguler</span></div>
             <div class="leg-item"><div class="leg-sq" style="background:#38a3e0;border-color:#38a3e0"></div><span>Agro BPO</span></div>
-            <div class="leg-item"><div class="leg-sq" style="background:#ff8c38;border-color:#ff8c38"></div><span>Temb. Reguler</span></div>
+            <div class="leg-item"><div class="leg-sq" style="background:#ff8c38;border-color:#ff8c38"></div><span>Reforestasi</span></div>
             <div class="leg-item"><div class="leg-sq" style="background:#ce6be8;border-color:#ce6be8"></div><span>Temb. MTL</span></div>
             <div class="leg-item" style="grid-column:span 2"><div class="leg-dash"></div><span>Batas CMI</span></div>
           </div>
@@ -548,7 +548,7 @@ body{display:flex;flex-direction:column}
         <option value="">Semua Program</option>
         <option value="ar">Agroforestri Reguler</option>
         <option value="ab">Bantuan Pupuk Organik</option>
-        <option value="tr">Tembawang Reguler</option>
+        <option value="tr">Reforestasi</option>
         <option value="tm">Menjaga Tutupan Lahan</option>
       </select>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
@@ -585,7 +585,7 @@ body{display:flex;flex-direction:column}
     <div class="strip-bar">
       <div class="strip-card"><div class="strip-lbl">Agroforestri Reguler</div><div class="strip-val" id="csAR">—</div><div class="strip-sub" id="csARsub"></div></div>
       <div class="strip-card"><div class="strip-lbl">Agro - Bantuan Pupuk Organik</div><div class="strip-val" id="csBPO">—</div><div class="strip-sub" id="csBPOsub"></div></div>
-      <div class="strip-card"><div class="strip-lbl">Tembawang Reguler</div><div class="strip-val" id="csTR">—</div><div class="strip-sub" id="csTRsub"></div></div>
+      <div class="strip-card"><div class="strip-lbl">Reforestasi</div><div class="strip-val" id="csTR">—</div><div class="strip-sub" id="csTRsub"></div></div>
       <div class="strip-card"><div class="strip-lbl">Temb - Menjaga Tutupan Lahan</div><div class="strip-val" id="csMTL">—</div><div class="strip-sub" id="csMTLsub"></div></div>
       <div class="strip-card"><div class="strip-lbl">Total Potensi</div><div class="strip-val" id="csTotal">—</div><div class="strip-sub" id="csTotalsub"></div></div>
     </div>
@@ -600,7 +600,7 @@ body{display:flex;flex-direction:column}
         <option value="">Semua Program</option>
         <option value="agro_reg">Agroforestri Reguler</option>
         <option value="bpo">Bantuan Pupuk Organik</option>
-        <option value="temb_reg">Tembawang Reguler</option>
+        <option value="temb_reg">Reforestasi</option>
         <option value="mtl">Menjaga Tutupan Lahan</option>
       </select>
       <select class="modal-sel" id="cpSelStatus" onchange="runCPFilter()"><option value="">Semua Status</option></select>
@@ -722,7 +722,7 @@ body{display:flex;flex-direction:column}
       <select class="grafik-sel" id="gBulananYear" onchange="renderGrafik()"></select>
       <div class="grafik-legend">
         <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Agroforestri</div>
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Tembawang</div>
+        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Reforestasi</div>
       </div>
     </div>
     <div class="modal-toolbar" id="gToolbarMingguan" style="display:none;padding:10px 16px">
@@ -736,7 +736,7 @@ body{display:flex;flex-direction:column}
       </select>
       <div class="grafik-legend">
         <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Agroforestri</div>
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Tembawang</div>
+        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Reforestasi</div>
       </div>
     </div>
     <div class="grafik-body"><div class="grafik-canvas-wrap"><canvas id="grafikChart"></canvas></div></div>
@@ -779,7 +779,7 @@ body{display:flex;flex-direction:column}
       <select class="modal-sel" id="insSelProg" onchange="filterInsentifTable()">
         <option value="">Semua</option>
         <option value="Agro_Reg">Agroforestri Reguler</option>
-        <option value="Temb_Reg">Tembawang Reguler</option>
+        <option value="Temb_Reg">Reforestasi</option>
       </select>
       <select class="modal-sel" id="insSelDesa" onchange="filterInsentifTable()"><option value="">Semua Desa</option></select>
       <select class="modal-sel" id="insSelDusun" onchange="filterInsentifTable()"><option value="">Semua Dusun</option></select>
@@ -835,13 +835,13 @@ const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','Se
 const CP_CLASS={
   agro_reg:{label:'Agroforestri Reguler',short:'A-REG',color:'#1a6b3a',fEst:'est_agr_reg',fUkur:'ukur_agr_reg',fPot:'pot_agr_reg'},
   bpo:     {label:'Bantuan Pupuk Organik',short:'A-BPO',color:'#0d5c8a',fEst:'est_bpo',fUkur:'ukur_bpo',fPot:'pot_bpo'},
-  temb_reg:{label:'Tembawang Reguler',    short:'T-REG',color:'#b84c00',fEst:'est_tbw',fUkur:'ukur_tbw',fPot:'pot_tbw'},
+  temb_reg:{label:'Reforestasi',    short:'T-REG',color:'#b84c00',fEst:'est_tbw',fUkur:'ukur_tbw',fPot:'pot_tbw'},
   mtl:     {label:'Menjaga Tutupan Lahan',short:'T-MTL',color:'#7b1fa2',fEst:'est_mtl',fUkur:'ukur_mtl',fPot:'pot_mtl'},
 };
 const PROG={
   Agro_Reg:{fill:'#40c074',stroke:'#1a6b3a',label:'Agroforestri Reguler',group:'agro',tagCls:'ar',dot:'#1a6b3a'},
   Agro_BPO:{fill:'#38a3e0',stroke:'#0d5c8a',label:'Bantuan Pupuk Organik',group:'agro',tagCls:'ab',dot:'#0d5c8a'},
-  Temb_Reg:{fill:'#ff8c38',stroke:'#b84c00',label:'Tembawang Reguler',    group:'temb',tagCls:'tr',dot:'#b84c00'},
+  Temb_Reg:{fill:'#ff8c38',stroke:'#b84c00',label:'Reforestasi',    group:'temb',tagCls:'tr',dot:'#b84c00'},
   Temb_MTL:{fill:'#ce6be8',stroke:'#7b1fa2',label:'Menjaga Tutupan Lahan',group:'temb',tagCls:'tm',dot:'#7b1fa2'},
 };
 const INS_STAGES=[
@@ -1349,7 +1349,7 @@ function renderKTHList(ids){
       </div>
       <div class="kth-pills">
         <div class="pill a"><div class="pl">Agroforestri</div><div class="pv">${fmt(k.agro)} ha</div></div>
-        <div class="pill t"><div class="pl">Tembawang</div><div class="pv">${fmt(k.temb)} ha</div></div>
+        <div class="pill t"><div class="pl">Reforestasi</div><div class="pv">${fmt(k.temb)} ha</div></div>
       </div>
     </div>`;
   }).join('');
@@ -1390,7 +1390,7 @@ function showDetail(id){
   const tP=fmtDate(row.tglPartisipasi),tR=fmtDate(row.tglRealisasi);
   const ds=tP||tR?`<div class="d-block"><div class="d-block-ttl">Tanggal</div>${tP?`<div class="d-row"><span class="d-lbl">Partisipasi</span><span class="d-val">${tP}</span></div>`:''} ${tR?`<div class="d-row"><span class="d-lbl">Realisasi</span><span class="d-val">${tR}</span></div>`:''}</div>`:'';
   const cb=row.tanamanKarbon>0?`<div class="d-block"><div class="d-block-ttl">Tanaman Karbon</div><div class="d-carbon-block"><div class="d-carbon-val">${fmtInt(row.tanamanKarbon)}</div><div class="d-carbon-lbl">Jumlah Tanaman Sekuritas Carbon</div></div></div>`:'';
-  const pd=[row.aReg>0?`<div class="d-row"><span class="d-lbl">Agro Reguler</span><span class="d-val">${fmt(row.aReg)} ha</span></div>`:'',row.aBPO>0?`<div class="d-row"><span class="d-lbl">Agro BPO</span><span class="d-val">${fmt(row.aBPO)} ha</span></div>`:'',row.tReg>0?`<div class="d-row"><span class="d-lbl">Temb. Reguler</span><span class="d-val">${fmt(row.tReg)} ha</span></div>`:'',row.tMTL>0?`<div class="d-row"><span class="d-lbl">Temb. MTL</span><span class="d-val">${fmt(row.tMTL)} ha</span></div>`:'' ].filter(Boolean).join('');
+  const pd=[row.aReg>0?`<div class="d-row"><span class="d-lbl">Agro Reguler</span><span class="d-val">${fmt(row.aReg)} ha</span></div>`:'',row.aBPO>0?`<div class="d-row"><span class="d-lbl">Agro BPO</span><span class="d-val">${fmt(row.aBPO)} ha</span></div>`:'',row.tReg>0?`<div class="d-row"><span class="d-lbl">Reforestasi</span><span class="d-val">${fmt(row.tReg)} ha</span></div>`:'',row.tMTL>0?`<div class="d-row"><span class="d-lbl">Temb. MTL</span><span class="d-val">${fmt(row.tMTL)} ha</span></div>`:'' ].filter(Boolean).join('');
   const enr=(row.luasENP>0||row.luasENL>0)?`<div class="d-block"><div class="d-block-ttl">Program Enrichment</div>${row.luasENP>0?`<div class="d-row"><span class="d-lbl">ENP (Protected Area)</span><span class="d-val">${fmt(row.luasENP)} ha</span></div>`:''}${row.luasENL>0?`<div class="d-row"><span class="d-lbl">ENL (Logged Over Area)</span><span class="d-val">${fmt(row.luasENL)} ha</span></div>`:''}</div>`:'';
   const lk=row.link?`<div class="d-block"><div class="d-block-ttl">Dokumen</div><div class="d-row"><span class="d-lbl">Link</span><a href="${esc(row.link)}" target="_blank" style="font-size:11px;font-weight:600;color:var(--primary-md);text-decoration:none">Buka Dokumen ↗</a></div></div>`:'';
   document.getElementById('detailContent').innerHTML=`
@@ -1426,7 +1426,7 @@ function openKTH(name,ids){
   const ps=new Set(rows.map(r=>r.petani.toLowerCase()));
   setText('modalTitle',name);setText('modalSub',`${master.desa} · ${rows.length} lahan · ${ps.size} petani`);
   document.getElementById('modalStats').innerHTML=
-    [['Total Lahan',fmt(a+t)+' ha'],['Agroforestri',fmt(a)+' ha'],['Tembawang',fmt(t)+' ha'],['Petani',ps.size],['Petak',rows.length]]
+    [['Total Lahan',fmt(a+t)+' ha'],['Agroforestri',fmt(a)+' ha'],['Reforestasi',fmt(t)+' ha'],['Petani',ps.size],['Petak',rows.length]]
     .map(([l,v])=>`<div class="strip-card"><div class="strip-lbl">${l}</div><div class="strip-val">${v}</div></div>`).join('');
   document.getElementById('modalSearchInput').value='';document.getElementById('modalProgFilter').value='';
   document.getElementById('noResults').style.display='none';setText('modalRowCount',rows.length+' lahan');
@@ -1816,7 +1816,7 @@ function renderGrafik(){
     type:'bar',
     data:{labels,datasets:[
       {label:'Agroforestri',data:dA.map(v=>+v.toFixed(2)),backgroundColor:'#2d7a55',borderRadius:4,barPercentage:.7},
-      {label:'Tembawang',   data:dT.map(v=>+v.toFixed(2)),backgroundColor:'#b84c00',borderRadius:4,barPercentage:.7},
+      {label:'Reforestasi',   data:dT.map(v=>+v.toFixed(2)),backgroundColor:'#b84c00',borderRadius:4,barPercentage:.7},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#1a2332',padding:{bottom:12}},
