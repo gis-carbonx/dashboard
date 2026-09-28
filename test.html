@@ -157,24 +157,42 @@ function pickCI(raw,keys,...names){
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
 // --- Klasifikasi kategori (kolom "Category") ---
-// Dipakai untuk membedakan kategori "Semai" (bibit baru mulai disemai) dari
-// kategori yang berarti bibit sudah keluar dari nursery (ditanam/disulam/support/mati).
+// Dipecah lebih rinci karena "Jumlah Tanaman di Nursery" sekarang dihitung sebagai
+// snapshot langsung (jumlah baris pada tahap-tahap tertentu), BUKAN model masuk-keluar.
+// "Semai Biji" dan "Grafting" (bare, bukan Pembesaran/BST Grafting) sengaja TIDAK
+// dihitung sebagai bagian dari stok nursery, begitu juga kategori "Mati" dan kategori
+// output (Penanaman/Penyulaman/Support).
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';
-  if(n.includes('mati'))return'exit'; // bibit mati -> keluar dari nursery
-  if(n.includes('penanaman'))return'exit';
-  if(n.includes('penyulaman'))return'exit';
-  if(n.includes('support'))return'exit';
-  if(n.includes('semai'))return'semai';
-  return'internal'; // pembesaran, grafting, BST, rootstock return, dll -> masih di dalam nursery
+  if(n.includes('mati'))return'mati';
+  if(n.includes('penanaman'))return'penanaman';
+  if(n.includes('penyulaman'))return'penyulaman';
+  if(n.includes('support'))return'support';
+  if(n.includes('rootstock')){
+    if(n.includes('bst'))return'bst_rootstock_return';
+    if(n.includes('pembesaran'))return'pembesaran_rootstock_return';
+    return'rootstock_return';
+  }
+  if(n.includes('grafting')){
+    if(n.includes('bst'))return'bst_grafting';
+    if(n.includes('pembesaran'))return'pembesaran_grafting';
+    return'grafting'; // Grafting mentah -> tidak dihitung sebagai stok nursery
+  }
+  if(n.includes('semai'))return'semai'; // Semai Biji -> tidak dihitung sebagai stok nursery
+  if(n.includes('pembesaran'))return'pembesaran_reguler';
+  if(n.includes('bst'))return'bst_reguler';
+  return'other';
 }
+
+// Tahap yang TIDAK dihitung sebagai stok nursery saat ini:
+const STOCK_EXCLUDED=new Set(['none','semai','grafting','mati','penanaman','penyulaman','support']);
 
 let totalSemai=0,jumlahDiNursery=0;
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  let semai=0,exit=0;
+  let semai=0,stock=0;
   data.forEach(raw=>{
     const keys=Object.keys(raw);
     const category=str(pickCI(raw,keys,'Category')||'');
@@ -182,10 +200,10 @@ function parseSheet(csv){
     if(!category)return;
     const cls=classifyCategory(category);
     if(cls==='semai')semai+=jumlah;
-    else if(cls==='exit')exit+=jumlah;
+    if(!STOCK_EXCLUDED.has(cls))stock+=jumlah;
   });
   totalSemai=semai;
-  jumlahDiNursery=Math.max(0,semai-exit);
+  jumlahDiNursery=stock;
 }
 
 function render(){
