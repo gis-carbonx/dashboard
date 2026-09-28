@@ -44,34 +44,14 @@ body{display:flex;flex-direction:column}
 .hero{background:var(--dark);color:#fff;padding:14px 0;flex-shrink:0}
 .hero-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 .hero-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
-.hero-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
-.hero-links{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
-.hero-menu{position:relative}
-.hero-menu-btn{
-  width:36px;height:36px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-}
-.hero-menu:hover .hero-menu-btn{background:rgba(255,255,255,.18)}
-.hero-menu-popup{
-  position:absolute;top:100%;right:0;
-  background:#fff;border:1px solid var(--border);
-  min-width:150px;
-  opacity:0;visibility:hidden;
-  z-index:50;
-}
-.hero-menu:hover .hero-menu-popup{opacity:1;visibility:visible}
-.hero-menu-popup a{display:block;padding:8px 12px;color:var(--text);font-size:12px;text-decoration:none;white-space:nowrap}
-.hero-menu-popup a:hover{background:var(--primary-bg)}
-.hero-link:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4)}
-.hero-date{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.hero-date{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
 
 .body-row{flex:1;min-height:0;display:flex}
 
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
-.content-row{max-width:1284px;margin:0 auto;display:flex;align-items:flex-start;gap:20px}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.side-menu{position:sticky;top:0;width:84px;flex-shrink:0;background:transparent;padding:28px 6px 20px 0;display:flex;flex-direction:column;align-items:center;gap:26px}
+.side-menu{position:sticky;top:20px;width:84px;flex-shrink:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:26px}
 .side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
 .side-icon{width:22px;height:22px}
 .side-icon svg{width:100%;height:100%;display:block}
@@ -81,7 +61,7 @@ body{display:flex;flex-direction:column}
 .side-item.disabled{color:var(--text-3);opacity:.55;cursor:default}
 .side-item.disabled:hover{color:var(--text-3)}
 
-.page-body-inner{flex:1;min-width:0;padding:28px 36px 48px}
+.page-body-inner{flex:1;min-width:0}
 
 .filter-row{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap}
 .filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
@@ -95,6 +75,9 @@ body{display:flex;flex-direction:column}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
 .grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
+.two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:8px}
+.two-col-row .grid-row{margin-bottom:0}
+.two-col-row .page-note{margin:14px 0 0}
 
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
 .card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
@@ -127,18 +110,7 @@ body{display:flex;flex-direction:column}
     <div class="hero-inner">
       <div>
         <div class="hero-title">Planning and Planting</div>
-        <div class="hero-sub">Implementasi Program PT Citra Mulia Inti</div>
         <div class="hero-date" id="heroDate">Memuat tanggal...</div>
-      </div>
-      <div class="hero-links">
-        <div class="hero-menu">
-          <button type="button" class="hero-menu-btn" aria-label="Links">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
-          </button>
-          <div class="hero-menu-popup">
-            <a href="planting.html">Interactive Map</a>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -308,7 +280,7 @@ function computePesertaTotal(){
   const all=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
-    if(!r.petani||!str(r.jk).trim())return; 
+    if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
     all.add(r.petani.toLowerCase());
   });
   return all.size;
@@ -363,34 +335,37 @@ function render(){
     <div class="sec-title">Summary</div>
     <div class="sub-title">Agroforestry and Restoration</div>
 
-    <div class="grid-row">
-      <div class="card">
-        <div class="card-lbl">Total Lahan</div>
-        <div class="card-val-lg">${fmt(totalHa)} ha</div>
-        ${totalTgt!==null?`<div class="card-sub-pct">${pctText(totalHa,totalTgt)}</div>`:''}
+    <div class="two-col-row">
+      <div class="col">
+        <div class="grid-row">
+          <div class="card">
+            <div class="card-lbl">Total Lahan</div>
+            <div class="card-val-lg">${fmt(totalHa)} ha</div>
+            ${totalTgt!==null?`<div class="card-sub-pct">${pctText(totalHa,totalTgt)}</div>`:''}
+          </div>
+          <div class="card">
+            <div class="card-lbl">Unik Peserta Program</div>
+            <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
+          </div>
+        </div>
+        <p class="page-note">${note1}</p>
       </div>
-      <div class="card">
-        <div class="card-lbl">Unik Peserta Program</div>
-        <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
+      <div class="col">
+        <div class="grid-row">
+          <div class="card">
+            <div class="card-lbl">Agroforestri</div>
+            <div class="card-val-lg">${fmt(areas.agro)} ha</div>
+            ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
+          </div>
+          <div class="card">
+            <div class="card-lbl">Tembawang</div>
+            <div class="card-val-lg">${fmt(areas.temb)} ha</div>
+            ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
+          </div>
+        </div>
+        <p class="page-note">${note2}</p>
       </div>
     </div>
-
-    <p class="page-note">${note1}</p>
-
-    <div class="grid-row">
-      <div class="card">
-        <div class="card-lbl">Agroforestri</div>
-        <div class="card-val-lg">${fmt(areas.agro)} ha</div>
-        ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
-      </div>
-      <div class="card">
-        <div class="card-lbl">Tembawang</div>
-        <div class="card-val-lg">${fmt(areas.temb)} ha</div>
-        ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
-      </div>
-    </div>
-
-    <p class="page-note">${note2}</p>
 
     <div class="grid-row">
       <div class="card">
