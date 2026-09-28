@@ -82,12 +82,11 @@ body{display:flex;flex-direction:column}
 .card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
 .card-sub-pct{font-size:11px;color:var(--text-2);font-weight:600;margin-top:7px}
 
-.combo-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:6px 18px}
-.combo-stat{padding:12px 0}
-.combo-stat:not(:last-child){border-bottom:1px solid var(--border-lt)}
-.combo-stat-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:5px}
-.combo-stat-val{font-size:21px;font-weight:800;color:var(--primary)!important;line-height:1}
-.combo-stat-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+.pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pair-row .card{padding:16px 16px}
+.pair-row .card-lbl{font-size:11px;margin-bottom:10px}
+.pair-row .card-val-lg{font-size:22px}
+.pair-row .card-sub-pct{font-size:10.5px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -342,30 +341,30 @@ function render(){
 
     <div class="two-col-row">
       <div class="col">
-        <div class="combo-card">
-          <div class="combo-stat">
-            <div class="combo-stat-lbl">Total Lahan</div>
-            <div class="combo-stat-val">${fmt(totalHa)} ha</div>
-            ${totalTgt!==null?`<div class="combo-stat-pct">${pctText(totalHa,totalTgt)}</div>`:''}
+        <div class="pair-row">
+          <div class="card">
+            <div class="card-lbl">Total Lahan</div>
+            <div class="card-val-lg">${fmt(totalHa)} ha</div>
+            ${totalTgt!==null?`<div class="card-sub-pct">${pctText(totalHa,totalTgt)}</div>`:''}
           </div>
-          <div class="combo-stat">
-            <div class="combo-stat-lbl">Unik Peserta Program</div>
-            <div class="combo-stat-val">${fmtInt(pesertaTotal)}</div>
+          <div class="card">
+            <div class="card-lbl">Unik Peserta Program</div>
+            <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
           </div>
         </div>
         <p class="page-note">${note1}</p>
       </div>
       <div class="col">
-        <div class="combo-card">
-          <div class="combo-stat">
-            <div class="combo-stat-lbl">Agroforestri</div>
-            <div class="combo-stat-val">${fmt(areas.agro)} ha</div>
-            ${tgt.agro!==null?`<div class="combo-stat-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
+        <div class="pair-row">
+          <div class="card">
+            <div class="card-lbl">Agroforestri</div>
+            <div class="card-val-lg">${fmt(areas.agro)} ha</div>
+            ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
           </div>
-          <div class="combo-stat">
-            <div class="combo-stat-lbl">Tembawang</div>
-            <div class="combo-stat-val">${fmt(areas.temb)} ha</div>
-            ${tgt.temb!==null?`<div class="combo-stat-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
+          <div class="card">
+            <div class="card-lbl">Tembawang</div>
+            <div class="card-val-lg">${fmt(areas.temb)} ha</div>
+            ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
           </div>
         </div>
         <p class="page-note">${note2}</p>
