@@ -66,9 +66,9 @@ body{display:flex;flex-direction:column}
 .hero-link:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4)}
 .hero-date{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
 
-.body-row{flex:1;min-height:0;display:flex}
+.body-row{flex:1;min-height:0;display:flex;align-items:flex-start}
 
-.side-menu{width:92px;flex-shrink:0;border-right:1px solid var(--border);padding:28px 6px;display:flex;flex-direction:column;align-items:center;gap:30px;overflow-y:auto}
+.side-menu{width:84px;flex-shrink:0;align-self:flex-start;margin:20px 0 20px 20px;background:transparent;padding:20px 6px;display:flex;flex-direction:column;align-items:center;gap:26px}
 .side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
 .side-icon{width:22px;height:22px}
 .side-icon svg{width:100%;height:100%;display:block}
@@ -304,7 +304,7 @@ function computePesertaTotal(){
   const all=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
-    if(!r.petani||!str(r.jk).trim())return;
+    if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
     all.add(r.petani.toLowerCase());
   });
   return all.size;
