@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Nursery</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
+  --dark:#3A342C;
+  --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
+  --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 14px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.2);
+}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.site-navbar{
+  flex-shrink:0;
+  height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
+  font-family:'Libre Franklin',system-ui,sans-serif;
+}
+.site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.site-navbar-brand img{width:26px;height:26px;object-fit:contain}
+.site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:#356760}
+.site-navbar-menu{display:flex;gap:32px;justify-self:center}
+.site-navbar-menu a{text-decoration:none;color:#618273;font-size:13px;font-weight:500}
+.site-navbar-menu a:hover,.site-navbar-menu a.active{color:#356760}
+.site-navbar-spacer{justify-self:end}
+@media (max-width:768px){
+  .site-navbar{grid-template-columns:auto auto;padding:0 16px}
+  .site-navbar-menu{gap:14px;justify-self:end}
+  .site-navbar-spacer{display:none}
+}
+
+.dashboard-frame{flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;overflow:hidden;display:flex;flex-direction:column}
+
+.hero{background:var(--dark);color:#fff;padding:14px 0;flex-shrink:0}
+.hero-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.hero-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+.hero-date{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+
+.body-row{flex:1;min-height:0;display:flex}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.side-menu{position:sticky;top:20px;width:84px;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
+.side-icon{font-size:10.5px;font-weight:800;letter-spacing:.2px;line-height:1}
+.side-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;line-height:1.3;color:inherit}
+.side-item:hover{color:var(--primary-md)}
+.side-item.active{color:var(--primary)}
+.side-item.disabled{color:var(--text-3);opacity:.55;cursor:default}
+.side-item.disabled:hover{color:var(--text-3)}
+
+.page-body-inner{flex:1;min-width:0}
+
+.sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
+.sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
+.page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
+
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
+.card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
+.card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
+
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+.cat-card{border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+.cat-name{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.3px;line-height:1.3}
+.cat-dot{flex-shrink:0;width:8px;height:8px;border-radius:50%}
+.cat-count{font-size:18px;font-weight:800;color:var(--text);margin-top:7px}
+.cat-sub{font-size:10px;color:var(--text-3);margin-top:2px}
+
+.toolbar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.search-box{padding:7px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-family:inherit;width:260px;color:var(--text)}
+.search-box:focus{outline:none;border-color:var(--primary-md)}
+.track-meta{font-size:11px;color:var(--text-3)}
+
+.track-wrap{max-height:440px;overflow-y:auto;border:1px solid var(--border);border-radius:12px}
+.track-table{width:100%;border-collapse:collapse}
+.track-table th{position:sticky;top:0;background:#fff;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-3);padding:9px 12px;border-bottom:1px solid var(--border)}
+.track-table td{padding:10px 12px;border-bottom:1px solid var(--border-lt);font-size:12.5px;vertical-align:top}
+.track-table tbody tr:hover{background:var(--primary-bg)}
+.track-id{font-weight:700;color:var(--text);white-space:nowrap}
+.track-jenis{color:var(--text-2);white-space:nowrap}
+.chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.chip{display:inline-flex;flex-direction:column;align-items:flex-start;padding:3px 9px;border-radius:10px;font-size:10.5px;font-weight:600;line-height:1.35;white-space:nowrap}
+.chip-date{font-size:8.5px;font-weight:600;opacity:.7}
+.chip-arrow{color:var(--text-3);font-size:12px}
+
+.loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Nursery</div>
+        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <nav class="side-menu">
+          <a class="side-item" href="planting-summary.html">
+            <span class="side-icon">MP</span>
+            <span class="side-lbl">Main<br>Page</span>
+          </a>
+          <a class="side-item" href="penanaman-program.html">
+            <span class="side-icon">ARR</span>
+            <span class="side-lbl">ARR<br>Program</span>
+          </a>
+          <a class="side-item" href="planting-summary.html#enrichmentSection">
+            <span class="side-icon">ER</span>
+            <span class="side-lbl">Enrichment</span>
+          </a>
+          <a class="side-item active" href="nursery.html">
+            <span class="side-icon">NR</span>
+            <span class="side-lbl">Nursery</span>
+          </a>
+          <span class="side-item disabled">
+            <span class="side-icon">TH</span>
+            <span class="side-lbl">KTH</span>
+          </span>
+        </nav>
+        <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data nursery...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SHEET_ID='1or3IIjtpas5QD8PRAfO8WdhW6iTc-xH7v0B7hNOAF5M',SHEET_NAME='Log';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const str=v=>(v??'').toString().trim();
+const num=v=>{
+  const c=str(v).replace(/,/g,'');
+  const n=parseFloat(c);
+  return isNaN(n)?0:n;
+};
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function pickCI(raw,keys,...names){
+  const norm=s=>s.toString().trim().toLowerCase();
+  const wanted=names.map(norm);
+  for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
+  return undefined;
+}
+function parseDate(s){
+  if(!s)return null;
+  const c=str(s);
+  let m=c.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
+  const d=new Date(c);
+  return isNaN(d)?null:d;
+}
+function fmtDate(d){
+  return d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'—';
+}
+
+async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
+
+// --- Tahapan alur bibit di nursery (mengikuti diagram alur) ---
+// Setiap kategori pada kolom "Category" diklasifikasikan ke salah satu tahap berikut
+// berdasarkan kata kunci, supaya urutannya konsisten dengan alur meski penulisan
+// kategori di sheet sedikit bervariasi.
+const STAGE_DEFS=[
+  {test:n=>n.includes('semai')&&n.includes('mati'),label:'Mati - Semai',order:1.5,fg:'#57606a',bg:'#E7E9EC'},
+  {test:n=>n.includes('rootstock')&&n.includes('mati'),label:'Rootstock Mati',order:5.5,fg:'#57606a',bg:'#E7E9EC'},
+  {test:n=>n.includes('pembesaran')&&n.includes('mati'),label:'Mati - Pembesaran',order:2.5,fg:'#57606a',bg:'#E7E9EC'},
+  {test:n=>n.includes('mati')&&(n.includes('bst')||n.includes('reguler')||n.includes('regular')),label:'Mati - BST Reguler',order:7.5,fg:'#57606a',bg:'#E7E9EC'},
+  {test:n=>n.includes('mati'),label:'Mati (Lainnya)',order:1.6,fg:'#57606a',bg:'#E7E9EC'},
+  {test:n=>n.includes('semai'),label:'Semai Biji',order:1,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('rootstock')&&n.includes('pembesaran'),label:'Pembesaran Rootstock Return',order:4.6,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('rootstock')&&(n.includes('return')||n.includes('retur')),label:'Rootstock Return',order:4.3,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('rootstock')&&n.includes('bst'),label:'BST Rootstock Return',order:6.6,fg:'#6b4fa0',bg:'#EFE7F9'},
+  {test:n=>n.includes('grafting')&&n.includes('pembesaran'),label:'Pembesaran Grafting',order:3.6,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('grafting')&&n.includes('bst'),label:'BST Grafting',order:6.3,fg:'#6b4fa0',bg:'#EFE7F9'},
+  {test:n=>n.includes('grafting'),label:'Grafting',order:3,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('pembesaran'),label:'Pembesaran Reguler',order:2,fg:'#a15c1f',bg:'#FBEBD9'},
+  {test:n=>n.includes('bst'),label:'BST Reguler',order:6,fg:'#6b4fa0',bg:'#EFE7F9'},
+  {test:n=>n.includes('penanaman'),label:'Penanaman',order:8,fg:'#3f7d4e',bg:'#E4F3E7'},
+  {test:n=>n.includes('penyulaman'),label:'Penyulaman',order:9,fg:'#b23a3a',bg:'#FBE6E6'},
+  {test:n=>n.includes('support'),label:'Support',order:10,fg:'#3f7d4e',bg:'#E4F3E7'},
+];
+function classifyCategory(raw){
+  const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
+  if(!n)return{label:'(Tanpa Kategori)',order:98,fg:'#64748b',bg:'#EEF1F4'};
+  for(const s of STAGE_DEFS){if(s.test(n))return s;}
+  return{label:str(raw),order:99,fg:'#64748b',bg:'#EEF1F4'};
+}
+
+let allRows=[],categoryStats=[],seedlingGroups=[],noIdCount=0;
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  allRows=[];
+  data.forEach(raw=>{
+    const keys=Object.keys(raw);
+    const id=str(pickCI(raw,keys,'Unique Seedling Code','Unique_Seedling_Code')||'');
+    const jenis=str(pickCI(raw,keys,'Jenis Tanaman','Jenis_Tanaman')||'');
+    const category=str(pickCI(raw,keys,'Category')||'');
+    const tanggalRaw=pickCI(raw,keys,'Tanggal');
+    const date=parseDate(tanggalRaw);
+    const jumlah=num(pickCI(raw,keys,'Jumlah'));
+    if(!category&&!jenis&&!id)return; // baris benar-benar kosong
+    allRows.push({id,jenis,category,date,jumlah});
+  });
+
+  // Distribusi kategori (dipakai untuk melihat sebaran tahapan saat ini)
+  const catMap={};
+  allRows.forEach(r=>{
+    const cls=classifyCategory(r.category);
+    const key=cls.label;
+    if(!catMap[key])catMap[key]={...cls,count:0,jumlah:0};
+    catMap[key].count+=1;
+    catMap[key].jumlah+=r.jumlah;
+  });
+  categoryStats=Object.values(catMap).sort((a,b)=>a.order-b.order);
+
+  // Riwayat per ID (Unique Seedling Code) — diurutkan berdasarkan Tanggal
+  const idMap={};
+  noIdCount=0;
+  allRows.forEach(r=>{
+    if(!r.id){noIdCount++;return;}
+    if(!idMap[r.id])idMap[r.id]={id:r.id,jenis:r.jenis,entries:[]};
+    if(!idMap[r.id].jenis&&r.jenis)idMap[r.id].jenis=r.jenis;
+    idMap[r.id].entries.push(r);
+  });
+  seedlingGroups=Object.values(idMap).map(g=>{
+    g.entries.sort((a,b)=>{
+      if(a.date&&b.date)return a.date-b.date;
+      if(a.date)return -1;
+      if(b.date)return 1;
+      return 0;
+    });
+    g.lastDate=g.entries.reduce((max,e)=>(e.date&&(!max||e.date>max))?e.date:max,null);
+    return g;
+  }).sort((a,b)=>{
+    if(a.lastDate&&b.lastDate)return b.lastDate-a.lastDate;
+    if(a.lastDate)return -1;
+    if(b.lastDate)return 1;
+    return 0;
+  });
+}
+
+let searchQuery='';
+function onSearch(v){searchQuery=v.toLowerCase().trim();renderTrackTable();}
+
+function renderTrackTable(){
+  const filtered=searchQuery?seedlingGroups.filter(g=>g.id.toLowerCase().includes(searchQuery)||g.jenis.toLowerCase().includes(searchQuery)):seedlingGroups;
+  const rowsHtml=filtered.slice(0,300).map(g=>{
+    const chips=g.entries.map((e,i)=>{
+      const cls=classifyCategory(e.category);
+      const chip=`<span class="chip" style="background:${cls.bg};color:${cls.fg}">${esc(cls.label)}<span class="chip-date">${fmtDate(e.date)}</span></span>`;
+      return i<g.entries.length-1?chip+'<span class="chip-arrow">→</span>':chip;
+    }).join('');
+    return `
+    <tr>
+      <td class="track-id">${esc(g.id)}</td>
+      <td class="track-jenis">${esc(g.jenis)||'—'}</td>
+      <td><div class="chip-row">${chips}</div></td>
+    </tr>`;
+  }).join('');
+  const el=document.getElementById('trackTableBody');
+  if(el)el.innerHTML=rowsHtml||'<tr><td colspan="3" style="text-align:center;color:var(--text-3);padding:24px 0">Tidak ada ID yang cocok</td></tr>';
+  const meta=document.getElementById('trackMeta');
+  if(meta)meta.textContent=`Menampilkan ${Math.min(filtered.length,300)} dari ${filtered.length} ID${filtered.length>300?' (dibatasi 300 teratas)':''}`;
+}
+
+function render(){
+  const catCardsHtml=categoryStats.map(c=>`
+    <div class="cat-card">
+      <div class="cat-name"><span class="cat-dot" style="background:${c.fg}"></span>${esc(c.label)}</div>
+      <div class="cat-count">${fmtInt(c.count)}</div>
+      <div class="cat-sub">${fmtInt(c.jumlah)} bibit</div>
+    </div>
+  `).join('');
+
+  const body=`
+    <div class="sec-title">Nursery</div>
+    <p class="page-note" style="margin-top:0">
+      Melacak perkembangan bibit melalui perubahan kategori pada log (kolom "Category"), diurutkan berdasarkan "Tanggal".
+      Pelacakan per individu memakai "Unique Seedling Code", namun sebagian pencatatan tidak memiliki ID sehingga tidak bisa dirunut per bibit
+      — pencatatan tersebut tetap dihitung pada distribusi kategori di bawah.
+    </p>
+
+    <div class="sub-title">Distribusi Kategori (Tahapan) Saat Ini</div>
+    <div class="cat-grid">${catCardsHtml||'<div class="cat-sub">Tidak ada data kategori</div>'}</div>
+    <p class="page-note">
+      ${fmtInt(noIdCount)} baris log tanpa "Unique Seedling Code" (tidak dapat dilacak per individu, tapi tetap terhitung di atas).
+    </p>
+
+    <div class="sub-title">Riwayat Bibit per ID</div>
+    <div class="toolbar-row">
+      <input class="search-box" type="text" placeholder="Cari ID atau jenis tanaman..." oninput="onSearch(this.value)">
+      <span class="track-meta" id="trackMeta"></span>
+    </div>
+    <div class="track-wrap">
+      <table class="track-table">
+        <thead>
+          <tr>
+            <th style="width:140px">Unique Seedling Code</th>
+            <th style="width:140px">Jenis Tanaman</th>
+            <th>Riwayat Tahapan (berurutan sesuai tanggal)</th>
+          </tr>
+        </thead>
+        <tbody id="trackTableBody"></tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('pageBody').innerHTML=body;
+  renderTrackTable();
+}
+
+(async function boot(){
+  try{
+    document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const csvTxt=await getText(CSV_URL);
+    parseSheet(csvTxt);
+    render();
+  }catch(err){
+    console.error('LOAD ERROR:',err);
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
