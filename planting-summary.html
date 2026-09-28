@@ -74,19 +74,15 @@ body{display:flex;flex-direction:column}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
 .grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
-.two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:8px}
+.two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:8px}
 .two-col-row .page-note{margin:10px 0 0}
 
-.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px}
-.card-lbl{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:14px}
-.card-val-lg{font-size:32px;font-weight:800;color:var(--primary)!important;line-height:1}
-.card-sub-pct{font-size:11px;color:var(--text-2);font-weight:600;margin-top:7px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
+.card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
+.card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
+.card-sub-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
 
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.pair-row .card{padding:16px 16px}
-.pair-row .card-lbl{font-size:11px;margin-bottom:10px}
-.pair-row .card-val-lg{font-size:22px}
-.pair-row .card-sub-pct{font-size:10.5px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -327,7 +323,7 @@ function render(){
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
   const sub=computeSubAreas();
-  const note2=`Luasan program agroforestry tersusun atas ${fmt(sub.aBPOHa)} ha sub program bantuan pupuk organik, dan ${fmt(sub.aRegHa)} ha luasan agroforestry reguler. Sedangkan program tembawang, tersusun atas ${fmt(sub.tMTLHa)} ha sub program menjaga tutupan lahan, dan ${fmt(sub.tRegHa)} ha luasan tembawang reguler.`;
+  const note2=`Luasan program agroforestry tersusun atas ${fmt(sub.aBPOHa)} ha sub program bantuan pupuk organik, dan ${fmt(sub.aRegHa)} ha luasan agroforestry reguler. Sedangkan program reforestasi, tersusun atas ${fmt(sub.tMTLHa)} ha sub program menjaga tutupan lahan, dan ${fmt(sub.tRegHa)} ha luasan reforestasi reguler.`;
 
   const body=`
     <div class="filter-row">
@@ -362,7 +358,7 @@ function render(){
             ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
           </div>
           <div class="card">
-            <div class="card-lbl">Tembawang</div>
+            <div class="card-lbl">Reforestasi</div>
             <div class="card-val-lg">${fmt(areas.temb)} ha</div>
             ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
           </div>
