@@ -51,8 +51,9 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.side-menu-wrap{position:sticky;top:20px;flex-shrink:0;width:22px}
-.menu-toggle{width:22px;height:22px;border-radius:50%;background:transparent;border:2.5px solid var(--text-2);cursor:pointer;padding:0}
+.side-menu-wrap{position:fixed;top:150px;left:24px;z-index:40;width:22px;touch-action:none;user-select:none}
+.menu-toggle{width:22px;height:22px;border-radius:50%;background:transparent;border:2.5px solid var(--text-2);cursor:grab;padding:0}
+.menu-toggle:active{cursor:grabbing}
 .menu-toggle:hover{border-color:var(--primary-md)}
 .side-menu{position:absolute;top:34px;left:0;z-index:30;width:84px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px;box-shadow:0 10px 28px rgba(0,0,0,.14)}
 .side-menu.is-hidden{display:none}
@@ -109,8 +110,8 @@ body{display:flex;flex-direction:column}
   <div class="body-row">
     <div class="page-scroll">
       <div class="content-row">
-        <div class="side-menu-wrap">
-        <button class="menu-toggle" id="menuToggleBtn" onclick="toggleSideMenu()" title="Tampilkan/sembunyikan menu"></button>
+        <div class="side-menu-wrap" id="sideMenuWrap">
+        <button class="menu-toggle" id="menuToggleBtn" onpointerdown="menuPointerDown(event)" title="Klik: tampilkan/sembunyikan. Tahan geser: pindahkan."></button>
         <nav class="side-menu" id="sideMenu">
           <a class="side-item" href="planting-summary.html">
             <span class="side-icon">MP</span>
@@ -180,7 +181,7 @@ function classifyCategory(raw){
     if(n.includes('pembesaran'))return'pembesaran_grafting';
     return'grafting'; 
   }
-  if(n.includes('semai'))return'semai'; 
+  if(n.includes('semai'))return'semai';
   if(n.includes('pembesaran'))return'pembesaran_reguler';
   if(n.includes('bst'))return'bst_reguler';
   return'other';
@@ -224,6 +225,7 @@ function render(){
 }
 
 const MENU_KEY='sanggala_menu_hidden';
+const MENU_POS_KEY='sanggala_menu_pos';
 function isSideMenuHidden(){
   try{ return localStorage.getItem(MENU_KEY)==='1'; }catch(e){ return false; }
 }
@@ -232,13 +234,61 @@ function applySideMenuState(){
   const menu=document.getElementById('sideMenu');
   const btn=document.getElementById('menuToggleBtn');
   if(menu)menu.classList.toggle('is-hidden',hidden);
-  if(btn)btn.title=hidden?'Tampilkan menu':'Sembunyikan menu';
+  if(btn)btn.title=hidden?'Klik: tampilkan menu · Tahan & geser: pindahkan':'Klik: sembunyikan menu · Tahan & geser: pindahkan';
 }
 function toggleSideMenu(){
   const hidden=isSideMenuHidden();
   try{ localStorage.setItem(MENU_KEY,hidden?'0':'1'); }catch(e){}
   applySideMenuState();
 }
+function applySideMenuPosition(){
+  const wrap=document.getElementById('sideMenuWrap');
+  if(!wrap)return;
+  try{
+    const saved=JSON.parse(localStorage.getItem(MENU_POS_KEY)||'null');
+    if(saved&&typeof saved.left==='number'&&typeof saved.top==='number'){
+      wrap.style.left=saved.left+'px';
+      wrap.style.top=saved.top+'px';
+    }
+  }catch(e){}
+}
+let sideMenuDrag=null;
+function menuPointerDown(e){
+  const wrap=document.getElementById('sideMenuWrap');
+  if(!wrap)return;
+  const rect=wrap.getBoundingClientRect();
+  sideMenuDrag={startX:e.clientX,startY:e.clientY,origLeft:rect.left,origTop:rect.top,moved:false};
+  try{e.target.setPointerCapture(e.pointerId);}catch(err){}
+  document.addEventListener('pointermove',menuPointerMove);
+  document.addEventListener('pointerup',menuPointerUp);
+}
+function menuPointerMove(e){
+  if(!sideMenuDrag)return;
+  const dx=e.clientX-sideMenuDrag.startX,dy=e.clientY-sideMenuDrag.startY;
+  if(Math.abs(dx)>4||Math.abs(dy)>4)sideMenuDrag.moved=true;
+  if(!sideMenuDrag.moved)return;
+  const wrap=document.getElementById('sideMenuWrap');
+  if(!wrap)return;
+  let newLeft=sideMenuDrag.origLeft+dx,newTop=sideMenuDrag.origTop+dy;
+  newLeft=Math.max(4,Math.min(window.innerWidth-30,newLeft));
+  newTop=Math.max(4,Math.min(window.innerHeight-30,newTop));
+  wrap.style.left=newLeft+'px';
+  wrap.style.top=newTop+'px';
+}
+function menuPointerUp(){
+  document.removeEventListener('pointermove',menuPointerMove);
+  document.removeEventListener('pointerup',menuPointerUp);
+  if(sideMenuDrag&&sideMenuDrag.moved){
+    const wrap=document.getElementById('sideMenuWrap');
+    if(wrap){
+      try{ localStorage.setItem(MENU_POS_KEY,JSON.stringify({left:parseFloat(wrap.style.left),top:parseFloat(wrap.style.top)})); }catch(e){}
+    }
+  } else {
+    toggleSideMenu();
+  }
+  sideMenuDrag=null;
+}
+applySideMenuPosition();
 applySideMenuState();
 
 (async function boot(){
