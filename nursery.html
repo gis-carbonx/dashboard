@@ -51,11 +51,13 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.side-menu-wrap{position:fixed;top:150px;left:24px;z-index:40;width:22px;touch-action:none;user-select:none}
-.menu-toggle{width:22px;height:22px;border-radius:50%;background:transparent;border:2.5px solid var(--text-2);cursor:grab;padding:0}
-.menu-toggle:active{cursor:grabbing}
+.side-menu-wrap{position:fixed;top:150px;left:24px;z-index:40;width:22px}
+.menu-toggle{width:22px;height:22px;border-radius:50%;background:transparent;border:2.5px solid var(--text-2);cursor:pointer;padding:0}
 .menu-toggle:hover{border-color:var(--primary-md)}
-.side-menu{position:absolute;top:34px;left:0;z-index:30;width:84px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px;box-shadow:0 10px 28px rgba(0,0,0,.14)}
+.side-menu{position:fixed;top:186px;left:24px;z-index:30;width:84px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px 10px 18px;display:flex;flex-direction:column;align-items:center;gap:18px;box-shadow:0 10px 28px rgba(0,0,0,.14);touch-action:none}
+.menu-drag-handle{width:28px;height:6px;border-radius:3px;background:var(--border);cursor:grab;flex-shrink:0;user-select:none}
+.menu-drag-handle:hover{background:var(--primary-lt)}
+.menu-drag-handle:active{cursor:grabbing}
 .side-menu.is-hidden{display:none}
 .side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
 .side-icon{font-size:10.5px;font-weight:800;letter-spacing:.2px;line-height:1}
@@ -111,8 +113,9 @@ body{display:flex;flex-direction:column}
     <div class="page-scroll">
       <div class="content-row">
         <div class="side-menu-wrap" id="sideMenuWrap">
-        <button class="menu-toggle" id="menuToggleBtn" onpointerdown="menuPointerDown(event)" title="Klik: tampilkan/sembunyikan. Tahan geser: pindahkan."></button>
+        <button class="menu-toggle" id="menuToggleBtn" onclick="toggleSideMenu()" title="Tampilkan/sembunyikan menu"></button>
         <nav class="side-menu" id="sideMenu">
+          <div class="menu-drag-handle" onpointerdown="menuPanelPointerDown(event)" title="Tahan &amp; geser untuk memindahkan menu"></div>
           <a class="side-item" href="planting-summary.html">
             <span class="side-icon">MP</span>
             <span class="side-lbl">Main<br>Page</span>
@@ -164,6 +167,12 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
+// --- Klasifikasi kategori (kolom "Category") ---
+// Dipecah lebih rinci karena "Jumlah Tanaman di Nursery" sekarang dihitung sebagai
+// snapshot langsung (jumlah baris pada tahap-tahap tertentu), BUKAN model masuk-keluar.
+// "Semai Biji" dan "Grafting" (bare, bukan Pembesaran/BST Grafting) sengaja TIDAK
+// dihitung sebagai bagian dari stok nursery, begitu juga kategori "Mati" dan kategori
+// output (Penanaman/Penyulaman/Support).
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';
@@ -179,14 +188,19 @@ function classifyCategory(raw){
   if(n.includes('grafting')){
     if(n.includes('bst'))return'bst_grafting';
     if(n.includes('pembesaran'))return'pembesaran_grafting';
-    return'grafting'; 
+    return'grafting'; // Grafting mentah -> tidak dihitung sebagai stok nursery
   }
-  if(n.includes('semai'))return'semai';
+  if(n.includes('semai'))return'semai'; // Semai Biji -> tidak dihitung sebagai stok nursery
   if(n.includes('pembesaran'))return'pembesaran_reguler';
   if(n.includes('bst'))return'bst_reguler';
   return'other';
 }
 
+// "Jumlah Tanaman di Nursery" HANYA dihitung dari 6 kategori tahap ini (persis):
+// Pembesaran - Regular, Pembesaran - Grafting, Pembesaran - Rootstock Return,
+// BST - Regular, BST - Grafting, BST - Rootstock Return.
+// Kategori lain (Semai Biji, Grafting mentah, Rootstock Return mentah, Mati, dan
+// output Penanaman/Penyulaman/Support) TIDAK ikut dihitung.
 const STOCK_INCLUDED=new Set(['pembesaran_reguler','pembesaran_grafting','pembesaran_rootstock_return','bst_reguler','bst_grafting','bst_rootstock_return']);
 
 let totalSemai=0,jumlahDiNursery=0;
@@ -224,8 +238,9 @@ function render(){
   document.getElementById('pageBody').innerHTML=body;
 }
 
+// --- Toggle sidebar menu (on/off); lingkaran diam, panel menu bisa digeser lewat pegangan kecil ---
 const MENU_KEY='sanggala_menu_hidden';
-const MENU_POS_KEY='sanggala_menu_pos';
+const MENU_POS_KEY='sanggala_menu_panel_pos';
 function isSideMenuHidden(){
   try{ return localStorage.getItem(MENU_KEY)==='1'; }catch(e){ return false; }
 }
@@ -234,61 +249,58 @@ function applySideMenuState(){
   const menu=document.getElementById('sideMenu');
   const btn=document.getElementById('menuToggleBtn');
   if(menu)menu.classList.toggle('is-hidden',hidden);
-  if(btn)btn.title=hidden?'Klik: tampilkan menu · Tahan & geser: pindahkan':'Klik: sembunyikan menu · Tahan & geser: pindahkan';
+  if(btn)btn.title=hidden?'Tampilkan menu':'Sembunyikan menu';
 }
 function toggleSideMenu(){
   const hidden=isSideMenuHidden();
   try{ localStorage.setItem(MENU_KEY,hidden?'0':'1'); }catch(e){}
   applySideMenuState();
 }
-function applySideMenuPosition(){
-  const wrap=document.getElementById('sideMenuWrap');
-  if(!wrap)return;
+function applySideMenuPanelPosition(){
+  const menu=document.getElementById('sideMenu');
+  if(!menu)return;
   try{
     const saved=JSON.parse(localStorage.getItem(MENU_POS_KEY)||'null');
     if(saved&&typeof saved.left==='number'&&typeof saved.top==='number'){
-      wrap.style.left=saved.left+'px';
-      wrap.style.top=saved.top+'px';
+      menu.style.left=saved.left+'px';
+      menu.style.top=saved.top+'px';
     }
   }catch(e){}
 }
 let sideMenuDrag=null;
-function menuPointerDown(e){
-  const wrap=document.getElementById('sideMenuWrap');
-  if(!wrap)return;
-  const rect=wrap.getBoundingClientRect();
-  sideMenuDrag={startX:e.clientX,startY:e.clientY,origLeft:rect.left,origTop:rect.top,moved:false};
+function menuPanelPointerDown(e){
+  const menu=document.getElementById('sideMenu');
+  if(!menu)return;
+  const rect=menu.getBoundingClientRect();
+  sideMenuDrag={startX:e.clientX,startY:e.clientY,origLeft:rect.left,origTop:rect.top};
   try{e.target.setPointerCapture(e.pointerId);}catch(err){}
-  document.addEventListener('pointermove',menuPointerMove);
-  document.addEventListener('pointerup',menuPointerUp);
+  document.addEventListener('pointermove',menuPanelPointerMove);
+  document.addEventListener('pointerup',menuPanelPointerUp);
+  e.preventDefault();
 }
-function menuPointerMove(e){
+function menuPanelPointerMove(e){
   if(!sideMenuDrag)return;
+  const menu=document.getElementById('sideMenu');
+  if(!menu)return;
   const dx=e.clientX-sideMenuDrag.startX,dy=e.clientY-sideMenuDrag.startY;
-  if(Math.abs(dx)>4||Math.abs(dy)>4)sideMenuDrag.moved=true;
-  if(!sideMenuDrag.moved)return;
-  const wrap=document.getElementById('sideMenuWrap');
-  if(!wrap)return;
   let newLeft=sideMenuDrag.origLeft+dx,newTop=sideMenuDrag.origTop+dy;
-  newLeft=Math.max(4,Math.min(window.innerWidth-30,newLeft));
-  newTop=Math.max(4,Math.min(window.innerHeight-30,newTop));
-  wrap.style.left=newLeft+'px';
-  wrap.style.top=newTop+'px';
+  newLeft=Math.max(4,Math.min(window.innerWidth-90,newLeft));
+  newTop=Math.max(4,Math.min(window.innerHeight-40,newTop));
+  menu.style.left=newLeft+'px';
+  menu.style.top=newTop+'px';
 }
-function menuPointerUp(){
-  document.removeEventListener('pointermove',menuPointerMove);
-  document.removeEventListener('pointerup',menuPointerUp);
-  if(sideMenuDrag&&sideMenuDrag.moved){
-    const wrap=document.getElementById('sideMenuWrap');
-    if(wrap){
-      try{ localStorage.setItem(MENU_POS_KEY,JSON.stringify({left:parseFloat(wrap.style.left),top:parseFloat(wrap.style.top)})); }catch(e){}
+function menuPanelPointerUp(){
+  document.removeEventListener('pointermove',menuPanelPointerMove);
+  document.removeEventListener('pointerup',menuPanelPointerUp);
+  if(sideMenuDrag){
+    const menu=document.getElementById('sideMenu');
+    if(menu){
+      try{ localStorage.setItem(MENU_POS_KEY,JSON.stringify({left:parseFloat(menu.style.left),top:parseFloat(menu.style.top)})); }catch(e){}
     }
-  } else {
-    toggleSideMenu();
   }
   sideMenuDrag=null;
 }
-applySideMenuPosition();
+applySideMenuPanelPosition();
 applySideMenuState();
 
 (async function boot(){
