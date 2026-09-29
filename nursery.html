@@ -51,7 +51,11 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.side-menu{position:sticky;top:20px;width:84px;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.side-menu-wrap{position:sticky;top:20px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.menu-toggle{width:6px;height:54px;flex-shrink:0;border-radius:4px;border:none;background:var(--border);cursor:pointer;padding:0}
+.menu-toggle:hover{background:var(--primary-md)}
+.side-menu{width:84px;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.side-menu.is-hidden{display:none}
 .side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
 .side-icon{font-size:10.5px;font-weight:800;letter-spacing:.2px;line-height:1}
 .side-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;line-height:1.3;color:inherit}
@@ -105,7 +109,9 @@ body{display:flex;flex-direction:column}
   <div class="body-row">
     <div class="page-scroll">
       <div class="content-row">
-        <nav class="side-menu">
+        <div class="side-menu-wrap">
+        <button class="menu-toggle" id="menuToggleBtn" onclick="toggleSideMenu()" title="Tampilkan/sembunyikan menu"></button>
+        <nav class="side-menu" id="sideMenu">
           <a class="side-item" href="planting-summary.html">
             <span class="side-icon">MP</span>
             <span class="side-lbl">Main<br>Page</span>
@@ -127,6 +133,7 @@ body{display:flex;flex-direction:column}
             <span class="side-lbl">KTH</span>
           </span>
         </nav>
+        </div>
         <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data nursery...</div></div>
       </div>
     </div>
@@ -156,25 +163,36 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// --- Klasifikasi kategori (kolom "Category") ---
-// Dipakai untuk membedakan kategori "Semai" (bibit baru mulai disemai) dari
-// kategori yang berarti bibit sudah keluar dari nursery (ditanam/disulam/support/mati).
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';
-  if(n.includes('mati'))return'exit'; // bibit mati -> keluar dari nursery
-  if(n.includes('penanaman'))return'exit';
-  if(n.includes('penyulaman'))return'exit';
-  if(n.includes('support'))return'exit';
-  if(n.includes('semai'))return'semai';
-  return'internal'; // pembesaran, grafting, BST, rootstock return, dll -> masih di dalam nursery
+  if(n.includes('mati'))return'mati';
+  if(n.includes('penanaman'))return'penanaman';
+  if(n.includes('penyulaman'))return'penyulaman';
+  if(n.includes('support'))return'support';
+  if(n.includes('rootstock')){
+    if(n.includes('bst'))return'bst_rootstock_return';
+    if(n.includes('pembesaran'))return'pembesaran_rootstock_return';
+    return'rootstock_return';
+  }
+  if(n.includes('grafting')){
+    if(n.includes('bst'))return'bst_grafting';
+    if(n.includes('pembesaran'))return'pembesaran_grafting';
+    return'grafting'; 
+  }
+  if(n.includes('semai'))return'semai'; 
+  if(n.includes('pembesaran'))return'pembesaran_reguler';
+  if(n.includes('bst'))return'bst_reguler';
+  return'other';
 }
+
+const STOCK_INCLUDED=new Set(['pembesaran_reguler','pembesaran_grafting','pembesaran_rootstock_return','bst_reguler','bst_grafting','bst_rootstock_return']);
 
 let totalSemai=0,jumlahDiNursery=0;
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  let semai=0,exit=0;
+  let semai=0,stock=0;
   data.forEach(raw=>{
     const keys=Object.keys(raw);
     const category=str(pickCI(raw,keys,'Category')||'');
@@ -182,10 +200,10 @@ function parseSheet(csv){
     if(!category)return;
     const cls=classifyCategory(category);
     if(cls==='semai')semai+=jumlah;
-    else if(cls==='exit')exit+=jumlah;
+    if(STOCK_INCLUDED.has(cls))stock+=jumlah;
   });
   totalSemai=semai;
-  jumlahDiNursery=Math.max(0,semai-exit);
+  jumlahDiNursery=stock;
 }
 
 function render(){
@@ -204,6 +222,24 @@ function render(){
   `;
   document.getElementById('pageBody').innerHTML=body;
 }
+
+const MENU_KEY='sanggala_menu_hidden';
+function isSideMenuHidden(){
+  try{ return localStorage.getItem(MENU_KEY)==='1'; }catch(e){ return false; }
+}
+function applySideMenuState(){
+  const hidden=isSideMenuHidden();
+  const menu=document.getElementById('sideMenu');
+  const btn=document.getElementById('menuToggleBtn');
+  if(menu)menu.classList.toggle('is-hidden',hidden);
+  if(btn)btn.title=hidden?'Tampilkan menu':'Sembunyikan menu';
+}
+function toggleSideMenu(){
+  const hidden=isSideMenuHidden();
+  try{ localStorage.setItem(MENU_KEY,hidden?'0':'1'); }catch(e){}
+  applySideMenuState();
+}
+applySideMenuState();
 
 (async function boot(){
   try{
