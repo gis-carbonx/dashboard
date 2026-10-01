@@ -142,7 +142,7 @@
     .cta-btn:hover{opacity:.88}
 
     .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
-
+    
     .leaflet-container,.leaflet-popup-content,.leaflet-popup-content-wrapper,.leaflet-control,.leaflet-bar a{
       font-family:'Libre Franklin',sans-serif;
     }
@@ -184,6 +184,11 @@
       <div class="year-filter-bar">
         <span class="year-filter-label">Year Filter</span>
         <div class="year-filter-chips" id="yearFilterChips"></div>
+      </div>
+
+      <div class="year-filter-bar">
+        <span class="year-filter-label">Quarter Filter</span>
+        <div class="year-filter-chips" id="quarterFilterChips"></div>
       </div>
 
       <div class="stat-grid">
@@ -339,18 +344,16 @@ function parseDateDMY(s){
   if(!m)return null;
   return toMidnight(+m[3],+m[2]-1,+m[1]);
 }
-
 function parseDateTimeLoose(s){
   s=(s||'').trim();if(!s)return null;
   const [datePart,timePart]=s.split(' ');
   const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!dm)return null; 
+  if(!dm)return null;
   const day=+dm[1],month=+dm[2],year=+dm[3];
   let h=0,mi=0,se=0;
   if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
   return new Date(year,month-1,day,h,mi,se);
 }
-
 function dateKey(d){
   if(!d)return null;
   const pad=n=>String(n).padStart(2,'0');
@@ -395,8 +398,8 @@ function pickFieldExactOrPartial(row,...patterns){
   return undefined;
 }
 
-let patrolEntries=[]; 
-let submissionRows=[];  
+let patrolEntries=[];  
+let submissionRows=[]; 
 let currentYearFilter=null; 
 
 async function loadAll(){
@@ -441,6 +444,7 @@ async function loadAll(){
   document.getElementById('dotHabitat').style.background=BIO_COLORS.habitat;
 
   buildYearChips();
+  buildQuarterChips();
   initIllegalMap();
   initBioMap();
   setupDetailTableClicks();
@@ -473,11 +477,39 @@ function buildYearChips(){
   });
 }
 
+let currentQuarterFilter=null; 
+function getQuarter(date){
+  if(!date)return null;
+  return Math.floor(date.getMonth()/3)+1;
+}
+
+function buildQuarterChips(){
+  const chipsEl=document.getElementById('quarterFilterChips');
+  const quarters=[1,2,3,4];
+  const chipHtml=[`<button type="button" class="year-chip active" data-quarter="all">All</button>`]
+    .concat(quarters.map(q=>`<button type="button" class="year-chip" data-quarter="${q}">Q${q}</button>`));
+  chipsEl.innerHTML=chipHtml.join('');
+  currentQuarterFilter=null;
+
+  chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      chipsEl.querySelectorAll('.year-chip').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentQuarterFilter=btn.dataset.quarter==='all'?null:parseInt(btn.dataset.quarter,10);
+      render();
+    });
+  });
+}
+
 let currentFilteredSubmission=[]; 
 
 function render(){
-  const filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
-  const filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
+  let filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
+  let filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
+  if(currentQuarterFilter!==null){
+    filteredPatrol=filteredPatrol.filter(e=>getQuarter(e.date)===currentQuarterFilter);
+    filteredSubmission=filteredSubmission.filter(r=>getQuarter(r.dateObj)===currentQuarterFilter);
+  }
   currentFilteredSubmission=filteredSubmission;
 
   const patrolDateKeys=new Set(filteredPatrol.map(e=>dateKey(e.date)).filter(Boolean));
@@ -600,14 +632,12 @@ let illegalMapInstance=null;
 let illegalMarkerLayer=null;
 let illegalMapBoundaryReady=false;
 let pendingIllegalPoints=null;
-
 function initIllegalMap(){
   illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
   illegalMapInstance.setView([0.8,110.3],11);
 
-  illegalMarkerLayer=L.layerGroup(); // ditambahkan belakangan supaya render di ATAS batas Project Area
-
+  illegalMarkerLayer=L.layerGroup(); 
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
     const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(illegalMapInstance);
     illegalMarkerLayer.addTo(illegalMapInstance);
