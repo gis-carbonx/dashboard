@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -60,11 +61,23 @@ body{display:flex;flex-direction:column}
 
 .page-body-inner{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;min-height:0}
 
-.stat-row{display:flex;gap:14px;margin-bottom:14px;flex-shrink:0}
+.stat-row{display:flex;gap:14px;margin-bottom:14px;flex-shrink:0;align-items:stretch}
 .stat-card{flex:0 0 190px;width:190px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 14px}
 .stat-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
 .stat-val{font-size:19px;font-weight:700;color:var(--primary);margin-top:3px}
 .stat-sub{font-size:10.5px;color:var(--text-2);margin-top:2px}
+
+.chart-card{flex:1;min-width:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;min-height:78px}
+.chart-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+.chart-card-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.chart-card-legend{display:flex;gap:10px;flex-shrink:0}
+.chart-card-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:var(--text-2)}
+.chart-card-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.chart-expand-btn{width:20px;height:20px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.chart-expand-btn:hover{background:var(--primary-bg);color:var(--primary);border-color:var(--primary-bg)}
+.chart-expand-btn svg{width:11px;height:11px}
+.chart-card-canvas-wrap{flex:1;min-height:0;position:relative;margin-top:2px}
+.chart-empty-note{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--text-3);font-size:10px;text-align:center;padding:0 6px}
 
 .sub-title{font-size:13px;font-weight:700;color:var(--text);margin:0 0 8px;flex-shrink:0}
 .page-note{font-size:10.5px;color:var(--text-2);line-height:1.5;margin:8px 0 0;flex-shrink:0}
@@ -77,6 +90,10 @@ body{display:flex;flex-direction:column}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
 .kth-select{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none}
 .kth-select:focus{border-color:var(--primary)}
+.date-input{padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);outline:none;font-family:inherit}
+.date-input:focus{border-color:var(--primary)}
+.time-picker-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 6px;flex-shrink:0}
+.time-picker-sep{font-size:10.5px;color:var(--text-2)}
 
 .search-input{width:100%;padding:7px 14px;border-radius:20px;border:1px solid var(--border);font-size:11.5px;color:var(--text);background:#fff;outline:none;margin-bottom:8px;flex-shrink:0}
 .search-input:focus{border-color:var(--primary)}
@@ -131,6 +148,21 @@ body{display:flex;flex-direction:column}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,35,50,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.chart-modal{background:#fff;border-radius:16px;width:100%;max-width:760px;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-size:14.5px;font-weight:700;color:var(--text)}
+.modal-sub{font-size:11px;color:var(--text-2);margin-top:3px}
+.modal-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-png{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.btn-png:hover{background:var(--primary-bg);color:var(--primary-md);border-color:var(--primary-bg)}
+.btn-png svg{width:13px;height:13px}
+.modal-close{width:26px;height:26px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;font-size:14px;flex-shrink:0}
+.modal-close:hover{background:var(--primary-bg);color:var(--primary)}
+.modal-body{padding:16px 20px 20px;flex:1;min-height:0;display:flex;flex-direction:column}
+.modal-chart-wrap{flex:1;min-height:360px;position:relative}
+
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
@@ -177,12 +209,35 @@ body{display:flex;flex-direction:column}
           <span class="side-icon">NR</span>
           <span class="side-lbl">Nursery</span>
         </a>
-        <span class="side-item disabled">
+        <a class="side-item" href="kth.html">
           <span class="side-icon">TH</span>
           <span class="side-lbl">KTH</span>
-        </span>
+        </a>
       </nav>
       <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data lahan...</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="chartModal" onclick="if(event.target===this)closeChartModal()">
+  <div class="chart-modal" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title">Pertumbuhan Luasan &amp; Lahan Ditanam</div>
+        <div class="modal-sub">Mengikuti filter yang sedang aktif</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-png" onclick="downloadChartPNG()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG
+        </button>
+        <button type="button" class="modal-close" onclick="closeChartModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-chart-wrap">
+        <canvas id="modalGrowthChart"></canvas>
+        <div class="chart-empty-note" id="modalChartEmpty">Tidak ada data pada rentang/filter ini.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -223,8 +278,20 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
 }
 
 let sheetMap={},agroGeoJSON=null,miniMapInstance=null,activeId=null;
-let searchQuery='',progFilter='all',yearFilter='all',kthFilter='',statusFilter='all';
+let searchQuery='',progFilter='all',kthFilter='',statusFilter='all';
 let years=[],kthNames=[];
+const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// --- Filter Waktu: Semua / Tahun / Bulan / Mingguan / Custom (sama seperti di dashboard planting monitoring) ---
+let timePreset='all',timeYear=null,timeMonth=null,timeWeekYear=null,timeWeekMonth=null,timeWeekIdx=0,timeCustomStart=null,timeCustomEnd=null;
+
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function fmtDShort(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});}
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
@@ -306,10 +373,23 @@ function matchesProg(r,f){
   if(f==='all')return true;
   return r.prog===PROG_FILTER_MAP[f];
 }
-function matchesYear(r,y){
-  if(y==='all')return true;
+function matchesTime(r){
+  if(timePreset==='all')return true;
   const d=parseDate(r.tglPartisipasi);
-  return d&&d.getFullYear()===+y;
+  if(!d)return false;
+  if(timePreset==='year')return timeYear!=null&&d.getFullYear()===timeYear;
+  if(timePreset==='month')return timeYear!=null&&timeMonth!=null&&d.getFullYear()===timeYear&&d.getMonth()===timeMonth;
+  if(timePreset==='week'){
+    if(timeWeekYear==null||timeWeekMonth==null)return false;
+    const wk=getWeeksInMonth(timeWeekYear,timeWeekMonth)[timeWeekIdx];
+    return wk?(d>=wk.sat&&d<=wk.fri):false;
+  }
+  if(timePreset==='custom'){
+    if(timeCustomStart&&d<timeCustomStart)return false;
+    if(timeCustomEnd&&d>timeCustomEnd)return false;
+    return true;
+  }
+  return true;
 }
 function matchesKTH(r,k){
   if(!k)return true;
@@ -322,7 +402,7 @@ function matchesStatus(r,f){
 
 function getFilteredRows(){
   const q=searchQuery.trim().toLowerCase();
-  return Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter)&&matchesYear(r,yearFilter)&&matchesKTH(r,kthFilter)&&matchesStatus(r,statusFilter));
+  return Object.values(sheetMap).filter(r=>matchesSearch(r,q)&&matchesProg(r,progFilter)&&matchesTime(r)&&matchesKTH(r,kthFilter)&&matchesStatus(r,statusFilter));
 }
 
 function renderList(){
@@ -334,6 +414,8 @@ function renderList(){
   if(!rows.length){
     listEl.innerHTML='<div class="lahan-empty">Tidak ada lahan yang cocok.</div>';
     closeDetail();
+    renderStats();
+    renderGrowthChart();
     return;
   }
   listEl.innerHTML=rows.map(r=>{
@@ -359,36 +441,205 @@ function renderList(){
   // kalau lahan yang sedang aktif sudah tidak ada di hasil filter, tutup panel detail
   if(activeId&&!rows.some(r=>r.id===activeId))closeDetail();
   renderStats();
+  renderGrowthChart();
 }
 
 function computeStats(){
   const rows=getFilteredRows();
   let luasTotal=0,tanamanTotal=0,luasTertanam=0;
+  const petaniSet=new Set();
   rows.forEach(r=>{
     const st=PROG[r.prog];
     const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
     luasTotal+=luas;
     tanamanTotal+=r.jumlahTanaman;
     if(r.jumlahTanaman>0)luasTertanam+=luas;
+    if(r.petani&&r.petani.trim())petaniSet.add(r.petani.trim().toLowerCase());
   });
-  return{luasTotal,tanamanTotal,luasTertanam};
+  return{luasTotal,tanamanTotal,luasTertanam,petaniTotal:petaniSet.size};
+}
+
+// --- Grafik Pertumbuhan Luasan & Lahan Ditanam (kumulatif per bulan, dari lahan yang lolos filter aktif) ---
+let miniChartInstance=null,modalChartInstance=null,lastGrowthData=null;
+
+function computeGrowthSeries(rows){
+  const pts=rows.map(r=>({d:parseDate(r.tglPartisipasi),r})).filter(p=>p.d);
+  if(!pts.length)return null;
+  pts.sort((a,b)=>a.d-b.d);
+  const first=pts[0].d,last=pts[pts.length-1].d;
+  const months=[];
+  let cur=new Date(first.getFullYear(),first.getMonth(),1);
+  const endM=new Date(last.getFullYear(),last.getMonth(),1);
+  while(cur<=endM){months.push({y:cur.getFullYear(),m:cur.getMonth()});cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
+  const key=(y,m)=>y+'-'+m;
+  const bucketLuas=new Map(),bucketTanam=new Map();
+  months.forEach(({y,m})=>{bucketLuas.set(key(y,m),0);bucketTanam.set(key(y,m),0);});
+  pts.forEach(({d,r})=>{
+    const k=key(d.getFullYear(),d.getMonth());
+    const st=PROG[r.prog];const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
+    bucketLuas.set(k,(bucketLuas.get(k)||0)+luas);
+    if(r.jumlahTanaman>0)bucketTanam.set(k,(bucketTanam.get(k)||0)+luas);
+  });
+  let runL=0,runT=0;
+  const labels=[],luasTotal=[],luasTanam=[];
+  months.forEach(({y,m})=>{
+    const k=key(y,m);
+    runL+=bucketLuas.get(k)||0;
+    runT+=bucketTanam.get(k)||0;
+    labels.push(new Date(y,m,1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}));
+    luasTotal.push(+runL.toFixed(2));
+    luasTanam.push(+runT.toFixed(2));
+  });
+  return{labels,luasTotal,luasTanam};
+}
+
+function renderGrowthChart(){
+  const data=computeGrowthSeries(getFilteredRows());
+  lastGrowthData=data;
+  const canvas=document.getElementById('miniGrowthChart');
+  const empty=document.getElementById('miniChartEmpty');
+  if(!canvas)return;
+  if(!data){
+    if(miniChartInstance){miniChartInstance.destroy();miniChartInstance=null;}
+    if(empty)empty.style.display='flex';
+  }else{
+    if(empty)empty.style.display='none';
+    if(miniChartInstance)miniChartInstance.destroy();
+    miniChartInstance=new Chart(canvas,{
+      type:'line',
+      data:{labels:data.labels,datasets:[
+        {data:data.luasTotal,borderColor:'#356760',backgroundColor:'rgba(53,103,96,.1)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+        {data:data.luasTanam,borderColor:'#b84c00',backgroundColor:'rgba(184,76,0,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{display:false},tooltip:{enabled:false}},
+        scales:{x:{display:false},y:{display:false}}
+      }
+    });
+  }
+  const modal=document.getElementById('chartModal');
+  if(modal&&modal.classList.contains('open'))renderModalChart();
+}
+
+function openChartModal(){
+  document.getElementById('chartModal').classList.add('open');
+  setTimeout(renderModalChart,30);
+}
+function closeChartModal(){
+  document.getElementById('chartModal').classList.remove('open');
+}
+function renderModalChart(){
+  const data=lastGrowthData;
+  const canvas=document.getElementById('modalGrowthChart');
+  const empty=document.getElementById('modalChartEmpty');
+  if(!canvas)return;
+  if(!data){
+    if(modalChartInstance){modalChartInstance.destroy();modalChartInstance=null;}
+    if(empty)empty.style.display='flex';
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(modalChartInstance)modalChartInstance.destroy();
+  modalChartInstance=new Chart(canvas,{
+    type:'line',
+    data:{labels:data.labels,datasets:[
+      {label:'Luas Total',data:data.luasTotal,borderColor:'#356760',backgroundColor:'rgba(53,103,96,.12)',fill:true,tension:.3,pointRadius:2,borderWidth:2},
+      {label:'Luas Ditanam',data:data.luasTanam,borderColor:'#b84c00',backgroundColor:'rgba(184,76,0,.1)',fill:true,tension:.3,pointRadius:2,borderWidth:2},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:true,position:'top',align:'start',labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle',font:{size:11},color:'#64748b'}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`}}
+      },
+      scales:{
+        x:{ticks:{font:{size:10.5},color:'#64748b'},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{font:{size:10.5},color:'#64748b',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}
+      }
+    }
+  });
+}
+function downloadChartPNG(){
+  if(!modalChartInstance){alert('Grafik belum siap.');return;}
+  const canvas=document.getElementById('modalGrowthChart');
+  const bg=Object.assign(document.createElement('canvas'),{width:canvas.width,height:canvas.height});
+  const ctx=bg.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,bg.width,bg.height);ctx.drawImage(canvas,0,0);
+  const a=document.createElement('a');
+  a.href=bg.toDataURL('image/png');
+  a.download='Grafik_Pertumbuhan_Luasan_Lahan_Ditanam.png';
+  a.click();
 }
 function renderStats(){
   const s=computeStats();
   const luasEl=document.getElementById('statLuasVal');
   const tanamanEl=document.getElementById('statTanamanVal');
   const tanamanSubEl=document.getElementById('statTanamanSub');
+  const petaniEl=document.getElementById('statPetaniVal');
   if(luasEl)luasEl.textContent=fmt(s.luasTotal)+' ha';
   if(tanamanEl)tanamanEl.textContent=fmtInt(s.tanamanTotal)+' tanaman';
   if(tanamanSubEl)tanamanSubEl.textContent=fmt(s.luasTertanam)+' ha tertanam';
+  if(petaniEl)petaniEl.textContent=fmtInt(s.petaniTotal)+' petani';
 }
 
 function setProgFilter(f){progFilter=f;syncPillActive('progFilters',f);renderList();}
-function setYearFilter(y){yearFilter=y;syncPillActive('yearFilters',y);renderList();}
 function setKTHFilter(v){kthFilter=v;renderList();}
 function setStatusFilter(f){statusFilter=f;syncPillActive('statusFilters',f);renderList();}
 function syncPillActive(wrapId,val){
   document.querySelectorAll(`#${wrapId} .fpill`).forEach(b=>b.classList.toggle('active',b.dataset.val===String(val)));
+}
+
+// --- Waktu: preset + picker (Tahun/Bulan/Minggu/Custom), mengikuti pola di dashboard planting monitoring ---
+function populateTimeFilterOptions(){
+  const curYear=new Date().getFullYear();
+  const yrList=years.length?years:[curYear];
+  const fill=id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=yrList.map(y=>`<option value="${y}">${y}</option>`).join('');
+    el.value=String(yrList.includes(curYear)?curYear:yrList[yrList.length-1]);
+  };
+  fill('timeYearSel');fill('timeMonthYearSel');fill('timeWeekYearSel');
+  const monthOpts=MN.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const mSel=document.getElementById('timeMonthSel');if(mSel){mSel.innerHTML=monthOpts;mSel.value=String(new Date().getMonth());}
+  const wmSel=document.getElementById('timeWeekMonthSel');if(wmSel){wmSel.innerHTML=monthOpts;wmSel.value=String(new Date().getMonth());}
+  populateWeekOptions();
+}
+function populateWeekOptions(){
+  const sel=document.getElementById('timeWeekSel');
+  const yEl=document.getElementById('timeWeekYearSel'),mEl=document.getElementById('timeWeekMonthSel');
+  if(!sel||!yEl||!mEl)return;
+  const yr=+yEl.value,mo=+mEl.value;
+  const weeks=getWeeksInMonth(yr,mo);
+  sel.innerHTML=weeks.map((w,i)=>`<option value="${i}">${w.label} (${fmtDShort(w.sat)}–${fmtDShort(w.fri)})</option>`).join('');
+  const now=new Date();let best=0;weeks.forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  sel.value=String(best);
+}
+function setTimePreset(p){
+  timePreset=p;
+  document.querySelectorAll('#timePresetFilters .fpill').forEach(b=>b.classList.toggle('active',b.dataset.val===p));
+  ['year','month','week','custom'].forEach(k=>{
+    const el=document.getElementById('timePicker'+k[0].toUpperCase()+k.slice(1));
+    if(el)el.style.display=(p===k)?'flex':'none';
+  });
+  const row=document.getElementById('timePickerRow');
+  if(row)row.style.display=(p==='all')?'none':'flex';
+  onTimePickerChange();
+}
+function onTimePickerChange(){
+  if(timePreset==='year'){
+    timeYear=+( document.getElementById('timeYearSel')?.value||new Date().getFullYear());
+  }else if(timePreset==='month'){
+    timeYear=+( document.getElementById('timeMonthYearSel')?.value||new Date().getFullYear());
+    timeMonth=+( document.getElementById('timeMonthSel')?.value||0);
+  }else if(timePreset==='week'){
+    timeWeekYear=+( document.getElementById('timeWeekYearSel')?.value||new Date().getFullYear());
+    timeWeekMonth=+( document.getElementById('timeWeekMonthSel')?.value||0);
+    timeWeekIdx=+( document.getElementById('timeWeekSel')?.value||0);
+  }else if(timePreset==='custom'){
+    const s=document.getElementById('timeCustomStart')?.value||'';
+    const e=document.getElementById('timeCustomEnd')?.value||'';
+    timeCustomStart=s?new Date(s+'T00:00:00'):null;
+    timeCustomEnd=e?new Date(e+'T23:59:59'):null;
+  }
+  renderList();
 }
 
 function openDetail(id){
@@ -473,15 +724,57 @@ function renderPage(){
         <div class="stat-val" id="statTanamanVal">—</div>
         <div class="stat-sub" id="statTanamanSub">— ha tertanam</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Jumlah Petani</div>
+        <div class="stat-val" id="statPetaniVal">—</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-hd">
+          <div class="chart-card-lbl">Pertumbuhan Luasan</div>
+          <div class="chart-card-legend">
+            <span class="chart-card-legend-item"><span class="chart-card-legend-dot" style="background:#356760"></span>Luas</span>
+            <span class="chart-card-legend-item"><span class="chart-card-legend-dot" style="background:#b84c00"></span>Ditanam</span>
+            <button type="button" class="chart-expand-btn" onclick="openChartModal()" title="Lihat grafik lebih besar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="chart-card-canvas-wrap">
+          <canvas id="miniGrowthChart"></canvas>
+          <div class="chart-empty-note" id="miniChartEmpty">Belum ada data.</div>
+        </div>
+      </div>
     </div>
 
     <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
 
     <div class="filter-group">
-      <span class="filter-lbl">Tahun</span>
-      <div class="explore-filters" id="yearFilters">
-        <button type="button" class="fpill active" data-val="all" onclick="setYearFilter('all')">Semua</button>
-        ${years.map(y=>`<button type="button" class="fpill" data-val="${y}" onclick="setYearFilter('${y}')">${y}</button>`).join('')}
+      <span class="filter-lbl">Waktu</span>
+      <div class="explore-filters" id="timePresetFilters">
+        <button type="button" class="fpill active" data-val="all" onclick="setTimePreset('all')">Semua</button>
+        <button type="button" class="fpill" data-val="year" onclick="setTimePreset('year')">Tahun</button>
+        <button type="button" class="fpill" data-val="month" onclick="setTimePreset('month')">Bulan</button>
+        <button type="button" class="fpill" data-val="week" onclick="setTimePreset('week')">Mingguan</button>
+        <button type="button" class="fpill" data-val="custom" onclick="setTimePreset('custom')">Custom</button>
+      </div>
+    </div>
+    <div class="time-picker-row" id="timePickerRow" style="display:none">
+      <div id="timePickerYear" style="display:none">
+        <select class="kth-select" id="timeYearSel" onchange="onTimePickerChange()"></select>
+      </div>
+      <div id="timePickerMonth" style="display:none;gap:8px" class="explore-filters">
+        <select class="kth-select" id="timeMonthSel" onchange="onTimePickerChange()"></select>
+        <select class="kth-select" id="timeMonthYearSel" onchange="onTimePickerChange()"></select>
+      </div>
+      <div id="timePickerWeek" style="display:none;gap:8px" class="explore-filters">
+        <select class="kth-select" id="timeWeekMonthSel" onchange="populateWeekOptions();onTimePickerChange()"></select>
+        <select class="kth-select" id="timeWeekYearSel" onchange="populateWeekOptions();onTimePickerChange()"></select>
+        <select class="kth-select" id="timeWeekSel" onchange="onTimePickerChange()"></select>
+      </div>
+      <div id="timePickerCustom" style="display:none;gap:8px;align-items:center" class="explore-filters">
+        <input type="date" class="date-input" id="timeCustomStart" onchange="onTimePickerChange()">
+        <span class="time-picker-sep">s/d</span>
+        <input type="date" class="date-input" id="timeCustomEnd" onchange="onTimePickerChange()">
       </div>
     </div>
     <div class="filter-group">
@@ -539,8 +832,10 @@ function renderPage(){
     </div>
   `;
   document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderList();});
+  populateTimeFilterOptions();
   renderList();
 }
+
 
 (async function boot(){
   try{
