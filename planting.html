@@ -512,6 +512,7 @@ body{display:flex;flex-direction:column}
       <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="load-txt" id="loadTxt">Menginisialisasi...</div>
+        <button class="btn-detail-pot" id="loadRetryBtn" style="display:none;margin-top:14px" onclick="location.reload()">Coba Lagi</button>
       </div>
     </div>
   </div>
@@ -1230,8 +1231,21 @@ function getActiveEnrTarget(){
   return{enp:null,enl:null};
 }
 
-async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+" "+u);return r.text();}
-async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+" "+u);return r.json();}
+const FETCH_TIMEOUT_MS=25000;
+async function fetchWithTimeout(u,opts={}){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),FETCH_TIMEOUT_MS);
+  try{
+    return await fetch(u,{...opts,signal:ctrl.signal});
+  }catch(e){
+    if(e.name==='AbortError')throw Error('Waktu tunggu habis (>' + (FETCH_TIMEOUT_MS/1000) + 's) saat mengambil data. Periksa koneksi internet atau coba lagi.');
+    throw e;
+  }finally{
+    clearTimeout(timer);
+  }
+}
+async function getText(u){const r=await fetchWithTimeout(u);if(!r.ok)throw Error(r.status+" "+u);return r.text();}
+async function getJSON(u){const r=await fetchWithTimeout(u);if(!r.ok)throw Error(r.status+" "+u);return r.json();}
 
 (async function boot(){
   try{
@@ -1446,4 +1460,1005 @@ function updateFilterInfo(n){
 function calcStats(ids){
   let tA=0,tT=0,tENP=0,tENL=0;
   const uniq=new Set(),laki=new Set(),pmp=new Set();
-  const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new
+  const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new Set();
+  let aRegDisp=0,aBPODisp=0,tRegDisp=0,tMTLDisp=0;
+  ids.forEach(id=>{
+    const r=sheetMap[id];if(!r)return;
+    if(parseDate(r.tglPartisipasi)){tA+=r.luasAgroAT;tT+=r.luasTembAU;}
+    if(parseDate(r.tglPartisipasi)){tENP+=r.luasENP;tENL+=r.luasENL;}
+    aRegDisp+=r.aReg;
+    aBPODisp+=r.aBPO;
+    tRegDisp+=r.tReg;
+    tMTLDisp+=r.tMTL;
+    if(r.petani){
+      const pk=r.petani.toLowerCase();
+      if(str(r.jk).trim()){
+        uniq.add(pk);
+        if(r.jk.toLowerCase().includes('laki'))laki.add(pk);else if(r.jk.toLowerCase().includes('perempuan'))pmp.add(pk);
+      }
+      if(r.aReg>0)pAR.add(pk);if(r.aBPO>0)pAB.add(pk);if(r.tReg>0)pTR.add(pk);if(r.tMTL>0)pTM.add(pk);
+    }
+  });
+  const tR=tA+tT,tgt=getActiveTarget(),tgtEnr=getActiveEnrTarget();
+
+  ['sWeekAcc','sAgroWeekAcc','sTembWeekAcc','sEnrWeekAcc'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='';el.style.display='none';}});
+  if(currentPreset==='week'){
+    const wk=getSelectedWeek();
+    if(wk){
+      const yr=wk.fri.getFullYear(),mo=wk.fri.getMonth();
+      const acc=rowsInMonth(yr,mo).filter(r=>{const d=parseDate(r.tglPartisipasi);return d&&d<=wk.fri;});
+      const setAcc=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=`akumulasi bulan ${MN[mo]} ${fmt(v)} ha`;el.style.display='block';}};
+      setAcc('sWeekAcc',  acc.reduce((s,r)=>s+r.luasAgroAT+r.luasTembAU,0));
+      setAcc('sAgroWeekAcc',acc.reduce((s,r)=>s+r.luasAgroAT,0));
+      setAcc('sTembWeekAcc',acc.reduce((s,r)=>s+r.luasTembAU,0));
+      setAcc('sEnrWeekAcc',acc.reduce((s,r)=>s+r.luasENP+r.luasENL,0));
+    }
+  }
+
+  function setTgtUI(pctId,barId,tgtId,riId,real,tgtVal){
+    let dispReal=real;
+    if(currentPreset==='week'){
+      const wk=getSelectedWeek();
+      if(wk){
+        const acc=rowsInMonth(wk.fri.getFullYear(),wk.fri.getMonth()).filter(r=>{const d=parseDate(r.tglPartisipasi);return d&&d<=wk.fri;});
+        if(pctId==='sTotalPct')dispReal=acc.reduce((s,r)=>s+r.luasAgroAT+r.luasTembAU,0);
+        else if(pctId==='sAgroPct')dispReal=acc.reduce((s,r)=>s+r.luasAgroAT,0);
+        else if(pctId==='sTembPct')dispReal=acc.reduce((s,r)=>s+r.luasTembAU,0);
+        else if(pctId==='sEnrPct')dispReal=acc.reduce((s,r)=>s+r.luasENP+r.luasENL,0);
+      }
+    }
+    const ri=document.getElementById(riId);
+    if(tgtVal!==null&&tgtVal>0){
+      const p=Math.min(999,dispReal/tgtVal*100);
+      document.getElementById(pctId).textContent=p.toFixed(1)+'% dari target';
+      let lbl='';
+      if(currentPreset==='month')lbl=`Target ${MN[filterMonth]} ${filterYear}: ${fmt(tgtVal)} ha`;
+      else if(currentPreset==='year')lbl=`Target ${filterYear}: ${fmt(tgtVal)} ha`;
+      else if(currentPreset==='ytd')lbl=`Target ${new Date().getFullYear()}: ${fmt(tgtVal)} ha`;
+      else if(currentPreset==='week'){const wk=getSelectedWeek();lbl=wk?`Target ${MN[wk.fri.getMonth()]} ${wk.fri.getFullYear()}: ${fmt(tgtVal)} ha`:`Target: ${fmt(tgtVal)} ha`;}
+      else lbl=`Target dari awal: ${fmt(tgtVal)} ha`;
+      document.getElementById(tgtId).textContent=lbl;
+      if(ri)ri.style.display='flex';
+      document.getElementById(barId).style.width=Math.min(100,p).toFixed(1)+'%';
+    }else{if(ri)ri.style.display='none';document.getElementById(barId).style.width='0%';}
+  }
+
+  setText('sTotalHa',fmt(tR)+' ha');setText('sTotalAgroSub',fmt(tA)+' ha');setText('sTotalTembSub',fmt(tT)+' ha');
+  setTgtUI('sTotalPct','sProgBar','sTotalTarget','sTotalRightInfo',tR,(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null);
+  setText('sAgroHa',fmt(tA)+' ha');setText('sAgroRegHa',fmt(aRegDisp)+' ha');setText('sAgroRegPetani',pAR.size?pAR.size+' petani':'');
+  setText('sAgroBPOHa',fmt(aBPODisp)+' ha');setText('sAgroBPOPetani',pAB.size?pAB.size+' petani':'');
+  setTgtUI('sAgroPct','sAgroProgBar','sAgroTarget','sAgroRightInfo',tA,tgt.agro);
+  setText('sTembHa',fmt(tT)+' ha');setText('sTembRegHa',fmt(tRegDisp)+' ha');setText('sTembRegPetani',pTR.size?pTR.size+' petani':'');
+  setText('sTembMTLHa',fmt(tMTLDisp)+' ha');setText('sTembMTLPetani',pTM.size?pTM.size+' petani':'');
+  setTgtUI('sTembPct','sTembProgBar','sTembTarget','sTembRightInfo',tT,tgt.temb);
+  setText('sAnggota',uniq.size);setText('sLaki','L: '+laki.size);setText('sPmp','P: '+pmp.size);
+
+  const tEnr=tENP+tENL;
+  setText('sEnrTotalHa',fmt(tEnr)+' ha');
+  setText('sENPHa',fmt(tENP)+' ha');
+  setText('sENLHa',fmt(tENL)+' ha');
+  setTgtUI('sEnrPct','sEnrProgBar','sEnrTarget','sEnrRightInfo',tEnr,(tgtEnr.enp!==null&&tgtEnr.enl!==null)?tgtEnr.enp+tgtEnr.enl:null);
+  lastDisp={aBPO:aBPODisp,tReg:tRegDisp,tMTL:tMTLDisp,pBPO:pAB.size,pTReg:pTR.size,pMTL:pTM.size};
+}
+
+const SEYE=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const STBL=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`;
+const SVON=SEYE;
+const SVOF=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-5.07 5.93"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+const SLNK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`;
+
+function renderKTHList(ids){
+  const kf={};
+  ids.forEach(id=>{
+    const r=sheetMap[id];if(!r)return;
+    if(!kf[r.kth])kf[r.kth]={agro:0,temb:0,count:0,desa:r.desa};
+    kf[r.kth].agro+=r.luasAgro;kf[r.kth].temb+=r.luasTemb;kf[r.kth].count++;
+  });
+  const list=Object.entries(kf).map(([n,v])=>({name:n,agro:v.agro,temb:v.temb,count:v.count,desa:v.desa})).sort((a,b)=>(b.agro+b.temb)-(a.agro+a.temb));
+  setText('kthCount',list.length);
+  const el=document.getElementById('kthList');
+  if(!list.length){el.innerHTML='<div class="empty-state">Tidak ada data</div>';return;}
+  el.innerHTML=list.map(k=>{
+    const on=kthVis[k.name]!==false;
+    return `<div class="kth-card${on?'':' hidden-kth'}" data-kth="${esc(k.name)}">
+      <div class="kth-card-top">
+        <div class="kth-info"><div class="kth-nm">${esc(k.name)}</div><div class="kth-ds">${esc(k.desa)} · ${k.count} petak</div></div>
+        <div class="kth-actions">
+          <button class="kth-btn" onclick="zoomKTH('${esc(k.name)}')">${SEYE}</button>
+          <button class="kth-btn" onclick="openKTH('${esc(k.name)}')">${STBL}</button>
+          <button class="kth-btn ${on?'vis-on':'vis-off'}" id="visbtn-${esc(k.name)}" onclick="toggleKTHVis('${esc(k.name)}')">${on?SVON:SVOF}</button>
+        </div>
+      </div>
+      <div class="kth-pills">
+        <div class="pill a"><div class="pl">Agroforestri</div><div class="pv">${fmt(k.agro)} ha</div></div>
+        <div class="pill t"><div class="pl">Reforestasi</div><div class="pv">${fmt(k.temb)} ha</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleKTHVis(name){
+  kthVis[name]=kthVis[name]===false;
+  const on=kthVis[name]!==false;
+  const ids=new Set(Object.values(sheetMap).filter(r=>rowInRange(r)).map(r=>r.id));
+  Object.entries(featureMap).forEach(([id,e])=>{
+    if(e.row.kth!==name)return;
+    const lg=PROG[e.row.prog].group==='agro'?lgAgro:lgTemb;
+    ids.has(id)&&on?(!lg.hasLayer(e.layer)&&lg.addLayer(e.layer)):(lg.hasLayer(e.layer)&&lg.removeLayer(e.layer));
+  });
+  const card=document.querySelector(`.kth-card[data-kth="${name}"]`);if(card)card.classList.toggle('hidden-kth',!on);
+  const btn=document.getElementById('visbtn-'+name);if(btn){btn.className=`kth-btn ${on?'vis-on':'vis-off'}`;btn.innerHTML=on?SVON:SVOF;}
+}
+function zoomKTH(name){
+  document.querySelectorAll('.kth-card').forEach(e=>e.classList.remove('active'));
+  const c=document.querySelector(`.kth-card[data-kth="${name}"]`);
+  if(c){c.classList.add('active');c.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  if(kthBounds[name])map.fitBounds(kthBounds[name].pad(0.22));
+}
+
+function showDetail(id){
+  const e=featureMap[id];if(!e)return;
+  const row=e.row,st=PROG[row.prog];
+  if(selectedLahanId&&selectedLahanId!==id&&featureMap[selectedLahanId])featureMap[selectedLahanId].layer.setStyle({weight:2,fillOpacity:.75});
+  selectedLahanId=id;e.layer.setStyle({weight:3.5,fillOpacity:.92});e.layer.bringToFront();
+  document.getElementById('detailDot').style.background=st.dot;
+  document.getElementById('detailName').textContent='Informasi Lahan';
+  const detailIdEl=document.getElementById('detailId');
+  detailIdEl.textContent=row.id;detailIdEl.style.display='inline-block';
+  document.getElementById('detailCloseBtn').style.display='grid';
+  const bi=document.getElementById('detailProgBadgeInner');
+  document.getElementById('detailProgBadge').style.display='block';
+  bi.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${st.dot};flex-shrink:0;margin-right:4px"></span>${esc(st.label)}`;
+  const tP=fmtDate(row.tglPartisipasi),tR=fmtDate(row.tglRealisasi);
+  const ds=tP||tR?`<div class="d-block"><div class="d-block-ttl">Tanggal</div>${tP?`<div class="d-row"><span class="d-lbl">Partisipasi</span><span class="d-val">${tP}</span></div>`:''} ${tR?`<div class="d-row"><span class="d-lbl">Realisasi</span><span class="d-val">${tR}</span></div>`:''}</div>`:'';
+  const cb=row.tanamanKarbon>0?`<div class="d-block"><div class="d-block-ttl">Tanaman Karbon</div><div class="d-carbon-block"><div class="d-carbon-val">${fmtInt(row.tanamanKarbon)}</div><div class="d-carbon-lbl">Jumlah Tanaman Sekuritas Carbon</div></div></div>`:'';
+  const pd=[row.aReg>0?`<div class="d-row"><span class="d-lbl">Agro Reguler</span><span class="d-val">${fmt(row.aReg)} ha</span></div>`:'',row.aBPO>0?`<div class="d-row"><span class="d-lbl">Agro BPO</span><span class="d-val">${fmt(row.aBPO)} ha</span></div>`:'',row.tReg>0?`<div class="d-row"><span class="d-lbl">Reforestasi</span><span class="d-val">${fmt(row.tReg)} ha</span></div>`:'',row.tMTL>0?`<div class="d-row"><span class="d-lbl">Temb. MTL</span><span class="d-val">${fmt(row.tMTL)} ha</span></div>`:'' ].filter(Boolean).join('');
+  const enr=(row.luasENP>0||row.luasENL>0)?`<div class="d-block"><div class="d-block-ttl">Program Enrichment</div>${row.luasENP>0?`<div class="d-row"><span class="d-lbl">ENP (Protected Area)</span><span class="d-val">${fmt(row.luasENP)} ha</span></div>`:''}${row.luasENL>0?`<div class="d-row"><span class="d-lbl">ENL (Logged Over Area)</span><span class="d-val">${fmt(row.luasENL)} ha</span></div>`:''}</div>`:'';
+  const lk=row.link?`<div class="d-block"><div class="d-block-ttl">Dokumen</div><div class="d-row"><span class="d-lbl">Link</span><a href="${esc(row.link)}" target="_blank" style="font-size:11px;font-weight:600;color:var(--primary-md);text-decoration:none">Buka Dokumen ↗</a></div></div>`:'';
+  document.getElementById('detailContent').innerHTML=`
+    <div class="d-block"><div class="d-block-ttl">Luas Lahan</div><div style="padding:5px 0"><span class="d-luas">${fmt(row.luas)}</span><span class="d-luas-unit">ha</span></div></div>
+    ${cb}${ds}
+    <div class="d-block"><div class="d-block-ttl">Petani</div><div class="d-row"><span class="d-lbl">Nama</span><span class="d-val">${esc(row.petani)||'—'}</span></div><div class="d-row"><span class="d-lbl">Jenis Kelamin</span><span class="d-val">${esc(row.jk||'—')}</span></div></div>
+    <div class="d-block"><div class="d-block-ttl">Lokasi</div><div class="d-row"><span class="d-lbl">KTH</span><span class="d-val">${esc(row.kth)||'—'}</span></div><div class="d-row"><span class="d-lbl">Desa</span><span class="d-val">${esc(row.desa)||'—'}</span></div>${row.grid?`<div class="d-row"><span class="d-lbl">Grid</span><span class="d-val mono">${esc(row.grid)}</span></div>`:''}</div>
+    ${pd?`<div class="d-block"><div class="d-block-ttl">Rincian Program</div>${pd}</div>`:''}${enr}${lk}`;
+  document.getElementById('detailEmpty').style.display='none';
+  document.getElementById('detailContent').style.display='block';
+}
+function clearDetail(){
+  if(selectedLahanId&&featureMap[selectedLahanId])featureMap[selectedLahanId].layer.setStyle({weight:2,fillOpacity:.75});
+  selectedLahanId=null;
+  document.getElementById('detailDot').style.background='var(--primary)';
+  document.getElementById('detailName').textContent='Informasi Lahan';
+  const detailIdEl=document.getElementById('detailId');
+  detailIdEl.textContent='';detailIdEl.style.display='none';
+  document.getElementById('detailCloseBtn').style.display='none';
+  document.getElementById('detailProgBadge').style.display='none';
+  document.getElementById('detailEmpty').style.display='flex';
+  document.getElementById('detailContent').style.display='none';
+}
+
+function openKTH(name,ids){
+  const master=kthMaster[name];if(!master)return;
+  currentKTH=name;
+  if(!ids)ids=new Set(Object.values(sheetMap).filter(r=>rowInRange(r)).map(r=>r.id));
+  const rows=Object.values(sheetMap).filter(r=>r.kth===name&&ids.has(r.id));
+  document.querySelectorAll('.kth-card').forEach(e=>e.classList.remove('active'));
+  const c=document.querySelector(`.kth-card[data-kth="${name}"]`);if(c){c.classList.add('active');c.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  const a=rows.reduce((s,r)=>s+r.luasAgro,0),t=rows.reduce((s,r)=>s+r.luasTemb,0);
+  const ps=new Set(rows.map(r=>r.petani.toLowerCase()));
+  setText('modalTitle',name);setText('modalSub',`${master.desa} · ${rows.length} lahan · ${ps.size} petani`);
+  document.getElementById('modalStats').innerHTML=
+    [['Total Lahan',fmt(a+t)+' ha'],['Agroforestri',fmt(a)+' ha'],['Reforestasi',fmt(t)+' ha'],['Petani',ps.size],['Petak',rows.length]]
+    .map(([l,v])=>`<div class="strip-card"><div class="strip-lbl">${l}</div><div class="strip-val">${v}</div></div>`).join('');
+  document.getElementById('modalSearchInput').value='';document.getElementById('modalProgFilter').value='';
+  document.getElementById('noResults').style.display='none';setText('modalRowCount',rows.length+' lahan');
+  document.getElementById('modalTbody').innerHTML=rows.map((r,i)=>{
+    const st=PROG[r.prog],hasLink=r.link?.startsWith('http');
+    return `<tr data-petani="${esc(r.petani.toLowerCase())}" data-prog="${esc(st?.tagCls||'')}">
+      <td style="color:var(--text-3);font-size:11px">${i+1}</td>
+      <td style="padding:6px 4px"><button class="row-eye-btn" onclick="zoomToLahan('${esc(r.id)}')">${SEYE}</button></td>
+      <td style="padding:6px 4px">${hasLink?`<a class="row-link-btn" href="${esc(r.link)}" target="_blank">${SLNK}</a>`:`<span class="row-link-btn no-link">${SLNK}</span>`}</td>
+      <td style="font-family:'Libre Franklin',monospace;font-size:11px">${esc(r.id)}</td>
+      <td>${esc(r.petani)}</td><td>${esc(r.desa)}</td>
+      <td><span class="prog-tag ${st?.tagCls||''}">${esc(st?.label||r.prog)}</span></td>
+      <td style="font-weight:600">${fmt(r.luas)}</td>
+      <td style="color:var(--text-2)">${fmtDate(r.tglPartisipasi)||'—'}</td>
+      <td style="color:var(--text-2)">${fmtDate(r.tglRealisasi)||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('kthModal').style.display='flex';
+}
+
+function filterTableRows(tbodyId,noResultsId,countId,countSuffix,filters){
+  let v=0;
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr=>{
+    const show=filters.every(({key,value})=>!value||(tr.dataset[key]||'').includes(value));
+    tr.classList.toggle('hidden-row',!show);if(show)v++;
+  });
+  setText(countId,v+countSuffix);
+  document.getElementById(noResultsId).style.display=v===0?'block':'none';
+}
+function filterModalTable(){
+  filterTableRows('modalTbody','noResults','modalRowCount',' lahan',[
+    {key:'petani',value:document.getElementById('modalSearchInput').value.toLowerCase().trim()},
+    {key:'prog',value:document.getElementById('modalProgFilter').value.toLowerCase().trim()},
+  ]);
+}
+
+function closeKTHModal(){closeModal('kthModal');}
+function zoomToLahan(id){
+  const e=featureMap[id];if(!e)return;
+  try{map.fitBounds(L.geoJSON(e.feature).getBounds().pad(0.5));}catch(ex){}
+  showDetail(id);closeModal('kthModal');
+}
+
+function getKTHRows(){
+  if(!currentKTH)return[];
+  const ids=new Set(Object.values(sheetMap).filter(r=>rowInRange(r)).map(r=>r.id));
+  return Object.values(sheetMap).filter(r=>r.kth===currentKTH&&ids.has(r.id));
+}
+
+function makePDF(orient,hdr,body,title,sub,fname){
+  if(!window.jspdf){alert('Library PDF belum dimuat.');return;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:orient,unit:'pt',format:'a4'});
+  pdfHeader(doc,title,sub);
+  doc.autoTable({head:[hdr],body,startY:60,styles:{fontSize:8,cellPadding:4},headStyles:{fillColor:[53,103,96],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[248,250,252]}});
+  doc.save(fname);
+}
+
+async function makeWord(orient,title,sub,hdr,body,fname){
+  if(!docx){alert('Library docx belum dimuat.');return;}
+  const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign}=docx;
+  const libObj={Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign};
+  const isLandscape=orient==='landscape';
+  const sectionProps=isLandscape?{page:{size:{width:20160,height:12240},margin:{top:720,right:720,bottom:720,left:720},orientation:'landscape'}}:{properties:{page:{margin:{top:720,right:720,bottom:720,left:720}}}};
+  const doc=new Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{
+    ...(isLandscape?{properties:sectionProps}:sectionProps),
+    children:[
+      new Paragraph({children:[new TextRun({text:title,bold:true,size:32,color:'356760',font:'Arial'})]}),
+      new Paragraph({children:[new TextRun({text:sub,size:18,color:'64748B',font:'Arial'})]}),
+      new Paragraph({children:[new TextRun({text:''})]}),
+      wordTable(libObj,hdr,body)
+    ]
+  }]});
+  try{const blob=await Packer.toBlob(doc);dlBlob(blob,fname);}catch(e){alert('Gagal membuat Word.');}
+}
+
+function downloadCSV(){
+  const rows=getKTHRows();if(!rows.length)return;
+  const hdr=['No','ID Lahan','Grid','Nama Petani','KTH','Desa','Tipe','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi','Link Dokumen'];
+  dlCSV([hdr,...rows.map((r,i)=>[i+1,r.id,r.grid,r.petani,r.kth,r.desa,r.tipe,PROG[r.prog]?.label||r.prog,r.luas,r.tglPartisipasi,r.tglRealisasi,r.link||''])],`KTH_${currentKTH.replace(/\s+/g,'_')}.csv`);
+}
+function downloadKTHExcel(){
+  const rows=getKTHRows();if(!rows.length){alert('Tidak ada data.');return;}
+  if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
+  const hdr=['No','ID Lahan','Grid','Nama Petani','KTH','Desa','Tipe','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi','Link Dokumen'];
+  const body=rows.map((r,i)=>[i+1,r.id,r.grid,r.petani,r.kth,r.desa,r.tipe,PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),r.tglPartisipasi,r.tglRealisasi,r.link||'']);
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...body]);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');
+  XLSX.writeFile(wb,`KTH_${currentKTH.replace(/\s+/g,'_')}.xlsx`);
+}
+function downloadKTHPDF(){
+  const rows=getKTHRows();if(!rows.length){alert('Tidak ada data.');return;}
+  makePDF('landscape',['No','ID Lahan','Nama Petani','Desa','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi'],
+    rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,PROG[r.prog]?.label||r.prog,fmt(r.luas),fmtDate(r.tglPartisipasi)||'—',fmtDate(r.tglRealisasi)||'—']),
+    currentKTH,rows.length,`KTH_${currentKTH.replace(/\s+/g,'_')}.pdf`);
+}
+async function downloadKTHWord(){
+  const rows=getKTHRows();if(!rows.length){alert('Tidak ada data.');return;}
+  const sub=`PT Citra Mulia Inti | ${rows.length} lahan | ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;
+  await makeWord('portrait',currentKTH,sub,
+    ['No','ID Lahan','Nama Petani','Desa','Program','Luas (ha)','Tgl Partisipasi','Tgl Realisasi'],
+    rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,PROG[r.prog]?.label||r.prog,fmt(r.luas),fmtDate(r.tglPartisipasi)||'—',fmtDate(r.tglRealisasi)||'—']),
+    `KTH_${currentKTH.replace(/\s+/g,'_')}.docx`);
+}
+
+function openCapaianModal(){
+  document.getElementById('cpModal').style.display='flex';
+  if(!followUpData.length){document.getElementById('cpEmpty').textContent='Tidak ada data follow-up.';return;}
+  const setOpts=(id,arr)=>{document.getElementById(id).innerHTML='<option value="">Semua</option>'+arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');};
+  setOpts('cpSelDesa',[...new Set(followUpData.map(r=>r.desa).filter(Boolean))].sort());
+  setOpts('cpSelTahun',[...new Set(followUpData.map(r=>r.tahunUpdate).filter(Boolean))].sort((a,b)=>a-b));
+  setOpts('cpSelStatus',[...new Set(followUpData.map(r=>r.status).filter(Boolean))].sort());
+  document.getElementById('cpSearch').value='';document.getElementById('cpSelMinat').value='';document.getElementById('cpSelStatus').value='';
+  setText('cpSub',`${followUpData.length} petani terdaftar`);document.getElementById('cpEmpty').style.display='none';
+  runCPFilter();
+}
+function closeCPModal(){closeModal('cpModal');}
+
+function runCPFilter(){
+  const q=document.getElementById('cpSearch').value.toLowerCase().trim();
+  const desa=$v('cpSelDesa'),tahun=$v('cpSelTahun')?+$v('cpSelTahun'):null;
+  const minat=$v('cpSelMinat'),status=$v('cpSelStatus');
+  const rows=followUpData.filter(r=>{
+    if(q&&!r.nama.toLowerCase().includes(q))return false;
+    if(desa&&r.desa!==desa)return false;
+    if(tahun!==null&&r.tahunUpdate!==tahun)return false;
+    if(minat&&!r.minatKelas.includes(minat))return false;
+    if(status&&r.status!==status)return false;
+    return true;
+  });
+  cpFilteredRows=rows;cpActiveMinat=minat;
+  renderCPStrip(rows,minat);renderCPTable(rows,minat);
+}
+
+function renderCPStrip(filtRows,mf){
+  let totAR=0,totBPO=0,totTR=0,totMTL=0;
+  followUpData.forEach(r=>{totAR+=r.pot_agr_reg||0;totBPO+=r.pot_bpo||0;totTR+=r.pot_tbw||0;totMTL+=r.pot_mtl||0;});
+  let fAR=0,fBPO=0,fTR=0,fMTL=0;
+  filtRows.forEach(r=>{fAR+=r.pot_agr_reg||0;fBPO+=r.pot_bpo||0;fTR+=r.pot_tbw||0;fMTL+=r.pot_mtl||0;});
+  const hasF=filtRows.length!==followUpData.length;
+  const fAll=fAR+fBPO+fTR+fMTL,totAll=totAR+totBPO+totTR+totMTL;
+  const sc=(vId,sId,fv,tv)=>{setText(vId,fmt(fv)+' ha');setText(sId,hasF?`dari ${fmt(tv)} ha total`:'ha potensi');};
+  sc('csAR','csARsub',fAR,totAR);sc('csBPO','csBPOsub',fBPO,totBPO);sc('csTR','csTRsub',fTR,totTR);sc('csMTL','csMTLsub',fMTL,totMTL);
+  setText('csTotal',fmt(fAll)+' ha');setText('csTotalsub',hasF?`dari ${fmt(totAll)} ha keseluruhan`:'ha keseluruhan');
+}
+
+function renderCPTable(rows,mf){
+  const vk=mf?[mf]:Object.keys(CP_CLASS);
+  document.getElementById('cpThead').innerHTML=`<tr><th style="width:26px">No</th><th>Nama Petani</th><th>Desa</th><th>Dusun</th><th>Minat Program</th>${vk.map(k=>`<th>Est. ${CP_CLASS[k].short}</th><th>Ukur ${CP_CLASS[k].short}</th><th>Pot. ${CP_CLASS[k].short}</th>`).join('')}<th>Tgl Update</th><th>Status</th></tr>`;
+  setText('cpCount',rows.length+' petani');
+  if(!rows.length){document.getElementById('cpTbody').innerHTML='';document.getElementById('cpNoResults').style.display='block';return;}
+  document.getElementById('cpNoResults').style.display='none';
+  document.getElementById('cpTbody').innerHTML=rows.map((r,i)=>{
+    const mh=r.minatKelas.length?r.minatKelas.map(k=>`<span class="mtag">${CP_CLASS[k].short}</span>`).join(''):`<span class="mtag">${esc(r.minat)||'—'}</span>`;
+    return `<tr><td style="color:#94a3b8;font-size:10px">${i+1}</td><td style="font-weight:600;white-space:nowrap">${esc(r.nama)}</td><td>${esc(r.desa)}</td><td>${esc(r.dusun)||'—'}</td><td>${mh}</td>${vk.map(k=>{const d=CP_CLASS[k];return nc(r[d.fEst])+nc(r[d.fUkur])+nc(r[d.fPot]);}).join('')}<td style="color:#64748b;font-size:10px;white-space:nowrap">${esc(r.tgl_update)||'—'}</td><td>${stag(r.status)}</td></tr>`;
+  }).join('');
+}
+const nc=v=>v===null||v===undefined?`<td class="nil">—</td>`:`<td class="num">${fmtHa(v)}</td>`;
+const stag=s=>{const v=(s||'').toLowerCase();let st='background:#f1f5f9;color:#1a2332';if(v.includes('sudah'))st='background:#dcfce7;color:#166534';else if(v.includes('belum'))st='background:#fef2f2;color:#991b1b';else if(v.includes('proses')||v.includes('dalam'))st='background:#fef9c3;color:#854d0e';return`<span class="stag" style="${st}">${esc(s)||'—'}</span>`;};
+
+function getCPData(){
+  const vk=cpActiveMinat?[cpActiveMinat]:Object.keys(CP_CLASS);
+  const hdr=['No','Nama Petani','Desa','Dusun','Minat',...vk.flatMap(k=>[`Est. ${CP_CLASS[k].short}`,`Ukur ${CP_CLASS[k].short}`,`Pot. ${CP_CLASS[k].short}`]),'Tgl Update','Status'];
+  const body=cpFilteredRows.map((r,i)=>[i+1,r.nama,r.desa,r.dusun||'—',r.minatKelas.length?r.minatKelas.map(k=>CP_CLASS[k].short).join(' · '):(r.minat||'—'),...vk.flatMap(k=>{const d=CP_CLASS[k];return[r[d.fEst]!=null?fmtHa(r[d.fEst]):'—',r[d.fUkur]!=null?fmtHa(r[d.fUkur]):'—',r[d.fPot]!=null?fmtHa(r[d.fPot]):'—'];}),r.tgl_update||'—',r.status||'—']);
+  const suffix=(($v('cpSelDesa')?'_'+$v('cpSelDesa'):'')+($v('cpSelTahun')?'_'+$v('cpSelTahun'):'')).replace(/\s+/g,'_');
+  return{vk,hdr,body,suffix};
+}
+function downloadCPCSV(){
+  if(!cpFilteredRows.length){alert('Tidak ada data.');return;}
+  const {hdr,body,suffix}=getCPData();
+  dlCSV([hdr,...body],`Capaian_Progres${suffix}.csv`);
+}
+function downloadCPPDF(){
+  if(!cpFilteredRows.length){alert('Tidak ada data.');return;}
+  const {hdr,body,suffix}=getCPData();
+  makePDF('landscape',hdr,body,'Capaian Progres Petani',cpFilteredRows.length,`Capaian_Progres${suffix}.pdf`);
+}
+async function downloadCPWord(){
+  if(!cpFilteredRows.length){alert('Tidak ada data.');return;}
+  const {hdr,body,suffix}=getCPData();
+  const sub=`PT Citra Mulia Inti | ${cpFilteredRows.length} petani | ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;
+  await makeWord('landscape','CAPAIAN PROGRES PETANI',sub,hdr,body,`Capaian_Progres${suffix}.docx`);
+}
+
+let enrChartInst=null,enrChartTab='bulanan';
+
+function getEnrRows(){
+  const ids=new Set(Object.values(sheetMap).filter(r=>rowInRange(r)).map(r=>r.id));
+  return Object.values(sheetMap).filter(r=>ids.has(r.id)&&(r.luasENP>0||r.luasENL>0));
+}
+function getEnrRowsForYear(yr){
+  return Object.values(sheetMap).filter(r=>{
+    if(!(r.luasENP>0||r.luasENL>0))return false;
+    const d=parseDate(r.tglPartisipasi);
+    if(!d)return false;
+    if(yr==='all'||!yr)return true;
+    return d.getFullYear()===+yr;
+  });
+}
+function currentEnrYear(){
+  return enrChartTab==='mingguan'?$v('enrChartWeekYear'):$v('enrChartYear');
+}
+function getEnrModalTarget(yrSel){
+  if(yrSel==='all'||!yrSel){
+    let enp=0,enl=0,found=false;
+    Object.values(targetData).forEach(td=>{enp+=td.enp_utama||0;enl+=td.enl_utama||0;found=true;});
+    return found?{enp,enl}:{enp:null,enl:null};
+  }
+  const td=targetData[+yrSel];
+  return td?{enp:td.enp_utama??null,enl:td.enl_utama??null}:{enp:null,enl:null};
+}
+function refreshEnrStrip(){
+  const yr=currentEnrYear();
+  renderEnrStrip(getEnrRowsForYear(yr),yr);
+}
+
+function openEnrichmentModal(){
+  populateEnrChartYear();
+  enrChartTab='bulanan';
+  document.getElementById('enrTabBulanan').classList.add('active');
+  document.getElementById('enrTabMingguan').classList.remove('active');
+  document.getElementById('enrToolbarBulanan').style.display='flex';
+  document.getElementById('enrToolbarMingguan').style.display='none';
+  renderEnrChart();
+  refreshEnrStrip();
+  document.getElementById('enrModal').style.display='flex';
+}
+
+function switchEnrChartTab(tab){
+  enrChartTab=tab;
+  document.getElementById('enrTabBulanan').classList.toggle('active',tab==='bulanan');
+  document.getElementById('enrTabMingguan').classList.toggle('active',tab==='mingguan');
+  document.getElementById('enrToolbarBulanan').style.display=tab==='bulanan'?'flex':'none';
+  document.getElementById('enrToolbarMingguan').style.display=tab==='mingguan'?'flex':'none';
+  if(tab==='mingguan')populateEnrWeekYear();
+  renderEnrChart();
+  refreshEnrStrip();
+}
+function onEnrWeekYearChange(){renderEnrChart();refreshEnrStrip();}
+function populateEnrWeekYear(){
+  const sel=document.getElementById('enrChartWeekYear');
+  if(sel.options.length)return;
+  const yrs=[...new Set(Object.values(sheetMap).map(r=>parseDate(r.tglPartisipasi)).filter(Boolean).map(d=>d.getFullYear()))].sort();
+  const cur=new Date().getFullYear();
+  sel.innerHTML=yrs.map(y=>`<option value="${y}"${y===cur?' selected':''}>${y}</option>`).join('');
+  document.getElementById('enrChartWeekMonth').value=new Date().getMonth();
+}
+
+function renderEnrStrip(rows,yrSel){
+  const tENP=rows.reduce((s,r)=>s+r.luasENP,0),tENL=rows.reduce((s,r)=>s+r.luasENL,0);
+  setText('enrStripENP',fmt(tENP)+' ha');
+  setText('enrStripENL',fmt(tENL)+' ha');
+
+  const tgt=getEnrModalTarget(yrSel);
+  const setEnrTgtUI=(pctId,barId,tgtId,riId,real,tgtVal)=>{
+    const ri=document.getElementById(riId);
+    if(tgtVal!==null&&tgtVal>0){
+      const p=Math.min(999,real/tgtVal*100);
+      document.getElementById(pctId).textContent=p.toFixed(1)+'% dari target';
+      const yLbl=(yrSel==='all'||!yrSel)?'Semua Tahun':yrSel;
+      document.getElementById(tgtId).textContent=`Target ${yLbl}: ${fmt(tgtVal)} ha`;
+      if(ri)ri.style.display='flex';
+      document.getElementById(barId).style.width=Math.min(100,p).toFixed(1)+'%';
+    }else{
+      if(ri)ri.style.display='none';
+      document.getElementById(barId).style.width='0%';
+    }
+  };
+  setEnrTgtUI('enrENPPct','enrENPProgBar','enrENPTarget','enrENPRightInfo',tENP,tgt.enp);
+  setEnrTgtUI('enrENLPct','enrENLProgBar','enrENLTarget','enrENLRightInfo',tENL,tgt.enl);
+
+  let enpTReg=0,enpBPO=0,enpMTL=0,enlTReg=0,enlMTL=0;
+  const pENP_TR=new Set(),pENP_BPO=new Set(),pENP_MTL=new Set(),pENL_TR=new Set(),pENL_MTL=new Set();
+  rows.forEach(r=>{
+    const pk=r.petani?.toLowerCase();
+    if(r.luasENP>0){
+      const pengkayaanENP=r.luasENP-r.aBPO-r.tMTL;
+      enpTReg+=pengkayaanENP;enpBPO+=r.aBPO;enpMTL+=r.tMTL;
+      if(pk){if(pengkayaanENP>0)pENP_TR.add(pk);if(r.aBPO>0)pENP_BPO.add(pk);if(r.tMTL>0)pENP_MTL.add(pk);}
+    }else if(r.luasENL>0){
+      const pengkayaanENL=r.luasENL-r.tMTL;
+      enlTReg+=pengkayaanENL;enlMTL+=r.tMTL;
+      if(pk){if(pengkayaanENL>0)pENL_TR.add(pk);if(r.tMTL>0)pENL_MTL.add(pk);}
+    }
+  });
+
+  setText('enrENP_TR',fmt(enpTReg)+' ha');
+  setText('enrENP_TR_p',pENP_TR.size+' petani');
+  setText('enrENP_BPO',fmt(enpBPO)+' ha');
+  setText('enrENP_BPO_p',pENP_BPO.size+' petani');
+  setText('enrENP_MTL',fmt(enpMTL)+' ha');
+  setText('enrENP_MTL_p',pENP_MTL.size+' petani');
+  setText('enrENL_TR',fmt(enlTReg)+' ha');
+  setText('enrENL_TR_p',pENL_TR.size+' petani');
+  setText('enrENL_MTL',fmt(enlMTL)+' ha');
+  setText('enrENL_MTL_p',pENL_MTL.size+' petani');
+}
+
+function populateEnrChartYear(){
+  const yrs=[...new Set(Object.values(sheetMap).map(r=>parseDate(r.tglPartisipasi)).filter(Boolean).map(d=>d.getFullYear()))].sort();
+  const sel=document.getElementById('enrChartYear');
+  const cur=new Date().getFullYear();
+  sel.innerHTML=yrs.map(y=>`<option value="${y}"${y===cur?' selected':''}>${y}</option>`).join('')+'<option value="all">Semua Tahun</option>';
+  if(!yrs.includes(cur)&&yrs.length)sel.value=yrs[yrs.length-1];
+}
+
+function renderEnrChart(){
+  let labels,dENP,dENL,title;
+  if(enrChartTab==='mingguan'){
+    const yr=+$v('enrChartWeekYear'),mo=+$v('enrChartWeekMonth'),weeks=getWeeksInMonth(yr,mo);
+    dENP=weeks.map(()=>0);dENL=weeks.map(()=>0);
+    Object.values(sheetMap).forEach(r=>{
+      const d=parseDate(r.tglPartisipasi);if(!d)return;
+      weeks.forEach((wk,i)=>{if(d>=wk.sat&&d<=wk.fri){dENP[i]+=r.luasENP;dENL[i]+=r.luasENL;}});
+    });
+    labels=weeks.map((w,i)=>`Mgg ke-${i+1} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})`);
+    title=`Perkembangan Program Enrichment Mingguan — ${MN[mo]} ${yr}`;
+  }else{
+    const yrSel=$v('enrChartYear');
+    dENP=Array(12).fill(0);dENL=Array(12).fill(0);
+    Object.values(sheetMap).forEach(r=>{
+      const d=parseDate(r.tglPartisipasi);if(!d)return;
+      if(yrSel!=='all'&&d.getFullYear()!==+yrSel)return;
+      const m=d.getMonth();dENP[m]+=r.luasENP;dENL[m]+=r.luasENL;
+    });
+    labels=MN;
+    title=yrSel==='all'?`Perkembangan Program Enrichment Bulanan — Semua Tahun`:`Perkembangan Program Enrichment Bulanan — Tahun ${yrSel}`;
+  }
+  if(enrChartInst){enrChartInst.destroy();enrChartInst=null;}
+  enrChartInst=new Chart(document.getElementById('enrChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'ENP (Protected Area)',data:dENP.map(v=>+v.toFixed(2)),backgroundColor:'#0ea5e9',borderRadius:4,barPercentage:.7},
+      {label:'ENL (Logged Over Area)',data:dENL.map(v=>+v.toFixed(2)),backgroundColor:'#f59e0b',borderRadius:4,barPercentage:.7},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#1a2332',padding:{bottom:12}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`,footer:items=>{const t=items.reduce((s,i)=>s+i.parsed.y,0);return t>0?`Total: ${t.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`:'';}}}
+      },
+      scales:{x:{ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
+    }
+  });
+}
+function downloadEnrGrafikPNG(){
+  if(!enrChartInst){alert('Grafik belum siap.');return;}
+  const canvas=document.getElementById('enrChart');
+  const bg=Object.assign(document.createElement('canvas'),{width:canvas.width,height:canvas.height});
+  const ctx=bg.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,bg.width,bg.height);ctx.drawImage(canvas,0,0);
+  const fname=enrChartTab==='bulanan'?`Grafik_Enrichment_Bulanan_${$v('enrChartYear')}.png`:`Grafik_Enrichment_Mingguan_${MN[+$v('enrChartWeekMonth')]}_${$v('enrChartWeekYear')}.png`;
+  dlA(bg.toDataURL('image/png'),fname);
+}
+
+function closeGrafikModal(){closeModal('grafikModal');}
+function switchGrafikTab(tab){
+  grafikTab=tab;
+  ['bulanan','mingguan'].forEach(t=>{
+    document.getElementById('gTab'+cap(t)).classList.toggle('active',t===tab);
+    document.getElementById('gToolbar'+cap(t)).style.display=t===tab?'flex':'none';
+  });
+  setTimeout(()=>renderGrafik(),30);
+}
+function destroyChart(){if(grafikChart){grafikChart.destroy();grafikChart=null;}}
+function downloadGrafikPNG(){
+  if(!grafikChart){alert('Grafik belum siap.');return;}
+  const canvas=document.getElementById('grafikChart');
+  const bg=Object.assign(document.createElement('canvas'),{width:canvas.width,height:canvas.height});
+  const ctx=bg.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,bg.width,bg.height);ctx.drawImage(canvas,0,0);
+  const fname=grafikTab==='bulanan'?`Grafik_Bulanan_${$v('gBulananYear')}.png`:`Grafik_Mingguan_${MN[+$v('gMingguanMonth')]}_${$v('gMingguanYear')}.png`;
+  dlA(bg.toDataURL('image/png'),fname);
+}
+
+function renderGrafik(){
+  let labels,dA,dT,title;
+  if(grafikTab==='bulanan'){
+    const yr=+$v('gBulananYear');
+    dA=Array(12).fill(0);dT=Array(12).fill(0);
+    Object.values(sheetMap).forEach(r=>{const d=parseDate(r.tglPartisipasi);if(!d||d.getFullYear()!==yr)return;const m=d.getMonth();dA[m]+=r.luasAgro;dT[m]+=r.luasTemb;});
+    labels=MN;title=`Realisasi Partisipasi Bulanan — Tahun ${yr}`;
+  }else{
+    const yr=+$v('gMingguanYear'),mo=+$v('gMingguanMonth'),weeks=getWeeksInMonth(yr,mo);
+    dA=weeks.map(()=>0);dT=weeks.map(()=>0);
+    Object.values(sheetMap).forEach(r=>{const d=parseDate(r.tglPartisipasi);if(!d)return;weeks.forEach((wk,i)=>{if(d>=wk.sat&&d<=wk.fri){dA[i]+=r.luasAgro;dT[i]+=r.luasTemb;}});});
+    labels=weeks.map((w,i)=>`Mgg ke-${i+1} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})`);
+    title=`Realisasi Partisipasi Mingguan — ${MN[mo]} ${yr}`;
+  }
+  destroyChart();
+  grafikChart=new Chart(document.getElementById('grafikChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Agroforestri',data:dA.map(v=>+v.toFixed(2)),backgroundColor:'#2d7a55',borderRadius:4,barPercentage:.7},
+      {label:'Reforestasi',   data:dT.map(v=>+v.toFixed(2)),backgroundColor:'#b84c00',borderRadius:4,barPercentage:.7},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#1a2332',padding:{bottom:12}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`,footer:items=>{const t=items.reduce((s,i)=>s+i.parsed.y,0);return t>0?`Total: ${t.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`:'';}}
+      }},
+      scales:{x:{stacked:false,ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
+    }
+  });
+}
+function renderGrafikBulanan(){renderGrafik();}
+function renderGrafikMingguan(){renderGrafik();}
+
+function buildInsData(){
+  insRawData=[];
+  _rawRows.forEach(raw=>{
+    const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');
+    if(!id||!sheetMap[id])return;
+    const keys2=Object.keys(raw),row=sheetMap[id];
+    const stages={};
+    INS_STAGES.forEach(s=>{
+      const byName=str(raw[s.key]||raw[s.label]||'');
+      const byIdx=keys2[s.idx]?str(raw[keys2[s.idx]]):'';
+      stages[s.key]=byName||byIdx;
+    });
+    insRawData.push({...row,stages});
+  });
+}
+
+let insActiveView='reguler';
+let insShowNominal=false;
+
+function closeInsentifModal(){closeModal('insentifModal');}
+
+function toggleNominal(){
+  insShowNominal=!insShowNominal;
+  const btn=document.getElementById('insNominalToggle');
+  btn.textContent='Nominal: '+(insShowNominal?'ON':'OFF');
+  btn.classList.toggle('active',insShowNominal);
+  buildInsThead(insFilteredRows);buildInsTbody(insFilteredRows);filterInsentifTable();
+}
+
+function switchInsView(view){
+  insActiveView=view;
+  document.getElementById('insViewReg').classList.toggle('active',view==='reguler');
+  document.getElementById('insViewThn').classList.toggle('active',view==='tahunan');
+  document.getElementById('insToolbarReg').style.display=view==='reguler'?'flex':'none';
+  document.getElementById('insToolbarThn').style.display=view==='tahunan'?'flex':'none';
+  document.getElementById('insBodyReg').style.display=view==='reguler'?'block':'none';
+  document.getElementById('insBodyThn').style.display=view==='tahunan'?'block':'none';
+  if(view==='tahunan')renderTahunanTable();else renderInsTable();
+}
+
+function buildInsTabs(){
+  const years=[...new Set(insRawData.map(r=>yearOf(r)).filter(Boolean))].sort();
+  document.getElementById('insentifTabBar').innerHTML=
+    [{label:'Semua Tahun',val:'all'},...years.map(y=>({label:String(y),val:String(y)}))].map(t=>
+      `<button class="tab-btn${t.val===insActiveYear?' active':''}" onclick="switchInsTab('${t.val}')">${t.label}</button>`
+    ).join('');
+}
+
+function switchInsTab(year){
+  insActiveYear=year;
+  document.querySelectorAll('#insentifTabBar .tab-btn').forEach(b=>b.classList.toggle('active',b.textContent===(year==='all'?'Semua Tahun':year)));
+  ['insSearch','insSearchThn'].forEach(id=>document.getElementById(id).value='');
+  ['insSelProg','insSelProgThn','insSelDesa','insSelDesaThn','insSelDusun','insSelDusunThn','insSelStatus','insSelStatusThn'].forEach(id=>document.getElementById(id).value='');
+  renderInsTable();
+  if(insActiveView==='tahunan')renderTahunanTable();
+}
+
+function getInsYearRows(){
+  return insActiveYear==='all'?insRawData:insRawData.filter(r=>yearOf(r)===+insActiveYear);
+}
+
+function renderInsTable(){
+  const rows=getInsYearRows().filter(r=>r.prog==='Agro_Reg'||r.prog==='Temb_Reg');
+  insFilteredRows=rows;
+  updateInsentifSub();
+  const desaList=[...new Set(rows.map(r=>r.desa).filter(Boolean))].sort();
+  document.getElementById('insSelDesa').innerHTML='<option value="">Semua Desa</option>'+desaList.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  const dusunList=[...new Set(rows.map(r=>r.dusun).filter(Boolean))].sort();
+  document.getElementById('insSelDusun').innerHTML='<option value="">Semua Dusun</option>'+dusunList.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  buildInsThead(rows);buildInsTbody(rows);filterInsentifTable();
+}
+
+function updateInsentifSub(){
+  const all=getInsYearRows();
+  setText('insentifSub',`Tahun Bergabung: ${insActiveYear==='all'?'Semua':insActiveYear} · ${all.length} lahan · ${new Set(all.map(r=>r.petani.toLowerCase())).size} petani`);
+}
+
+function calcInsPcts(rows){
+  return INS_STAGES.map(s=>{
+    if(!rows.length)return'—';
+    return Math.round(rows.filter(r=>stageStatus(r.stages[s.key])!=='unpaid').length/rows.length*100)+'%';
+  });
+}
+
+function buildInsThead(rows){
+  const pcts=calcInsPcts(rows);
+  const subRow=INS_STAGES.map((s,i)=>{
+    if(insShowNominal){
+      const total=rows.filter(r=>stageStatus(r.stages[s.key])!=='unpaid').reduce((a,r)=>a+(r.nominalStages[s.key]||0),0);
+      return `<th class="th-pct center" data-stage="${s.key}">${total>0?'Rp '+fmtInt(total):'—'}</th>`;
+    }
+    return `<th class="th-pct center" data-stage="${s.key}">${pcts[i]}</th>`;
+  }).join('');
+  document.getElementById('insThead').innerHTML=
+    `<tr>
+      <th rowspan="2">No</th><th rowspan="2">ID Lahan</th><th rowspan="2">Nama Petani</th>
+      <th rowspan="2">Desa</th><th rowspan="2">Dusun</th><th rowspan="2">Program</th><th rowspan="2">Luas (ha)</th><th rowspan="2">Thn Bergabung</th>
+      ${INS_STAGES.map(s=>`<th class="th-group">${s.label}</th>`).join('')}
+    </tr>
+    <tr id="insPctRow">${subRow}</tr>`;
+}
+
+function buildInsTbody(rows){
+  document.getElementById('insTbody').innerHTML=rows.map((r,i)=>{
+    const st=PROG[r.prog];
+    const anyUnpaid=INS_STAGES.some(s=>stageStatus(r.stages[s.key])==='unpaid');
+    const rowStatus=anyUnpaid?'belum':'sudah';
+    const stageCells=INS_STAGES.map(s=>{
+      const st=stageStatus(r.stages[s.key]);
+      if(insShowNominal){
+        if(st!=='unpaid'){
+          const nom=r.nominalStages[s.key]||0;
+          const clr=st==='early'?'color:#9ca3af;background:#1a1a1a;padding:2px 6px;border-radius:3px':'color:var(--c-agro)';
+          return `<td class="cell-center" style="font-weight:600;font-size:10px"><span style="${clr}">${nom>0?'Rp '+fmtInt(nom):(st==='early'?'Selesai':'Sudah')}</span></td>`;
+        }
+        return `<td class="cell-center" style="color:var(--text-3);font-size:10px">—</td>`;
+      }
+      return `<td class="cell-center">${stageBadge(r.stages[s.key])}</td>`;
+    }).join('');
+    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
+      <td style="color:var(--text-3);font-size:10px">${i+1}</td>
+      <td style="font-family:'Libre Franklin',monospace;font-size:10px">${esc(r.id)}</td>
+      <td style="font-weight:600">${esc(r.petani)}</td>
+      <td>${esc(r.desa)}</td>
+      <td style="color:var(--text-2)">${esc(r.dusun)||'—'}</td>
+      <td><span class="prog-tag ${st?.tagCls||''}">${esc(st?.label||r.prog)}</span></td>
+      <td style="font-weight:600;text-align:right">${fmt(r.luas)}</td>
+      <td style="text-align:center;font-weight:700;color:var(--primary-md)">${yearOf(r)||'—'}</td>
+      ${stageCells}
+    </tr>`;
+  }).join('');}
+
+let insVisibleRows=[];
+function filterInsentifTable(){
+  const q=document.getElementById('insSearch').value.toLowerCase().trim();
+  const prog=$v('insSelProg'),desa=$v('insSelDesa'),dusun=$v('insSelDusun'),status=$v('insSelStatus');
+  const visibleIds=[];
+  document.querySelectorAll('#insTbody tr').forEach(tr=>{
+    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun)&&(!status||tr.dataset.status===status);
+    tr.classList.toggle('ins-hidden',!show);if(show)visibleIds.push(tr.dataset.id);
+  });
+  setText('insRowCount',visibleIds.length+' lahan');
+  document.getElementById('insNoResults').style.display=visibleIds.length===0?'block':'none';
+  const idSet=new Set(visibleIds);
+  const visRows=insFilteredRows.filter(r=>idSet.has(r.id));
+  insVisibleRows=visRows; 
+  document.querySelectorAll('#insPctRow th[data-stage]').forEach(cell=>{
+    const s=cell.dataset.stage;
+    if(insShowNominal){
+      const total=visRows.filter(r=>stageStatus(r.stages[s])!=='unpaid').reduce((a,r)=>a+(r.nominalStages[s]||0),0);
+      cell.textContent=total>0?'Rp '+fmtInt(total):'—';
+    }else{
+      cell.textContent=visRows.length?Math.round(visRows.filter(r=>stageStatus(r.stages[s])!=='unpaid').length/visRows.length*100)+'%':'—';
+    }
+  });
+}
+
+let thnFilteredRows=[];
+
+function renderTahunanTable(){
+  const rows=getInsYearRows().filter(r=>
+    (r.pupukCair||0)>0||(r.pupukPadat||0)>0||(r.insentifMTL||0)>0||r.tglBPO||r.tglMTL
+  );
+  thnFilteredRows=rows;
+  const progList=[...new Set(rows.map(r=>r.prog).filter(Boolean))].sort();
+  const progSel=document.getElementById('insSelProgThn');
+  progSel.innerHTML='<option value="">Semua</option>'+progList.map(p=>`<option value="${esc(p)}">${esc(PROG[p]?.label||p)}</option>`).join('');
+  const desaList=[...new Set(rows.map(r=>r.desa).filter(Boolean))].sort();
+  document.getElementById('insSelDesaThn').innerHTML='<option value="">Semua Desa</option>'+desaList.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  const dusunListThn=[...new Set(rows.map(r=>r.dusun).filter(Boolean))].sort();
+  document.getElementById('insSelDusunThn').innerHTML='<option value="">Semua Dusun</option>'+dusunListThn.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  buildTahunanTable(rows);filterTahunanTable();
+}
+
+function calcThnTotals(rows){
+  return{
+    cair: rows.reduce((a,r)=>a+(r.pupukCair||0),0),
+    padat:rows.reduce((a,r)=>a+(r.pupukPadat||0),0),
+    mtl:  rows.filter(r=>!!r.tglMTL).reduce((a,r)=>a+(r.insentifMTL||0),0),
+    mtlAll: rows.reduce((a,r)=>a+(r.insentifMTL||0),0),
+    cairPaid: rows.filter(r=>!!r.tglBPO).reduce((a,r)=>a+(r.pupukCair||0),0),
+    padatPaid:rows.filter(r=>!!r.tglBPO).reduce((a,r)=>a+(r.pupukPadat||0),0),
+  };
+}
+
+function buildTahunanTable(rows){
+  const fmtL=v=>v>0?v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  document.getElementById('thnThead').innerHTML=`<tr>
+    <th rowspan="2">No</th><th rowspan="2">ID Lahan</th><th rowspan="2">Nama Petani</th><th rowspan="2">Desa</th><th rowspan="2">Dusun</th><th rowspan="2">Program</th>
+    <th rowspan="2" class="right">Luas (ha)</th>
+    <th class="th-group">Pupuk Cair (L)</th><th class="th-group">Pupuk Padat (kg)</th>
+    <th class="th-group">Status BPO</th>
+    <th class="th-group">Insentif MTL (Rp)</th><th class="th-group">Status MTL</th>
+  </tr>
+  <tr id="thnTotRow">
+    <th class="th-pct right" id="thnTotCair">—</th>
+    <th class="th-pct right" id="thnTotPadat">—</th>
+    <th class="th-pct center" style="color:var(--text-3);font-size:9px">—</th>
+    <th class="th-pct right" id="thnTotInsentif">—</th>
+    <th class="th-pct center" style="color:var(--text-3);font-size:9px">—</th>
+  </tr>`;
+  document.getElementById('thnTbody').innerHTML=rows.map((r,i)=>{
+    const st=PROG[r.prog];
+    const hasCair=(r.pupukCair||0)>0, hasPadat=(r.pupukPadat||0)>0;
+    const bpoSudah=!!r.tglBPO, mtlSudah=!!r.tglMTL;
+    const hasIns=(r.insentifMTL||0)>0||!!r.tglMTL;
+    const hasBPOField=hasCair||hasPadat||r.tglBPO;
+    const rowFullyPaid=(!hasBPOField||bpoSudah)&&(!hasIns||mtlSudah);
+    const rowStatus=rowFullyPaid?'sudah':'belum';
+    return `<tr data-id="${esc(r.id)}" data-prog="${esc(r.prog)}" data-petani="${esc(r.petani.toLowerCase())}" data-desa="${esc(r.desa)}" data-dusun="${esc(r.dusun||'')}" data-status="${rowStatus}">
+      <td style="color:var(--text-3);font-size:10px">${i+1}</td>
+      <td style="font-family:'Libre Franklin',monospace;font-size:10px">${esc(r.id)}</td>
+      <td style="font-weight:600">${esc(r.petani)}</td>
+      <td>${esc(r.desa)}</td>
+      <td style="color:var(--text-2)">${esc(r.dusun)||'—'}</td>
+      <td><span class="prog-tag ${st?.tagCls||''}">${esc(st?.label||r.prog)}</span></td>
+      <td class="right" style="font-weight:600">${fmt(r.luas)}</td>
+      <td class="right">${hasCair?r.pupukCair.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+' L':'—'}</td>
+      <td class="right">${hasPadat?r.pupukPadat.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg':'—'}</td>
+      <td>${(hasCair||hasPadat||r.tglBPO)?`<span class="${bpoSudah?'ins-paid':'ins-unpaid'}">${bpoSudah?'Sudah':'Belum'}</span>${bpoSudah?` <small style="color:var(--text-3);font-size:9px">${fmtDate(r.tglBPO)}</small>`:''}` :'—'}</td>
+      <td class="right">${(r.insentifMTL||0)>0?'Rp '+fmtInt(r.insentifMTL):'—'}</td>
+      <td>${hasIns?`<span class="${mtlSudah?'ins-paid':'ins-unpaid'}">${mtlSudah?'Sudah':'Belum'}</span>${mtlSudah?` <small style="color:var(--text-3);font-size:9px">${fmtDate(r.tglMTL)}</small>`:''}` :'—'}</td>
+    </tr>`;
+  }).join('');
+  updateThnTotRow(rows);
+}
+
+function updateThnTotRow(vis){
+  const tot=calcThnTotals(vis);
+  const fmtL=v=>v>0?v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const elC=document.getElementById('thnTotCair');
+  const elP=document.getElementById('thnTotPadat');
+  const elI=document.getElementById('thnTotInsentif');
+  if(elC){
+    if(tot.cair>0){
+      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">${fmtL(tot.cair)} L</span>`;
+      if(tot.cairPaid>0&&tot.cairPaid<tot.cair)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibagikan ${fmtL(tot.cairPaid)} L</span>`;
+      else if(tot.cairPaid>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">semua dibagikan</span>`;
+      elC.innerHTML=html;
+    }else elC.textContent='—';
+  }
+  if(elP){
+    if(tot.padat>0){
+      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">${fmtL(tot.padat)} kg</span>`;
+      if(tot.padatPaid>0&&tot.padatPaid<tot.padat)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibagikan ${fmtL(tot.padatPaid)} kg</span>`;
+      else if(tot.padatPaid>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">semua dibagikan</span>`;
+      elP.innerHTML=html;
+    }else elP.textContent='—';
+  }
+  if(elI){
+    if(tot.mtlAll>0){
+      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">Rp ${fmtInt(tot.mtlAll)}</span>`;
+      if(tot.mtl>0&&tot.mtl<tot.mtlAll)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibayar Rp ${fmtInt(tot.mtl)}</span>`;
+      else if(tot.mtl>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">lunas</span>`;
+      elI.innerHTML=html;
+    }else elI.textContent='—';
+  }
+}
+
+let thnVisibleRows=[];
+function filterTahunanTable(){
+  const q=document.getElementById('insSearchThn').value.toLowerCase().trim();
+  const prog=$v('insSelProgThn'),desa=$v('insSelDesaThn'),dusun=$v('insSelDusunThn'),status=$v('insSelStatusThn');
+  const visIds=[];
+  document.querySelectorAll('#thnTbody tr').forEach(tr=>{
+    const show=(!q||(tr.dataset.petani||'').includes(q))&&(!prog||tr.dataset.prog===prog)&&(!desa||(tr.dataset.desa||'')===desa)&&(!dusun||(tr.dataset.dusun||'')===dusun)&&(!status||tr.dataset.status===status);
+    tr.classList.toggle('ins-hidden',!show);if(show)visIds.push(tr.dataset.id);
+  });
+  setText('insThnRowCount',visIds.length+' lahan');
+  document.getElementById('thnNoResults').style.display=visIds.length===0?'block':'none';
+  const idSet=new Set(visIds);
+  const visRows=thnFilteredRows.filter(r=>idSet.has(r.id));
+  thnVisibleRows=visRows; 
+  updateThnTotRow(visRows);
+}
+
+function getInsExportData(){
+  const isReg=insActiveView==='reguler';
+  const fname=`Insentif_${isReg?'Reguler':'Tahunan'}_${insActiveYear==='all'?'SemuaTahun':insActiveYear}`;
+  if(isReg){
+    const rows=insVisibleRows; 
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Tahun Bergabung',
+      ...INS_STAGES.flatMap(s=>[s.label,'Nominal '+s.label])];
+    const body=rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,fmt(r.luas),yearOf(r)||'—',
+      ...INS_STAGES.flatMap(s=>[stageLabel(r.stages[s.key]),
+        stageStatus(r.stages[s.key])!=='unpaid'&&r.nominalStages[s.key]?fmtInt(r.nominalStages[s.key]):''])]);
+    return{hdr,body,fname,rows};
+  }else{
+    const rows=thnVisibleRows; 
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Pupuk Cair (L)','Pupuk Padat (kg)','Status BPO','Tgl BPO','Insentif MTL (Rp)','Status MTL','Tgl MTL'];
+    const body=rows.map((r,i)=>{
+      const hasBPO=(r.pupukCair||0)>0||(r.pupukPadat||0)>0||!!r.tglBPO;
+      const hasMTL=(r.insentifMTL||0)>0||!!r.tglMTL;
+      return[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,fmt(r.luas),
+        hasBPO?r.pupukCair.toLocaleString('id-ID',{minimumFractionDigits:2}):'',
+        hasBPO?r.pupukPadat.toLocaleString('id-ID',{minimumFractionDigits:2}):'',
+        hasBPO?(r.tglBPO?'Sudah Bayar':'Belum Bayar'):'',hasBPO?fmtDate(r.tglBPO)||'':'',
+        hasMTL?fmtInt(r.insentifMTL):'',hasMTL?(r.tglMTL?'Sudah Bayar':'Belum Bayar'):'',hasMTL?fmtDate(r.tglMTL)||'':''];
+    });
+    return{hdr,body,fname,rows};
+  }
+}
+
+function getInsExportDataRaw(){
+  const isReg=insActiveView==='reguler';
+  const fname=`Insentif_${isReg?'Reguler':'Tahunan'}_${insActiveYear==='all'?'SemuaTahun':insActiveYear}`;
+  if(isReg){
+    const rows=insVisibleRows;
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Tahun Bergabung',
+      ...INS_STAGES.flatMap(s=>[s.label,'Nominal '+s.label])];
+    const body=rows.map((r,i)=>[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),yearOf(r)||'',
+      ...INS_STAGES.flatMap(s=>[stageLabel(r.stages[s.key]),
+        stageStatus(r.stages[s.key])!=='unpaid'&&r.nominalStages[s.key]?Math.round(r.nominalStages[s.key]):''])]);
+    return{hdr,body,fname,rows};
+  }else{
+    const rows=thnVisibleRows;
+    const hdr=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Pupuk Cair (L)','Pupuk Padat (kg)','Status BPO','Tgl BPO','Insentif MTL (Rp)','Status MTL','Tgl MTL'];
+    const body=rows.map((r,i)=>{
+      const hasBPO=(r.pupukCair||0)>0||(r.pupukPadat||0)>0||!!r.tglBPO;
+      const hasMTL=(r.insentifMTL||0)>0||!!r.tglMTL;
+      return[i+1,r.id,r.petani,r.desa,r.dusun||'',PROG[r.prog]?.label||r.prog,+r.luas.toFixed(2),
+        hasBPO?+r.pupukCair.toFixed(2):'',
+        hasBPO?+r.pupukPadat.toFixed(2):'',
+        hasBPO?(r.tglBPO?'Sudah Bayar':'Belum Bayar'):'',hasBPO?fmtDate(r.tglBPO)||'':'',
+        hasMTL?Math.round(r.insentifMTL):'',hasMTL?(r.tglMTL?'Sudah Bayar':'Belum Bayar'):'',hasMTL?fmtDate(r.tglMTL)||'':''];
+    });
+    return{hdr,body,fname,rows};
+  }
+}
+function downloadInsentifCSV(){
+  const{hdr,body,fname,rows}=getInsExportDataRaw();
+  if(!rows.length){alert('Tidak ada data.');return;}
+  dlCSV([hdr,...body],fname+'.csv');
+}
+function downloadInsentifExcel(){
+  const{hdr,body,fname,rows}=getInsExportDataRaw();
+  if(!rows.length){alert('Tidak ada data.');return;}
+  if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...body]);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');
+  XLSX.writeFile(wb,fname+'.xlsx');
+}
+function downloadInsentifPDF(){
+  const{hdr,body,fname,rows}=getInsExportData();
+  if(!rows.length){alert('Tidak ada data.');return;}
+  const title=insActiveView==='reguler'?'Insentif Program Reguler':'Insentif Program Tahunan';
+  makePDF('landscape',hdr,body,title,rows.length,fname+'.pdf');
+}
+async function downloadInsentifWord(){
+  const{hdr,body,fname,rows}=getInsExportData();
+  if(!rows.length){alert('Tidak ada data.');return;}
+  const title=insActiveView==='reguler'?'INSENTIF PROGRAM REGULER':'INSENTIF PROGRAM TAHUNAN';
+  const sub=`PT Citra Mulia Inti | ${rows.length} baris | ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;
+  await makeWord('landscape',title,sub,hdr,body,fname+'.docx');
+}
+
+function toggleLayer(w){
+  layerState[w]=!layerState[w];const on=layerState[w],lg=w==='agro'?lgAgro:w==='temb'?lgTemb:lgCMI;
+  on?map.addLayer(lg):map.removeLayer(lg);document.getElementById('tog-'+w).classList.toggle('off',!on);
+}
+function fitAll(){
+  const ls=[];lgAgro.eachLayer(l=>ls.push(l));lgTemb.eachLayer(l=>ls.push(l));
+  if(ls.length){map.fitBounds(L.featureGroup(ls).getBounds().pad(0.1));setTimeout(()=>map.invalidateSize({animate:false,pan:false}),100);}
+}
+function setLoad(msg,isErr=false){
+  const o=document.getElementById('loadingOverlay'),t=document.getElementById('loadTxt'),rb=document.getElementById('loadRetryBtn');
+  o.style.display='flex';t.textContent=msg;
+  if(isErr){
+    o.querySelector('.spinner').style.display='none';
+    Object.assign(t.style,{color:'#dc2626',maxWidth:'280px',textAlign:'center',lineHeight:'1.5'});
+    if(rb)rb.style.display='inline-flex';
+  }
+}
+function hideLoad(){document.getElementById('loadingOverlay').style.display='none';requestAnimationFrame(()=>requestAnimationFrame(()=>map.invalidateSize({animate:false,pan:false})));}
+
+function dlA(href,name){const a=Object.assign(document.createElement('a'),{href,download:name});a.click();URL.revokeObjectURL(href);}
+function dlBlob(blob,name){dlA(URL.createObjectURL(blob),name);}
+function dlCSV(rows,name){
+  const csv=rows.map(r=>r.map(v=>`"${str(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  dlBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),name);
+}
+function pdfHeader(doc,title,sub){
+  doc.setFontSize(14);doc.setTextColor(53,103,96);doc.text(title,40,32);
+  doc.setFontSize(9);doc.setTextColor(100,116,139);
+  const subTxt=typeof sub==='number'?`PT Citra Mulia Inti | ${sub} baris | ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`:sub;
+  doc.text(subTxt,40,48);
+}
+function wordTable(lib,headers,rows){
+  const {Table,TableRow,TableCell,Paragraph,TextRun,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign}=lib;
+  const brd={style:BorderStyle.SINGLE,size:1,color:'D1D5DB'},bA={top:brd,bottom:brd,left:brd,right:brd};
+  const mkC=(text,{bg=null,bold=false,color='000000',align=AlignmentType.LEFT,size=18}={})=>
+    new TableCell({verticalAlign:VerticalAlign.CENTER,borders:bA,
+      shading:bg?{fill:bg,type:ShadingType.CLEAR,color:'auto'}:undefined,
+      margins:{top:60,bottom:60,left:100,right:100},
+      children:[new Paragraph({alignment:align,children:[new TextRun({text:String(text??'—'),bold,color,size,font:'Arial'})]})]});
+  const hdrRow=new TableRow({tableHeader:true,children:headers.map(h=>mkC(h,{bg:'356760',bold:true,color:'FFFFFF',size:16}))});
+  const dataRows=rows.map((r,i)=>new TableRow({children:r.map(v=>mkC(v,{bg:i%2===0?'F8FAFC':'FFFFFF',size:16}))}));
+  return new Table({width:{size:9500,type:WidthType.DXA},rows:[hdrRow,...dataRows]});
+}
+
+function toggleDlMenu(wrapId){
+  const menu=document.getElementById(wrapId).querySelector('.dl-dropdown-menu');
+  const isOpen=menu.classList.contains('open');
+  closeAllDlMenus();if(!isOpen){menu.classList.add('open');setTimeout(()=>document.addEventListener('click',closeDlOut),10);}
+}
+function closeDlOut(e){if(!e.target.closest('.dl-dropdown-wrap'))closeAllDlMenus();}
+function closeAllDlMenus(){document.querySelectorAll('.dl-dropdown-menu').forEach(m=>m.classList.remove('open'));document.removeEventListener('click',closeDlOut);}
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>
