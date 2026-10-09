@@ -48,14 +48,13 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;height:100%;display:flex;align-items:flex-start;gap:20px;min-height:0}
 
-.side-menu{position:sticky;top:20px;width:84px;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px}
-.side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
-.side-icon{font-size:10.5px;font-weight:800;letter-spacing:.2px;line-height:1}
-.side-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;line-height:1.3;color:inherit}
-.side-item:hover{color:var(--primary-md)}
-.side-item.active{color:var(--primary)}
-.side-item.disabled{color:var(--text-3);opacity:.55;cursor:default}
-.side-item.disabled:hover{color:var(--text-3)}
+.side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.side-item{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.5);cursor:pointer;background:none;border:none;transition:background .15s,color .15s}
+.side-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.side-item.active{background:#fff;color:var(--dark);border-radius:50%}
+.side-item.disabled{color:rgba(255,255,255,.22);cursor:default}
+.side-item.disabled:hover{background:none;color:rgba(255,255,255,.22)}
 
 .page-body-inner{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;min-height:0}
 
@@ -164,26 +163,11 @@ body{display:flex;flex-direction:column}
   <div class="page-scroll">
     <div class="content-row">
       <nav class="side-menu">
-        <a class="side-item" href="planting-summary.html">
-          <span class="side-icon">MP</span>
-          <span class="side-lbl">Main<br>Page</span>
-        </a>
-        <a class="side-item active" href="penanaman-program.html">
-          <span class="side-icon">ARR</span>
-          <span class="side-lbl">ARR<br>Program</span>
-        </a>
-        <a class="side-item" href="planting-summary.html#enrichmentSection">
-          <span class="side-icon">ER</span>
-          <span class="side-lbl">Enrichment</span>
-        </a>
-        <a class="side-item" href="nursery.html">
-          <span class="side-icon">NR</span>
-          <span class="side-lbl">Nursery</span>
-        </a>
-        <a class="side-item" href="kth.html">
-          <span class="side-icon">TH</span>
-          <span class="side-lbl">KTH</span>
-        </a>
+          <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+          <a class="side-item active" href="penanaman-program.html" title="ARR Program" aria-label="ARR Program"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="planting-summary.html#enrichmentSection" title="Enrichment" aria-label="Enrichment"><svg viewBox="0 0 24 24"><path d="M12 21v-7.5"/><path d="M12 13.5c-4.1 0-7.4-3.3-7.4-7.4 4.1 0 7.4 3.3 7.4 7.4Z"/><path d="M12 10.6c0-4.1 3.1-7.1 7.1-7.1 0 4.1-3 7.1-7.1 7.1Z"/></svg></a>
+          <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
       </nav>
       <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data lahan...</div></div>
     </div>

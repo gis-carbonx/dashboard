@@ -51,14 +51,13 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.side-menu{position:sticky;top:20px;width:84px;flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:22px}
-.side-item{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text-2);cursor:pointer;background:none;border:none;font-family:inherit;text-align:center;width:100%}
-.side-icon{font-size:10.5px;font-weight:800;letter-spacing:.2px;line-height:1}
-.side-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;line-height:1.3;color:inherit}
-.side-item:hover{color:var(--primary-md)}
-.side-item.active{color:var(--primary)}
-.side-item.disabled{color:var(--text-3);opacity:.55;cursor:default}
-.side-item.disabled:hover{color:var(--text-3)}
+.side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.side-item{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.5);cursor:pointer;background:none;border:none;transition:background .15s,color .15s}
+.side-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.side-item.active{background:#fff;color:var(--dark);border-radius:50%}
+.side-item.disabled{color:rgba(255,255,255,.22);cursor:default}
+.side-item.disabled:hover{background:none;color:rgba(255,255,255,.22)}
 
 .page-body-inner{flex:1;min-width:0}
 
@@ -183,9 +182,9 @@ body{display:flex;flex-direction:column}
 .iv-row:hover,.iv-row:focus-visible,.iv-group.open .iv-row{background:var(--bg)}
 .iv-row:disabled{cursor:default}
 .iv-row:disabled .iv-chev{visibility:hidden}
-.iv-lbl{font-size:12px;color:var(--text);text-align:right;line-height:1.25}
-.iv-lbl small{display:block;font-size:10px;color:var(--text-3)}
-.iv-chev{display:inline-block;margin-right:6px;font-size:13px;line-height:1;color:var(--text-2);transition:transform .15s}
+.iv-lbl{font-size:12px;color:var(--text);text-align:left;line-height:1.25}
+.iv-lbl small{display:block;font-size:10px;color:var(--text-3);padding-left:16px}
+.iv-chev{display:inline-block;width:10px;margin-right:6px;font-size:13px;line-height:1;color:var(--text-2);transition:transform .15s}
 .iv-group.open .iv-chev{transform:rotate(90deg)}
 .iv-track{height:16px;border-left:1px solid var(--border)}
 .iv-bar{height:100%;background:var(--primary);border-radius:0 4px 4px 0}
@@ -195,7 +194,7 @@ body{display:flex;flex-direction:column}
 .ivj-list{display:none;padding:4px 6px 10px;margin-bottom:4px;border-bottom:1px dashed var(--border)}
 .iv-group.open .ivj-list{display:block}
 .ivj-row{padding:3px 0}
-.ivj-lbl{font-size:11px;color:var(--text-2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivj-lbl{font-size:11px;color:var(--text-2);text-align:left;padding-left:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ivj-track{height:9px}
 .ivj-bar{height:100%;background:#8C9F8B;border-radius:0 3px 3px 0}
 .ivj-pct{font-size:11px;font-weight:700;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
@@ -241,26 +240,11 @@ body{display:flex;flex-direction:column}
     <div class="page-scroll">
       <div class="content-row">
         <nav class="side-menu">
-          <a class="side-item" href="planting-summary.html">
-            <span class="side-icon">MP</span>
-            <span class="side-lbl">Main<br>Page</span>
-          </a>
-          <a class="side-item" href="penanaman-program.html">
-            <span class="side-icon">ARR</span>
-            <span class="side-lbl">ARR<br>Program</span>
-          </a>
-          <a class="side-item" href="planting-summary.html#enrichmentSection">
-            <span class="side-icon">ER</span>
-            <span class="side-lbl">Enrichment</span>
-          </a>
-          <a class="side-item active" href="nursery.html">
-            <span class="side-icon">NR</span>
-            <span class="side-lbl">Nursery</span>
-          </a>
-          <a class="side-item" href="kth.html">
-            <span class="side-icon">TH</span>
-            <span class="side-lbl">KTH</span>
-          </a>
+          <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="ARR Program" aria-label="ARR Program"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="planting-summary.html#enrichmentSection" title="Enrichment" aria-label="Enrichment"><svg viewBox="0 0 24 24"><path d="M12 21v-7.5"/><path d="M12 13.5c-4.1 0-7.4-3.3-7.4-7.4 4.1 0 7.4 3.3 7.4 7.4Z"/><path d="M12 10.6c0-4.1 3.1-7.1 7.1-7.1 0 4.1-3 7.1-7.1 7.1Z"/></svg></a>
+          <a class="side-item active" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
         <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data nursery...</div></div>
       </div>
@@ -315,8 +299,6 @@ function classifyCategory(raw){
 }
 
 const STOCK_INCLUDED=new Set(['pembesaran_reguler','pembesaran_grafting','pembesaran_rootstock_return','bst_reguler','bst_grafting','bst_rootstock_return']);
-
-const NURSERY_STAGE=new Set([...STOCK_INCLUDED,'semai','grafting','rootstock_return']);
 const BST_PRODUCTION=new Set(['bst_grafting','bst_reguler']);
 
 const PEMANFAATAN=new Set(['penanaman','penyulaman','support']);
@@ -390,7 +372,8 @@ function computeStats(year){
     if(r.cls==='semai')semai+=r.jumlah;
     if(BST_PRODUCTION.has(r.cls))bst+=r.jumlah;
     if(PEMANFAATAN.has(r.cls))pemanfaatan+=r.jumlah;
-    if(NURSERY_STAGE.has(r.cls)&&r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
+    // semua kategori dihitung: jenis dianggap ada di tahun tsb selama punya catatan apa pun
+    if(r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
   });
   return{semai,bst,pemanfaatan,jenis:jenisSet.size};
 }
@@ -818,7 +801,7 @@ function render(){
   const jenisAll=computeStats('all').jenis;
   const jenisNote=selectedYear==='all'
     ?'Jenis tanaman unik (Sepanjang Waktu)'
-    :`${fmtInt(s.jenis)} jenis pada Tahun ${selectedYear}`;
+    :`${fmtInt(jenisAll)} jenis sepanjang waktu`;
   const periode=selectedYear==='all'?'Sepanjang Waktu':`Tahun ${selectedYear}`;
   const cohort=selectedYear==='all'?'Semua batch':`Batch semai ${selectedYear}`;
   const chips=YEAR_OPTIONS.map(y=>`<button type="button" class="year-chip${y===selectedYear?' active':''}" data-year="${y}">${y==='all'?'All':y}</button>`).join('');
@@ -831,7 +814,7 @@ function render(){
     <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Jumlah Jenis Tanaman di Nursery</div>
-        <div class="card-val-lg">${fmtInt(jenisAll)}</div>
+        <div class="card-val-lg">${fmtInt(s.jenis)}</div>
         <div class="card-note">${jenisNote}</div>
       </div>
       <div class="card">
