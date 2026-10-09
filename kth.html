@@ -65,10 +65,11 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
+.card-sub{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -94,7 +95,22 @@ body{display:flex;flex-direction:column}
 .activity-meta{font-size:11px;color:var(--text-2);margin-bottom:6px}
 .activity-desc{font-size:12px;color:var(--text-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .thumb-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--border-lt)}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--border-lt);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.thumb:hover,.thumb:focus-visible{transform:scale(1.06);box-shadow:0 0 0 2px var(--primary);outline:none}
+
+/* --- Lightbox foto kegiatan --- */
+.lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
+.lb.open{display:flex}
+.lb-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
+.lb-img{max-width:min(1000px,100%);max-height:calc(100vh - 150px);border-radius:10px;object-fit:contain;background:#222}
+.lb-cap{color:#eee;font-size:12.5px;text-align:center;line-height:1.5}
+.lb-cap small{display:block;color:#bbb;font-size:11px}
+.lb-btn{position:absolute;background:rgba(255,255,255,.12);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;font-family:inherit}
+.lb-btn:hover{background:rgba(255,255,255,.25)}
+.lb-close{top:14px;right:14px}
+.lb-prev{left:14px;top:50%;transform:translateY(-50%)}
+.lb-next{right:14px;top:50%;transform:translateY(-50%)}
+.lb-btn[hidden]{display:none}
 
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -130,8 +146,7 @@ body{display:flex;flex-direction:column}
       <div class="content-row">
         <nav class="side-menu">
           <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
-          <a class="side-item" href="penanaman-program.html" title="ARR Program" aria-label="ARR Program"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
-          <a class="side-item" href="planting-summary.html#enrichmentSection" title="Enrichment" aria-label="Enrichment"><svg viewBox="0 0 24 24"><path d="M12 21v-7.5"/><path d="M12 13.5c-4.1 0-7.4-3.3-7.4-7.4 4.1 0 7.4 3.3 7.4 7.4Z"/><path d="M12 10.6c0-4.1 3.1-7.1 7.1-7.1 0 4.1-3 7.1-7.1 7.1Z"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
           <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
           <a class="side-item active" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
@@ -141,12 +156,25 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Foto kegiatan">
+  <button type="button" class="lb-btn lb-close" data-lb="close" aria-label="Tutup">&times;</button>
+  <button type="button" class="lb-btn lb-prev" data-lb="prev" aria-label="Foto sebelumnya">&#8249;</button>
+  <figure class="lb-fig">
+    <img class="lb-img" id="lbImg" alt="">
+    <figcaption class="lb-cap" id="lbCap"></figcaption>
+  </figure>
+  <button type="button" class="lb-btn lb-next" data-lb="next" aria-label="Foto berikutnya">&#8250;</button>
+</div>
+
 <script>
 'use strict';
 const SHEET_ID='1_8jR1z131_-9k3QVbsaGFRn8MY2JPPiEAgWOZliKo_k';
 const NEWS_GID=0,PENGURUS_GID=859770829;
 const NEWS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${NEWS_GID}`;
 const PENGURUS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PENGURUS_GID}`;
+// Data peserta (petani) diambil dari sheet ARR_SUMMARY yang sama dengan planting-summary.html
+const ARR_SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac';
+const PESERTA_URL=`https://docs.google.com/spreadsheets/d/${ARR_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ARR_SUMMARY`;
 
 const str=v=>(v??'').toString().trim();
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -184,7 +212,24 @@ function roleRank(j){
   return 4;
 }
 
-let kegiatanList=[],pengurusList=[];
+let kegiatanList=[],pengurusList=[],peserta=null;
+
+// Peserta unik = petani yang tergabung di KTH (kolom KTH berisi "KTH") dan jenis kelaminnya terisi,
+// sama seperti hitungan "Unik Peserta Program" di planting-summary.html.
+function parsePeserta(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  const byName={};
+  data.forEach(raw=>{
+    const keys=Object.keys(raw);
+    const kth=str(pickCI(raw,keys,'KTH')).toLowerCase();
+    const petani=str(pickCI(raw,keys,'Petani')).toLowerCase();
+    const jk=str(pickCI(raw,keys,'Jenis Kelamin','Jenis_Kelamin')).toLowerCase();
+    if(!kth.includes('kth')||!petani||!jk||byName[petani])return;
+    byName[petani]=jk[0];
+  });
+  const list=Object.values(byName);
+  peserta={total:list.length,l:list.filter(j=>j==='l').length,p:list.filter(j=>j==='p').length};
+}
 
 function parseNews(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
@@ -261,7 +306,7 @@ function render(){
             <div class="activity-title">${esc(k.judul)||'Kegiatan'}</div>
             <div class="activity-meta">${[fmtDate(k.tanggal),esc(k.lokasi)].filter(Boolean).join(' · ')}</div>
             ${k.deskripsi?`<div class="activity-desc">${esc(k.deskripsi)}</div>`:''}
-            ${k.fotos.length?`<div class="thumb-row">${k.fotos.map(f=>`<img class="thumb" src="${esc(f)}" alt="" loading="lazy">`).join('')}</div>`:''}
+            ${k.fotos.length?`<div class="thumb-row">${k.fotos.map((f,i)=>`<img class="thumb" src="${esc(f)}" alt="" loading="lazy" data-k="${kegiatanList.indexOf(k)}" data-i="${i}" tabindex="0" role="button" aria-label="Perbesar foto ${i+1}">`).join('')}</div>`:''}
           </div>
         `).join('')}
       </div>
@@ -294,18 +339,70 @@ function render(){
         <div class="card-lbl">Jumlah Pengurus</div>
         <div class="card-val-lg">${fmtInt(jumlahPengurus)}</div>
       </div>
+      ${peserta?`<div class="card">
+        <div class="card-lbl">Peserta Unik Tergabung</div>
+        <div class="card-val-lg">${fmtInt(peserta.total)}</div>
+        <div class="card-sub">${fmtInt(peserta.l)} laki-laki, ${fmtInt(peserta.p)} perempuan</div>
+      </div>`:''}
     </div>
     ${blocks||'<div class="loading-note">Belum ada data KTH.</div>'}
   `;
   document.getElementById('pageBody').innerHTML=body;
 }
 
+// Lightbox: klik foto kegiatan untuk memperbesar; panah kiri/kanan untuk foto lain di kegiatan yang sama
+const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),k:null,i:0,last:null};
+function lbShow(){
+  const k=kegiatanList[lb.k],n=k.fotos.length;
+  lb.img.src=k.fotos[lb.i];
+  lb.cap.innerHTML=`${esc(k.judul)||'Kegiatan'}<small>${[fmtDate(k.tanggal),esc(k.lokasi),n>1?`Foto ${lb.i+1} dari ${n}`:''].filter(Boolean).join(' · ')}</small>`;
+  lb.el.querySelector('.lb-prev').hidden=lb.el.querySelector('.lb-next').hidden=n<2;
+}
+function lbOpen(k,i,trigger){
+  lb.k=k;lb.i=i;lb.last=trigger;
+  lbShow();
+  lb.el.classList.add('open');
+  document.body.style.overflow='hidden';
+  lb.el.querySelector('.lb-close').focus();
+}
+function lbClose(){
+  lb.el.classList.remove('open');
+  lb.img.removeAttribute('src');
+  document.body.style.overflow='';
+  lb.last?.focus();
+}
+function lbStep(d){
+  const n=kegiatanList[lb.k].fotos.length;
+  lb.i=(lb.i+d+n)%n;lbShow();
+}
+document.getElementById('pageBody').addEventListener('click',e=>{
+  const t=e.target.closest('.thumb[data-k]');
+  if(t)lbOpen(+t.dataset.k,+t.dataset.i,t);
+});
+document.getElementById('pageBody').addEventListener('keydown',e=>{
+  const t=e.target.closest('.thumb[data-k]');
+  if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();lbOpen(+t.dataset.k,+t.dataset.i,t);}
+});
+lb.el.addEventListener('click',e=>{
+  const a=e.target.closest('[data-lb]')?.dataset.lb;
+  if(a==='close'||e.target===lb.el)lbClose();
+  else if(a==='prev')lbStep(-1);
+  else if(a==='next')lbStep(1);
+});
+document.addEventListener('keydown',e=>{
+  if(!lb.el.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  else if(e.key==='ArrowLeft')lbStep(-1);
+  else if(e.key==='ArrowRight')lbStep(1);
+});
+
 (async function boot(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    const [newsTxt,pengurusTxt]=await Promise.all([getText(NEWS_URL),getText(PENGURUS_URL)]);
+    const [newsTxt,pengurusTxt,pesertaTxt]=await Promise.all([getText(NEWS_URL),getText(PENGURUS_URL),getText(PESERTA_URL).catch(()=>'')]);
     parseNews(newsTxt);
     parsePengurus(pengurusTxt);
+    if(pesertaTxt)parsePeserta(pesertaTxt);
     render();
   }catch(err){
     console.error('LOAD ERROR:',err);
