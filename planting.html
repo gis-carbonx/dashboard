@@ -219,11 +219,11 @@ body{display:flex;flex-direction:column}
 .dl-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .no-results,.empty-state{text-align:center;padding:28px 16px;color:var(--text-3);font-size:13px}
 .tn-sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-2);margin-bottom:10px}
-.tn-species-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 2px;border-bottom:1px solid var(--border-lt);font-size:12.5px;color:var(--text)}
+.tn-species-row{display:grid;grid-template-columns:minmax(90px,170px) 1fr 120px;align-items:center;column-gap:14px;padding:8px 2px;border-bottom:1px solid var(--border-lt);font-size:12.5px;color:var(--text)}
 .tn-species-row:last-child{border-bottom:none}
-.tn-species-name{font-weight:600}
-.tn-species-count{color:var(--text-2);font-weight:600;white-space:nowrap}
-.tn-species-bar-wrap{flex:1;height:6px;background:var(--border-lt);border-radius:3px;margin:0 12px;overflow:hidden}
+.tn-species-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tn-species-count{color:var(--text-2);font-weight:600;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.tn-species-bar-wrap{height:6px;background:var(--border-lt);border-radius:3px;overflow:hidden}
 .tn-species-bar{height:100%;background:var(--primary);border-radius:3px}
 .modal-body-scroll{overflow-y:auto;flex:1;min-height:0}
 .strip-bar{display:flex;gap:8px;padding:10px 16px;background:#f8fafc;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
@@ -724,22 +724,12 @@ body{display:flex;flex-direction:column}
         <button class="modal-close-btn" onclick="closeModal('tanamanModal')">✕</button>
       </div>
     </div>
-    <div class="tab-bar">
-      <button class="tab-btn active" id="tnTabTahunan" onclick="switchTnChartTab('tahunan')">Tahunan</button>
-      <button class="tab-btn" id="tnTabBulanan" onclick="switchTnChartTab('bulanan')">Bulanan</button>
-    </div>
-    <div class="modal-toolbar" id="tnToolbarBulanan" style="display:none;padding:10px 16px">
+    <div class="modal-toolbar" id="tnToolbarBulanan" style="padding:10px 16px">
       <span style="font-size:11px;font-weight:700;color:var(--text-2)">Tahun:</span>
       <select class="grafik-sel" id="tnBulananYear" onchange="renderTnChart()"></select>
       <div class="grafik-legend">
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Jumlah Tanaman (kumulatif)</div>
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Luas Ditanam (kumulatif)</div>
-      </div>
-    </div>
-    <div class="modal-toolbar" id="tnToolbarTahunan" style="padding:10px 16px">
-      <div class="grafik-legend">
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Jumlah Tanaman (kumulatif)</div>
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#b84c00"></div>Luas Ditanam (kumulatif)</div>
+        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#94a3b8"></div>Luas Terdaftar Program (kumulatif)</div>
+        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Luas Sudah Ditanam (kumulatif)</div>
       </div>
     </div>
     <div style="padding:4px 16px 4px 16px">
@@ -990,86 +980,77 @@ function openGrafikModal(){document.getElementById('grafikModal').style.display=
 function getPlantedRowsAll(){
   return Object.values(sheetMap).filter(r=>parseDate(r.tglRealisasi)&&r.jumlahTanaman>0);
 }
-let tnChartInst=null,tnChartMode='tahunan';
+let tnChartInst=null;
 function openTanamanModal(){
   document.getElementById('tanamanModal').style.display='flex';
   renderTanamanModal();
   populateTnYearSelect();
-  switchTnChartTab('tahunan');
-}
-function computeTnYearlySeries(){
-  const rows=getPlantedRowsAll();
-  const byYear={};
-  rows.forEach(r=>{
-    const d=parseDate(r.tglRealisasi);if(!d)return;
-    const y=d.getFullYear();
-    if(!byYear[y])byYear[y]={tanaman:0,luas:0};
-    const grp=PROG[r.prog]?.group;
-    byYear[y].tanaman+=r.jumlahTanaman;
-    byYear[y].luas+=grp==='agro'?r.luasAgro:grp==='temb'?r.luasTemb:0;
-  });
-  const years=Object.keys(byYear).map(Number).sort((a,b)=>a-b);
-  let cumT=0,cumL=0;
-  const labels=[],tanamanCum=[],luasCum=[];
-  years.forEach(y=>{
-    cumT+=byYear[y].tanaman;cumL+=byYear[y].luas;
-    labels.push(String(y));tanamanCum.push(cumT);luasCum.push(+cumL.toFixed(2));
-  });
-  return{labels,tanamanCum,luasCum};
-}
-function computeTnMonthlySeries(year){
-  const rows=getPlantedRowsAll();
-  let baselineT=0,baselineL=0;
-  const monthT=Array(12).fill(0),monthL=Array(12).fill(0);
-  rows.forEach(r=>{
-    const d=parseDate(r.tglRealisasi);if(!d)return;
-    const grp=PROG[r.prog]?.group;
-    const luas=grp==='agro'?r.luasAgro:grp==='temb'?r.luasTemb:0;
-    const y=d.getFullYear();
-    if(y<year){baselineT+=r.jumlahTanaman;baselineL+=luas;}
-    else if(y===year){const m=d.getMonth();monthT[m]+=r.jumlahTanaman;monthL[m]+=luas;}
-  });
-  let cumT=baselineT,cumL=baselineL;
-  const tanamanCum=[],luasCum=[];
-  for(let m=0;m<12;m++){cumT+=monthT[m];cumL+=monthL[m];tanamanCum.push(cumT);luasCum.push(+cumL.toFixed(2));}
-  return{labels:MN,tanamanCum,luasCum};
-}
-function populateTnYearSelect(){
-  const rows=getPlantedRowsAll();
-  const years=[...new Set(rows.map(r=>{const d=parseDate(r.tglRealisasi);return d?d.getFullYear():null;}).filter(Boolean))].sort((a,b)=>a-b);
-  const sel=document.getElementById('tnBulananYear');
-  const cur=sel.value;
-  sel.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');
-  if(years.includes(+cur))sel.value=cur;
-  else if(years.length)sel.value=years[years.length-1];
-}
-function switchTnChartTab(mode){
-  tnChartMode=mode;
-  document.getElementById('tnTabTahunan').classList.toggle('active',mode==='tahunan');
-  document.getElementById('tnTabBulanan').classList.toggle('active',mode==='bulanan');
-  document.getElementById('tnToolbarTahunan').style.display=mode==='tahunan'?'flex':'none';
-  document.getElementById('tnToolbarBulanan').style.display=mode==='bulanan'?'flex':'none';
   renderTnChart();
 }
+// Luas lahan sesuai kelompok program (agro → luasAgro, temb → luasTemb)
+const progLuas=r=>{const grp=PROG[r.prog]?.group;return grp==='agro'?r.luasAgro:grp==='temb'?r.luasTemb:0;};
+// Perbandingan bulanan: luas terdaftar program (Tgl_Partisipasi) vs luas sudah ditanam (Tgl_Realisasi), kumulatif
+function computeTnMonthlySeries(year){
+  const monthReg=Array(12).fill(0),monthTan=Array(12).fill(0);
+  let baseReg=0,baseTan=0;
+  const add=(d,luas,month,isBase)=>{
+    if(!d)return;const y=d.getFullYear();
+    if(y<year)isBase(luas);else if(y===year)month[d.getMonth()]+=luas;
+  };
+  Object.values(sheetMap).forEach(r=>{
+    const luas=progLuas(r);
+    add(parseDate(r.tglPartisipasi),luas,monthReg,v=>baseReg+=v);
+  });
+  getPlantedRowsAll().forEach(r=>{
+    add(parseDate(r.tglRealisasi),progLuas(r),monthTan,v=>baseTan+=v);
+  });
+  // Bulan setelah bulan berjalan (tahun ini) tidak ditampilkan
+  const now=new Date(),lastM=year===now.getFullYear()?now.getMonth():11;
+  let cR=baseReg,cT=baseTan;
+  const regCum=[],tanCum=[];
+  for(let m=0;m<12;m++){
+    cR+=monthReg[m];cT+=monthTan[m];
+    regCum.push(m<=lastM?+cR.toFixed(2):null);
+    tanCum.push(m<=lastM?+cT.toFixed(2):null);
+  }
+  return{labels:MN.map(m=>m.slice(0,3)),regCum,tanCum};
+}
+function populateTnYearSelect(){
+  const years=new Set();
+  Object.values(sheetMap).forEach(r=>{
+    const p=parseDate(r.tglPartisipasi);if(p)years.add(p.getFullYear());
+  });
+  getPlantedRowsAll().forEach(r=>{const d=parseDate(r.tglRealisasi);if(d)years.add(d.getFullYear());});
+  const list=[...years].sort((a,b)=>a-b);
+  const sel=document.getElementById('tnBulananYear');
+  const cur=sel.value;
+  sel.innerHTML=list.map(y=>`<option value="${y}">${y}</option>`).join('');
+  if(list.includes(+cur))sel.value=cur;
+  else if(list.length)sel.value=list[list.length-1];
+}
 function renderTnChart(){
-  const data=tnChartMode==='tahunan'?computeTnYearlySeries():computeTnMonthlySeries(+$v('tnBulananYear')||new Date().getFullYear());
+  const data=computeTnMonthlySeries(+$v('tnBulananYear')||new Date().getFullYear());
   if(tnChartInst){tnChartInst.destroy();tnChartInst=null;}
+  const haFmt=v=>v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
   tnChartInst=new Chart(document.getElementById('tnChart'),{
     type:'line',
     data:{labels:data.labels,datasets:[
-      {label:'Jumlah Tanaman (kumulatif)',data:data.tanamanCum,borderColor:'#2d7a55',backgroundColor:'rgba(45,122,85,.12)',fill:true,tension:.3,yAxisID:'y',pointRadius:3},
-      {label:'Luas Ditanam (kumulatif)',data:data.luasCum,borderColor:'#b84c00',backgroundColor:'rgba(184,76,0,.08)',fill:true,tension:.3,yAxisID:'y1',pointRadius:3},
+      {label:'Luas Terdaftar Program',data:data.regCum,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.15)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
+      {label:'Luas Sudah Ditanam',data:data.tanCum,borderColor:'#2d7a55',backgroundColor:'rgba(45,122,85,.18)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y1'
-          ?`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`
-          :`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID')} tanaman`}}
+        tooltip:{callbacks:{
+          label:c=>`${c.dataset.label}: ${haFmt(c.parsed.y)} ha`,
+          afterBody:items=>{
+            const reg=items.find(i=>i.datasetIndex===0)?.parsed.y,tan=items.find(i=>i.datasetIndex===1)?.parsed.y;
+            return reg>0?`Persentase ditanam: ${(tan/reg*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%`:'';
+          }
+        }}
       },
       scales:{
         x:{ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},
-        y:{beginAtZero:true,position:'left',ticks:{font:{size:11},color:'#2d7a55',callback:v=>v.toLocaleString('id-ID')},grid:{color:'#f1f5f9'}},
-        y1:{beginAtZero:true,position:'right',ticks:{font:{size:11},color:'#b84c00',callback:v=>v+' ha'},grid:{display:false}}
+        y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v.toLocaleString('id-ID')+' ha'},grid:{color:'#f1f5f9'}}
       }
     }
   });
@@ -1079,8 +1060,7 @@ function downloadTnChartPNG(){
   const canvas=document.getElementById('tnChart');
   const bg=Object.assign(document.createElement('canvas'),{width:canvas.width,height:canvas.height});
   const ctx=bg.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,bg.width,bg.height);ctx.drawImage(canvas,0,0);
-  const fname=tnChartMode==='tahunan'?'Grafik_Progres_Tanaman_Tahunan.png':`Grafik_Progres_Tanaman_${$v('tnBulananYear')}.png`;
-  dlA(bg.toDataURL('image/png'),fname);
+  dlA(bg.toDataURL('image/png'),`Grafik_Luas_Terdaftar_vs_Ditanam_${$v('tnBulananYear')}.png`);
 }
 function renderTanamanModal(){
   const rows=getPlantedRowsAll();
@@ -1119,7 +1099,7 @@ function renderTanamanModal(){
     const maxCount=species[0][1];
     listEl.innerHTML=species.map(([name,count])=>`
       <div class="tn-species-row">
-        <span class="tn-species-name">${esc(name)}</span>
+        <span class="tn-species-name" title="${esc(name)}">${esc(name)}</span>
         <div class="tn-species-bar-wrap"><div class="tn-species-bar" style="width:${(count/maxCount*100).toFixed(1)}%"></div></div>
         <span class="tn-species-count">${fmtInt(count)} tanaman</span>
       </div>

@@ -127,7 +127,7 @@ body{display:flex;flex-direction:column}
             <span class="side-icon">ARR</span>
             <span class="side-lbl">ARR<br>Program</span>
           </a>
-          <a class="side-item" href="#enrichmentSection">
+          <a class="side-item disabled">
             <span class="side-icon">ER</span>
             <span class="side-lbl">Enrichment</span>
           </a>
@@ -178,12 +178,19 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
   return t.includes('tembawang')?'Temb_Reg':t.includes('agro')?'Agro_Reg':null;
 }
 
-let sheetMap={},targetData={},currentYear='all',years=[];
+let sheetMap={},targetData={},currentYear='all',currentQuarter='all',years=[];
+const QUARTERS=['1','2','3','4'];
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  // kolom "P-<Nama Tanaman>" = jenis tanaman hasil penanaman project
+  const plantCols=[];
+  (data.length?Object.keys(data[0]):[]).forEach((h,i)=>{
+    const m=h.match(/^P-\s*(.+)$/i);
+    if(m)plantCols.push({idx:i,name:m[1].trim()});
+  });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
     const kth=str(raw['KTH']||raw['C']||''),tipe=str(raw['Tipe']||raw['E']||'');
@@ -199,11 +206,12 @@ function parseSheet(csv){
     const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
+    const plantedPlants=plantCols.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman};
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman,plantedPlants};
   });
 }
 
@@ -232,8 +240,9 @@ function parseTargetSheet(csv){
 function matchesFilter(row,field){
   const d=parseDate(row[field]);
   if(!d)return false;
-  if(currentYear==='all')return true;
-  return d.getFullYear()===+currentYear;
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
 }
 
 function computeAreas(){
@@ -254,12 +263,31 @@ function computeSubAreas(){
   return{aRegHa,aBPOHa,tRegHa,tMTLHa};
 }
 
+// Jumlah tanaman per petak dikelompokkan berdasarkan program petak (Agro_* / Temb_*)
 function computeTanamanTotal(){
-  let total=0;
+  let total=0,agro=0,temb=0;
   Object.values(sheetMap).forEach(r=>{
-    if(matchesFilter(r,'tglRealisasi')&&r.jumlahTanaman>0)total+=r.jumlahTanaman;
+    if(!matchesFilter(r,'tglRealisasi')||r.jumlahTanaman<=0)return;
+    total+=r.jumlahTanaman;
+    if(r.prog?.startsWith('Agro'))agro+=r.jumlahTanaman;
+    else if(r.prog?.startsWith('Temb'))temb+=r.jumlahTanaman;
   });
-  return total;
+  return{total,agro,temb};
+}
+
+// Lahan sudah ditanam = punya Tgl_Realisasi (sesuai filter) dan Jumlah_Tanaman > 0
+function computePlanting(){
+  let agro=0,temb=0;const speciesMap={};
+  Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglRealisasi')||r.jumlahTanaman<=0)return;
+    agro+=r.luasAgro;temb+=r.luasTemb;
+    r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
+  });
+  const species=Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
+  return{luas:agro+temb,agro,temb,species};
+}
+function joinID(list){
+  return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
 }
 
 function computeTarget(){
@@ -273,17 +301,22 @@ function computeTarget(){
 }
 function pctText(val,target){
   if(target===null||target===undefined||target<=0)return'';
-  return(val/target*100).toFixed(1)+'% dari target';
+  // target di sheet bersifat tahunan; saat filter quarter aktif, persentase dibandingkan ke target tahunan
+  return(val/target*100).toFixed(1)+(currentQuarter==='all'?'% dari target':'% dari target tahunan');
 }
 
+// Peserta dihitung di agroforestri/reforestasi jika punya luasan di program tsb
 function computePesertaTotal(){
-  const all=new Set();
+  const all=new Set(),agro=new Set(),temb=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
     if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
-    all.add(r.petani.toLowerCase());
+    const p=r.petani.toLowerCase();
+    all.add(p);
+    if(r.luasAgro>0)agro.add(p);
+    if(r.luasTemb>0)temb.add(p);
   });
-  return all.size;
+  return{total:all.size,agro:agro.size,temb:temb.size};
 }
 
 function computeKTHCount(){
@@ -302,34 +335,50 @@ function computePetakCount(){
 }
 
 function yearLabel(){
-  return currentYear==='all'?'semua tahun':String(currentYear);
+  const y=currentYear==='all'?'semua tahun':String(currentYear);
+  return currentQuarter==='all'?y:`Q${currentQuarter} ${y}`;
 }
 
 function setFilter(y){
   currentYear=y;
-  document.querySelectorAll('.fpill').forEach(b=>b.classList.toggle('active',b.dataset.val===String(y)));
+  render();
+}
+
+function setQuarter(q){
+  currentQuarter=q;
   render();
 }
 
 function render(){
   const areas=computeAreas();
   const totalHa=areas.agro+areas.temb;
-  const enrTotalHa=areas.enp+areas.enl;
-  const pesertaTotal=computePesertaTotal();
-  const tanamanTotal=computeTanamanTotal();
+  const peserta=computePesertaTotal();
+  const tanaman=computeTanamanTotal();
   const kthCount=computeKTHCount();
   const petakCount=computePetakCount();
   const tgt=computeTarget();
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
-  const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(pesertaTotal)} individu penggarap lahan.`;
+  const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(peserta.total)} individu penggarap lahan.`;
   const sub=computeSubAreas();
   const note2=`Luasan program agroforestry tersusun atas ${fmt(sub.aBPOHa)} ha sub program bantuan pupuk organik, dan ${fmt(sub.aRegHa)} ha luasan agroforestry reguler. Sedangkan program reforestasi, tersusun atas ${fmt(sub.tMTLHa)} ha sub program menjaga tutupan lahan, dan ${fmt(sub.tRegHa)} ha luasan reforestasi reguler.`;
+  const plant=computePlanting();
+  const plantPct=totalHa>0?(plant.luas/totalHa*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
+  const dominan=plant.species.slice(0,3);
+  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman, mencakup ${plantPct}% dari total luas lahan terdaftar. Sekitar ${fmtInt(tanaman.total)} pohon telah ditanam`
+    +(plant.species.length
+      ?`, yang terdiri dari ${fmtInt(plant.species.length)} jenis tanaman, dengan jenis ${esc(joinID(dominan))} sebagai jenis tanaman dominan.`
+      :'.');
 
   const body=`
-    <div class="filter-row">
+    <div class="filter-row" style="margin-bottom:10px">
       <span class="filter-lbl">Filter</span>
       <button class="fpill${currentYear==='all'?' active':''}" data-val="all" onclick="setFilter('all')">All</button>
       ${years.map(y=>`<button class="fpill${currentYear===String(y)?' active':''}" data-val="${y}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Quarter</span>
+      <button class="fpill${currentQuarter==='all'?' active':''}" onclick="setQuarter('all')">All</button>
+      ${QUARTERS.map(q=>`<button class="fpill${currentQuarter===q?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
     </div>
 
     <div class="sec-title">Summary</div>
@@ -345,7 +394,8 @@ function render(){
           </div>
           <div class="card">
             <div class="card-lbl">Unik Peserta Program</div>
-            <div class="card-val-lg">${fmtInt(pesertaTotal)}</div>
+            <div class="card-val-lg">${fmtInt(peserta.total)}</div>
+            <div class="card-sub-pct">${fmtInt(peserta.agro)} agro, ${fmtInt(peserta.temb)} reforestasi</div>
           </div>
         </div>
         <p class="page-note">${note1}</p>
@@ -367,20 +417,24 @@ function render(){
       </div>
     </div>
 
-    <div class="grid-row">
-      <div class="card">
-        <div class="card-lbl">Jumlah Tanaman</div>
-        <div class="card-val-lg">${fmtInt(tanamanTotal)}</div>
+    <div class="two-col-row">
+      <div class="col">
+        <div class="pair-row">
+          <div class="card">
+            <div class="card-lbl">Luas Sudah Ditanam</div>
+            <div class="card-val-lg">${fmt(plant.luas)} ha</div>
+            <div class="card-sub-pct">${fmt(plant.agro)} ha agro, ${fmt(plant.temb)} ha reforestasi</div>
+          </div>
+          <div class="card">
+            <div class="card-lbl">Jumlah Tanaman</div>
+            <div class="card-val-lg">${fmtInt(tanaman.total)}</div>
+            <div class="card-sub-pct">${fmtInt(tanaman.agro)} agro, ${fmtInt(tanaman.temb)} reforestasi</div>
+          </div>
+        </div>
+        <p class="page-note">${note3}</p>
       </div>
     </div>
 
-    <div class="sub-title" id="enrichmentSection">Enrichment</div>
-    <div class="grid-row">
-      <div class="card">
-        <div class="card-lbl">Program Enrichment</div>
-        <div class="card-val-lg">${fmt(enrTotalHa)} ha</div>
-      </div>
-    </div>
   `;
   document.getElementById('pageBody').innerHTML=body;
 }

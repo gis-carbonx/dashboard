@@ -14,7 +14,7 @@
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
   --dark:#3A342C;
   --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
-  --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+  --text:#3A342C;--text-2:#6A665B;--text-3:#9C998C;
   --shadow-sm:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 14px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.2);
 }
 html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
@@ -66,10 +66,145 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
+.card-note{font-size:10.5px;color:var(--text-3);margin-top:8px;line-height:1.4}
+
+.year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.year-filter-label{font-size:12px;font-weight:600;color:var(--text-2)}
+.year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.year-chip{
+  padding:6px 16px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-size:12px;font-weight:600;
+  cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
+}
+.year-chip:hover{background:var(--primary-lt)}
+.year-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+.row-head{margin:4px 0 14px}
+.row-title{font-size:16px;font-weight:800;color:var(--text)}
+.row-desc{font-size:12px;color:var(--text-2);line-height:1.6;margin-top:4px;max-width:760px}
+.chart-pair{display:grid;grid-template-columns:minmax(260px,1fr) 2.6fr;gap:16px;align-items:stretch;margin-bottom:28px}
+.chart-card{padding:20px 22px 16px;min-width:0}
+.chart-title{font-size:14.5px;font-weight:700;color:var(--text)}
+.chart-sub{font-size:11.5px;color:var(--text-2);margin:4px 0 18px}
+.chart-foot{font-size:10.5px;color:var(--text-3);margin-top:12px}
+.chart-pair.even{grid-template-columns:1fr 1fr;align-items:stretch}
+@media (max-width:980px){.chart-pair,.chart-pair.even{grid-template-columns:1fr}}
+
+.donut-wrap{display:flex;justify-content:center;margin:4px 0 18px}
+.donut{width:190px;height:190px;overflow:visible}
+.donut circle.seg{fill:none;stroke-width:30;cursor:pointer;transition:opacity .15s,stroke-width .15s}
+.donut.hovering circle.seg{opacity:.35}
+.donut.hovering circle.seg.on{opacity:1;stroke-width:34}
+.donut-c1{font-size:19px;font-weight:800;fill:var(--text)}
+.donut-c2{font-size:10px;fill:var(--text-2)}
+.dn-legend{display:flex;flex-direction:column;gap:2px}
+.dn-row{display:grid;grid-template-columns:10px 1fr auto 46px;gap:8px;align-items:center;padding:5px 6px;border-radius:6px;cursor:default;outline:none}
+.dn-row:hover,.dn-row:focus,.dn-row.on{background:var(--bg)}
+.dn-row i{width:10px;height:10px;border-radius:2px}
+.dn-name{font-size:12px;color:var(--text)}
+.dn-name small{display:block;font-size:10px;color:var(--text-3);margin-top:1px}
+.dn-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.dn-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+
+.tt-box{display:none;position:absolute;z-index:5;top:calc(100% - 2px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row b{color:var(--text)}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:-4px 0 14px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
+.lg-item i,.tt-sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.tt-sw{margin-right:6px;vertical-align:-1px}
+.cmp-row,.cmp-axis{display:grid;grid-template-columns:110px 1fr 56px;gap:12px;align-items:center}
+.cmp-plot{position:relative}
+.cmp-grid{position:absolute;top:0;bottom:0;left:122px;right:68px;pointer-events:none}
+.cmp-grid span{position:absolute;top:0;bottom:0;border-left:1px solid var(--border-lt)}
+.cmp-row{position:relative;padding:4px 0;border-radius:6px;outline:none}
+.cmp-row:hover,.cmp-row:focus{background:rgba(255,250,243,.7)}
+.cmp-lbl{font-size:12px;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-bar{position:relative;display:flex;gap:2px;height:16px;border-radius:3px;overflow:hidden}
+.cmp-seg{min-width:2px}
+.cmp-row:hover .cmp-seg{opacity:.88}
+.cmp-n{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.cmp-tt{left:122px;min-width:260px}
+.cmp-row:hover .cmp-tt,.cmp-row:focus .cmp-tt{display:block}
+.cmp-axis{margin-top:6px}
+.cmp-ticks{position:relative;height:14px}
+.cmp-ticks span{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--text-3)}
+.cmp-ticks span:first-child{transform:none}
+.cmp-ticks span:last-child{transform:translateX(-100%)}
+.flex-card{display:flex;flex-direction:column}
+.age-plot{flex:1;min-height:260px;display:grid;grid-template-columns:36px 1fr;grid-template-rows:1fr auto;column-gap:8px;margin-top:30px}
+.age-yaxis{position:relative}
+.age-yaxis span{position:absolute;right:0;transform:translateY(50%);font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.age-area{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:0 6px;border-bottom:1px solid var(--border)}
+.age-grid{position:absolute;left:0;right:0;border-top:1px solid var(--border-lt);pointer-events:none}
+.age-col{position:relative;display:flex;align-items:flex-end;justify-content:center;outline:none;cursor:default}
+.age-col:hover,.age-col:focus{background:rgba(255,250,243,.6)}
+.age-bar{position:relative;width:100%;max-width:44px;background:var(--primary);border-radius:4px 4px 0 0}
+.age-col:hover .age-bar{opacity:.85}.age-val{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding-bottom:4px;font-size:11.5px;font-weight:700;color:var(--text);text-align:center;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
+.age-val small{display:block;font-size:9.5px;font-weight:600;color:var(--text-3)}
+.age-xlabels{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:6px 6px 0}
+.age-xlabels span{font-size:11px;color:var(--text-2);text-align:center}
+.age-xtitle{font-size:10.5px;color:var(--text-3);text-align:center;margin-top:4px;padding-left:44px}
+.age-tt{left:50%;top:auto;bottom:40%;transform:translateX(-50%);min-width:240px}
+.age-col:nth-child(-n+2) .age-tt{left:0;transform:none}
+.age-col:nth-last-child(-n+2) .age-tt{left:auto;right:0;transform:none}
+.age-col:hover .age-tt,.age-col:focus .age-tt{display:block}
+.tt-row small{color:var(--text-3);font-size:10px}
+.sv-plot{position:relative;display:flex;flex-direction:column;gap:1px;--lbl:110px;--pct:52px;--gap:10px}
+.sv-row{position:relative;display:grid;grid-template-columns:var(--lbl) 1fr var(--pct);gap:var(--gap);align-items:center;padding:3px 0;border-radius:6px;outline:none}
+.sv-row:hover,.sv-row:focus{background:var(--bg)}
+.sv-lbl{font-size:12px;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-track{height:12px;background:var(--border-lt);border-radius:3px;overflow:hidden}
+.sv-bar{height:100%;background:var(--primary);border-radius:3px 0 0 3px}
+.sv-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.sv-avg{position:absolute;top:-14px;bottom:0;z-index:1;pointer-events:none;border-left:1.5px dashed var(--dark);
+  left:calc(var(--lbl) + var(--gap) + (100% - var(--lbl) - var(--pct) - 2*var(--gap)) * var(--avg) / 100)}
+.sv-avg span{position:absolute;top:-2px;left:4px;font-size:9.5px;color:var(--text-2);white-space:nowrap}
+.sv-plot{margin-top:14px}
+.sv-tt{left:120px;min-width:220px}
+.sv-row:hover .sv-tt,.sv-row:focus .sv-tt{display:block}
+.iv-list{display:flex;flex-direction:column;gap:2px}
+.iv-list.fixed{height:320px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+.iv-row,.ivj-row{display:grid;grid-template-columns:130px 1fr 56px 48px;gap:10px;align-items:center}
+.tm{position:relative;width:100%;height:320px}
+.tm-tile{position:absolute;overflow:hidden;border-radius:3px;cursor:default;outline:none;transition:filter .15s}
+.tm-tile.lbl{padding:7px 8px}
+.tm-tile:hover,.tm-tile:focus{filter:brightness(1.08)}
+.tm-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-meta{font-size:10.5px;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums;opacity:.9}
+.tm-tt{display:none;position:absolute;z-index:6;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
+.iv-row{width:100%;padding:7px 6px;border:none;background:none;font-family:inherit;text-align:left;border-radius:6px;cursor:pointer;outline:none}
+.iv-row:hover,.iv-row:focus-visible,.iv-group.open .iv-row{background:var(--bg)}
+.iv-row:disabled{cursor:default}
+.iv-row:disabled .iv-chev{visibility:hidden}
+.iv-lbl{font-size:12px;color:var(--text);text-align:right;line-height:1.25}
+.iv-lbl small{display:block;font-size:10px;color:var(--text-3)}
+.iv-chev{display:inline-block;margin-right:6px;font-size:13px;line-height:1;color:var(--text-2);transition:transform .15s}
+.iv-group.open .iv-chev{transform:rotate(90deg)}
+.iv-track{height:16px;border-left:1px solid var(--border)}
+.iv-bar{height:100%;background:var(--primary);border-radius:0 4px 4px 0}
+.iv-row:hover .iv-bar{opacity:.85}
+.iv-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.iv-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.ivj-list{display:none;padding:4px 6px 10px;margin-bottom:4px;border-bottom:1px dashed var(--border)}
+.iv-group.open .ivj-list{display:block}
+.ivj-row{padding:3px 0}
+.ivj-lbl{font-size:11px;color:var(--text-2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivj-track{height:9px}
+.ivj-bar{height:100%;background:#8C9F8B;border-radius:0 3px 3px 0}
+.ivj-pct{font-size:11px;font-weight:700;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:640px){
+  .iv-row,.ivj-row{grid-template-columns:96px 1fr 56px 44px;gap:8px}
+  .cmp-row,.cmp-axis{grid-template-columns:80px 1fr 48px;gap:8px}
+  .cmp-grid{left:88px;right:56px}
+  .cmp-tt{left:8px;min-width:0;right:8px}
+}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
@@ -122,10 +257,10 @@ body{display:flex;flex-direction:column}
             <span class="side-icon">NR</span>
             <span class="side-lbl">Nursery</span>
           </a>
-          <span class="side-item disabled">
+          <a class="side-item" href="kth.html">
             <span class="side-icon">TH</span>
             <span class="side-lbl">KTH</span>
-          </span>
+          </a>
         </nav>
         <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data nursery...</div></div>
       </div>
@@ -156,12 +291,6 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// --- Klasifikasi kategori (kolom "Category") ---
-// Dipecah lebih rinci karena "Jumlah Tanaman di Nursery" sekarang dihitung sebagai
-// snapshot langsung (jumlah baris pada tahap-tahap tertentu), BUKAN model masuk-keluar.
-// "Semai Biji" dan "Grafting" (bare, bukan Pembesaran/BST Grafting) sengaja TIDAK
-// dihitung sebagai bagian dari stok nursery, begitu juga kategori "Mati" dan kategori
-// output (Penanaman/Penyulaman/Support).
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';
@@ -177,54 +306,586 @@ function classifyCategory(raw){
   if(n.includes('grafting')){
     if(n.includes('bst'))return'bst_grafting';
     if(n.includes('pembesaran'))return'pembesaran_grafting';
-    return'grafting'; // Grafting mentah -> tidak dihitung sebagai stok nursery
+    return'grafting';
   }
-  if(n.includes('semai'))return'semai'; // Semai Biji -> tidak dihitung sebagai stok nursery
+  if(n.includes('semai'))return'semai';
   if(n.includes('pembesaran'))return'pembesaran_reguler';
   if(n.includes('bst'))return'bst_reguler';
   return'other';
 }
 
-// "Jumlah Tanaman di Nursery" HANYA dihitung dari 6 kategori tahap ini (persis):
-// Pembesaran - Regular, Pembesaran - Grafting, Pembesaran - Rootstock Return,
-// BST - Regular, BST - Grafting, BST - Rootstock Return.
-// Kategori lain (Semai Biji, Grafting mentah, Rootstock Return mentah, Mati, dan
-// output Penanaman/Penyulaman/Support) TIDAK ikut dihitung.
 const STOCK_INCLUDED=new Set(['pembesaran_reguler','pembesaran_grafting','pembesaran_rootstock_return','bst_reguler','bst_grafting','bst_rootstock_return']);
 
-let totalSemai=0,jumlahDiNursery=0;
+const NURSERY_STAGE=new Set([...STOCK_INCLUDED,'semai','grafting','rootstock_return']);
+const BST_PRODUCTION=new Set(['bst_grafting','bst_reguler']);
+
+const PEMANFAATAN=new Set(['penanaman','penyulaman','support']);
+
+const TIPE_ORDER=['Semai','Proses','BST','Pemanfaatan','Mati'];
+const TIPE_DESC={
+  Semai:'Masih di tahap semai',
+  Proses:'Pembesaran, grafting & rootstock',
+  BST:'Stok bibit siap tanam',
+  Pemanfaatan:'Penanaman, penyulaman & support',
+  Mati:'Mati di semua tahap'
+};
+const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
+const normCat=s=>str(s).toLowerCase().replace(/[^a-z]/g,'');
+const TIPE_MAP={
+  bstgrafting:'BST',bstregular:'BST',
+  matibstregular:'Mati',matipembesaran:'Mati',matisemai:'Mati',
+  penanaman:'Pemanfaatan',penyulaman:'Pemanfaatan',support:'Pemanfaatan',
+  grafting:'Proses',pembesarangrafting:'Proses',pembesaranregular:'Proses',
+  rootstockmatigrafting:'Proses',rootstockreturngrafting:'Proses',rootstockreturnpembesaran:'Proses',
+  semaibiji:'Semai'
+};
+function tipeOf(category,cls){
+  const t=TIPE_MAP[normCat(category)];
+  if(t)return t;
+  if(cls==='mati')return'Mati';
+  if(PEMANFAATAN.has(cls))return'Pemanfaatan';
+  if(cls==='semai')return'Semai';
+  if(cls.startsWith('bst'))return'BST';
+  if(cls==='other'||cls==='none')return null;
+  return'Proses';
+}
+
+const INTERVENSI=['Agroforestry','Enrichment','Tembawang','Kebun Entres','Other'];
+function normIntervensi(v){
+  const n=normCat(v);
+  return INTERVENSI.find(t=>normCat(t)===n)||'Other';
+}
+
+const YEAR_OPTIONS=['all','2025','2026'];
+let rows=[],selectedYear='all';
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  let semai=0,stock=0;
+  rows=[];
   data.forEach(raw=>{
     const keys=Object.keys(raw);
     const category=str(pickCI(raw,keys,'Category')||'');
-    const jumlah=num(pickCI(raw,keys,'Jumlah'));
     if(!category)return;
+    const tanggal=str(pickCI(raw,keys,'Tanggal'));
+    const m=tanggal.match(/(\d{4})/);
     const cls=classifyCategory(category);
-    if(cls==='semai')semai+=jumlah;
-    if(STOCK_INCLUDED.has(cls))stock+=jumlah;
+    rows.push({
+      year:m?m[1]:'',
+      id:str(pickCI(raw,keys,'Unique Seedling Code')),
+      jenis:str(pickCI(raw,keys,'Jenis Tanaman')),
+      intervensi:normIntervensi(pickCI(raw,keys,'Tipe Intervensi')),
+      category,
+      cls,
+      tipe:tipeOf(category,cls),
+      jumlah:num(pickCI(raw,keys,'Jumlah'))
+    });
   });
-  totalSemai=semai;
-  jumlahDiNursery=stock;
 }
 
+function computeStats(year){
+  const list=year==='all'?rows:rows.filter(r=>r.year===year);
+  let semai=0,bst=0,pemanfaatan=0;
+  const jenisSet=new Set();
+  list.forEach(r=>{
+    if(r.cls==='semai')semai+=r.jumlah;
+    if(BST_PRODUCTION.has(r.cls))bst+=r.jumlah;
+    if(PEMANFAATAN.has(r.cls))pemanfaatan+=r.jumlah;
+    if(NURSERY_STAGE.has(r.cls)&&r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
+  });
+  return{semai,bst,pemanfaatan,jenis:jenisSet.size};
+}
+
+function flowByJenis(year){
+  const list=year==='all'?rows:rows.filter(r=>r.year===year);
+  const by={};
+  list.forEach(r=>{
+    if(!r.jenis||r.jenis==='#N/A')return;
+    const k=r.jenis.toLowerCase();
+    const o=by[k]||(by[k]={jenis:r.jenis,c:{}});
+    const n=normCat(r.category);
+    o.c[n]=(o.c[n]||0)+r.jumlah;
+  });
+  return Object.values(by).map(o=>{
+    const c=k=>o.c[k]||0;
+    const masuk=c('semaibiji');
+    const matiSemai=c('matisemai'),matiPemb=c('matipembesaran'),rootMati=c('rootstockmatigrafting');
+    const matiBst=Object.keys(o.c).filter(k=>k.startsWith('matibst')).reduce((a,k)=>a+o.c[k],0);
+    const bst=c('bstregular')+c('bstgrafting')+c('bstrootstockreturn');
+    const dist=c('penanaman')+c('penyulaman')+c('support');
+    const semai=Math.max(0,masuk-c('pembesaranregular')-matiSemai);
+    const proses=Math.max(0,c('pembesaranregular')-matiPemb-rootMati-bst);
+    const stok=Math.max(0,bst-matiBst-dist);
+    const mati=matiSemai+matiPemb+rootMati+matiBst;
+    return{jenis:o.jenis,masuk,semai,proses,stok,dist,mati,total:semai+proses+stok+dist+mati};
+  }).filter(o=>o.total>0);
+}
+
+function flowTotals(year){
+  const tipe={};
+  TIPE_ORDER.forEach(t=>tipe[t]={total:0});
+  flowByJenis(year).forEach(o=>{
+    tipe.Semai.total+=o.semai;
+    tipe.Proses.total+=o.proses;
+    tipe.BST.total+=o.stok;
+    tipe.Pemanfaatan.total+=o.dist;
+    tipe.Mati.total+=o.mati;
+  });
+  return tipe;
+}
+
+const fmtPct=v=>v>0&&v<0.05?'<0,1%':v.toFixed(1).replace('.',',')+'%';
+
+function tipeDonutHTML(tipe,periode){
+  const total=TIPE_ORDER.reduce((a,t)=>a+tipe[t].total,0);
+  const R=70,C=2*Math.PI*R,GAP=2;
+  let acc=0;
+  const segs=TIPE_ORDER.map(t=>{
+    const v=tipe[t].total;
+    const len=total?v/total*C:0;
+    const draw=Math.max(0,len-(len>GAP*2?GAP:0));
+    const s=`<circle class="seg" data-tipe="${t}" cx="95" cy="95" r="${R}" stroke="${TIPE_COLOR[t]}"
+      stroke-dasharray="${draw} ${C-draw}" stroke-dashoffset="${-acc}" transform="rotate(-90 95 95)"></circle>`;
+    acc+=len;
+    return v>0?s:'';
+  }).join('');
+  const legend=TIPE_ORDER.map(t=>{
+    const v=tipe[t].total;
+    return`
+      <div class="dn-row" data-tipe="${t}" tabindex="0">
+        <i style="background:${TIPE_COLOR[t]}"></i>
+        <span class="dn-name">${t}<small>${TIPE_DESC[t]}</small></span>
+        <span class="dn-val">${fmtInt(v)}</span>
+        <span class="dn-pct">${fmtPct(total?v/total*100:0)}</span>
+      </div>`;
+  }).join('');
+  return`
+    <div class="card chart-card" id="donutCard">
+      <div class="chart-title">Alur Proses Nursery per Tipe</div>
+      <div class="chart-sub">${periode}</div>
+      <div class="donut-wrap">
+        <svg class="donut" viewBox="0 0 190 190" role="img" aria-label="Diagram status seluruh bibit per tipe">
+          ${segs}
+          <text class="donut-c1" x="95" y="95" text-anchor="middle" id="donutC1"></text>
+          <text class="donut-c2" x="95" y="112" text-anchor="middle" id="donutC2"></text>
+        </svg>
+      </div>
+      <div class="dn-legend">${legend}</div>
+    </div>`;
+}
+
+function bindDonut(tipe){
+  const card=document.getElementById('donutCard');
+  if(!card)return;
+  const svg=card.querySelector('.donut');
+  const c1=card.querySelector('#donutC1'),c2=card.querySelector('#donutC2');
+  const total=TIPE_ORDER.reduce((a,t)=>a+tipe[t].total,0);
+  const def=[c1.textContent,c2.textContent];
+  const on=t=>{
+    svg.classList.add('hovering');
+    card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.toggle('on',el.dataset.tipe===t));
+    c1.textContent=fmtPct(total?tipe[t].total/total*100:0);
+    c2.textContent=`${t} · ${fmtInt(tipe[t].total)} bibit`;
+  };
+  const off=()=>{
+    svg.classList.remove('hovering');
+    card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.remove('on'));
+    [c1.textContent,c2.textContent]=def;
+  };
+  card.querySelectorAll('[data-tipe]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>on(el.dataset.tipe));
+    el.addEventListener('focus',()=>on(el.dataset.tipe));
+    el.addEventListener('mouseleave',off);
+    el.addEventListener('blur',off);
+  });
+}
+
+const COMP_SEGS=[
+  {key:'mati',label:'Mati',color:TIPE_COLOR.Mati},
+  {key:'proses',label:'Masih dalam proses',color:TIPE_COLOR.Proses},
+  {key:'stok',label:'Stok nursery (BST)',color:TIPE_COLOR.BST},
+  {key:'dist',label:'Sudah didistribusikan',color:TIPE_COLOR.Pemanfaatan}
+];
+function compositionByJenis(year){
+  return flowByJenis(year).map(o=>({...o,proses:o.semai+o.proses})).sort((a,b)=>b.total-a.total);
+}
+
+function compositionChartHTML(year,periode){
+  const data=compositionByJenis(year);
+  const legend=COMP_SEGS.map(s=>`<span class="lg-item"><i style="background:${s.color}"></i>${s.label}</span>`).join('');
+  const ticks=[0,20,40,60,80,100];
+  const rowsHtml=data.map(o=>{
+    const segs=COMP_SEGS.filter(s=>o[s.key]>0).map(s=>`<div class="cmp-seg" style="flex:${o[s.key]} 0 0;background:${s.color}"></div>`).join('');
+    const tip=COMP_SEGS.map(s=>`<div class="tt-row"><span><i class="tt-sw" style="background:${s.color}"></i>${s.label}</span><span>${fmtInt(o[s.key])} &middot; <b>${fmtPct(o[s.key]/o.total*100)}</b></span></div>`).join('');
+    return`
+      <div class="cmp-row" tabindex="0">
+        <div class="cmp-lbl">${esc(o.jenis)}</div>
+        <div class="cmp-bar">${segs}</div>
+        <div class="cmp-n">${fmtInt(o.total)}</div>
+        <div class="tt-box cmp-tt"><div class="tt-head"><strong>${esc(o.jenis)}</strong> &middot; ${fmtInt(o.total)} bibit</div>${tip}</div>
+      </div>`;
+  }).join('');
+  const empty=data.length?'':'<div class="loading-note">Tidak ada data pada periode ini.</div>';
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Komposisi Alur Bibit per Jenis Tanaman</div>
+      <div class="chart-sub">${periode}</div>
+      <div class="cmp-legend">${legend}</div>
+      ${empty}
+      <div class="cmp-plot">
+        <div class="cmp-grid">${ticks.map(t=>`<span style="left:${t}%"></span>`).join('')}</div>
+        ${rowsHtml}
+      </div>
+      <div class="cmp-axis"><span></span><div class="cmp-ticks">${ticks.map(t=>`<span style="left:${t}%">${t}%</span>`).join('')}</div><span></span></div>    </div>`;
+}
+
+const validId=id=>/^\d{4}-\d{2}\//.test(id||'');
+const inCohort=(r,year)=>year==='all'||r.id.slice(0,4)===year;
+
+function batchStock(){
+  const batches={},unk={};
+  rows.forEach(r=>{
+    if(!r.jenis||r.jenis==='#N/A')return;
+    const jk=r.jenis.toLowerCase();
+    const out=r.cls==='mati'||PEMANFAATAN.has(r.cls);
+    if(validId(r.id)){
+      const b=batches[r.id]||(batches[r.id]={id:r.id,jenis:r.jenis,jk,masuk:0,out:0});
+      if(r.cls==='semai')b.masuk+=r.jumlah;
+      if(out)b.out+=r.jumlah;
+    }else if(out)unk[jk]=(unk[jk]||0)+r.jumlah;
+  });
+  const list=Object.values(batches).filter(b=>b.masuk>0);
+  list.forEach(b=>b.alive=Math.max(0,b.masuk-b.out));
+  Object.entries(unk).forEach(([jk,amt])=>{
+    list.filter(b=>b.jk===jk).sort((a,b)=>a.id.localeCompare(b.id)).forEach(b=>{
+      const t=Math.min(b.alive,amt);b.alive-=t;amt-=t;
+    });
+  });
+  const now=new Date();
+  list.forEach(b=>{
+    const y=+b.id.slice(0,4),m=+b.id.slice(5,7);
+    b.age=Math.max(0,(now.getFullYear()-y)*12+(now.getMonth()+1-m));
+  });
+  return list;
+}
+
+const AGE_BINS=[[0,3,'0–3'],[4,6,'4–6'],[7,12,'7–12'],[13,18,'13–18'],[19,24,'19–24'],[25,Infinity,'>24']];
+function ageChartHTML(year,periode){
+  const list=batchStock().filter(b=>b.alive>0&&inCohort(b,year));
+  const bins=AGE_BINS.map(([lo,hi,lbl])=>{
+    const members=list.filter(b=>b.age>=lo&&b.age<=hi).sort((a,b)=>b.alive-a.alive);
+    return{lbl,members,total:members.reduce((a,b)=>a+b.alive,0)};
+  });
+  const total=bins.reduce((a,b)=>a+b.total,0);
+  const nz=bins.map(b=>b.total).filter(v=>v>0);
+  const maxV=Math.max(10,...nz),minV=nz.length?Math.min(...nz):1;
+  let lo=Math.pow(10,Math.floor(Math.log10(minV)));
+  if(lo>=minV)lo/=10;
+  const hi=maxV*1.15;
+  const pos=v=>v>0?Math.max(0,(Math.log10(v)-Math.log10(lo))/(Math.log10(hi)-Math.log10(lo)))*100:0;
+  const ticks=[];for(let v=lo;v<=hi;v*=10)ticks.push(v);
+  const fmtTick=v=>v>=1e6?fmtInt(v/1e6)+'jt':v>=1000?fmtInt(v/1000)+'rb':fmtInt(v);
+  const cols=bins.map(b=>{
+    const tip=b.members.length
+      ?b.members.slice(0,8).map(m=>`<div class="tt-row"><span>${esc(m.jenis)} <small>${esc(m.id)}</small></span><span>${fmtInt(m.alive)}</span></div>`).join('')
+        +(b.members.length>8?`<div class="tt-row"><span>+${b.members.length-8} batch lainnya</span></div>`:'')
+      :'<div class="tt-row"><span>Tidak ada bibit</span></div>';
+    return`
+      <div class="age-col" tabindex="0">
+        <div class="age-bar" style="height:${pos(b.total)}%">
+          <div class="age-val">${fmtInt(b.total)}<small>${fmtPct(total?b.total/total*100:0)}</small></div>
+        </div>
+        <div class="tt-box age-tt"><div class="tt-head"><strong>Usia ${b.lbl} bulan</strong> &middot; ${fmtInt(b.total)} bibit &middot; ${b.members.length} batch</div>${tip}</div>
+      </div>`;
+  }).join('');
+  return`
+    <div class="card chart-card flex-card">
+      <div class="chart-title">Jumlah Bibit per Usia</div>
+      <div class="chart-sub">${periode} &middot; usia dalam bulan sejak semai &middot; skala logaritmik</div>
+      <div class="age-plot">
+        <div class="age-yaxis">${ticks.map(t=>`<span style="bottom:${pos(t)}%">${fmtTick(t)}</span>`).join('')}</div>
+        <div class="age-area">
+          ${ticks.map(t=>`<i class="age-grid" style="bottom:${pos(t)}%"></i>`).join('')}
+          ${cols}
+        </div>
+        <div></div>
+        <div class="age-xlabels">${bins.map(b=>`<span>${b.lbl}</span>`).join('')}</div>
+      </div>
+      <div class="age-xtitle">Usia (bulan)</div>
+    </div>`;
+}
+
+const PRE_BST_MATI=new Set(['matisemai','matipembesaran','rootstockmatigrafting']);
+function survivalChartHTML(year,periode){
+  const by={};
+  rows.forEach(r=>{
+    if(!validId(r.id)||!inCohort(r,year)||!r.jenis||r.jenis==='#N/A')return;
+    const k=r.jenis.toLowerCase();
+    const o=by[k]||(by[k]={jenis:r.jenis,masuk:0,gagal:0,batch:new Set()});
+    const n=normCat(r.category);
+    if(n==='semaibiji'){o.masuk+=r.jumlah;o.batch.add(r.id);}
+    if(PRE_BST_MATI.has(n))o.gagal+=r.jumlah;
+  });
+  const data=Object.values(by).filter(o=>o.masuk>0)
+    .map(o=>({...o,rate:Math.max(0,1-o.gagal/o.masuk)*100})).sort((a,b)=>b.rate-a.rate);
+  const sumM=data.reduce((a,o)=>a+o.masuk,0),sumG=data.reduce((a,o)=>a+o.gagal,0);
+  const avg=sumM?Math.max(0,1-sumG/sumM)*100:0;
+  const rowsHtml=data.map(o=>`
+    <div class="sv-row" tabindex="0">
+      <div class="sv-lbl">${esc(o.jenis)}</div>
+      <div class="sv-track"><div class="sv-bar" style="width:${o.rate}%"></div></div>
+      <div class="sv-pct">${fmtPct(o.rate)}</div>
+      <div class="tt-box sv-tt"><div class="tt-head"><strong>${esc(o.jenis)}</strong> &middot; ${o.batch.size} batch</div>
+        <div class="tt-row"><span>Bibit semai</span><span>${fmtInt(o.masuk)}</span></div>
+        <div class="tt-row"><span>Mati sebelum BST</span><span>${fmtInt(o.gagal)}</span></div>
+        <div class="tt-row"><span>Survival rate</span><span><b>${fmtPct(o.rate)}</b></span></div>
+      </div>
+    </div>`).join('');
+  const empty=data.length?'':'<div class="loading-note">Tidak ada data pada periode ini.</div>';
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Survival Rate per Jenis Tanaman</div>
+      <div class="chart-sub">${periode} &middot; rata-rata ${fmtPct(avg)}</div>
+      ${empty}
+      <div class="sv-plot">
+        ${data.length?`<div class="sv-avg" style="--avg:${avg}"><span>rata-rata</span></div>`:''}
+        ${rowsHtml}
+      </div>
+    </div>`;
+}
+
+const openIv=new Set();
+function pemanfaatanChartHTML(year,periode){
+  const list=(year==='all'?rows:rows.filter(r=>r.year===year)).filter(r=>PEMANFAATAN.has(r.cls));
+  const by={};
+  INTERVENSI.forEach(t=>by[t]={total:0,jenis:{}});
+  list.forEach(r=>{
+    const o=by[r.intervensi];
+    o.total+=r.jumlah;
+    const j=r.jenis&&r.jenis!=='#N/A'?r.jenis:'Tidak diketahui';
+    o.jenis[j]=(o.jenis[j]||0)+r.jumlah;
+  });
+  const total=INTERVENSI.reduce((a,t)=>a+by[t].total,0);
+  const max=Math.max(1,...INTERVENSI.map(t=>by[t].total));
+  const data=INTERVENSI.map(t=>({t,...by[t]})).sort((a,b)=>b.total-a.total);
+  const rowsHtml=data.map(o=>{
+    const jenis=Object.entries(o.jenis).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+    const jMax=Math.max(1,...jenis.map(([,v])=>v));
+    const open=openIv.has(o.t)&&jenis.length;
+    const detail=jenis.map(([j,v])=>`
+        <div class="ivj-row">
+          <div class="ivj-lbl">${esc(j)}</div>
+          <div class="ivj-track"><div class="ivj-bar" style="width:${Math.max(v/jMax*100,.5)}%"></div></div>
+          <div class="iv-val">${fmtInt(v)}</div>
+          <div class="ivj-pct">${fmtPct(v/o.total*100)}</div>
+        </div>`).join('');
+    return`
+      <div class="iv-group${open?' open':''}">
+        <button type="button" class="iv-row" data-iv="${o.t}" aria-expanded="${open?'true':'false'}"${jenis.length?'':' disabled'}>
+          <div class="iv-lbl"><span class="iv-chev">&#9656;</span>${o.t}<small>${jenis.length} jenis</small></div>
+          <div class="iv-track"><div class="iv-bar" style="width:${o.total>0?Math.max(o.total/max*100,.5):0}%"></div></div>
+          <div class="iv-val">${fmtInt(o.total)}</div>
+          <div class="iv-pct">${fmtPct(total?o.total/total*100:0)}</div>
+        </button>
+        <div class="ivj-list">${detail}</div>
+      </div>`;
+  }).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Tipe Pemanfaatan</div>
+      <div class="chart-sub">${periode}</div>
+      <div class="iv-list fixed">${rowsHtml}</div>
+    </div>`;
+}
+
+let tmData=[];
+function jenisPemanfaatanData(year){
+  const list=(year==='all'?rows:rows.filter(r=>r.year===year)).filter(r=>PEMANFAATAN.has(r.cls));
+  const by={};
+  list.forEach(r=>{
+    const j=r.jenis&&r.jenis!=='#N/A'?r.jenis:'Tidak diketahui';
+    const k=j.toLowerCase();
+    const o=by[k]||(by[k]={jenis:j,total:0,iv:{}});
+    o.total+=r.jumlah;
+    o.iv[r.intervensi]=(o.iv[r.intervensi]||0)+r.jumlah;
+  });
+  const data=Object.values(by).filter(o=>o.total>0).sort((a,b)=>b.total-a.total);
+  const total=data.reduce((a,o)=>a+o.total,0);
+  const main=data.filter(o=>o.total/total>=0.01);
+  const small=data.filter(o=>o.total/total<0.01);
+  if(small.length>1){
+    main.push({jenis:`Lainnya (${small.length} jenis)`,total:small.reduce((a,o)=>a+o.total,0),members:small});
+  }else main.push(...small);
+  return main.map(o=>({...o,pct:o.total/total*100}));
+}
+
+function jenisPemanfaatanHTML(year,periode){
+  tmData=jenisPemanfaatanData(year);
+  const empty=tmData.length?'':'<div class="loading-note">Tidak ada data pada periode ini.</div>';
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Jenis Tanaman yang Dimanfaatkan</div>
+      <div class="chart-sub">${periode}</div>
+      ${empty}
+      <div class="tm" id="treemap"${tmData.length?'':' hidden'}></div>
+    </div>`;
+}
+
+function squarify(items,x,y,w,h){
+  const out=[];
+  const worst=(row,s)=>{
+    const sum=row.reduce((a,r)=>a+r.area,0),mx=Math.max(...row.map(r=>r.area)),mn=Math.min(...row.map(r=>r.area));
+    return Math.max(s*s*mx/(sum*sum),sum*sum/(s*s*mn));
+  };
+  let rest=items.slice();
+  while(rest.length){
+    const s=Math.min(w,h);
+    let row=[rest[0]],i=1,best=worst(row,s);
+    while(i<rest.length){
+      const cand=row.concat(rest[i]),wv=worst(cand,s);
+      if(wv>best)break;
+      row=cand;best=wv;i++;
+    }
+    const sum=row.reduce((a,r)=>a+r.area,0);
+    if(w>=h){
+      const cw=sum/h;let cy=y;
+      row.forEach(r=>{const rh=r.area/cw;out.push({...r,x,y:cy,w:cw,h:rh});cy+=rh;});
+      x+=cw;w-=cw;
+    }else{
+      const rh=sum/w;let cx=x;
+      row.forEach(r=>{const rw=r.area/rh;out.push({...r,x:cx,y,w:rw,h:rh});cx+=rw;});
+      y+=rh;h-=rh;
+    }
+    rest=rest.slice(i);
+  }
+  return out;
+}
+
+const mixHex=(a,b,t)=>'#'+[0,2,4].map(i=>Math.round(parseInt(a.substr(i+1,2),16)*(1-t)+parseInt(b.substr(i+1,2),16)*t).toString(16).padStart(2,'0')).join('');
+const isDark=hex=>{const [r,g,b]=[1,3,5].map(i=>parseInt(hex.substr(i,2),16)/255);return .2126*r+.7152*g+.0722*b<.5;};
+
+function drawTreemap(){
+  const el=document.getElementById('treemap');
+  if(!el||!tmData.length)return;
+  const W=el.clientWidth,H=el.clientHeight;
+  const total=tmData.reduce((a,o)=>a+o.total,0);
+  const items=tmData.map((o,i)=>({i,area:o.total/total*W*H}));
+  const rects=squarify(items,0,0,W,H);
+  const maxPct=tmData[0].pct;
+  const tiles=rects.map(r=>{
+    const o=tmData[r.i];
+    const t=o.members?1:1-Math.sqrt(o.pct/maxPct);
+    const bg=o.members?'#DCDACC':mixHex('#356760','#B5BBA9',t);
+    const fg=isDark(bg)?'#fff':'#3A342C';
+    const showName=r.w>58&&r.h>26,showMeta=r.w>58&&r.h>44;
+    return`<div class="tm-tile${showName?' lbl':''}" data-i="${r.i}" tabindex="0" aria-label="${esc(o.jenis)}: ${fmtInt(o.total)} tanaman"
+      style="left:${r.x+1}px;top:${r.y+1}px;width:${Math.max(0,r.w-2)}px;height:${Math.max(0,r.h-2)}px;background:${bg};color:${fg}">
+      ${showName?`<div class="tm-name">${esc(o.jenis)}</div>`:''}
+      ${showMeta?`<div class="tm-meta">${fmtInt(o.total)} &middot; ${fmtPct(o.pct)}</div>`:''}
+    </div>`;
+  }).join('');
+  el.innerHTML=tiles+'<div class="tm-tt"></div>';
+  const tt=el.querySelector('.tm-tt');
+  const show=(tile,ev)=>{
+    const o=tmData[+tile.dataset.i];
+    const lines=o.members
+      ?o.members.map(m=>`<div class="tt-row"><span>${esc(m.jenis)}</span><span>${fmtInt(m.total)}</span></div>`).join('')
+      :Object.entries(o.iv).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1])
+        .map(([t,v])=>`<div class="tt-row"><span>${t}</span><span>${fmtInt(v)} &middot; <b>${fmtPct(v/o.total*100)}</b></span></div>`).join('');
+    tt.innerHTML=`<div class="tt-head"><strong>${esc(o.jenis)}</strong> &middot; ${fmtInt(o.total)} tanaman &middot; ${fmtPct(o.pct)}</div>${lines}`;
+    tt.style.display='block';
+    const box=el.getBoundingClientRect();
+    let px,py;
+    if(ev){px=ev.clientX-box.left+14;py=ev.clientY-box.top+14;}
+    else{px=tile.offsetLeft+8;py=tile.offsetTop+tile.offsetHeight/2;}
+    px=Math.min(px,W-tt.offsetWidth-4);
+    if(py+tt.offsetHeight>H+40)py=Math.max(0,py-tt.offsetHeight-28);
+    tt.style.left=Math.max(0,px)+'px';tt.style.top=py+'px';
+  };
+  const hide=()=>{tt.style.display='none';};
+  el.querySelectorAll('.tm-tile').forEach(tile=>{
+    tile.addEventListener('mousemove',ev=>show(tile,ev));
+    tile.addEventListener('focus',()=>show(tile));
+    tile.addEventListener('mouseleave',hide);
+    tile.addEventListener('blur',hide);
+  });
+}
+let tmResizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(tmResizeTimer);tmResizeTimer=setTimeout(drawTreemap,120);});
+
 function render(){
+  const s=computeStats(selectedYear);
+  const flow=flowTotals(selectedYear);
+  const jenisAll=computeStats('all').jenis;
+  const jenisNote=selectedYear==='all'
+    ?'Jenis tanaman unik (Sepanjang Waktu)'
+    :`${fmtInt(s.jenis)} jenis pada Tahun ${selectedYear}`;
+  const periode=selectedYear==='all'?'Sepanjang Waktu':`Tahun ${selectedYear}`;
+  const cohort=selectedYear==='all'?'Semua batch':`Batch semai ${selectedYear}`;
+  const chips=YEAR_OPTIONS.map(y=>`<button type="button" class="year-chip${y===selectedYear?' active':''}" data-year="${y}">${y==='all'?'All':y}</button>`).join('');
   const body=`
     <div class="sec-title">Nursery</div>
+    <div class="year-filter-bar">
+      <span class="year-filter-label">Year Filter</span>
+      <div class="year-filter-chips">${chips}</div>
+    </div>
     <div class="grid-row">
       <div class="card">
-        <div class="card-lbl">Jumlah Tanaman di Nursery</div>
-        <div class="card-val-lg">${fmtInt(jumlahDiNursery)}</div>
+        <div class="card-lbl">Jumlah Jenis Tanaman di Nursery</div>
+        <div class="card-val-lg">${fmtInt(jenisAll)}</div>
+        <div class="card-note">${jenisNote}</div>
       </div>
       <div class="card">
-        <div class="card-lbl">Total Bibit Semai (Sepanjang Waktu)</div>
-        <div class="card-val-lg">${fmtInt(totalSemai)}</div>
+        <div class="card-lbl">Total Bibit Semai</div>
+        <div class="card-val-lg">${fmtInt(s.semai)}</div>
+        <div class="card-note">${periode}</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Produksi BST</div>
+        <div class="card-val-lg">${fmtInt(s.bst)}</div>
+        <div class="card-note">Total BST yang diproduksi</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Pemanfaatan</div>
+        <div class="card-val-lg">${fmtInt(s.pemanfaatan)}</div>
+        <div class="card-note">Tanaman yang sudah dimanfaatkan</div>
       </div>
     </div>
+    <div class="row-head">
+      <div class="row-title">Stok &amp; Alur Bibit</div>
+      <div class="row-desc">Menampilkan posisi seluruh bibit di nursery berdasarkan tahapan proses yang dilalui: masih semai, dalam proses (pembesaran/grafting), menjadi stok bibit siap tanam (BST), sudah dimanfaatkan, atau mati.</div>
+    </div>
+    <div class="chart-pair">
+      ${tipeDonutHTML(flow,periode)}
+      ${compositionChartHTML(selectedYear,periode)}
+    </div>
+    <div class="row-head">
+      <div class="row-title">Kondisi Bibit</div>
+      <div class="row-desc">Menampilkan bibit yang masih hidup di nursery berdasarkan usianya, serta tingkat keberhasilan (survival rate) setiap jenis tanaman dari semai hingga menjadi bibit siap tanam (BST).</div>
+    </div>
+    <div class="chart-pair even">
+      ${ageChartHTML(selectedYear,cohort)}
+      ${survivalChartHTML(selectedYear,cohort)}
+    </div>
+    <div class="row-head">
+      <div class="row-title">Pemanfaatan</div>
+      <div class="row-desc">Menampilkan bibit yang sudah keluar dari nursery melalui penanaman, penyulaman, dan support, dikelompokkan berdasarkan tipe intervensi serta jenis tanaman yang paling banyak digunakan.</div>
+    </div>
+    <div class="chart-pair even">
+      ${pemanfaatanChartHTML(selectedYear,periode)}
+      ${jenisPemanfaatanHTML(selectedYear,periode)}
+    </div>
   `;
-  document.getElementById('pageBody').innerHTML=body;
+  const page=document.getElementById('pageBody');
+  page.innerHTML=body;
+  bindDonut(flow);
+  drawTreemap();
+  page.querySelectorAll('.iv-row[data-iv]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.iv,g=b.parentElement;
+    if(openIv.has(t))openIv.delete(t);else openIv.add(t);
+    g.classList.toggle('open',openIv.has(t));
+    b.setAttribute('aria-expanded',openIv.has(t)?'true':'false');
+  }));
+  page.querySelectorAll('.year-chip').forEach(b=>b.addEventListener('click',()=>{selectedYear=b.dataset.year;render();}));
 }
 
 

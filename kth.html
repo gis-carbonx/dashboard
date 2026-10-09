@@ -86,6 +86,8 @@ body{display:flex;flex-direction:column}
 .person-pic{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--border-lt);flex-shrink:0}
 .person-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.3}
 .person-role{font-size:10px;color:var(--text-2);line-height:1.3}
+.person.female{border:2px solid #D99AAB;padding:4px 11px 4px 4px}
+.person.female .person-pic{box-shadow:0 0 0 2.5px #B5627A}
 
 .activity-list{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
 .activity{flex:0 0 220px;scroll-snap-align:start;border:1px solid var(--border-lt);border-radius:12px;padding:12px 14px}
@@ -186,12 +188,16 @@ function fmtDate(d){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Urutan tampil jabatan pengurus; jabatan lain tetap ikut, ditaruh setelah ini.
-const ROLE_ORDER=['ketua','sekretaris','bendahara','anggota'];
+// Urutan tampil jabatan pengurus (dicocokkan per kata kunci, "wakil" dicek sebelum "ketua").
+// Jabatan lain (seksi, koordinator, dll) ditaruh setelah sekretaris; anggota paling akhir.
 function roleRank(j){
   const n=j.toLowerCase();
-  const i=ROLE_ORDER.indexOf(n);
-  return i===-1?ROLE_ORDER.length:i;
+  if(/wakil/.test(n))return 1;
+  if(/ketua/.test(n))return 0;
+  if(/bendahara/.test(n))return 2;
+  if(/sek(retaris|ertaris)/.test(n))return 3;
+  if(/anggota/.test(n))return 5;
+  return 4;
 }
 
 let kegiatanList=[],pengurusList=[];
@@ -219,7 +225,8 @@ function parsePengurus(csv){
     const nama=str(pickCI(raw,keys,'Nama Pengurus'));
     const alamat=str(pickCI(raw,keys,'Alamat Pengurus'));
     const foto=str(pickCI(raw,keys,'Foto'));
-    return{kth,jabatan,nama,alamat,foto};
+    const jk=str(pickCI(raw,keys,'Jelamin','Jenis Kelamin','Jenis_Kelamin')).toUpperCase();
+    return{kth,jabatan,nama,alamat,foto,female:jk==='P'};
   }).filter(r=>r.kth||r.nama);
 }
 
@@ -251,7 +258,7 @@ function render(){
       <div class="block-lbl">Pengurus</div>
       <div class="pengurus-row">
         ${g.pengurus.map(p=>`
-          <div class="person">
+          <div class="person${p.female?' female':''}">
             ${p.foto?`<img class="person-pic" src="${esc(p.foto)}" alt="" loading="lazy">`:'<div class="person-pic"></div>'}
             <div>
               <div class="person-name">${esc(p.nama)||'—'}</div>
