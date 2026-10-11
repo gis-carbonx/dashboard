@@ -975,10 +975,10 @@ function closeModal(id){
 function openGrafikModal(){document.getElementById('grafikModal').style.display='flex';switchGrafikTab(grafikTab);}
 
 // --- Detail Jumlah Tanaman: progres penanaman per tahun + jenis tanaman yang sudah ditanam ---
-// Catatan: lahan "sudah ditanam" = punya Tgl_Realisasi dan Jumlah_Tanaman > 0 (sama seperti renderTanamanPanel di atas,
-// tapi di sini tidak dibatasi filter waktu halaman utama, supaya tabel progres bisa menunjukkan riwayat tiap tahun).
+// Catatan: lahan "sudah ditanam" = punya Tgl_Realisasi (jumlah tanaman TIDAK menjadi syarat; kalau belum terisi, ditampilkan apa adanya/0).
+// Sama seperti renderTanamanPanel di bawah, tapi di sini tidak dibatasi filter waktu halaman utama, supaya tabel progres bisa menunjukkan riwayat tiap tahun.
 function getPlantedRowsAll(){
-  return Object.values(sheetMap).filter(r=>parseDate(r.tglRealisasi)&&r.jumlahTanaman>0);
+  return Object.values(sheetMap).filter(r=>parseDate(r.tglRealisasi));
 }
 let tnChartInst=null;
 function openTanamanModal(){
@@ -1291,7 +1291,7 @@ function parseSheet(csv){
     const dusun     =str(raw['AS']||raw['Dusun']      ||raw['dusun']      ||k(44)||'');
     const luasAgro  =num(raw['AT']||raw['Luas_Agro']  ||raw['luas_agro']  ||k(45)||0);
     const luasTemb  =num(raw['AU']||raw['Luas_Temb']  ||raw['luas_temb']  ||k(46)||0);
-    const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const jumlahTanaman=num(pickCI(raw,keys,'Total_Tanaman','Total Tanaman')||raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
     const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
@@ -1377,8 +1377,8 @@ function renderTanamanPanel(){
       if(grp==='agro')agroTotalHa+=r.luasAgro;
       else if(grp==='temb')tembTotalHa+=r.luasTemb;
     }
-    // luas yang sudah ditanam: harus punya Tgl_Realisasi (kolom K) DAN jumlah tanaman terisi (kolom AX > 0)
-    if(rowInRangeField(r,'tglRealisasi')&&parseDate(r.tglRealisasi)&&r.jumlahTanaman>0){
+    // luas yang sudah ditanam: cukup punya Tgl_Realisasi (kolom K). Jumlah tanaman (kolom AX Total_Tanaman) hanya ditampilkan apa adanya, bukan syarat.
+    if(rowInRangeField(r,'tglRealisasi')&&parseDate(r.tglRealisasi)){
       if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
       else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
     }
