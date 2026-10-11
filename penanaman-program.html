@@ -256,7 +256,7 @@ function parseSheet(csv){
     const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(raw['AT']||raw['Luas_Agro']||raw['luas_agro']||k(45)||0);
     const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
-    const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const jumlahTanaman=num(raw['Total_Tanaman']||raw['Total Tanaman']||raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const existingPlants=EXISTING_PLANT_COLS.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
     const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
@@ -328,7 +328,7 @@ function matchesKTH(r,k){
 }
 function matchesStatus(r,f){
   if(f==='all')return true;
-  return !!parseDate(r.tglRealisasi)&&r.jumlahTanaman>0;
+  return !!parseDate(r.tglRealisasi);
 }
 
 function getFilteredRows(){
@@ -382,7 +382,7 @@ function computeStats(){
     const luas=st.group==='agro'?r.luasAgro:r.luasTemb;
     luasTotal+=luas;
     tanamanTotal+=r.jumlahTanaman;
-    if(r.jumlahTanaman>0)luasTertanam+=luas;
+    if(parseDate(r.tglRealisasi))luasTertanam+=luas;
     if(r.petani&&r.petani.trim())petaniSet.add(r.petani.trim().toLowerCase());
   });
   return{luasTotal,tanamanTotal,luasTertanam,petaniTotal:petaniSet.size};
