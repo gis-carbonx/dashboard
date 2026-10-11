@@ -119,7 +119,8 @@ body{display:flex;flex-direction:column}
       <div class="content-row">
         <nav class="side-menu">
           <a class="side-item active" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
-          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="ARR Program" aria-label="ARR Program"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item disabled" title="Enrichment" aria-label="Enrichment"><svg viewBox="0 0 24 24"><path d="M12 21v-7.5"/><path d="M12 13.5c-4.1 0-7.4-3.3-7.4-7.4 4.1 0 7.4 3.3 7.4 7.4Z"/><path d="M12 10.6c0-4.1 3.1-7.1 7.1-7.1 0 4.1-3 7.1-7.1 7.1Z"/></svg></a>
           <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
           <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
@@ -186,7 +187,7 @@ function parseSheet(csv){
     const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(raw['AT']||raw['Luas_Agro']||raw['luas_agro']||k(45)||0);
     const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
-    const jumlahTanaman=num(raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const jumlahTanaman=num(pickCI(raw,keys,'Total_Tanaman','Total Tanaman')||raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
     const plantedPlants=plantCols.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
@@ -250,7 +251,7 @@ function computeSubAreas(){
 function computeTanamanTotal(){
   let total=0,agro=0,temb=0;
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglRealisasi')||r.jumlahTanaman<=0)return;
+    if(!matchesFilter(r,'tglRealisasi'))return;
     total+=r.jumlahTanaman;
     if(r.prog?.startsWith('Agro'))agro+=r.jumlahTanaman;
     else if(r.prog?.startsWith('Temb'))temb+=r.jumlahTanaman;
@@ -258,11 +259,11 @@ function computeTanamanTotal(){
   return{total,agro,temb};
 }
 
-// Lahan sudah ditanam = punya Tgl_Realisasi (sesuai filter) dan Jumlah_Tanaman > 0
+// Lahan sudah ditanam = punya Tgl_Realisasi (sesuai filter). Jumlah tanaman bukan syarat, hanya ditampilkan apa adanya.
 function computePlanting(){
   let agro=0,temb=0;const speciesMap={};
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglRealisasi')||r.jumlahTanaman<=0)return;
+    if(!matchesFilter(r,'tglRealisasi'))return;
     agro+=r.luasAgro;temb+=r.luasTemb;
     r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
   });
