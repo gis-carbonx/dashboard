@@ -154,6 +154,12 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
+// Baca kolom berdasarkan NAMA header (tidak peka huruf besar/kecil). Posisi kolom hanya dipakai bila header tidak ditemukan sama sekali.
+function colV(raw,keys,names,idx){
+  const v=pickCI(raw,keys,...names);
+  if(v!==undefined)return v;
+  return idx!=null&&keys[idx]!==undefined?raw[keys[idx]]:undefined;
+}
 function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
   if(aReg>0)return'Agro_Reg';if(aBPO>0)return'Agro_BPO';
   if(tReg>0)return'Temb_Reg';if(tMTL>0)return'Temb_MTL';
@@ -168,11 +174,11 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // kolom "P-<Nama Tanaman>" = jenis tanaman hasil penanaman project
+  // semua header berawalan "P-" = jenis tanaman hasil penanaman project (termasuk "P-Asam Keranji"), dibaca lewat NAMA header
   const plantCols=[];
-  (data.length?Object.keys(data[0]):[]).forEach((h,i)=>{
+  (data.length?Object.keys(data[0]):[]).forEach(h=>{
     const m=h.match(/^P-\s*(.+)$/i);
-    if(m)plantCols.push({idx:i,name:m[1].trim()});
+    if(m)plantCols.push({header:h,name:m[1].trim()});
   });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
@@ -184,12 +190,12 @@ function parseSheet(csv){
     const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||raw['N']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||raw['O']||0);
     const keys=Object.keys(raw);
     const k=i=>keys[i]?str(raw[keys[i]]):'';
-    const luasAgro=num(raw['AT']||raw['Luas_Agro']||raw['luas_agro']||k(45)||0);
-    const luasTemb=num(raw['AU']||raw['Luas_Temb']||raw['luas_temb']||k(46)||0);
-    const jumlahTanaman=num(pickCI(raw,keys,'Total_Tanaman','Total Tanaman')||raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const luasAgro=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
+    const luasTemb=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
+    const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
-    const plantedPlants=plantCols.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
+    const plantedPlants=plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;

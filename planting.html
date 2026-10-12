@@ -1256,16 +1256,22 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
+// Baca kolom berdasarkan NAMA header (tidak peka huruf besar/kecil). Posisi kolom hanya dipakai bila header tidak ditemukan sama sekali.
+function colV(raw,keys,names,idx){
+  const v=pickCI(raw,keys,...names);
+  if(v!==undefined)return v;
+  return idx!=null&&keys[idx]!==undefined?raw[keys[idx]]:undefined;
+}
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   _rawRows=data;
-  // kolom "P-<Nama Tanaman>" = jenis tanaman hasil penanaman project, dipakai untuk Detail Jumlah Tanaman
+  // semua header berawalan "P-" = jenis tanaman hasil penanaman project (termasuk "P-Asam Keranji"), dibaca lewat NAMA header
   PLANTED_PLANT_COLS=[];
   const headerKeys0=data.length?Object.keys(data[0]):[];
-  headerKeys0.forEach((h,i)=>{
+  headerKeys0.forEach(h=>{
     const m=h.match(/^P-\s*(.+)$/i);
-    if(m)PLANTED_PLANT_COLS.push({idx:i,name:m[1].trim()});
+    if(m)PLANTED_PLANT_COLS.push({header:h,name:m[1].trim()});
   });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
@@ -1278,23 +1284,23 @@ function parseSheet(csv){
     const tanamanKarbon=num(raw['Total_Tanaman_Karbon']||raw['Total Tanaman Karbon']||raw['P']||0);
     const link=str(raw['Link']||raw['link']||raw['Q']||'');
     const keys=Object.keys(raw);
-    const k=i=>keys[i]?str(raw[keys[i]]):'';
+    const nom=n=>num(colV(raw,keys,['Nominal_T'+n],27+n));
     const nominalStages={
-      persiapan:num(k(28)),tanam:num(k(29)),thn2:num(k(30)),thn3:num(k(31)),thn4:num(k(32)),
-      thn6:num(k(33)),thn7:num(k(34)),thn8:num(k(35)),thn9:num(k(36)),thn10:num(k(37)),
+      persiapan:nom(1),tanam:nom(2),thn2:nom(3),thn3:nom(4),thn4:nom(5),
+      thn6:nom(6),thn7:nom(7),thn8:nom(8),thn9:nom(9),thn10:nom(10),
     };
-    const pupukPadat=num(raw['AN']||raw['Pupuk_Padat']||raw['pupuk_padat']||k(39)||0);
-    const pupukCair =num(raw['AO']||raw['Pupuk_Cair'] ||raw['pupuk_cair'] ||k(40)||0);
-    const tglBPO    =str(raw['AP']||raw['Tgl_BPO']    ||raw['tgl_bpo']    ||k(41)||'');
-    const insentifMTL=num(raw['AQ']||raw['Insentif_MTL']||raw['insentif_mtl']||k(42)||0);
-    const tglMTL    =str(raw['AR']||raw['Tgl_MTL']    ||raw['tgl_mtl']    ||k(43)||'');
-    const dusun     =str(raw['AS']||raw['Dusun']      ||raw['dusun']      ||k(44)||'');
-    const luasAgro  =num(raw['AT']||raw['Luas_Agro']  ||raw['luas_agro']  ||k(45)||0);
-    const luasTemb  =num(raw['AU']||raw['Luas_Temb']  ||raw['luas_temb']  ||k(46)||0);
-    const jumlahTanaman=num(pickCI(raw,keys,'Total_Tanaman','Total Tanaman')||raw['AX']||raw['Jumlah_Tanaman']||raw['jumlah_tanaman']||k(49)||0);
+    const pupukPadat=num(colV(raw,keys,['PupukPadat','Pupuk_Padat'],39));
+    const pupukCair =num(colV(raw,keys,['PupukCair','Pupuk_Cair'],40));
+    const tglBPO    =str(colV(raw,keys,['tanggal_bpo','Tgl_BPO'],41));
+    const insentifMTL=num(colV(raw,keys,['insentifMTL','Insentif_MTL'],42));
+    const tglMTL    =str(colV(raw,keys,['tanggal_mtl','Tgl_MTL'],43));
+    const dusun     =str(colV(raw,keys,['dusun'],44));
+    const luasAgro  =num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
+    const luasTemb  =num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
+    const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
-    const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(k(c.idx))})).filter(p=>p.count>0);
+    const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro = luasAgro>0 ? luasAgro : aReg+aBPO;
@@ -2038,9 +2044,10 @@ function buildInsData(){
     if(!id||!sheetMap[id])return;
     const keys2=Object.keys(raw),row=sheetMap[id];
     const stages={};
-    INS_STAGES.forEach(s=>{
-      const byName=str(raw[s.key]||raw[s.label]||'');
-      const byIdx=keys2[s.idx]?str(raw[keys2[s.idx]]):'';
+    INS_STAGES.forEach((s,i)=>{
+      const hv=pickCI(raw,keys2,'Insentif_T'+(i+1)); // dibaca lewat nama header Insentif_T1..T10; posisi kolom hanya cadangan
+      const byName=hv!==undefined?str(hv):str(raw[s.key]||raw[s.label]||'');
+      const byIdx=hv===undefined&&keys2[s.idx]?str(raw[keys2[s.idx]]):'';
       stages[s.key]=byName||byIdx;
     });
     insRawData.push({...row,stages});
