@@ -48,7 +48,7 @@ body{display:flex;flex-direction:column}
 
 .body-row{flex:1;min-height:0;display:flex}
 
-.page-scroll{flex:1;min-height:0;overflow-y:auto}
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
 .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -65,25 +65,25 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
-.card-note{font-size:10.5px;color:var(--text-3);margin-top:8px;line-height:1.4}
+.card-note{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
 
-.year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
-.year-filter-label{font-size:12px;font-weight:600;color:var(--text-2)}
+.year-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.year-filter-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
 .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
 .year-chip{
-  padding:6px 16px;border-radius:20px;border:1px solid var(--border);
-  background:var(--bg);color:var(--text);font-size:12px;font-weight:600;
+  padding:4px 12px;border-radius:20px;border:1px solid var(--border);
+  background:#fff;color:var(--text-2);font-size:10.5px;font-weight:600;
   cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
 }
-.year-chip:hover{background:var(--primary-lt)}
+.year-chip:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
 .year-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
 
 .row-head{margin:4px 0 14px}
-.row-title{font-size:16px;font-weight:800;color:var(--text)}
+.row-title{font-size:14.5px;font-weight:700;color:var(--text)}
 .row-desc{font-size:12px;color:var(--text-2);line-height:1.6;margin-top:4px;max-width:760px}
 .chart-pair{display:grid;grid-template-columns:minmax(260px,1fr) 2.6fr;gap:16px;align-items:stretch;margin-bottom:28px}
 .chart-card{padding:20px 22px 16px;min-width:0}
@@ -241,8 +241,9 @@ body{display:flex;flex-direction:column}
       <div class="content-row">
         <nav class="side-menu">
           <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
-          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="arr.html" title="ARR" aria-label="ARR"><svg viewBox="0 0 24 24"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg></a>
           <a class="side-item active" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
           <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
         <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data nursery...</div></div>
@@ -805,11 +806,11 @@ function render(){
   const cohort=selectedYear==='all'?'Semua batch':`Batch semai ${selectedYear}`;
   const chips=YEAR_OPTIONS.map(y=>`<button type="button" class="year-chip${y===selectedYear?' active':''}" data-year="${y}">${y==='all'?'All':y}</button>`).join('');
   const body=`
-    <div class="sec-title">Nursery</div>
     <div class="year-filter-bar">
-      <span class="year-filter-label">Year Filter</span>
+      <span class="year-filter-label">Filter</span>
       <div class="year-filter-chips">${chips}</div>
     </div>
+    <div class="sec-title">Nursery</div>
     <div class="grid-row">
       <div class="card">
         <div class="card-lbl">Jumlah Jenis Tanaman di Nursery</div>

@@ -48,7 +48,7 @@ body{display:flex;flex-direction:column}
 
 .body-row{flex:1;min-height:0;display:flex}
 
-.page-scroll{flex:1;min-height:0;overflow-y:auto}
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
 .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -65,7 +65,7 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
@@ -76,7 +76,7 @@ body{display:flex;flex-direction:column}
 /* --- KTH-specific, kept minimal & consistent with the card/sub-title system above --- */
 .kth-block{border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:18px}
 .kth-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.kth-name{font-size:15px;font-weight:800;color:var(--text)}
+.kth-name{font-size:14.5px;font-weight:700;color:var(--text)}
 .kth-count{font-size:11px;color:var(--text-2)}
 .block-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin:0 0 10px}
 .block-lbl:not(:first-of-type){margin-top:18px}
@@ -89,14 +89,33 @@ body{display:flex;flex-direction:column}
 .person.female{border:2px solid #D99AAB;padding:4px 11px 4px 4px}
 .person.female .person-pic{box-shadow:0 0 0 2.5px #B5627A}
 
-.activity-list{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
-.activity{flex:0 0 220px;scroll-snap-align:start;border:1px solid var(--border-lt);border-radius:12px;padding:12px 14px}
-.activity-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
-.activity-meta{font-size:11px;color:var(--text-2);margin-bottom:6px}
-.activity-desc{font-size:12px;color:var(--text-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.thumb-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--border-lt);cursor:pointer;transition:transform .15s,box-shadow .15s}
-.thumb:hover,.thumb:focus-visible{transform:scale(1.06);box-shadow:0 0 0 2px var(--primary);outline:none}
+/* Carousel kegiatan: kartu dengan foto besar, geser (swipe/scroll) atau tombol panah */
+.carousel{position:relative}
+.activity-list{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}
+.activity-list::-webkit-scrollbar{display:none}
+.activity{flex:0 0 280px;max-width:85%;scroll-snap-align:start;border:1px solid var(--border-lt);border-radius:14px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.activity-cover{position:relative;height:180px;background:var(--border-lt);flex-shrink:0}
+.photo-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:none}
+.photo-track::-webkit-scrollbar{display:none}
+.activity-cover .thumb{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;scroll-snap-align:start}
+.activity-cover .thumb:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+/* Navigasi foto dalam kartu: ‹ • • • › di bawah foto */
+.photo-nav{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(20,18,15,.55);border-radius:14px;padding:3px 4px}
+.ph-btn{width:22px;height:22px;border:none;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:15px;line-height:1;cursor:pointer;font-family:inherit}
+.ph-btn:hover{background:rgba(255,255,255,.35)}
+.ph-dots{display:flex;gap:4px}
+.ph-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);transition:background .15s,transform .15s}
+.ph-dot.on{background:#fff;transform:scale(1.25)}
+.activity-body{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1}
+.activity-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:6px}
+.activity-desc{font-size:12px;color:var(--text-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.activity-meta{font-size:11px;color:var(--text-2);margin-top:auto;padding-top:12px;border-top:1px solid var(--border-lt)}
+.activity-desc+.activity-meta{margin-top:12px}
+.car-btn{position:absolute;top:90px;transform:translateY(-50%);z-index:2;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:rgba(255,250,243,.95);color:var(--dark);font-size:22px;line-height:1;cursor:pointer;box-shadow:var(--shadow-md);font-family:inherit;transition:opacity .15s}
+.car-btn:hover{background:#fff}
+.car-prev{left:8px}
+.car-next{right:8px}
+.car-btn[disabled]{opacity:0;pointer-events:none}
 
 /* --- Lightbox foto kegiatan --- */
 .lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
@@ -146,8 +165,9 @@ body{display:flex;flex-direction:column}
       <div class="content-row">
         <nav class="side-menu">
           <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
-          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="arr.html" title="ARR" aria-label="ARR"><svg viewBox="0 0 24 24"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg></a>
           <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
           <a class="side-item active" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
         <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data KTH...</div></div>
@@ -300,15 +320,28 @@ function render(){
 
     const kegiatanHtml=g.kegiatan.length?`
       <div class="block-lbl">Kegiatan</div>
-      <div class="activity-list">
-        ${g.kegiatan.map(k=>`
-          <div class="activity">
-            <div class="activity-title">${esc(k.judul)||'Kegiatan'}</div>
-            <div class="activity-meta">${[fmtDate(k.tanggal),esc(k.lokasi)].filter(Boolean).join(' · ')}</div>
-            ${k.deskripsi?`<div class="activity-desc">${esc(k.deskripsi)}</div>`:''}
-            ${k.fotos.length?`<div class="thumb-row">${k.fotos.map((f,i)=>`<img class="thumb" src="${esc(f)}" alt="" loading="lazy" data-k="${kegiatanList.indexOf(k)}" data-i="${i}" tabindex="0" role="button" aria-label="Perbesar foto ${i+1}">`).join('')}</div>`:''}
-          </div>
-        `).join('')}
+      <div class="carousel">
+        <button type="button" class="car-btn car-prev" data-car="-1" aria-label="Kegiatan sebelumnya">&#8249;</button>
+        <div class="activity-list">
+          ${g.kegiatan.map(k=>`
+            <div class="activity">
+              <div class="activity-cover">
+                ${k.fotos.length?`<div class="photo-track">${k.fotos.map((f,i)=>`<img class="thumb" src="${esc(f)}" alt="" loading="lazy" data-k="${kegiatanList.indexOf(k)}" data-i="${i}" tabindex="0" role="button" aria-label="Perbesar foto ${i+1}">`).join('')}</div>
+                ${k.fotos.length>1?`<div class="photo-nav">
+                  <button type="button" class="ph-btn" data-ph="-1" aria-label="Foto sebelumnya">&#8249;</button>
+                  <span class="ph-dots">${k.fotos.map((_,i)=>`<span class="ph-dot${i?'':' on'}"></span>`).join('')}</span>
+                  <button type="button" class="ph-btn" data-ph="1" aria-label="Foto berikutnya">&#8250;</button>
+                </div>`:''}`:''}
+              </div>
+              <div class="activity-body">
+                <div class="activity-title">${esc(k.judul)||'Kegiatan'}</div>
+                ${k.deskripsi?`<div class="activity-desc">${esc(k.deskripsi)}</div>`:''}
+                <div class="activity-meta">${[fmtDate(k.tanggal),esc(k.lokasi)].filter(Boolean).join(' · ')}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <button type="button" class="car-btn car-next" data-car="1" aria-label="Kegiatan berikutnya">&#8250;</button>
       </div>
     `:'';
 
@@ -348,7 +381,32 @@ function render(){
     ${blocks||'<div class="loading-note">Belum ada data KTH.</div>'}
   `;
   document.getElementById('pageBody').innerHTML=body;
+  document.querySelectorAll('.carousel').forEach(c=>{
+    const list=c.querySelector('.activity-list');
+    list.addEventListener('scroll',()=>carUpdate(c),{passive:true});
+    carUpdate(c);
+  });
+  document.querySelectorAll('.activity-cover').forEach(cv=>{
+    const track=cv.querySelector('.photo-track');
+    if(track&&cv.querySelector('.photo-nav'))track.addEventListener('scroll',()=>phUpdate(cv),{passive:true});
+  });
 }
+
+// Slider foto di dalam kartu: tandai titik foto yang sedang tampil
+function phIndex(track){return Math.round(track.scrollLeft/(track.clientWidth||1));}
+function phUpdate(cv){
+  const i=phIndex(cv.querySelector('.photo-track'));
+  cv.querySelectorAll('.ph-dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+}
+
+// Carousel kegiatan: sembunyikan panah di ujung awal/akhir
+function carUpdate(c){
+  const list=c.querySelector('.activity-list');
+  const max=list.scrollWidth-list.clientWidth;
+  c.querySelector('.car-prev').disabled=list.scrollLeft<=2;
+  c.querySelector('.car-next').disabled=list.scrollLeft>=max-2;
+}
+window.addEventListener('resize',()=>document.querySelectorAll('.carousel').forEach(carUpdate));
 
 // Lightbox: klik foto kegiatan untuk memperbesar; panah kiri/kanan untuk foto lain di kegiatan yang sama
 const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),k:null,i:0,last:null};
@@ -376,6 +434,22 @@ function lbStep(d){
   lb.i=(lb.i+d+n)%n;lbShow();
 }
 document.getElementById('pageBody').addEventListener('click',e=>{
+  const b=e.target.closest('.car-btn');
+  if(b){
+    const list=b.parentElement.querySelector('.activity-list');
+    const card=list.querySelector('.activity');
+    const step=card?card.offsetWidth+14:list.clientWidth;
+    list.scrollBy({left:+b.dataset.car*step,behavior:'smooth'});
+    return;
+  }
+  const p=e.target.closest('.ph-btn');
+  if(p){
+    const track=p.closest('.activity-cover').querySelector('.photo-track');
+    const n=track.children.length;
+    const i=(phIndex(track)+ +p.dataset.ph+n)%n;
+    track.scrollTo({left:i*track.clientWidth,behavior:'smooth'});
+    return;
+  }
   const t=e.target.closest('.thumb[data-k]');
   if(t)lbOpen(+t.dataset.k,+t.dataset.i,t);
 });

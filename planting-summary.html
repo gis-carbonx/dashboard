@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Planting Summary</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -48,7 +50,7 @@ body{display:flex;flex-direction:column}
 
 .body-row{flex:1;min-height:0;display:flex}
 
-.page-scroll{flex:1;min-height:0;overflow-y:auto}
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
 .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -61,11 +63,13 @@ body{display:flex;flex-direction:column}
 
 .page-body-inner{flex:1;min-width:0}
 
-.filter-row{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap}
-.filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-3)}
-.fpill{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
+.fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
 .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
+.filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
+.filter-select:focus{border-color:var(--primary)}
 
 .sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
@@ -84,6 +88,28 @@ body{display:flex;flex-direction:column}
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
+
+/* --- Sebaran Lahan Program --- */
+.sebaran-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:8px}
+.sebaran-map-wrap{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:360px;background:var(--border-lt)}
+#sebaranMap{width:100%;height:100%}
+.map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px}
+.map-legend span{display:flex;align-items:center;gap:6px}
+.lg-sw{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.lg-line{width:16px;border-top:2px solid #334155;flex-shrink:0}
+.lahan-detail{border:1px solid var(--border);border-radius:14px;padding:16px;max-height:360px;overflow-y:auto}
+.sebaran-desc{font-size:12px;color:var(--text-2);margin:0 0 14px}
+.ld-title{font-size:14px;font-weight:800;color:var(--text)}
+.ld-prog{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:4px}
+.ld-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:14px 0}
+.ld-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.ld-val{font-size:12px;font-weight:600;color:var(--text);margin-top:2px;word-break:break-word}
+.ld-sec{border-top:1px solid var(--border-lt);padding-top:10px;margin-top:10px}
+.ld-sec-hd{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;font-weight:700;color:var(--text);margin-bottom:6px}
+.ld-sec-hd b{color:var(--primary);font-size:13px}
+.ld-plant{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--text-2);padding:3px 0}
+.ld-none{font-size:11px;color:var(--text-3)}
+@media (max-width:900px){.sebaran-row{grid-template-columns:1fr}}
 
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -119,11 +145,30 @@ body{display:flex;flex-direction:column}
       <div class="content-row">
         <nav class="side-menu">
           <a class="side-item active" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
-          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="arr.html" title="ARR" aria-label="ARR"><svg viewBox="0 0 24 24"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg></a>
           <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
           <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
         </nav>
-        <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data ringkasan...</div></div>
+        <div class="page-body-inner">
+          <div id="pageBody"><div class="loading-note">Memuat data ringkasan...</div></div>
+          <!-- Di luar #pageBody agar peta tidak dibuat ulang setiap kali filter berubah -->
+          <section id="sebaranSection" style="display:none">
+            <div class="sub-title" style="margin-top:28px;margin-bottom:4px">Sebaran Lahan Program</div>
+            <p class="sebaran-desc">Peta menampilkan sebaran lahan program agroforestri dan reforestasi.</p>
+            <div class="sebaran-row">
+              <div class="sebaran-map-wrap">
+                <div id="sebaranMap"></div>
+                <div class="map-legend">
+                  <span><i class="lg-sw" style="background:#2e7d32;border:1.5px solid #0f3d13"></i>Agroforestri</span>
+                  <span><i class="lg-sw" style="background:#d9480f;border:1.5px solid #7a2300"></i>Reforestasi</span>
+                  <span><i class="lg-line"></i>Batas CMI</span>
+                </div>
+              </div>
+              <div class="lahan-detail" id="lahanDetail"></div>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -169,16 +214,40 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
 
 let sheetMap={},targetData={},currentYear='all',currentQuarter='all',years=[];
 const QUARTERS=['1','2','3','4'];
+const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+// Mode periode: 'yq' = filter Tahun + Quarter; 'ytd' / 'mtd' / 'week' = filter periode (mengabaikan Tahun & Quarter)
+let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+
+// Minggu = Sabtu s/d Jumat, sama seperti filter Mingguan di planting.html
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function fmtD(d,t){return d.toLocaleDateString('id-ID',t==='s'?{day:'numeric',month:'short'}:{day:'numeric',month:'long',year:'numeric'});}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
+}
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   // semua header berawalan "P-" = jenis tanaman hasil penanaman project (termasuk "P-Asam Keranji"), dibaca lewat NAMA header
-  const plantCols=[];
+  // "E-<Nama>" = tanaman eksisting (dipakai di detail peta)
+  const plantCols=[],existCols=[];
   (data.length?Object.keys(data[0]):[]).forEach(h=>{
-    const m=h.match(/^P-\s*(.+)$/i);
-    if(m)plantCols.push({header:h,name:m[1].trim()});
+    let m=h.match(/^P-\s*(.+)$/i);
+    if(m){plantCols.push({header:h,name:m[1].trim()});return;}
+    m=h.match(/^E-\s*(.+)$/i);
+    if(m)existCols.push({header:h,name:m[1].trim()});
   });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
@@ -196,11 +265,12 @@ function parseSheet(csv){
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
     const plantedPlants=plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
+    const existingPlants=existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman,plantedPlants};
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman,plantedPlants,existingPlants};
   });
 }
 
@@ -229,6 +299,10 @@ function parseTargetSheet(csv){
 function matchesFilter(row,field){
   const d=parseDate(row[field]);
   if(!d)return false;
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=wk.fri;}
   if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
   if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
   return true;
@@ -279,7 +353,17 @@ function joinID(list){
   return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
 }
 
+// Tahun target saat mode periode aktif (target di sheet bersifat tahunan)
+function periodTargetYear(){
+  if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
+  return null;
+}
 function computeTarget(){
+  if(periodMode!=='yq'){
+    const td=targetData[periodTargetYear()];
+    return td?{agro:td.agro_total??null,temb:td.temb_total??null}:{agro:null,temb:null};
+  }
   if(currentYear==='all'){
     let agro=0,temb=0,found=false;
     Object.values(targetData).forEach(td=>{agro+=td.agro_utama||0;temb+=td.temb_utama||0;found=true;});
@@ -291,7 +375,8 @@ function computeTarget(){
 function pctText(val,target){
   if(target===null||target===undefined||target<=0)return'';
   // target di sheet bersifat tahunan; saat filter quarter aktif, persentase dibandingkan ke target tahunan
-  return(val/target*100).toFixed(1)+(currentQuarter==='all'?'% dari target':'% dari target tahunan');
+  const partial=periodMode==='yq'?currentQuarter!=='all':periodMode!=='ytd';
+  return(val/target*100).toFixed(1)+(partial?'% dari target tahunan':'% dari target');
 }
 
 // Peserta dihitung di agroforestri/reforestasi jika punya luasan di program tsb
@@ -324,21 +409,43 @@ function computePetakCount(){
 }
 
 function yearLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 Januari–${fmtD(now,'l')}`;
+  if(periodMode==='mtd')return`1–${fmtD(now,'l')}`;
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtD(wk.sat,'s')}–${fmtD(wk.fri,'l')}`:'mingguan';}
   const y=currentYear==='all'?'semua tahun':String(currentYear);
   return currentQuarter==='all'?y:`Q${currentQuarter} ${y}`;
 }
 
 function setFilter(y){
-  currentYear=y;
+  currentYear=y;periodMode='yq';
   render();
 }
 
 function setQuarter(q){
-  currentQuarter=q;
+  currentQuarter=q;periodMode='yq';
   render();
 }
 
+function setPeriod(p){
+  periodMode=p;
+  render();
+}
+function setWeekYear(v){weekYear=+v;weekIdx=null;render();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;render();}
+function setWeekPick(v){weekIdx=+v;render();}
+
+function weekPickerHtml(){
+  const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+  const weeks=getWeeksInMonth(weekYear,weekMonth),sel=weekIdx??defaultWeekIdx();
+  return`
+    <select class="filter-select" aria-label="Tahun" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Bulan" onchange="setWeekMonth(this.value)">${MN.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})</option>`).join('')}</select>`;
+}
+
 function render(){
+  const yq=periodMode==='yq';
   const areas=computeAreas();
   const totalHa=areas.agro+areas.temb;
   const peserta=computePesertaTotal();
@@ -349,7 +456,11 @@ function render(){
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(peserta.total)} individu penggarap lahan.`;
   const sub=computeSubAreas();
-  const note2=`Luasan program agroforestry tersusun atas ${fmt(sub.aBPOHa)} ha sub program bantuan pupuk organik, dan ${fmt(sub.aRegHa)} ha luasan agroforestry reguler. Sedangkan program reforestasi, tersusun atas ${fmt(sub.tMTLHa)} ha sub program menjaga tutupan lahan, dan ${fmt(sub.tRegHa)} ha luasan reforestasi reguler.`;
+  // Capaian vs target dijelaskan di kalimat; rincian sub program ditampilkan di dalam panel
+  const tgtPhrase=(val,target)=>target!==null&&target>0
+    ?`atau ${pctText(val,target)} sebesar ${fmt(target)} ha`
+    :'(target belum tersedia)';
+  const note2=`Luasan program agroforestri mencapai ${fmt(areas.agro)} ha, ${tgtPhrase(areas.agro,tgt.agro)}. Sedangkan program reforestasi mencapai ${fmt(areas.temb)} ha, ${tgtPhrase(areas.temb,tgt.temb)}.`;
   const plant=computePlanting();
   const plantPct=totalHa>0?(plant.luas/totalHa*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
   const dominan=plant.species.slice(0,3);
@@ -359,15 +470,22 @@ function render(){
       :'.');
 
   const body=`
-    <div class="filter-row" style="margin-bottom:10px">
+    <div class="filter-row" style="margin-bottom:6px">
       <span class="filter-lbl">Filter</span>
-      <button class="fpill${currentYear==='all'?' active':''}" data-val="all" onclick="setFilter('all')">All</button>
-      ${years.map(y=>`<button class="fpill${currentYear===String(y)?' active':''}" data-val="${y}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+      <button class="fpill${yq&&currentYear==='all'?' active':''}" data-val="all" onclick="setFilter('all')">All</button>
+      ${years.map(y=>`<button class="fpill${yq&&currentYear===String(y)?' active':''}" data-val="${y}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row" style="margin-bottom:6px">
+      <span class="filter-lbl">Quarter</span>
+      <button class="fpill${yq&&currentQuarter==='all'?' active':''}" onclick="setQuarter('all')">All</button>
+      ${QUARTERS.map(q=>`<button class="fpill${yq&&currentQuarter===q?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
     </div>
     <div class="filter-row">
-      <span class="filter-lbl">Quarter</span>
-      <button class="fpill${currentQuarter==='all'?' active':''}" onclick="setQuarter('all')">All</button>
-      ${QUARTERS.map(q=>`<button class="fpill${currentQuarter===q?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
+      <span class="filter-lbl">Periode</span>
+      <button class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      <button class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
+      <button class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Mingguan</button>
+      ${periodMode==='week'?weekPickerHtml():''}
     </div>
 
     <div class="sec-title">Summary</div>
@@ -394,12 +512,12 @@ function render(){
           <div class="card">
             <div class="card-lbl">Agroforestri</div>
             <div class="card-val-lg">${fmt(areas.agro)} ha</div>
-            ${tgt.agro!==null?`<div class="card-sub-pct">${pctText(areas.agro,tgt.agro)}</div>`:''}
+            <div class="card-sub-pct">${fmt(sub.aBPOHa)} ha BPO, ${fmt(sub.aRegHa)} ha reguler</div>
           </div>
           <div class="card">
             <div class="card-lbl">Reforestasi</div>
             <div class="card-val-lg">${fmt(areas.temb)} ha</div>
-            ${tgt.temb!==null?`<div class="card-sub-pct">${pctText(areas.temb,tgt.temb)}</div>`:''}
+            <div class="card-sub-pct">${fmt(sub.tMTLHa)} ha MTL, ${fmt(sub.tRegHa)} ha reguler</div>
           </div>
         </div>
         <p class="page-note">${note2}</p>
@@ -426,6 +544,100 @@ function render(){
 
   `;
   document.getElementById('pageBody').innerHTML=body;
+  updateSebaran();
+}
+
+// --- Sebaran Lahan Program: peta kecil (batas CMI + lahan agroforestri), klik lahan untuk detail ---
+// Warna peta per kelompok (Agroforestri / Reforestasi); nama sub program ditampilkan di panel detail
+// color = isi, stroke = garis tepi (lebih gelap agar tidak menyatu dengan basemap topografi)
+const GROUP_STYLE={agro:{label:'Agroforestri',color:'#2e7d32',stroke:'#0f3d13'},temb:{label:'Reforestasi',color:'#d9480f',stroke:'#7a2300'}};
+const PROG_INFO={
+  Agro_Reg:{group:'agro',label:'Agroforestri Reguler'},
+  Agro_BPO:{group:'agro',label:'Bantuan Pupuk Organik'},
+  Temb_Reg:{group:'temb',label:'Reforestasi Reguler'},
+  Temb_MTL:{group:'temb',label:'Menjaga Tutupan Lahan'},
+};
+const lahanLuas=r=>PROG_INFO[r.prog].group==='agro'?r.luasAgro:r.luasTemb;
+let sebaranMap=null,lgLahan=null,cmiBounds=null,lahanLayers={},selectedLahan=null;
+
+async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.json();}
+function featId(f){const p=f.properties||{};return str(p.id_lahan||p.ID_Petak||p.id_petak||p.ID_LAHAN||p.Id_Lahan||p.IDLAHAN||'');}
+function lahanStyle(id){
+  const g=GROUP_STYLE[PROG_INFO[sheetMap[id].prog].group],sel=id===selectedLahan;
+  // lahan terpilih: garis tepi biru tebal agar kontras dengan hijau/oranye dan basemap
+  return{color:sel?'#1d4ed8':g.stroke,weight:sel?3.5:1.8,fillColor:g.color,fillOpacity:sel?.9:.75,opacity:1};
+}
+
+async function initSebaran(){
+  document.getElementById('sebaranSection').style.display='';
+  sebaranMap=L.map('sebaranMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:true});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(sebaranMap);
+  sebaranMap.setView([0,110],8);
+  const [agroJ,cmiJ]=await Promise.all([
+    getJSON('assets/json/agro.json'+CACHE_BUST).catch(e=>{console.warn('Gagal memuat agro.json',e);return null;}),
+    getJSON('assets/json/CMI.json'+CACHE_BUST).catch(e=>{console.warn('Gagal memuat CMI.json',e);return null;})
+  ]);
+  if(cmiJ){
+    const cmi=L.geoJSON(cmiJ,{interactive:false,style:()=>({color:'#334155',weight:2,fillOpacity:0,opacity:.9})}).addTo(sebaranMap);
+    cmiBounds=cmi.getBounds();
+  }
+  lgLahan=L.featureGroup().addTo(sebaranMap);
+  (agroJ?(agroJ.type==='FeatureCollection'?agroJ.features:[agroJ]):[]).forEach(f=>{
+    const id=featId(f),row=sheetMap[id];
+    if(!row||!PROG_INFO[row.prog])return;
+    const layer=L.geoJSON(f,{style:()=>lahanStyle(id)});
+    layer.on('click',()=>selectLahan(id));
+    layer.on('mouseover',e=>e.target.setStyle({fillOpacity:.9}));
+    layer.on('mouseout',()=>layer.setStyle(lahanStyle(id)));
+    lahanLayers[id]=layer;
+  });
+  updateSebaran(true);
+}
+
+// Lahan yang tampil mengikuti filter di atas (berdasarkan Tgl_Partisipasi)
+function updateSebaran(fit){
+  if(!lgLahan)return;
+  lgLahan.clearLayers();
+  let n=0;
+  Object.entries(lahanLayers).forEach(([id,layer])=>{
+    if(!matchesFilter(sheetMap[id],'tglPartisipasi'))return;
+    lgLahan.addLayer(layer);n++;
+  });
+  if(selectedLahan&&!lgLahan.hasLayer(lahanLayers[selectedLahan]))selectLahan(null);
+  if(fit){
+    // Zoom awal ke sebaran lahan (lebih dekat daripada seluruh batas CMI); bila tidak ada lahan, pakai batas CMI
+    const b=n?lgLahan.getBounds():cmiBounds;
+    if(b&&b.isValid())sebaranMap.fitBounds(b,{padding:[20,20]});
+  }
+}
+
+function plantListHtml(title,list){
+  const total=list.reduce((s,p)=>s+p.count,0);
+  return`<div class="ld-sec">
+    <div class="ld-sec-hd"><span>${title}</span><b>${fmtInt(total)}</b></div>
+    ${list.length?[...list].sort((a,b)=>b.count-a.count).map(p=>`<div class="ld-plant"><span>${esc(p.name)}</span><span>${fmtInt(p.count)}</span></div>`).join(''):'<div class="ld-none">Belum ada data.</div>'}
+  </div>`;
+}
+
+function selectLahan(id){
+  const prev=selectedLahan;selectedLahan=id;
+  if(prev&&lahanLayers[prev])lahanLayers[prev].setStyle(lahanStyle(prev));
+  const el=document.getElementById('lahanDetail');
+  if(!id){el.innerHTML='';return;}
+  lahanLayers[id].setStyle(lahanStyle(id));lahanLayers[id].bringToFront();
+  const r=sheetMap[id],pi=PROG_INFO[r.prog],st=GROUP_STYLE[pi.group];
+  el.innerHTML=`
+    <div class="ld-title">${esc(r.petani)||'—'}</div>
+    <div class="ld-prog"><i class="lg-sw" style="background:${st.color}"></i>${st.label}</div>
+    <div class="ld-grid">
+      <div><div class="ld-lbl">KTH</div><div class="ld-val">${esc(r.kth)||'—'}</div></div>
+      <div><div class="ld-lbl">ID Lahan</div><div class="ld-val">${esc(r.id)}</div></div>
+      <div><div class="ld-lbl">Program</div><div class="ld-val">${pi.label}</div></div>
+      <div><div class="ld-lbl">Luas</div><div class="ld-val">${fmt(lahanLuas(r))} ha</div></div>
+      <div><div class="ld-lbl">Total Tanaman</div><div class="ld-val">${fmtInt(r.existingPlants.reduce((s,p)=>s+p.count,0)+r.plantedPlants.reduce((s,p)=>s+p.count,0))}</div></div>
+    </div>
+    ${plantListHtml('Tanaman Eksisting',r.existingPlants)}
+    ${plantListHtml('Tanaman Program',r.plantedPlants)}`;
 }
 
 
@@ -441,6 +653,7 @@ function render(){
     years=[...yrsData].sort((a,b)=>a-b);
     currentYear=years.length?String(years[years.length-1]):'all';
     render();
+    initSebaran().catch(e=>console.error('Peta sebaran gagal dimuat:',e));
   }catch(err){
     console.error('LOAD ERROR:',err);
     document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;

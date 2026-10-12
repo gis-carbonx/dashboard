@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ARR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
+  --dark:#3A342C;
+  --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
+  --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.site-navbar{
+  flex-shrink:0;
+  height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
+}
+.site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.site-navbar-brand img{width:26px;height:26px;object-fit:contain}
+.site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:#356760}
+.site-navbar-menu{display:flex;gap:32px;justify-self:center}
+.site-navbar-menu a{text-decoration:none;color:#618273;font-size:13px;font-weight:500}
+.site-navbar-menu a:hover,.site-navbar-menu a.active{color:#356760}
+.site-navbar-spacer{justify-self:end}
+@media (max-width:768px){
+  .site-navbar{grid-template-columns:auto auto;padding:0 16px}
+  .site-navbar-menu{gap:14px;justify-self:end}
+  .site-navbar-spacer{display:none}
+}
+
+.dashboard-frame{flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;overflow:hidden;display:flex;flex-direction:column}
+
+.hero{background:var(--dark);color:#fff;padding:14px 0;flex-shrink:0}
+.hero-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.hero-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+.hero-date{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+
+.body-row{flex:1;min-height:0;display:flex}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.side-item{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.5);cursor:pointer;background:none;border:none;transition:background .15s,color .15s}
+.side-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.side-item.active{background:#fff;color:var(--dark);border-radius:50%}
+
+.page-body-inner{flex:1;min-width:0}
+
+.sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
+.sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
+.page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
+
+.loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
+
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
+.fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
+
+/* Kartu ringkasan, sama seperti planting-summary.html */
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
+.card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
+.card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
+.card-sub-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">ARR</div>
+        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <nav class="side-menu">
+          <a class="side-item" href="planting-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+          <a class="side-item active" href="arr.html" title="ARR" aria-label="ARR"><svg viewBox="0 0 24 24"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg></a>
+          <a class="side-item" href="nursery.html" title="Nursery" aria-label="Nursery"><svg viewBox="0 0 24 24"><path d="M12 11V5"/><path d="M12 5c-1.6 0-2.9 1-2.9 2.6C10.7 7.6 12 6.6 12 5Z"/><path d="M12 5c1.6 0 2.9 1 2.9 2.6C13.3 7.6 12 6.6 12 5Z"/><path d="M7 11h10l-1.1 8a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7L7 11Z"/></svg></a>
+          <a class="side-item" href="penanaman-program.html" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24"><path d="M12 3c3.2 2.1 5.2 5.1 5.2 8.2a5.2 5.2 0 1 1-10.4 0C6.8 8.1 8.8 5.1 12 3Z"/><path d="M12 15.8V21"/></svg></a>
+          <a class="side-item" href="kth.html" title="KTH" aria-label="KTH"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
+        </nav>
+        <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data ARR...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// Sumber data & cara hitung mengikuti planting.html (sheet ARR_SUMMARY + TARGET_CAPAIAN)
+const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
+
+const str=v=>(v??'').toString().trim();
+const num=v=>parseFloat(str(v))||0;
+const fmt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtPct=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function parseDate(s){
+  if(!s)return null;const c=str(s);
+  const m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
+  const d=new Date(c);return isNaN(d)?null:d;
+}
+function pickCI(raw,keys,...names){
+  const norm=s=>s.toString().trim().toLowerCase();
+  const wanted=names.map(norm);
+  for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
+  return undefined;
+}
+function colV(raw,keys,names,idx){
+  const v=pickCI(raw,keys,...names);
+  if(v!==undefined)return v;
+  return idx!=null&&keys[idx]!==undefined?raw[keys[idx]]:undefined;
+}
+function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
+  if(aReg>0)return'Agro_Reg';if(aBPO>0)return'Agro_BPO';
+  if(tReg>0)return'Temb_Reg';if(tMTL>0)return'Temb_MTL';
+  const t=tipe.toLowerCase();
+  return t.includes('tembawang')?'Temb_Reg':t.includes('agro')?'Agro_Reg':null;
+}
+async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
+
+let rows=[],targetData={},years=[],period='ytd';
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  rows=[];
+  data.forEach(raw=>{
+    const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||'');if(!id)return;
+    const keys=Object.keys(raw);
+    const tipe=str(raw['Tipe']||''),petani=str(raw['Petani']||''),jk=str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']||'');
+    const tglPartisipasi=str(raw['Tgl_Partisipasi']||raw['Tgl Partisipasi']||'');
+    const tglRealisasi=str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']||'');
+    const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||0);
+    const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||0);
+    const luasAgroAT=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
+    const luasTembAU=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
+    const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
+    if(!prog)return; // ARR = agroforestri + reforestasi (enrichment tidak dihitung)
+    rows.push({id,petani,jk,prog,
+      tglPartisipasi:parseDate(tglPartisipasi),tglRealisasi:parseDate(tglRealisasi),
+      luasAgroAT,luasTembAU,
+      // luas untuk "ditanam": sama seperti planting.html, pakai luas_agro/luas_temb, bila kosong dari kolom sub program
+      luasAgro:luasAgroAT>0?luasAgroAT:aReg+aBPO,luasTemb:luasTembAU>0?luasTembAU:tReg+tMTL});
+  });
+}
+
+// TARGET_CAPAIAN: kolom A uraian, B target utama, C tahun, P (indeks 15) target total tahunan
+function parseTargetSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  targetData={};
+  data.forEach((row,i)=>{
+    if(!i)return;
+    const uraian=str(row[0]).toLowerCase(),tahun=parseInt(str(row[2]));
+    if(!uraian||isNaN(tahun)||tahun<2000)return;
+    const isA=uraian.includes('agro')&&!uraian.includes('bpo');
+    const isT=uraian==='tembawang';
+    if(!isA&&!isT)return;
+    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0};
+    const td=targetData[tahun];
+    const utama=parseFloat(str(row[1]))||0,total=parseFloat(str(row[15]))||0;
+    if(isA){td.agro_utama+=utama;td.agro_total+=total;}
+    if(isT){td.temb_utama+=utama;td.temb_total+=total;}
+  });
+}
+
+function inPeriod(d){
+  if(!d)return false;
+  if(period==='all')return true;
+  const now=new Date();
+  if(period==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  return d.getFullYear()===+period;
+}
+function getTarget(){
+  if(period==='all'){
+    const tds=Object.values(targetData);
+    return tds.length?{agro:tds.reduce((s,t)=>s+t.agro_utama,0),temb:tds.reduce((s,t)=>s+t.temb_utama,0)}:null;
+  }
+  const td=targetData[period==='ytd'?new Date().getFullYear():+period];
+  return td?{agro:td.agro_total,temb:td.temb_total}:null;
+}
+
+function compute(){
+  let rA=0,rT=0,dA=0,dT=0;
+  const petani=new Set(),laki=new Set(),pmp=new Set();
+  rows.forEach(r=>{
+    // Realisasi & petani: lahan terdaftar (Tgl_Partisipasi) dalam periode
+    if(inPeriod(r.tglPartisipasi)){
+      rA+=r.luasAgroAT;rT+=r.luasTembAU;
+      if(r.petani&&r.jk){
+        const k=r.petani.toLowerCase(),jk=r.jk.toLowerCase();
+        petani.add(k);
+        if(jk.includes('laki'))laki.add(k);else if(jk.includes('perempuan'))pmp.add(k);
+      }
+    }
+    // Luas ditanam: lahan yang punya Tgl_Realisasi dalam periode
+    if(inPeriod(r.tglRealisasi)){
+      if(r.prog.startsWith('Agro'))dA+=r.luasAgro;else dT+=r.luasTemb;
+    }
+  });
+  const tgt=getTarget();
+  const target=tgt?tgt.agro+tgt.temb:null;
+  const real=rA+rT,ditanam=dA+dT;
+  return{tgt,target,real,rA,rT,ditanam,dA,dT,
+    pct:target>0?real/target*100:null,
+    petani:petani.size,laki:laki.size,pmp:pmp.size};
+}
+
+function setPeriod(p){period=p;render();}
+
+function render(){
+  const s=compute();
+  const card=(lbl,val,sub)=>`<div class="card"><div class="card-lbl">${lbl}</div><div class="card-val-lg">${val}</div>${sub?`<div class="card-sub-pct">${sub}</div>`:''}</div>`;
+  document.getElementById('pageBody').innerHTML=`
+    <div class="filter-row">
+      <span class="filter-lbl">Filter</span>
+      <button class="fpill${period==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      ${years.map(y=>`<button class="fpill${period===String(y)?' active':''}" onclick="setPeriod('${y}')">${y}</button>`).join('')}
+      <button class="fpill${period==='all'?' active':''}" onclick="setPeriod('all')">All</button>
+    </div>
+
+    <div class="sec-title">ARR</div>
+    <div class="grid-row">
+      ${card('Luas Program',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${fmtInt(s.target)} ha target`:'target belum tersedia')}
+      ${card('Petani',fmtInt(s.petani),`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.pmp)} perempuan`)}
+      ${card('Luas Ditanam',`${fmt(s.ditanam)} ha`,`${fmt(s.dA)} ha agro, ${fmt(s.dT)} ha reforestasi`)}
+    </div>
+  `;
+}
+
+(async function boot(){
+  try{
+    document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const [csvTxt,tgtTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>'')]);
+    parseSheet(csvTxt);
+    if(tgtTxt)parseTargetSheet(tgtTxt);
+    const ys=new Set();
+    rows.forEach(r=>{if(r.tglPartisipasi)ys.add(r.tglPartisipasi.getFullYear());});
+    Object.keys(targetData).forEach(y=>ys.add(+y));
+    years=[...ys].sort((a,b)=>a-b);
+    render();
+  }catch(err){
+    console.error('LOAD ERROR:',err);
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
