@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>ARR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -68,13 +72,199 @@ body{display:flex;flex-direction:column}
 .fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
 .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
+.filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
+.filter-select:focus{border-color:var(--primary)}
 
-/* Kartu ringkasan, sama seperti planting-summary.html */
 .grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
 .card-sub-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+.grid-row{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.kpi-note{max-width:820px;margin:0 0 32px}
+
+:root{--c-agro:#2d7a55;--c-agro-lt:#8fbfa6;--c-temb:#c0611c;--c-temb-lt:#e8b48a;--c-l:#356760;--c-p:#B5BBA9;--shadow-md:0 4px 14px rgba(0,0,0,.08)}
+.row-head{margin:4px 0 14px}
+.row-title{font-size:14.5px;font-weight:700;color:var(--text)}
+.row-desc{font-size:12px;color:var(--text-2);line-height:1.6;margin-top:4px;max-width:760px}
+.row-desc a{color:var(--primary);font-weight:600}
+.chart-pair{display:grid;grid-template-columns:minmax(260px,1fr) 2.2fr;gap:16px;align-items:stretch;margin-bottom:32px}
+.chart-pair.even{grid-template-columns:1fr 1fr}
+.chart-pair.wide{grid-template-columns:1.6fr 1fr}
+.row-head+.grid-row{margin-bottom:16px}
+@media (max-width:980px){.chart-pair,.chart-pair.even,.chart-pair.wide{grid-template-columns:1fr}}
+
+/* Insentif: tahap */
+:root{--c-paid:#356760;--c-early:#8C9F8B;--c-unpaid:#EDE7D8}
+.st-head,.st-row{display:grid;grid-template-columns:110px 1fr 52px 120px;gap:10px;align-items:center}
+.st-head{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:0 4px 4px}
+.st-head span:nth-child(n+3){text-align:right}
+.st-row{position:relative;padding:4px;border-radius:6px;outline:none}
+.st-row:hover,.st-row:focus{background:var(--bg)}
+.st-lbl{font-size:12px;color:var(--text);text-align:right}
+.st-bar{display:flex;gap:2px;height:14px;border-radius:3px;overflow:hidden;background:var(--c-unpaid)}
+.st-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.st-nom{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.st-row .tt-box{left:120px;top:calc(100% - 2px)}
+.st-row:hover .tt-box,.st-row:focus .tt-box{display:block}
+
+/* Insentif: tabel */
+.ins-card{padding:18px 20px 14px;margin-bottom:32px}
+.ins-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ins-hd-r{display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.seg button{padding:4px 12px;border:none;background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.seg button.active{background:var(--primary);color:#fff}
+.dl-wrap{position:relative}
+.btn-dl{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.dl-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:130px;overflow:hidden}
+.dl-wrap.open .dl-menu{display:block}
+.dl-menu button{display:block;width:100%;padding:8px 13px;border:none;background:none;text-align:left;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit}
+.dl-menu button:hover{background:var(--primary-bg);color:var(--primary-md)}
+.ins-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search-wrap{position:relative;flex:0 1 220px;display:flex;align-items:center}
+.search-wrap svg{position:absolute;left:10px;width:12px;height:12px;stroke:var(--text-3);fill:none;stroke-width:2;pointer-events:none}
+.search-wrap input{width:100%;padding:5px 10px 5px 28px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-family:inherit;color:var(--text);outline:none}
+.search-wrap input:focus{border-color:var(--primary)}
+.ins-count{margin-left:auto;font-size:11px;font-weight:600;color:var(--text-2)}
+.ins-scroll{max-height:520px;overflow:auto;border-top:1.5px solid var(--text);border-bottom:1.5px solid var(--text)}
+.ins-tbl{width:100%;border-collapse:collapse;font-size:11.5px;color:var(--text)}
+.ins-tbl thead{position:sticky;top:0;z-index:2;background:#fff}
+.ins-tbl th{padding:6px 10px;font-weight:600;text-align:left;white-space:nowrap;border-bottom:1px solid var(--text);vertical-align:bottom}
+.ins-tbl .th-group{text-align:center;border-bottom:1px solid var(--border)}
+.ins-tbl .th-pct{text-align:center;font-weight:400;color:var(--text-2)}
+.ins-tbl .th-pct small{display:block;font-size:10.5px}
+.ins-tbl td{padding:5px 10px;border-bottom:1px solid var(--border-lt);white-space:nowrap}
+.ins-tbl .c{text-align:center}.ins-tbl .r{text-align:right;font-variant-numeric:tabular-nums}
+.ins-tbl .muted{color:var(--text-2)}
+.ins-tbl tfoot td{font-weight:600;border-top:1px solid var(--text);border-bottom:none;position:sticky;bottom:0;background:#fff}
+
+/* Tabel ringkas + "Tampilkan semua" */
+.clip{position:relative}
+.clip.open .ins-scroll{max-height:420px;overflow:auto}
+.clip.clipped .ins-scroll{max-height:150px;overflow:hidden}
+#insClip.clipped .ins-scroll{max-height:178px}
+.clip.clipped .ins-tbl tfoot td{position:static}
+.clip.clipped::after{content:'';position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)}
+.more-btn{display:block;margin:8px auto 0;padding:5px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--primary);cursor:pointer;font-family:inherit}
+.more-btn:hover{background:var(--primary-bg);border-color:var(--primary-md)}
+
+/* Batang per KTH */
+.kb-list{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+.kb-row{position:relative;display:grid;grid-template-columns:140px 1fr 72px;gap:10px;align-items:center;padding:4px;border-radius:6px;outline:none}
+.kb-row:hover,.kb-row:focus{background:var(--bg)}
+.kb-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-track{height:12px}
+.kb-track.bg{background:var(--border-lt);border-radius:3px;overflow:hidden}
+.kb-bar{display:flex;gap:2px;height:100%;border-radius:0 3px 3px 0;overflow:hidden;min-width:2px}
+.kb-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kb-val.b{font-size:12px;font-weight:700;color:var(--text)}
+/* fixed agar tidak terpotong .kb-list */
+.kb-row .tt-box{position:fixed;z-index:50}
+.kb-row:hover .tt-box,.kb-row:focus .tt-box{display:block}
+@media (max-width:640px){.kb-row{grid-template-columns:96px 1fr 60px;gap:8px}}
+@media (max-width:640px){.st-head,.st-row{grid-template-columns:84px 1fr 44px 92px;gap:6px}.st-row .tt-box{left:8px;right:8px;min-width:0}}
+.chart-card{padding:18px 20px 16px;min-width:0;display:flex;flex-direction:column}
+.chart-title{font-size:13px;font-weight:700;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--text-2);margin:3px 0 16px}
+.chart-foot{font-size:10.5px;color:var(--text-3);margin-top:12px}
+.empty{padding:40px 10px;text-align:center;color:var(--text-3);font-size:12px}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:-6px 0 14px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
+.lg-item i,.sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.lg-item i.ln{height:2px;width:14px;border-radius:1px}
+
+/* Capaian target */
+.tg-list{display:flex;flex-direction:column;gap:16px}
+.tg-row.main{padding-bottom:14px;border-bottom:1px solid var(--border-lt)}
+.tg-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.tg-name{font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.tg-val{font-size:15px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.tg-row.main .tg-val{font-size:18px}
+.tg-track{position:relative;height:10px;background:var(--border-lt);border-radius:3px;overflow:hidden}
+.tg-bar{height:100%;border-radius:3px}
+.tg-meta{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-2);margin-top:5px;font-variant-numeric:tabular-nums}
+.tg-meta b{color:var(--text);font-weight:700}
+
+/* Sub program */
+.sp-group{margin-bottom:14px}
+.sp-group:last-child{margin-bottom:0}
+.sp-ghd{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text);padding:0 0 6px;border-bottom:1px solid var(--border-lt);margin-bottom:6px}
+.sp-ghd span:first-child{display:flex;align-items:center;gap:6px}
+.sp-row{position:relative;display:grid;grid-template-columns:150px 1fr 76px 64px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
+.sp-row:hover,.sp-row:focus{background:var(--bg)}
+.sp-lbl{font-size:12px;color:var(--text)}
+.sp-track{height:12px}
+.sp-bar{height:100%;border-radius:0 3px 3px 0;min-width:2px}
+.sp-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.sp-n{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+
+/* Tooltip */
+.tt-box{display:none;position:absolute;z-index:6;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:200px}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row b{color:var(--text)}
+.tt-row .sw{margin-right:6px;vertical-align:-1px}
+.sp-row .tt-box{left:150px;top:calc(100% - 2px)}
+.sp-row:hover .tt-box,.sp-row:focus .tt-box{display:block}
+
+/* Donut petani */
+.donut-wrap{display:flex;justify-content:center;margin:2px 0 14px}
+.donut{width:160px;height:160px;overflow:visible}
+.donut circle.seg{fill:none;stroke-width:26}
+.donut-c1{font-size:22px;font-weight:800;fill:var(--text)}
+.donut-c2{font-size:10px;fill:var(--text-2)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--text);padding:4px 2px}
+.kv span:first-child{display:flex;align-items:center;gap:8px}
+.kv b{font-variant-numeric:tabular-nums}
+.kv small{font-size:10.5px;color:var(--text-2);font-weight:600;margin-left:6px}
+.kv-sep{border-top:1px solid var(--border-lt);margin:8px 0 6px;padding-top:8px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+
+/* Bar bulanan */
+.bc-plot{flex:1;min-height:240px;display:grid;grid-template-columns:44px 1fr;grid-template-rows:1fr auto;column-gap:8px;margin-top:4px}
+.bc-yaxis{position:relative}
+.bc-yaxis span{position:absolute;right:0;transform:translateY(50%);font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bc-area{position:relative;display:grid;gap:6px;padding:0 4px;border-bottom:1px solid var(--border)}
+.bc-grid{position:absolute;left:0;right:0;border-top:1px solid var(--border-lt);pointer-events:none}
+.bc-col{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:2px;outline:none;border-radius:4px 4px 0 0}
+.bc-col:hover,.bc-col:focus{background:rgba(53,103,96,.06)}
+.bc-bar{width:42%;max-width:18px;border-radius:4px 4px 0 0;min-height:0}
+.bc-xl{display:grid;gap:6px;padding:6px 4px 0}
+.bc-xl span{font-size:10.5px;color:var(--text-2);text-align:center;white-space:nowrap}
+.bc-col .tt-box{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
+.bc-col:nth-of-type(-n+3) .tt-box{left:0;transform:none}
+.bc-col:nth-last-of-type(-n+3) .tt-box{left:auto;right:0;transform:none}
+.bc-col:hover .tt-box,.bc-col:focus .tt-box{display:block}
+
+/* Garis kumulatif */
+.pl-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pl-item{background:var(--bg);border-radius:10px;padding:10px 12px}
+.pl-name{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--text)}
+.pl-val{font-size:15px;font-weight:800;color:var(--text);margin-top:6px;font-variant-numeric:tabular-nums}
+.pl-val small{font-size:11px;font-weight:600;color:var(--text-2)}
+.pl-sub{font-size:10.5px;color:var(--text-2);margin-top:3px;line-height:1.4}
+.lc{position:relative;flex:1;min-height:230px}
+.lc svg{display:block;width:100%;height:100%}
+.lc .tt-box{top:8px}
+
+/* Jenis tanaman */
+.sl{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+.sl-row{display:grid;grid-template-columns:130px 1fr 60px 46px;gap:10px;align-items:center;padding:4px 4px;border-radius:6px}
+.sl-row:hover{background:var(--bg)}
+.sl-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl-track{height:12px}
+.sl-bar{height:100%;background:var(--primary);border-radius:0 3px 3px 0;min-width:2px}
+.sl-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.sl-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:640px){
+  .sp-row{grid-template-columns:110px 1fr 66px 52px;gap:8px}
+  .sp-row .tt-box{left:8px;right:8px;min-width:0}
+  .sl-row{grid-template-columns:96px 1fr 52px 42px;gap:8px}
+  .pl-strip{grid-template-columns:1fr}
+}
 
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -123,7 +313,6 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-// Sumber data & cara hitung mengikuti planting.html (sheet ARR_SUMMARY + TARGET_CAPAIAN)
 const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
@@ -160,15 +349,39 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
 }
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-let rows=[],targetData={},years=[],period='ytd';
+let rows=[],targetData={},years=[];
+
+// Tahap insentif reguler
+const INS_STAGES=[
+  {key:'persiapan',label:'Persiapan Lahan',idx:17},
+  {key:'tanam',    label:'Penanaman',      idx:18},
+  {key:'thn2',     label:'Tahun 2',        idx:19},
+  {key:'thn3',     label:'Tahun 3',        idx:20},
+  {key:'thn4',     label:'Tahun 4',        idx:21},
+  {key:'thn6',     label:'Tahun 6',        idx:22},
+  {key:'thn7',     label:'Tahun 7',        idx:23},
+  {key:'thn8',     label:'Tahun 8',        idx:24},
+  {key:'thn9',     label:'Tahun 9',        idx:25},
+  {key:'thn10',    label:'Tahun 10',       idx:26},
+];
+const PROG_LABEL={Agro_Reg:'Agroforestri Reguler',Agro_BPO:'Bantuan Pupuk Organik',Temb_Reg:'Reforestasi Reguler',Temb_MTL:'Menjaga Tutupan Lahan'};
+// Y = dibayar, R = dibayar di awal
+const stageStatus=v=>/^y$/i.test(str(v))?'paid':/^r$/i.test(str(v))?'early':'unpaid';
+const stageLabel=v=>({paid:'Sudah Bayar',early:'Dibayar Diawal',unpaid:'Belum Bayar'})[stageStatus(v)];
+const stageText=v=>({paid:'Sudah',early:'Selesai',unpaid:'Belum'})[stageStatus(v)];
+const fmtRp=v=>'Rp '+fmtInt(v);
+const fmtDate=s=>{const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):str(s);};
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   rows=[];
+  // Kolom "P-<jenis>" = tanaman program
+  const plantCols=[];
+  (data.length?Object.keys(data[0]):[]).forEach(h=>{const m=h.match(/^P-\s*(.+)$/i);if(m)plantCols.push({header:h,name:m[1].trim()});});
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||'');if(!id)return;
     const keys=Object.keys(raw);
-    const tipe=str(raw['Tipe']||''),petani=str(raw['Petani']||''),jk=str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']||'');
+    const kth=str(raw['KTH']||''),tipe=str(raw['Tipe']||''),petani=str(raw['Petani']||''),jk=str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']||'');
     const tglPartisipasi=str(raw['Tgl_Partisipasi']||raw['Tgl Partisipasi']||'');
     const tglRealisasi=str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']||'');
     const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||0);
@@ -176,16 +389,33 @@ function parseSheet(csv){
     const luasAgroAT=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTembAU=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
-    if(!prog)return; // ARR = agroforestri + reforestasi (enrichment tidak dihitung)
-    rows.push({id,petani,jk,prog,
+    if(!prog)return; // enrichment tidak dihitung
+    const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
+    const plantedPlants=plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
+    const nominalStages={},stages={};
+    INS_STAGES.forEach((s,i)=>{
+      nominalStages[s.key]=num(colV(raw,keys,['Nominal_T'+(i+1)],28+i));
+      const hv=pickCI(raw,keys,'Insentif_T'+(i+1));
+      const byName=hv!==undefined?str(hv):str(raw[s.key]||raw[s.label]||'');
+      stages[s.key]=byName||(hv===undefined&&keys[s.idx]?str(raw[keys[s.idx]]):'');
+    });
+    const luasAgro=luasAgroAT>0?luasAgroAT:aReg+aBPO,luasTemb=luasTembAU>0?luasTembAU:tReg+tMTL;
+    rows.push({id,kth,petani,jk,prog,
+      desa:str(raw['Desa']||''),dusun:str(colV(raw,keys,['dusun'],44)),
       tglPartisipasi:parseDate(tglPartisipasi),tglRealisasi:parseDate(tglRealisasi),
-      luasAgroAT,luasTembAU,
-      // luas untuk "ditanam": sama seperti planting.html, pakai luas_agro/luas_temb, bila kosong dari kolom sub program
-      luasAgro:luasAgroAT>0?luasAgroAT:aReg+aBPO,luasTemb:luasTembAU>0?luasTembAU:tReg+tMTL});
+      luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,jumlahTanaman,plantedPlants,
+      // fallback ke kolom sub program
+      luasAgro,luasTemb,luas:luasAgro+luasTemb,
+      nominalStages,stages,
+      pupukPadat:num(colV(raw,keys,['PupukPadat','Pupuk_Padat'],39)),
+      pupukCair:num(colV(raw,keys,['PupukCair','Pupuk_Cair'],40)),
+      tglBPO:str(colV(raw,keys,['tanggal_bpo','Tgl_BPO'],41)),
+      insentifMTL:num(colV(raw,keys,['insentifMTL','Insentif_MTL'],42)),
+      tglMTL:str(colV(raw,keys,['tanggal_mtl','Tgl_MTL'],43))});
   });
 }
 
-// TARGET_CAPAIAN: kolom A uraian, B target utama, C tahun, P (indeks 15) target total tahunan
+// TARGET_CAPAIAN: A uraian, B target utama, C tahun, P target tahunan
 function parseTargetSheet(csv){
   const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
   targetData={};
@@ -204,68 +434,926 @@ function parseTargetSheet(csv){
   });
 }
 
+// 'yq' = Tahun + Quarter; 'ytd'/'mtd'/'week' mengabaikan keduanya
+const QUARTERS=['1','2','3','4'];
+let currentYear='all',currentQuarter='all',periodMode='yq';
+let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+
+// Minggu = Sabtu–Jumat
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);fri.setHours(23,59,59);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function fmtD(d,t){return d.toLocaleDateString('id-ID',t==='s'?{day:'numeric',month:'short'}:{day:'numeric',month:'long',year:'numeric'});}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
+}
+
 function inPeriod(d){
   if(!d)return false;
-  if(period==='all')return true;
   const now=new Date();
-  if(period==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
-  return d.getFullYear()===+period;
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=wk.fri;}
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
+}
+function periodTargetYear(){
+  if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
+  return currentYear==='all'?null:+currentYear;
 }
 function getTarget(){
-  if(period==='all'){
+  if(periodMode==='yq'&&currentYear==='all'){
     const tds=Object.values(targetData);
     return tds.length?{agro:tds.reduce((s,t)=>s+t.agro_utama,0),temb:tds.reduce((s,t)=>s+t.temb_utama,0)}:null;
   }
-  const td=targetData[period==='ytd'?new Date().getFullYear():+period];
+  const td=targetData[periodTargetYear()];
   return td?{agro:td.agro_total,temb:td.temb_total}:null;
 }
+const partialTarget=()=>periodMode==='yq'?currentQuarter!=='all':periodMode!=='ytd';
 
 function compute(){
-  let rA=0,rT=0,dA=0,dT=0;
+  let rA=0,rT=0,dA=0,dT=0,tanA=0,tanT=0,lahan=0;
+  let aReg=0,aBPO=0,tReg=0,tMTL=0;
   const petani=new Set(),laki=new Set(),pmp=new Set();
+  const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new Set();
+  const speciesMap={};
   rows.forEach(r=>{
-    // Realisasi & petani: lahan terdaftar (Tgl_Partisipasi) dalam periode
+    // terdaftar: Tgl_Partisipasi
     if(inPeriod(r.tglPartisipasi)){
+      lahan++;
       rA+=r.luasAgroAT;rT+=r.luasTembAU;
-      if(r.petani&&r.jk){
-        const k=r.petani.toLowerCase(),jk=r.jk.toLowerCase();
-        petani.add(k);
-        if(jk.includes('laki'))laki.add(k);else if(jk.includes('perempuan'))pmp.add(k);
+      aReg+=r.aReg;aBPO+=r.aBPO;tReg+=r.tReg;tMTL+=r.tMTL;
+      if(r.petani){
+        const k=r.petani.toLowerCase();
+        if(r.jk){
+          const jk=r.jk.toLowerCase();
+          petani.add(k);
+          if(jk.includes('laki'))laki.add(k);else if(jk.includes('perempuan'))pmp.add(k);
+        }
+        if(r.aReg>0)pAR.add(k);if(r.aBPO>0)pAB.add(k);if(r.tReg>0)pTR.add(k);if(r.tMTL>0)pTM.add(k);
       }
     }
-    // Luas ditanam: lahan yang punya Tgl_Realisasi dalam periode
+    // ditanam: Tgl_Realisasi
     if(inPeriod(r.tglRealisasi)){
-      if(r.prog.startsWith('Agro'))dA+=r.luasAgro;else dT+=r.luasTemb;
+      if(r.prog.startsWith('Agro')){dA+=r.luasAgro;tanA+=r.jumlahTanaman;}
+      else{dT+=r.luasTemb;tanT+=r.jumlahTanaman;}
+      r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
     }
   });
   const tgt=getTarget();
   const target=tgt?tgt.agro+tgt.temb:null;
   const real=rA+rT,ditanam=dA+dT;
-  return{tgt,target,real,rA,rT,ditanam,dA,dT,
+  return{tgt,target,real,rA,rT,ditanam,dA,dT,lahan,
+    tanaman:tanA+tanT,tanA,tanT,
+    sub:{aReg,aBPO,tReg,tMTL},
+    subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
+    species:Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]),
     pct:target>0?real/target*100:null,
     petani:petani.size,laki:laki.size,pmp:pmp.size};
 }
 
-function setPeriod(p){period=p;render();}
+function setFilter(y){currentYear=y;periodMode='yq';render();}
+function setQuarter(q){currentQuarter=q;periodMode='yq';render();}
+function setPeriod(p){periodMode=p;render();}
+function setWeekYear(v){weekYear=+v;weekIdx=null;render();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;render();}
+function setWeekPick(v){weekIdx=+v;render();}
+
+const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const pctOf=(v,t)=>t>0?v/t*100:null;
+const fmtHaShort=v=>v>=1000?fmtInt(v/1000)+'rb':(+v||0).toLocaleString('id-ID',{maximumFractionDigits:1});
+const isAllTime=()=>periodMode==='yq'&&currentYear==='all'&&currentQuarter==='all';
+function periodLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 Januari–${fmtD(now,'l')}`;
+  if(periodMode==='mtd')return`1–${fmtD(now,'l')}`;
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtD(wk.sat,'s')}–${fmtD(wk.fri,'l')}`:'Mingguan';}
+  const y=currentYear==='all'?'semua tahun':String(currentYear);
+  if(currentQuarter!=='all')return`Q${currentQuarter} ${y}`;
+  return currentYear==='all'?'Sepanjang waktu':`Tahun ${y}`;
+}
+function targetLabel(){
+  const y=periodTargetYear();
+  return y===null?'Target sepanjang program':`Target ${y}`;
+}
+function niceScale(max,n=4){
+  if(!(max>0))return{max:1,ticks:[0,1]};
+  const raw=max/n,p=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,5,10].map(m=>m*p).find(s=>s>=raw);
+  const top=Math.ceil(max/step)*step,ticks=[];
+  for(let v=0;v<=top+step/2;v+=step)ticks.push(+v.toFixed(6));
+  return{max:top,ticks};
+}
+function bucketUnit(){
+  if(periodMode==='mtd'||periodMode==='week')return'hari';
+  if(periodMode==='yq'&&currentYear==='all')return'tahun';
+  return'bulan';
+}
+function timeBuckets(){
+  const now=new Date(),unit=bucketUnit(),out=[];
+  if(unit==='tahun'){
+    const ys=new Set();
+    rows.forEach(r=>{[r.tglPartisipasi,r.tglRealisasi].forEach(d=>{if(d)ys.add(d.getFullYear());});});
+    const list=[...ys].sort((a,b)=>a-b);
+    if(!list.length)return[];
+    for(let y=list[0];y<=list[list.length-1];y++)out.push({label:String(y),full:`Tahun ${y}`,start:new Date(y,0,1),end:new Date(y,11,31,23,59,59)});
+    return out;
+  }
+  if(unit==='hari'){
+    let start,end;
+    if(periodMode==='mtd'){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth(),now.getDate());}
+    else{const wk=getSelectedWeek();if(!wk)return[];start=new Date(wk.sat);end=new Date(wk.fri.getFullYear(),wk.fri.getMonth(),wk.fri.getDate());}
+    for(const d=new Date(start);d<=end;d.setDate(d.getDate()+1))
+      out.push({label:fmtD(d,'s'),full:fmtD(d,'l'),start:new Date(d),end:new Date(d.getFullYear(),d.getMonth(),d.getDate(),23,59,59)});
+    return out;
+  }
+  const yr=periodMode==='ytd'?now.getFullYear():+currentYear;
+  let firstM=0,lastM=11;
+  if(periodMode==='yq'&&currentQuarter!=='all'){firstM=(+currentQuarter-1)*3;lastM=firstM+2;}
+  if(yr===now.getFullYear())lastM=Math.min(lastM,now.getMonth());
+  for(let m=firstM;m<=lastM;m++)out.push({label:MN[m].slice(0,3),full:`${MN[m]} ${yr}`,start:new Date(yr,m,1),end:new Date(yr,m+1,0,23,59,59)});
+  return out;
+}
+
+/* --- Capaian target --- */
+function targetCardHTML(s){
+  const item=(cls,name,color,val,tgtVal)=>{
+    const p=pctOf(val,tgtVal);
+    return`
+      <div class="tg-row${cls}">
+        <div class="tg-top">
+          <span class="tg-name">${color?`<i class="sw" style="background:${color}"></i>`:''}${name}</span>
+          <span class="tg-val">${fmt(val)} ha</span>
+        </div>
+        <div class="tg-track"><div class="tg-bar" style="width:${p===null?0:Math.min(100,p).toFixed(1)}%;background:${color||'var(--primary)'}"></div></div>
+        <div class="tg-meta">
+          <span>${p===null?'Target belum tersedia':`<b>${fmtPct(p)}%</b> dari target${partialTarget()?' tahunan':''}`}</span>
+          <span>${tgtVal>0?`${targetLabel()}: ${fmt(tgtVal)} ha`:''}</span>
+        </div>
+      </div>`;
+  };
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Capaian Luas terhadap Target</div>
+      <div class="chart-sub">${periodLabel()}</div>
+      <div class="tg-list">
+        ${item(' main','Total Lahan ARR','',s.real,s.target)}
+        ${item('','Agroforestri','var(--c-agro)',s.rA,s.tgt?s.tgt.agro:null)}
+        ${item('','Reforestasi','var(--c-temb)',s.rT,s.tgt?s.tgt.temb:null)}
+      </div>
+    </div>`;
+}
+
+function subProgramCardHTML(s){
+  const groups=[
+    {name:'Agroforestri',color:'var(--c-agro)',total:s.rA,items:[
+      {name:'Agro Reguler',ha:s.sub.aReg,petani:s.subPetani.aReg},
+      {name:'Bantuan Pupuk Organik',ha:s.sub.aBPO,petani:s.subPetani.aBPO}]},
+    {name:'Reforestasi',color:'var(--c-temb)',total:s.rT,items:[
+      {name:'Reforestasi Reguler',ha:s.sub.tReg,petani:s.subPetani.tReg},
+      {name:'Menjaga Tutupan Lahan',ha:s.sub.tMTL,petani:s.subPetani.tMTL}]}
+  ];
+  const max=Math.max(1,...groups.flatMap(g=>g.items.map(i=>i.ha)));
+  const sumSub=groups.reduce((a,g)=>a+g.items.reduce((b,i)=>b+i.ha,0),0);
+  const html=groups.map(g=>`
+    <div class="sp-group">
+      <div class="sp-ghd"><span><i class="sw" style="background:${g.color}"></i>${g.name}</span><span>${fmt(g.total)} ha</span></div>
+      ${g.items.map(i=>`
+        <div class="sp-row" tabindex="0">
+          <div class="sp-lbl">${i.name}</div>
+          <div class="sp-track"><div class="sp-bar" style="width:${i.ha>0?Math.max(i.ha/max*100,.5):0}%;background:${g.color}"></div></div>
+          <div class="sp-val">${fmt(i.ha)} ha</div>
+          <div class="sp-n">${fmtInt(i.petani)} petani</div>
+          <div class="tt-box"><div class="tt-head"><strong>${i.name}</strong> &middot; ${g.name}</div>
+            <div class="tt-row"><span>Luas</span><b>${fmt(i.ha)} ha</b></div>
+            <div class="tt-row"><span>Porsi dari seluruh sub program</span><b>${sumSub>0?fmtPct(i.ha/sumSub*100):'0,0'}%</b></div>
+            <div class="tt-row"><span>Petani</span><b>${fmtInt(i.petani)}</b></div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Rincian Sub Program</div>
+      <div class="chart-sub">${periodLabel()} &middot; luas &amp; jumlah petani per sub program</div>
+      ${html}
+      <div class="chart-foot">Satu petani dapat mengikuti lebih dari satu sub program.</div>
+    </div>`;
+}
+
+/* --- Partisipasi --- */
+function petaniCardHTML(s){
+  const R=62,C=2*Math.PI*R,GAP=2,total=s.laki+s.pmp;
+  let acc=0;
+  const segs=[[s.laki,'var(--c-l)'],[s.pmp,'var(--c-p)']].map(([v,c])=>{
+    const len=total?v/total*C:0,draw=Math.max(0,len-(len>GAP*2?GAP:0));
+    const el=v>0?`<circle class="seg" cx="80" cy="80" r="${R}" stroke="${c}" stroke-dasharray="${draw} ${C-draw}" stroke-dashoffset="${-acc}" transform="rotate(-90 80 80)"></circle>`:'';
+    acc+=len;return el;
+  }).join('');
+  const pctTxt=v=>total?` <small>${fmtPct(v/total*100)}%</small>`:'';
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Anggota Petani Terdaftar</div>
+      <div class="chart-sub">${periodLabel()}</div>
+      <div class="donut-wrap">
+        <svg class="donut" viewBox="0 0 160 160" role="img" aria-label="Komposisi petani berdasarkan jenis kelamin">
+          ${total?segs:`<circle cx="80" cy="80" r="${R}" fill="none" stroke="var(--border-lt)" stroke-width="26"></circle>`}
+          <text class="donut-c1" x="80" y="82" text-anchor="middle">${fmtInt(s.petani)}</text>
+          <text class="donut-c2" x="80" y="99" text-anchor="middle">petani</text>
+        </svg>
+      </div>
+      <div class="kv"><span><i class="sw" style="background:var(--c-l)"></i>Laki-laki</span><span><b>${fmtInt(s.laki)}</b>${pctTxt(s.laki)}</span></div>
+      <div class="kv"><span><i class="sw" style="background:var(--c-p)"></i>Perempuan</span><span><b>${fmtInt(s.pmp)}</b>${pctTxt(s.pmp)}</span></div>
+      <div class="kv-sep">Lahan terdaftar</div>
+      <div class="kv"><span>Jumlah lahan</span><b>${fmtInt(s.lahan)}</b></div>
+      <div class="kv"><span>Rata-rata luas per petani</span><b>${s.petani?fmt(s.real/s.petani):'0,00'} ha</b></div>
+    </div>`;
+}
+
+function trendCardHTML(){
+  const bk=timeBuckets();
+  const data=bk.map(b=>({...b,a:0,t:0,n:0}));
+  rows.forEach(r=>{
+    const d=r.tglPartisipasi;if(!inPeriod(d))return;
+    const o=data.find(b=>d>=b.start&&d<=b.end);if(!o)return;
+    o.a+=r.luasAgroAT;o.t+=r.luasTembAU;o.n++;
+  });
+  const unit={tahun:'Tahunan',bulan:'Bulanan',hari:'Harian'}[bucketUnit()];
+  if(!data.length||!data.some(o=>o.a+o.t>0))return`
+    <div class="card chart-card"><div class="chart-title">Partisipasi Lahan ${unit}</div><div class="chart-sub">${periodLabel()}</div><div class="empty">Tidak ada lahan terdaftar pada periode ini.</div></div>`;
+  const sc=niceScale(Math.max(...data.map(o=>Math.max(o.a,o.t))));
+  const h=v=>(v/sc.max*100).toFixed(2);
+  const cols=`grid-template-columns:repeat(${data.length},1fr)`;
+  const colsHtml=data.map(o=>`
+    <div class="bc-col" tabindex="0" aria-label="${o.full}: agroforestri ${fmt(o.a)} ha, reforestasi ${fmt(o.t)} ha">
+      <div class="bc-bar" style="height:${h(o.a)}%;background:var(--c-agro)"></div>
+      <div class="bc-bar" style="height:${h(o.t)}%;background:var(--c-temb)"></div>
+      <div class="tt-box"><div class="tt-head"><strong>${o.full}</strong> &middot; ${fmtInt(o.n)} lahan</div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-agro)"></i>Agroforestri</span><span>${fmt(o.a)} ha</span></div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-temb)"></i>Reforestasi</span><span>${fmt(o.t)} ha</span></div>
+        <div class="tt-row"><span>Total</span><b>${fmt(o.a+o.t)} ha</b></div>
+      </div>
+    </div>`).join('');
+  const peak=data.reduce((a,o)=>o.a+o.t>a.a+a.t?o:a,data[0]);
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Partisipasi Lahan ${unit}</div>
+      <div class="chart-sub">${periodLabel()} &middot; luas lahan yang baru terdaftar per ${bucketUnit()}</div>
+      <div class="lg">
+        <span class="lg-item"><i style="background:var(--c-agro)"></i>Agroforestri</span>
+        <span class="lg-item"><i style="background:var(--c-temb)"></i>Reforestasi</span>
+      </div>
+      <div class="bc-plot">
+        <div class="bc-yaxis">${sc.ticks.map(t=>`<span style="bottom:${h(t)}%">${fmtHaShort(t)} ha</span>`).join('')}</div>
+        <div class="bc-area" style="${cols}">
+          ${sc.ticks.map(t=>`<i class="bc-grid" style="bottom:${h(t)}%"></i>`).join('')}
+          ${colsHtml}
+        </div>
+        <div></div>
+        <div class="bc-xl" style="${cols}">${data.map((o,i)=>`<span>${i%Math.ceil(data.length/12)===0?o.label:''}</span>`).join('')}</div>
+      </div>
+      <div class="chart-foot">Partisipasi tertinggi: ${peak.full} (${fmt(peak.a+peak.t)} ha).</div>
+    </div>`;
+}
+
+/* --- Penanaman --- */
+let lcData=null;
+function cumulativeSeries(){
+  const bk=timeBuckets();
+  const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
+  return bk.map(b=>{
+    let reg=0,tan=0;
+    rows.forEach(r=>{
+      if(r.tglPartisipasi&&r.tglPartisipasi<=b.end)reg+=luas(r);
+      if(r.tglRealisasi&&r.tglRealisasi<=b.end)tan+=luas(r);
+    });
+    return{...b,reg,tan};
+  });
+}
+function plantingCardHTML(s){
+  lcData=cumulativeSeries();
+  const strip=(name,color,ha,total,tan)=>{
+    const p=pctOf(ha,total);
+    return`<div class="pl-item">
+      <div class="pl-name"><i class="sw" style="background:${color}"></i>${name}</div>
+      <div class="pl-val">${fmt(ha)} ha <small>ditanam</small></div>
+      <div class="pl-sub">${p===null?'':`${fmtPct(p)}% dari ${fmt(total)} ha terdaftar &middot; `}${fmtInt(tan)} tanaman</div>
+    </div>`;
+  };
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Progres Penanaman</div>
+      <div class="chart-sub">${periodLabel()}</div>
+      <div class="pl-strip">
+        ${strip('Agroforestri','var(--c-agro)',s.dA,s.rA,s.tanA)}
+        ${strip('Reforestasi','var(--c-temb)',s.dT,s.rT,s.tanT)}
+      </div>
+      <div class="lg">
+        <span class="lg-item"><i class="ln" style="background:var(--text-3)"></i>Luas terdaftar (kumulatif)</span>
+        <span class="lg-item"><i class="ln" style="background:var(--primary)"></i>Luas sudah ditanam (kumulatif)</span>
+      </div>
+      ${lcData.length?'<div class="lc" id="lineChart"></div>':'<div class="empty">Belum ada data.</div>'}
+    </div>`;
+}
+function drawLine(){
+  const el=document.getElementById('lineChart');
+  if(!el||!lcData||!lcData.length)return;
+  const W=el.clientWidth,H=el.clientHeight||230;
+  const pl=52,pr=12,pt=12,pb=24,iw=W-pl-pr,ih=H-pt-pb;
+  const sc=niceScale(Math.max(...lcData.map(d=>Math.max(d.reg,d.tan))));
+  const n=lcData.length,step=n>1?iw/(n-1):0;
+  const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
+  const path=k=>lcData.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(d[k]).toFixed(1)}`).join('');
+  const area=k=>`${path(k)}L${x(n-1).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
+  const every=Math.ceil(n/(W<480?6:12));
+  el.innerHTML=`
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik kumulatif luas terdaftar dan luas sudah ditanam">
+      ${sc.ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--border-lt)"/>
+        <text x="${pl-8}" y="${y(t)+3}" text-anchor="end" font-size="10" fill="var(--text-3)">${fmtHaShort(t)} ha</text>`).join('')}
+      ${lcData.map((d,i)=>i%every===0||i===n-1?`<text x="${x(i)}" y="${H-6}" text-anchor="${n>1&&i===n-1?'end':n>1&&i===0?'start':'middle'}" font-size="10.5" fill="var(--text-2)">${d.label}</text>`:'').join('')}
+      <path d="${area('reg')}" fill="var(--text-3)" opacity=".10"/>
+      <path d="${area('tan')}" fill="var(--primary)" opacity=".14"/>
+      <path d="${path('reg')}" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="${path('tan')}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round"/>
+      <line id="lcCross" y1="${pt}" y2="${pt+ih}" stroke="var(--text-2)" stroke-dasharray="3 3" visibility="hidden"/>
+      <circle id="lcDotR" r="4" fill="var(--text-3)" stroke="#fff" stroke-width="2" visibility="hidden"/>
+      <circle id="lcDotT" r="4" fill="var(--primary)" stroke="#fff" stroke-width="2" visibility="hidden"/>
+      <rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent" id="lcHit"/>
+    </svg>
+    <div class="tt-box" id="lcTip"></div>`;
+  const hit=el.querySelector('#lcHit'),tip=el.querySelector('#lcTip');
+  const cross=el.querySelector('#lcCross'),dR=el.querySelector('#lcDotR'),dT=el.querySelector('#lcDotT');
+  const show=i=>{
+    const d=lcData[i],cx=x(i);
+    [cross,dR,dT].forEach(e=>e.setAttribute('visibility','visible'));
+    cross.setAttribute('x1',cx);cross.setAttribute('x2',cx);
+    dR.setAttribute('cx',cx);dR.setAttribute('cy',y(d.reg));
+    dT.setAttribute('cx',cx);dT.setAttribute('cy',y(d.tan));
+    tip.innerHTML=`<div class="tt-head"><strong>${d.full}</strong></div>
+      <div class="tt-row"><span><i class="sw" style="background:var(--text-3)"></i>Terdaftar</span><span>${fmt(d.reg)} ha</span></div>
+      <div class="tt-row"><span><i class="sw" style="background:var(--primary)"></i>Sudah ditanam</span><span>${fmt(d.tan)} ha</span></div>
+      <div class="tt-row"><span>Persentase ditanam</span><b>${d.reg>0?fmtPct(d.tan/d.reg*100):'0,0'}%</b></div>`;
+    tip.style.display='block';
+    const left=cx+14+tip.offsetWidth>W?cx-14-tip.offsetWidth:cx+14;
+    tip.style.left=Math.max(0,left)+'px';
+  };
+  const hide=()=>{[cross,dR,dT].forEach(e=>e.setAttribute('visibility','hidden'));tip.style.display='none';};
+  hit.addEventListener('mousemove',ev=>{
+    const bx=ev.clientX-el.getBoundingClientRect().left;
+    show(n>1?Math.max(0,Math.min(n-1,Math.round((bx-pl)/step))):0);
+  });
+  hit.addEventListener('mouseleave',hide);
+}
+let lcResize;
+window.addEventListener('resize',()=>{clearTimeout(lcResize);lcResize=setTimeout(drawLine,120);});
+
+function speciesCardHTML(s){
+  const total=s.species.reduce((a,[,v])=>a+v,0);
+  const max=s.species.length?s.species[0][1]:1;
+  const list=s.species.map(([name,v])=>`
+    <div class="sl-row" title="${esc(name)}: ${fmtInt(v)} tanaman">
+      <div class="sl-lbl">${esc(name)}</div>
+      <div class="sl-track"><div class="sl-bar" style="width:${(v/max*100).toFixed(1)}%"></div></div>
+      <div class="sl-val">${fmtInt(v)}</div>
+      <div class="sl-pct">${total?fmtPct(v/total*100):'0,0'}%</div>
+    </div>`).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Jenis Tanaman yang Ditanam</div>
+      <div class="chart-sub">${periodLabel()} &middot; ${fmtInt(s.species.length)} jenis &middot; ${fmtInt(total)} tanaman</div>
+      ${s.species.length?`<div class="sl">${list}</div>`:'<div class="empty">Belum ada data jenis tanaman pada periode ini.</div>'}
+    </div>`;
+}
+
+/* --- Insentif --- */
+// Lahan dihitung menurut tanggal bergabung (Tgl_Partisipasi)
+const insRows=()=>rows.filter(r=>inPeriod(r.tglPartisipasi));
+const insRegRows=()=>insRows().filter(r=>r.prog==='Agro_Reg'||r.prog==='Temb_Reg');
+const hasBPO=r=>r.pupukCair>0||r.pupukPadat>0||!!r.tglBPO;
+const hasMTL=r=>r.insentifMTL>0||!!r.tglMTL;
+const insThnRows=()=>insRows().filter(r=>hasBPO(r)||hasMTL(r));
+
+function insSummary(){
+  const reg=insRegRows(),thn=insThnRows();
+  let regPaid=0;
+  reg.forEach(r=>INS_STAGES.forEach(s=>{if(stageStatus(r.stages[s.key])!=='unpaid')regPaid+=r.nominalStages[s.key]||0;}));
+  const bpo=thn.filter(hasBPO),mtl=thn.filter(hasMTL);
+  const sum=(l,f)=>l.reduce((a,r)=>a+f(r),0);
+  return{reg:reg.length,regPaid,
+    bpo:bpo.length,bpoPaid:bpo.filter(r=>r.tglBPO).length,
+    cair:sum(bpo,r=>r.pupukCair),cairPaid:sum(bpo.filter(r=>r.tglBPO),r=>r.pupukCair),
+    padat:sum(bpo,r=>r.pupukPadat),padatPaid:sum(bpo.filter(r=>r.tglBPO),r=>r.pupukPadat),
+    mtl:mtl.length,mtlPaidN:mtl.filter(r=>r.tglMTL).length,
+    mtlAll:sum(mtl,r=>r.insentifMTL),mtlPaid:sum(mtl.filter(r=>r.tglMTL),r=>r.insentifMTL)};
+}
+
+function insStageCardHTML(){
+  const reg=insRegRows(),n=reg.length;
+  const data=INS_STAGES.map(s=>{
+    const o={...s,paid:0,early:0,unpaid:0,nominal:0};
+    reg.forEach(r=>{const st=stageStatus(r.stages[s.key]);o[st]++;if(st!=='unpaid')o.nominal+=r.nominalStages[s.key]||0;});
+    return o;
+  });
+  const segs=[['paid','Sudah dibayar','var(--c-paid)'],['early','Dibayar di awal','var(--c-early)'],['unpaid','Belum dibayar','var(--c-unpaid)']];
+  const rowsHtml=data.map(o=>`
+    <div class="st-row" tabindex="0">
+      <div class="st-lbl">${o.label}</div>
+      <div class="st-bar">${n?segs.filter(([k])=>o[k]>0).map(([k,,c])=>`<div style="flex:${o[k]} 0 0;background:${c}"></div>`).join(''):''}</div>
+      <div class="st-pct">${n?fmtPct((o.paid+o.early)/n*100):'0,0'}%</div>
+      <div class="st-nom">${o.nominal>0?fmtRp(o.nominal):'—'}</div>
+      <div class="tt-box"><div class="tt-head"><strong>${o.label}</strong> &middot; ${fmtInt(n)} lahan</div>
+        ${segs.map(([k,l,c])=>`<div class="tt-row"><span><i class="sw" style="background:${c}"></i>${l}</span><span>${fmtInt(o[k])} lahan</span></div>`).join('')}
+        <div class="tt-row"><span>Nominal dibayar</span><b>${fmtRp(o.nominal)}</b></div>
+      </div>
+    </div>`).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Progres Pembayaran Insentif Reguler per Tahap</div>
+      <div class="chart-sub">${periodLabel()} &middot; ${fmtInt(n)} lahan agroforestri &amp; reforestasi reguler</div>
+      <div class="lg">${segs.map(([,l,c])=>`<span class="lg-item"><i style="background:${c}"></i>${l}</span>`).join('')}</div>
+      ${n?`<div class="st-head"><span></span><span></span><span>% lahan</span><span>Nominal</span></div>${rowsHtml}`:'<div class="empty">Tidak ada lahan reguler pada periode ini.</div>'}
+    </div>`;
+}
+
+function insThnCardHTML(i){
+  const item=(name,unit,paid,total,cnt)=>{
+    const p=pctOf(paid,total);
+    const f=unit==='Rp'?fmtRp:v=>`${fmt(v)} ${unit}`;
+    return`
+      <div class="tg-row">
+        <div class="tg-top"><span class="tg-name">${name}</span><span class="tg-val">${f(paid)}</span></div>
+        <div class="tg-track"><div class="tg-bar" style="width:${p===null?0:Math.min(100,p).toFixed(1)}%;background:var(--c-paid)"></div></div>
+        <div class="tg-meta"><span>${p===null?'Belum ada data':`<b>${fmtPct(p)}%</b> sudah ${unit==='Rp'?'dibayar':'dibagikan'}`}</span><span>dari ${f(total)} &middot; ${cnt}</span></div>
+      </div>`;
+  };
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Program Tahunan</div>
+      <div class="chart-sub">${periodLabel()} &middot; Bantuan Pupuk Organik &amp; Menjaga Tutupan Lahan</div>
+      <div class="tg-list">
+        ${item('Pupuk Cair (BPO)','L',i.cairPaid,i.cair,`${fmtInt(i.bpoPaid)}/${fmtInt(i.bpo)} lahan`)}
+        ${item('Pupuk Padat (BPO)','kg',i.padatPaid,i.padat,`${fmtInt(i.bpoPaid)}/${fmtInt(i.bpo)} lahan`)}
+        ${item('Insentif MTL','Rp',i.mtlPaid,i.mtlAll,`${fmtInt(i.mtlPaidN)}/${fmtInt(i.mtl)} lahan`)}
+      </div>
+    </div>`;
+}
+
+// Tabel insentif
+const insState={view:'reguler',q:'',prog:'',desa:'',dusun:'',status:'',nominal:false,open:false};
+const insBaseRows=()=>insState.view==='reguler'?insRegRows():insThnRows();
+const regStatus=r=>INS_STAGES.some(s=>stageStatus(r.stages[s.key])==='unpaid')?'belum':'sudah';
+const thnStatus=r=>(!hasBPO(r)||r.tglBPO)&&(!hasMTL(r)||r.tglMTL)?'sudah':'belum';
+function insVisibleRows(){
+  const q=insState.q.toLowerCase().trim(),st=insState.view==='reguler'?regStatus:thnStatus;
+  return insBaseRows().filter(r=>(!q||r.petani.toLowerCase().includes(q))&&(!insState.prog||r.prog===insState.prog)
+    &&(!insState.desa||r.desa===insState.desa)&&(!insState.dusun||r.dusun===insState.dusun)&&(!insState.status||st(r)===insState.status));
+}
+function insTableCardHTML(){
+  const reg=insState.view==='reguler',base=insBaseRows();
+  const opts=(list,val,all)=>`<option value="">${all}</option>`+list.map(([v,l])=>`<option value="${esc(v)}"${v===val?' selected':''}>${esc(l)}</option>`).join('');
+  const uniq=f=>[...new Set(base.map(f).filter(Boolean))].sort().map(v=>[v,v]);
+  const progOpts=reg?[['Agro_Reg',PROG_LABEL.Agro_Reg],['Temb_Reg',PROG_LABEL.Temb_Reg]]:[['Agro_BPO',PROG_LABEL.Agro_BPO],['Temb_MTL',PROG_LABEL.Temb_MTL]];
+  const petani=new Set(base.map(r=>r.petani.toLowerCase())).size;
+  return`
+    <div class="card ins-card" id="insCard">
+      <div class="ins-hd">
+        <div>
+          <div class="chart-title">Data Pembayaran Insentif Program</div>
+          <div class="chart-sub" style="margin-bottom:0">${periodLabel()} &middot; ${fmtInt(base.length)} lahan &middot; ${fmtInt(petani)} petani</div>
+        </div>
+        <div class="ins-hd-r">
+          <div class="seg">
+            <button type="button" class="${reg?'active':''}" onclick="setInsView('reguler')">Reguler</button>
+            <button type="button" class="${reg?'':'active'}" onclick="setInsView('tahunan')">Program Tahunan</button>
+          </div>
+          <div class="dl-wrap" id="insDl">
+            <button type="button" class="btn-dl" onclick="toggleDl(event)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Unduh</button>
+            <div class="dl-menu">
+              <button type="button" onclick="downloadIns('csv')">CSV</button>
+              <button type="button" onclick="downloadIns('xlsx')">Excel</button>
+              <button type="button" onclick="downloadIns('docx')">Word</button>
+              <button type="button" onclick="downloadIns('pdf')">PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ins-tools">
+        <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Cari nama petani..." value="${esc(insState.q)}" oninput="setInsF('q',this.value)"/></div>
+        <select class="filter-select" onchange="setInsF('prog',this.value)">${opts(progOpts,insState.prog,'Semua Program')}</select>
+        <select class="filter-select" onchange="setInsF('desa',this.value)">${opts(uniq(r=>r.desa),insState.desa,'Semua Desa')}</select>
+        <select class="filter-select" onchange="setInsF('dusun',this.value)">${opts(uniq(r=>r.dusun),insState.dusun,'Semua Dusun')}</select>
+        <select class="filter-select" onchange="setInsF('status',this.value)">${opts([['sudah','Sudah Bayar'],['belum','Belum Bayar']],insState.status,'Semua Status')}</select>
+        ${reg?`<button type="button" class="fpill${insState.nominal?' active':''}" onclick="toggleInsNominal()">Nominal: ${insState.nominal?'ON':'OFF'}</button>`:''}
+        <span class="ins-count" id="insCount"></span>
+      </div>
+      <div class="clip" id="insClip">
+        <div class="ins-scroll"><table class="ins-tbl"><thead id="insThead"></thead><tbody id="insTbody"></tbody></table>
+          <div class="empty" id="insEmpty" style="display:none">Tidak ada hasil.</div></div>
+      </div>
+      <button type="button" class="more-btn" id="insMore" onclick="toggleMore('ins')"></button>
+    </div>`;
+}
+function updateInsTable(){
+  const vis=insVisibleRows(),reg=insState.view==='reguler';
+  const yr=r=>r.tglPartisipasi?r.tglPartisipasi.getFullYear():'—';
+  const tag=p=>PROG_LABEL[p];
+  const head=['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)'];
+  let thead,tbody;
+  if(reg){
+    const sub=INS_STAGES.map(s=>{
+      const done=vis.filter(r=>stageStatus(r.stages[s.key])!=='unpaid');
+      const v=insState.nominal?(()=>{const t=done.reduce((a,r)=>a+(r.nominalStages[s.key]||0),0);return t>0?fmtRp(t):'—';})()
+        :vis.length?Math.round(done.length/vis.length*100)+'%':'—';
+      return`<th class="th-pct">${v}</th>`;
+    }).join('');
+    thead=`<tr>${[...head,'Thn Bergabung'].map(h=>`<th rowspan="2">${h}</th>`).join('')}${INS_STAGES.map(s=>`<th class="th-group">${s.label}</th>`).join('')}</tr><tr>${sub}</tr>`;
+    tbody=vis.map((r,i)=>`<tr><td class="r">${i+1}</td><td>${esc(r.id)}</td><td>${esc(r.petani)}</td><td>${esc(r.desa)||'—'}</td><td>${esc(r.dusun)||'—'}</td><td>${tag(r.prog)}</td><td class="r">${fmt(r.luas)}</td><td class="c">${yr(r)}</td>
+      ${INS_STAGES.map(s=>{
+        const st=stageStatus(r.stages[s.key]);
+        if(!insState.nominal)return`<td class="c${st==='paid'?'':' muted'}">${stageText(r.stages[s.key])}</td>`;
+        if(st==='unpaid')return'<td class="c muted">—</td>';
+        const nom=r.nominalStages[s.key]||0;
+        return`<td class="r${st==='early'?' muted':''}">${nom>0?fmtRp(nom):st==='early'?'Selesai':'Sudah'}</td>`;
+      }).join('')}</tr>`).join('');
+  }else{
+    const sum=(l,f)=>l.reduce((a,r)=>a+f(r),0);
+    const bpo=vis.filter(hasBPO),mtl=vis.filter(hasMTL);
+    const tot=(all,paid,f,u)=>all>0?`${f(all)}${u}<small>${paid>0?(paid<all?`dibagikan ${f(paid)}${u}`:'semua dibagikan'):''}</small>`:'—';
+    const cair=sum(bpo,r=>r.pupukCair),padat=sum(bpo,r=>r.pupukPadat),mtlAll=sum(mtl,r=>r.insentifMTL),mtlPaid=sum(mtl.filter(r=>r.tglMTL),r=>r.insentifMTL);
+    thead=`<tr>${head.map(h=>`<th rowspan="2">${h}</th>`).join('')}<th class="th-group">Pupuk Cair (L)</th><th class="th-group">Pupuk Padat (kg)</th><th class="th-group">Status BPO</th><th class="th-group">Insentif MTL (Rp)</th><th class="th-group">Status MTL</th></tr>
+      <tr><th class="th-pct r">${tot(cair,sum(bpo.filter(r=>r.tglBPO),r=>r.pupukCair),fmt,' L')}</th><th class="th-pct r">${tot(padat,sum(bpo.filter(r=>r.tglBPO),r=>r.pupukPadat),fmt,' kg')}</th><th class="th-pct">—</th>
+      <th class="th-pct r">${mtlAll>0?`${fmtRp(mtlAll)}<small>${mtlPaid>0?(mtlPaid<mtlAll?`dibayar ${fmtRp(mtlPaid)}`:'lunas'):''}</small>`:'—'}</th><th class="th-pct">—</th></tr>`;
+    const status=(has,tgl)=>has?(tgl?`Sudah (${fmtDate(tgl)})`:'Belum'):'—';
+    tbody=vis.map((r,i)=>`<tr><td class="r">${i+1}</td><td>${esc(r.id)}</td><td>${esc(r.petani)}</td><td>${esc(r.desa)||'—'}</td><td>${esc(r.dusun)||'—'}</td><td>${tag(r.prog)}</td><td class="r">${fmt(r.luas)}</td>
+      <td class="r">${r.pupukCair>0?fmt(r.pupukCair):'—'}</td><td class="r">${r.pupukPadat>0?fmt(r.pupukPadat):'—'}</td><td>${status(hasBPO(r),r.tglBPO)}</td>
+      <td class="r">${r.insentifMTL>0?fmtInt(r.insentifMTL):'—'}</td><td>${status(hasMTL(r),r.tglMTL)}</td></tr>`).join('');
+  }
+  document.getElementById('insThead').innerHTML=thead;
+  document.getElementById('insTbody').innerHTML=tbody;
+  document.getElementById('insEmpty').style.display=vis.length?'none':'block';
+  document.getElementById('insCount').textContent=`${fmtInt(vis.length)} lahan`;
+  applyClip('ins',vis.length,insState.open);
+}
+function renderInsCard(){
+  const el=document.getElementById('insCard');
+  if(el){el.outerHTML=insTableCardHTML();updateInsTable();}
+}
+function setInsView(v){Object.assign(insState,{view:v,prog:'',desa:'',dusun:'',status:''});renderInsCard();}
+function setInsF(k,v){insState[k]=v;updateInsTable();}
+function toggleInsNominal(){insState.nominal=!insState.nominal;renderInsCard();}
+function toggleDl(ev,id='insDl'){
+  ev.stopPropagation();
+  document.querySelectorAll('.dl-wrap.open').forEach(d=>{if(d.id!==id)d.classList.remove('open');});
+  document.getElementById(id).classList.toggle('open');
+}
+document.addEventListener('click',()=>document.querySelectorAll('.dl-wrap.open').forEach(d=>d.classList.remove('open')));
+
+function insExportData(raw){
+  const vis=insVisibleRows(),reg=insState.view==='reguler';
+  const yr=r=>r.tglPartisipasi?r.tglPartisipasi.getFullYear():'';
+  const luas=r=>raw?+r.luas.toFixed(2):fmt(r.luas);
+  const n2=v=>raw?+v.toFixed(2):v.toLocaleString('id-ID',{minimumFractionDigits:2});
+  const rp=v=>raw?Math.round(v):fmtInt(v);
+  const base=r=>[r.id,r.petani,r.desa,r.dusun||'',PROG_LABEL[r.prog],luas(r)];
+  if(reg)return{reg,vis,
+    hdr:['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Tahun Bergabung',...INS_STAGES.flatMap(s=>[s.label,'Nominal '+s.label])],
+    body:vis.map((r,i)=>[i+1,...base(r),yr(r),...INS_STAGES.flatMap(s=>[stageLabel(r.stages[s.key]),
+      stageStatus(r.stages[s.key])!=='unpaid'&&r.nominalStages[s.key]?rp(r.nominalStages[s.key]):''])])};
+  return{reg,vis,
+    hdr:['No','ID Lahan','Nama Petani','Desa','Dusun','Program','Luas (ha)','Pupuk Cair (L)','Pupuk Padat (kg)','Status BPO','Tgl BPO','Insentif MTL (Rp)','Status MTL','Tgl MTL'],
+    body:vis.map((r,i)=>{const b=hasBPO(r),m=hasMTL(r);return[i+1,...base(r),
+      b?n2(r.pupukCair):'',b?n2(r.pupukPadat):'',b?(r.tglBPO?'Sudah Bayar':'Belum Bayar'):'',b?fmtDate(r.tglBPO):'',
+      m?rp(r.insentifMTL):'',m?(r.tglMTL?'Sudah Bayar':'Belum Bayar'):'',m?fmtDate(r.tglMTL):''];})};
+}
+function dlBlob(blob,name){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:name});a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+async function downloadIns(type){
+  document.getElementById('insDl').classList.remove('open');
+  const {reg,vis,hdr,body}=insExportData(type==='csv'||type==='xlsx');
+  if(!vis.length){alert('Tidak ada data.');return;}
+  await exportTable(type,hdr,body,`Insentif Program ${reg?'Reguler':'Tahunan'}`,`Insentif_${reg?'Reguler':'Tahunan'}`,reg);
+}
+/* --- KTH --- */
+const NO_KTH='Tanpa KTH';
+function kthData(){
+  const by={};
+  const get=r=>{const k=r.kth||NO_KTH;return by[k]||(by[k]={kth:k,desa:new Set(),lahan:0,petaniSet:new Set(),agro:0,temb:0,ditanam:0,tanaman:0});};
+  rows.forEach(r=>{
+    if(inPeriod(r.tglPartisipasi)){
+      const o=get(r);
+      o.lahan++;o.agro+=r.luasAgroAT;o.temb+=r.luasTembAU;
+      if(r.desa)o.desa.add(r.desa);
+      if(r.petani)o.petaniSet.add(r.petani.toLowerCase());
+    }
+    if(inPeriod(r.tglRealisasi)){
+      const o=get(r);
+      o.ditanam+=r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;o.tanaman+=r.jumlahTanaman;
+    }
+  });
+  return Object.values(by).map(o=>({...o,desa:[...o.desa].sort().join(', '),petani:o.petaniSet.size,luas:o.agro+o.temb,
+    pctTanam:pctOf(o.ditanam,o.agro+o.temb)}))
+    .sort((a,b)=>b.luas-a.luas||b.ditanam-a.ditanam);
+}
+
+function kthLuasCardHTML(list){
+  const data=list.filter(o=>o.luas>0);
+  const max=Math.max(1,...data.map(o=>o.luas));
+  const rowsHtml=data.map(o=>`
+    <div class="kb-row" tabindex="0">
+      <div class="kb-lbl" title="${esc(o.kth)}">${esc(o.kth)}</div>
+      <div class="kb-track"><div class="kb-bar" style="width:${(o.luas/max*100).toFixed(1)}%">
+        ${o.agro>0?`<div style="flex:${o.agro} 0 0;background:var(--c-agro)"></div>`:''}${o.temb>0?`<div style="flex:${o.temb} 0 0;background:var(--c-temb)"></div>`:''}
+      </div></div>
+      <div class="kb-val">${fmt(o.luas)} ha</div>
+      <div class="tt-box"><div class="tt-head"><strong>${esc(o.kth)}</strong> &middot; ${fmtInt(o.lahan)} lahan &middot; ${fmtInt(o.petani)} petani</div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-agro)"></i>Agroforestri</span><span>${fmt(o.agro)} ha</span></div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-temb)"></i>Reforestasi</span><span>${fmt(o.temb)} ha</span></div>
+        <div class="tt-row"><span>Total</span><b>${fmt(o.luas)} ha</b></div>
+      </div>
+    </div>`).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Luas Lahan per KTH</div>
+      <div class="chart-sub">${periodLabel()} &middot; ${fmtInt(data.filter(o=>o.kth!==NO_KTH).length)} KTH</div>
+      <div class="lg">
+        <span class="lg-item"><i style="background:var(--c-agro)"></i>Agroforestri</span>
+        <span class="lg-item"><i style="background:var(--c-temb)"></i>Reforestasi</span>
+      </div>
+      ${data.length?`<div class="kb-list">${rowsHtml}</div>`:'<div class="empty">Tidak ada lahan terdaftar pada periode ini.</div>'}
+    </div>`;
+}
+
+function kthTanamCardHTML(list){
+  const data=list.filter(o=>o.luas>0).sort((a,b)=>(b.pctTanam||0)-(a.pctTanam||0));
+  const tot=data.reduce((a,o)=>a+o.luas,0),dit=data.reduce((a,o)=>a+Math.min(o.ditanam,o.luas),0);
+  const avg=tot>0?dit/tot*100:0;
+  const rowsHtml=data.map(o=>{
+    const p=Math.min(100,o.pctTanam||0);
+    return`
+    <div class="kb-row" tabindex="0">
+      <div class="kb-lbl" title="${esc(o.kth)}">${esc(o.kth)}</div>
+      <div class="kb-track bg"><div class="kb-bar" style="width:${p.toFixed(1)}%;background:var(--primary)"></div></div>
+      <div class="kb-val b">${fmtPct(p)}%</div>
+      <div class="tt-box"><div class="tt-head"><strong>${esc(o.kth)}</strong></div>
+        <div class="tt-row"><span>Luas terdaftar</span><span>${fmt(o.luas)} ha</span></div>
+        <div class="tt-row"><span>Luas sudah ditanam</span><span>${fmt(o.ditanam)} ha</span></div>
+        <div class="tt-row"><span>Jumlah tanaman</span><span>${fmtInt(o.tanaman)}</span></div>
+        <div class="tt-row"><span>Persentase ditanam</span><b>${fmtPct(p)}%</b></div>
+      </div>
+    </div>`;}).join('');
+  return`
+    <div class="card chart-card">
+      <div class="chart-title">Progres Penanaman per KTH</div>
+      <div class="chart-sub">${periodLabel()} &middot; % luas sudah ditanam dari luas terdaftar &middot; rata-rata ${fmtPct(avg)}%</div>
+      ${data.length?`<div class="kb-list">${rowsHtml}</div>`:'<div class="empty">Tidak ada lahan terdaftar pada periode ini.</div>'}
+    </div>`;
+}
+
+// Tooltip di bawah baris, pindah ke atas bila tidak muat
+function placeKbTip(row){
+  const tip=row.querySelector('.tt-box');if(!tip)return;
+  tip.style.display='block';
+  const r=row.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight,vw=window.innerWidth,vh=window.innerHeight;
+  const left=Math.max(8,Math.min(r.left+Math.min(150,r.width/3),vw-w-8));
+  const top=r.bottom+2+h>vh-8?Math.max(8,r.top-h-2):r.bottom+2;
+  tip.style.left=left+'px';tip.style.top=top+'px';
+  tip.style.display='';
+}
+
+const kthState={q:'',kth:'',open:false};
+const KTH_HDR=['No','KTH','Nama Petani','ID Lahan','Program','Luas (ha)'];
+const kthLahan=()=>rows.filter(r=>inPeriod(r.tglPartisipasi))
+  .map(r=>({kth:r.kth||NO_KTH,petani:r.petani,id:r.id,prog:r.prog,luas:r.luasAgroAT+r.luasTembAU}))
+  .sort((a,b)=>a.kth.localeCompare(b.kth,'id')||a.petani.localeCompare(b.petani,'id',{numeric:true})||a.id.localeCompare(b.id,'id',{numeric:true}));
+function kthVisible(){
+  const q=kthState.q.toLowerCase().trim();
+  return kthLahan().filter(o=>(!kthState.kth||o.kth===kthState.kth)&&(!q||o.petani.toLowerCase().includes(q)||o.id.toLowerCase().includes(q)));
+}
+function kthTableCardHTML(){
+  const kths=[...new Set(kthLahan().map(o=>o.kth))].sort((a,b)=>a.localeCompare(b,'id'));
+  if(kthState.kth&&!kths.includes(kthState.kth))kthState.kth='';
+  return`
+    <div class="card ins-card" id="kthCard">
+      <div class="ins-hd">
+        <div>
+          <div class="chart-title">Rekap per KTH</div>
+          <div class="chart-sub" style="margin-bottom:0">${periodLabel()}</div>
+        </div>
+        <div class="ins-hd-r">
+          <div class="dl-wrap" id="kthDl">
+            <button type="button" class="btn-dl" onclick="toggleDl(event,'kthDl')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Unduh</button>
+            <div class="dl-menu">
+              <button type="button" onclick="downloadKTH('csv')">CSV</button>
+              <button type="button" onclick="downloadKTH('xlsx')">Excel</button>
+              <button type="button" onclick="downloadKTH('docx')">Word</button>
+              <button type="button" onclick="downloadKTH('pdf')">PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ins-tools">
+        <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Cari nama petani atau ID lahan..." value="${esc(kthState.q)}" oninput="kthState.q=this.value;updateKTHTable()"/></div>
+        <select class="filter-select" onchange="kthState.kth=this.value;updateKTHTable()"><option value="">Semua KTH</option>${kths.map(k=>`<option value="${esc(k)}"${k===kthState.kth?' selected':''}>${esc(k)}</option>`).join('')}</select>
+        <span class="ins-count" id="kthCount"></span>
+      </div>
+      <div class="clip${kthState.open?' open':''}" id="kthClip">
+        <div class="ins-scroll"><table class="ins-tbl"><thead><tr>${KTH_HDR.map((h,i)=>`<th${i===0||i===5?' class="r"':''}>${h}</th>`).join('')}</tr></thead><tbody id="kthTbody"></tbody><tfoot id="kthTfoot"></tfoot></table>
+          <div class="empty" id="kthEmpty" style="display:none">Tidak ada hasil.</div></div>
+      </div>
+      <button type="button" class="more-btn" id="kthMore" onclick="toggleMore('kth')"></button>
+    </div>`;
+}
+function kthRowCells(o,raw){
+  return[o.kth,o.petani||'—',o.id,PROG_LABEL[o.prog],raw?+o.luas.toFixed(2):fmt(o.luas)];
+}
+function updateKTHTable(){
+  const vis=kthVisible();
+  document.getElementById('kthTbody').innerHTML=vis.map((o,i)=>`<tr><td class="r">${i+1}</td>${kthRowCells(o).map((v,j)=>`<td${j===4?' class="r"':''}>${esc(String(v))}</td>`).join('')}</tr>`).join('');
+  document.getElementById('kthTfoot').innerHTML=vis.length?`<tr><td></td><td colspan="4">Total</td><td class="r">${fmt(vis.reduce((a,o)=>a+o.luas,0))}</td></tr>`:'';
+  document.getElementById('kthEmpty').style.display=vis.length?'none':'block';
+  document.getElementById('kthCount').textContent=`${fmtInt(vis.length)} lahan`;
+  applyClip('kth',vis.length,kthState.open);
+}
+// Tabel ringkas bila baris > CLIP_PREVIEW
+const CLIP_PREVIEW=5;
+function applyClip(prefix,n,open){
+  const many=n>CLIP_PREVIEW,btn=document.getElementById(prefix+'More');
+  const clip=document.getElementById(prefix+'Clip');
+  clip.classList.toggle('open',open);
+  clip.classList.toggle('clipped',many&&!open);
+  btn.style.display=many?'':'none';
+  btn.textContent=open?'Tampilkan lebih sedikit':`Tampilkan semua (${fmtInt(n)} lahan)`;
+}
+function toggleMore(prefix){
+  const st=prefix==='kth'?kthState:insState;
+  st.open=!st.open;
+  prefix==='kth'?updateKTHTable():updateInsTable();
+  document.querySelector(`#${prefix}Clip .ins-scroll`).scrollTop=0;
+  if(!st.open)document.getElementById(prefix+'Card').scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+async function downloadKTH(type){
+  document.getElementById('kthDl').classList.remove('open');
+  const vis=kthVisible();
+  if(!vis.length){alert('Tidak ada data.');return;}
+  const raw=type==='csv'||type==='xlsx';
+  await exportTable(type,KTH_HDR,vis.map((o,i)=>[i+1,...kthRowCells(o,raw)]),kthState.kth?`Daftar Lahan ${kthState.kth}`:'Daftar Lahan per KTH',kthState.kth?`Lahan_${kthState.kth.replace(/[^\w]+/g,'_')}`:'Lahan_per_KTH',false);
+}
+
+// wide = PDF A3 dengan huruf lebih kecil
+async function exportTable(type,hdr,body,title,prefix,wide){
+  const fname=`${prefix}_${periodLabel().replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')}`;
+  const sub=`PT Citra Mulia Inti | ${periodLabel()} | ${body.length} baris | ${fmtD(new Date(),'l')}`;
+  const reg=wide;
+  if(type==='csv'){
+    const csv=[hdr,...body].map(r=>r.map(v=>`"${str(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    dlBlob(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}),fname+'.csv');
+  }else if(type==='xlsx'){
+    if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([hdr,...body]),'Data');
+    XLSX.writeFile(wb,fname+'.xlsx');
+  }else if(type==='pdf'){
+    if(!window.jspdf){alert('Library PDF belum dimuat.');return;}
+    const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'pt',format:reg?'a3':'a4'});
+    doc.setFontSize(14);doc.setTextColor(53,103,96);doc.text(title,40,32);
+    doc.setFontSize(9);doc.setTextColor(100,116,139);doc.text(sub,40,48);
+    doc.autoTable({head:[hdr],body,startY:60,styles:{fontSize:reg?6.5:8,cellPadding:3},headStyles:{fillColor:[53,103,96],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[248,250,252]}});
+    doc.save(fname+'.pdf');
+  }else{
+    if(!window.docx){alert('Library Word belum dimuat.');return;}
+    const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign}=window.docx;
+    const brd={style:BorderStyle.SINGLE,size:1,color:'D1D5DB'},bA={top:brd,bottom:brd,left:brd,right:brd};
+    const cell=(t,o={})=>new TableCell({verticalAlign:VerticalAlign.CENTER,borders:bA,shading:o.bg?{fill:o.bg,type:ShadingType.CLEAR,color:'auto'}:undefined,margins:{top:60,bottom:60,left:100,right:100},
+      children:[new Paragraph({alignment:AlignmentType.LEFT,children:[new TextRun({text:String(t??'—'),bold:!!o.bold,color:o.color||'000000',size:16,font:'Arial'})]})]});
+    const table=new Table({width:{size:9500,type:WidthType.DXA},rows:[
+      new TableRow({tableHeader:true,children:hdr.map(h=>cell(h,{bg:'356760',bold:true,color:'FFFFFF'}))}),
+      ...body.map((r,i)=>new TableRow({children:r.map(v=>cell(v,{bg:i%2===0?'F8FAFC':'FFFFFF'}))}))]});
+    const doc=new Document({sections:[{properties:{page:{size:{width:20160,height:12240,orientation:'landscape'},margin:{top:720,right:720,bottom:720,left:720}}},
+      children:[new Paragraph({children:[new TextRun({text:title.toUpperCase(),bold:true,size:32,color:'356760',font:'Arial'})]}),
+        new Paragraph({children:[new TextRun({text:sub,size:18,color:'64748B',font:'Arial'})]}),new Paragraph({children:[]}),table]}]});
+    try{dlBlob(await Packer.toBlob(doc),fname+'.docx');}catch(e){alert('Gagal membuat Word.');}
+  }
+}
+
+function weekPickerHtml(){
+  const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+  const weeks=getWeeksInMonth(weekYear,weekMonth),sel=weekIdx??defaultWeekIdx();
+  return`
+    <select class="filter-select" aria-label="Tahun" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Bulan" onchange="setWeekMonth(this.value)">${MN.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})</option>`).join('')}</select>`;
+}
 
 function render(){
-  const s=compute();
+  const yq=periodMode==='yq';
+  const s=compute(),ins=insSummary(),kth=kthData();
   const card=(lbl,val,sub)=>`<div class="card"><div class="card-lbl">${lbl}</div><div class="card-val-lg">${val}</div>${sub?`<div class="card-sub-pct">${sub}</div>`:''}</div>`;
-  document.getElementById('pageBody').innerHTML=`
-    <div class="filter-row">
+  const plantPct=pctOf(s.ditanam,s.real);
+  const top3=s.species.slice(0,3).map(([n])=>esc(n));
+  const joinID=l=>l.length<=1?l.join(''):l.slice(0,-1).join(', ')+' dan '+l[l.length-1];
+  const tgtTxt=partialTarget()?'target tahunan':'target';
+  const note=`${isAllTime()?'Sepanjang program':`Dalam periode ${periodLabel()}`}, sebanyak ${fmtInt(s.lahan)} lahan seluas ${fmt(s.real)} ha terdaftar dalam program ARR`
+    +(s.pct!==null?`, atau ${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha`:'')
+    +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah ditanami ${fmtInt(s.tanaman)} pohon`
+    +(top3.length?`, dengan ${joinID(top3)} sebagai jenis yang paling banyak ditanam.`:'.');
+  const page=document.getElementById('pageBody');
+  page.innerHTML=`
+    <div class="filter-row" style="margin-bottom:6px">
       <span class="filter-lbl">Filter</span>
-      <button class="fpill${period==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
-      ${years.map(y=>`<button class="fpill${period===String(y)?' active':''}" onclick="setPeriod('${y}')">${y}</button>`).join('')}
-      <button class="fpill${period==='all'?' active':''}" onclick="setPeriod('all')">All</button>
+      <button class="fpill${yq&&currentYear==='all'?' active':''}" onclick="setFilter('all')">All</button>
+      ${years.map(y=>`<button class="fpill${yq&&currentYear===String(y)?' active':''}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row" style="margin-bottom:6px">
+      <span class="filter-lbl">Quarter</span>
+      <button class="fpill${yq&&currentQuarter==='all'?' active':''}" onclick="setQuarter('all')">All</button>
+      ${QUARTERS.map(q=>`<button class="fpill${yq&&currentQuarter===q?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Periode</span>
+      <button class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      <button class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
+      <button class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Mingguan</button>
+      ${periodMode==='week'?weekPickerHtml():''}
     </div>
 
     <div class="sec-title">ARR</div>
     <div class="grid-row">
-      ${card('Luas Program',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${fmtInt(s.target)} ha target`:'target belum tersedia')}
-      ${card('Petani',fmtInt(s.petani),`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.pmp)} perempuan`)}
-      ${card('Luas Ditanam',`${fmt(s.ditanam)} ha`,`${fmt(s.dA)} ha agro, ${fmt(s.dT)} ha reforestasi`)}
+      ${card('Total Lahan',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha`:'target belum tersedia')}
+      ${card('Anggota Petani Terdaftar',fmtInt(s.petani),`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.pmp)} perempuan`)}
+      ${card('Luas Sudah Ditanam',`${fmt(s.ditanam)} ha`,plantPct!==null?`${fmtPct(plantPct)}% dari luas terdaftar`:'—')}
+      ${card('Jumlah Tanaman',fmtInt(s.tanaman),`${fmtInt(s.tanA)} agro, ${fmtInt(s.tanT)} reforestasi`)}
     </div>
+    <p class="page-note kpi-note">${note}</p>
+
+    <div class="row-head">
+      <div class="row-title">Capaian Luas Program</div>
+      <div class="row-desc">Menampilkan capaian luas lahan terdaftar terhadap target, serta pembagian luas tersebut ke program agroforestri dan reforestasi beserta sub programnya.</div>
+    </div>
+    <div class="chart-pair even">
+      ${targetCardHTML(s)}
+      ${subProgramCardHTML(s)}
+    </div>
+
+    <div class="row-head">
+      <div class="row-title">Partisipasi Petani &amp; Lahan</div>
+      <div class="row-desc">Menampilkan komposisi petani yang terdaftar dalam program berdasarkan jenis kelamin, serta pertambahan luas lahan baru yang terdaftar setiap ${bucketUnit()}.</div>
+    </div>
+    <div class="chart-pair">
+      ${petaniCardHTML(s)}
+      ${trendCardHTML()}
+    </div>
+
+    <div class="row-head">
+      <div class="row-title">Kinerja per KTH</div>
+      <div class="row-desc">Menampilkan kontribusi setiap Kelompok Tani Hutan (KTH) terhadap luas program, serta progres penanaman di masing-masing KTH. Profil kelembagaan KTH tersedia di halaman <a href="kth.html">KTH</a>.</div>
+    </div>
+    <div class="chart-pair even">
+      ${kthLuasCardHTML(kth)}
+      ${kthTanamCardHTML(kth)}
+    </div>
+    ${kthTableCardHTML()}
+
+    <div class="row-head">
+      <div class="row-title">Realisasi Penanaman</div>
+      <div class="row-desc">Menampilkan progres penanaman dibandingkan luas lahan terdaftar, serta jenis tanaman yang paling banyak ditanam. Lahan dihitung sudah ditanam bila telah memiliki tanggal realisasi.</div>
+    </div>
+    <div class="chart-pair even">
+      ${plantingCardHTML(s)}
+      ${speciesCardHTML(s)}
+    </div>
+
+    <div class="row-head">
+      <div class="row-title">Insentif Program</div>
+      <div class="row-desc">Menampilkan status pembayaran insentif bagi lahan yang bergabung pada periode terpilih, baik insentif reguler per tahap maupun program tahunan (pupuk organik dan menjaga tutupan lahan), beserta data lengkap per lahan.</div>
+    </div>
+    <div class="grid-row">
+      ${card('Insentif Reguler Dibayar',fmtRp(ins.regPaid))}
+      ${card('Insentif MTL Dibayar',fmtRp(ins.mtlPaid))}
+      ${card('Pupuk Cair Dibagikan',`${fmt(ins.cairPaid)} L`)}
+      ${card('Pupuk Padat Dibagikan',`${fmt(ins.padatPaid)} kg`)}
+    </div>
+    <div class="chart-pair wide">
+      ${insStageCardHTML()}
+      ${insThnCardHTML(ins)}
+    </div>
+    ${insTableCardHTML()}
   `;
+  updateInsTable();
+  updateKTHTable();
+  page.querySelectorAll('.kb-row').forEach(row=>{
+    ['mouseenter','mousemove','focus'].forEach(ev=>row.addEventListener(ev,()=>placeKbTip(row)));
+  });
+  drawLine();
 }
 
 (async function boot(){
@@ -278,6 +1366,7 @@ function render(){
     rows.forEach(r=>{if(r.tglPartisipasi)ys.add(r.tglPartisipasi.getFullYear());});
     Object.keys(targetData).forEach(y=>ys.add(+y));
     years=[...ys].sort((a,b)=>a-b);
+    currentYear=years.length?String(years[years.length-1]):'all';
     render();
   }catch(err){
     console.error('LOAD ERROR:',err);
