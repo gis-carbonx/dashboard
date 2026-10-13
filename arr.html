@@ -112,9 +112,10 @@ body{display:flex;flex-direction:column}
 .ins-card{padding:18px 20px 14px;margin-bottom:32px}
 .ins-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .ins-hd-r{display:flex;align-items:center;gap:8px}
-.seg{display:inline-flex;border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.seg button{padding:4px 12px;border:none;background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
-.seg button.active{background:var(--primary);color:#fff}
+.seg{display:inline-flex;gap:6px}
+.seg button{padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+.seg button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.seg button:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
 .dl-wrap{position:relative}
 .btn-dl{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
@@ -415,7 +416,7 @@ function parseSheet(csv){
   });
 }
 
-// TARGET_CAPAIAN: A uraian, B target utama, C tahun, P target tahunan
+// TARGET_CAPAIAN: A uraian, B target utama, C tahun, D–O target Jan–Des, P target tahunan
 function parseTargetSheet(csv){
   const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
   targetData={};
@@ -426,11 +427,15 @@ function parseTargetSheet(csv){
     const isA=uraian.includes('agro')&&!uraian.includes('bpo');
     const isT=uraian==='tembawang';
     if(!isA&&!isT)return;
-    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0};
+    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0,monthly:Array.from({length:12},()=>({agro:0,temb:0}))};
     const td=targetData[tahun];
     const utama=parseFloat(str(row[1]))||0,total=parseFloat(str(row[15]))||0;
     if(isA){td.agro_utama+=utama;td.agro_total+=total;}
     if(isT){td.temb_utama+=utama;td.temb_total+=total;}
+    for(let m=0;m<12;m++){
+      const v=parseFloat(str(row[3+m]))||0;
+      if(isA)td.monthly[m].agro+=v;else td.monthly[m].temb+=v;
+    }
   });
 }
 
@@ -467,20 +472,41 @@ function inPeriod(d){
   if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
   return true;
 }
-function periodTargetYear(){
-  if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
-  if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
-  return currentYear==='all'?null:+currentYear;
+// Target sesuai periode: tahunan (Tahun/YTD), jumlah 3 bulan (Quarter), bulanan (MTD/Mingguan)
+function targetScope(){
+  const now=new Date();
+  if(periodMode==='ytd')return{year:now.getFullYear(),months:null,label:`Target ${now.getFullYear()}`};
+  if(periodMode==='mtd')return{year:now.getFullYear(),months:[now.getMonth()],label:`Target ${MN[now.getMonth()]} ${now.getFullYear()}`};
+  if(periodMode==='week'){
+    const wk=getSelectedWeek();if(!wk)return null;
+    const y=wk.fri.getFullYear(),m=wk.fri.getMonth();
+    return{year:y,months:[m],label:`Target ${MN[m]} ${y}`};
+  }
+  if(currentYear==='all')return{year:null,months:null,label:'Target sepanjang program'};
+  const y=+currentYear;
+  if(currentQuarter==='all')return{year:y,months:null,label:`Target ${y}`};
+  const q0=(+currentQuarter-1)*3;
+  return{year:y,months:[q0,q0+1,q0+2],label:`Target Q${currentQuarter} ${y}`};
 }
 function getTarget(){
-  if(periodMode==='yq'&&currentYear==='all'){
+  const sc=targetScope();if(!sc)return null;
+  if(sc.year===null){
     const tds=Object.values(targetData);
     return tds.length?{agro:tds.reduce((s,t)=>s+t.agro_utama,0),temb:tds.reduce((s,t)=>s+t.temb_utama,0)}:null;
   }
-  const td=targetData[periodTargetYear()];
-  return td?{agro:td.agro_total,temb:td.temb_total}:null;
+  const td=targetData[sc.year];if(!td)return null;
+  if(!sc.months)return{agro:td.agro_total,temb:td.temb_total};
+  return sc.months.reduce((o,m)=>({agro:o.agro+td.monthly[m].agro,temb:o.temb+td.monthly[m].temb}),{agro:0,temb:0});
 }
-const partialTarget=()=>periodMode==='yq'?currentQuarter!=='all':periodMode!=='ytd';
+// Mingguan: capaian = akumulasi bulan berjalan s/d akhir minggu (dibanding target bulanan)
+function targetBase(rA,rT){
+  if(periodMode!=='week')return{a:rA,t:rT,acc:false};
+  const wk=getSelectedWeek();if(!wk)return{a:rA,t:rT,acc:false};
+  const y=wk.fri.getFullYear(),m=wk.fri.getMonth();
+  let a=0,t=0;
+  rows.forEach(r=>{const d=r.tglPartisipasi;if(d&&d.getFullYear()===y&&d.getMonth()===m&&d<=wk.fri){a+=r.luasAgroAT;t+=r.luasTembAU;}});
+  return{a,t,acc:true,month:MN[m]};
+}
 
 function compute(){
   let rA=0,rT=0,dA=0,dT=0,tanA=0,tanT=0,lahan=0;
@@ -513,13 +539,13 @@ function compute(){
   });
   const tgt=getTarget();
   const target=tgt?tgt.agro+tgt.temb:null;
-  const real=rA+rT,ditanam=dA+dT;
-  return{tgt,target,real,rA,rT,ditanam,dA,dT,lahan,
+  const real=rA+rT,ditanam=dA+dT,base=targetBase(rA,rT);
+  return{tgt,target,base,real,rA,rT,ditanam,dA,dT,lahan,
     tanaman:tanA+tanT,tanA,tanT,
     sub:{aReg,aBPO,tReg,tMTL},
     subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
     species:Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]),
-    pct:target>0?real/target*100:null,
+    pct:target>0?(base.a+base.t)/target*100:null,
     petani:petani.size,laki:laki.size,pmp:pmp.size};
 }
 
@@ -543,10 +569,7 @@ function periodLabel(){
   if(currentQuarter!=='all')return`Q${currentQuarter} ${y}`;
   return currentYear==='all'?'Sepanjang waktu':`Tahun ${y}`;
 }
-function targetLabel(){
-  const y=periodTargetYear();
-  return y===null?'Target sepanjang program':`Target ${y}`;
-}
+const targetLabel=()=>targetScope()?.label||'Target';
 function niceScale(max,n=4){
   if(!(max>0))return{max:1,ticks:[0,1]};
   const raw=max/n,p=Math.pow(10,Math.floor(Math.log10(raw)));
@@ -588,8 +611,8 @@ function timeBuckets(){
 
 /* --- Capaian target --- */
 function targetCardHTML(s){
-  const item=(cls,name,color,val,tgtVal)=>{
-    const p=pctOf(val,tgtVal);
+  const item=(cls,name,color,val,base,tgtVal)=>{
+    const p=pctOf(base,tgtVal);
     return`
       <div class="tg-row${cls}">
         <div class="tg-top">
@@ -598,7 +621,7 @@ function targetCardHTML(s){
         </div>
         <div class="tg-track"><div class="tg-bar" style="width:${p===null?0:Math.min(100,p).toFixed(1)}%;background:${color||'var(--primary)'}"></div></div>
         <div class="tg-meta">
-          <span>${p===null?'Target belum tersedia':`<b>${fmtPct(p)}%</b> dari target${partialTarget()?' tahunan':''}`}</span>
+          <span>${p===null?'Target belum tersedia':`<b>${fmtPct(p)}%</b> dari target`}${s.base.acc?` · akumulasi ${s.base.month} ${fmt(base)} ha`:''}</span>
           <span>${tgtVal>0?`${targetLabel()}: ${fmt(tgtVal)} ha`:''}</span>
         </div>
       </div>`;
@@ -608,9 +631,9 @@ function targetCardHTML(s){
       <div class="chart-title">Capaian Luas terhadap Target</div>
       <div class="chart-sub">${periodLabel()}</div>
       <div class="tg-list">
-        ${item(' main','Total Lahan ARR','',s.real,s.target)}
-        ${item('','Agroforestri','var(--c-agro)',s.rA,s.tgt?s.tgt.agro:null)}
-        ${item('','Reforestasi','var(--c-temb)',s.rT,s.tgt?s.tgt.temb:null)}
+        ${item(' main','Total Lahan ARR','',s.real,s.base.a+s.base.t,s.target)}
+        ${item('','Agroforestri','var(--c-agro)',s.rA,s.base.a,s.tgt?s.tgt.agro:null)}
+        ${item('','Reforestasi','var(--c-temb)',s.rT,s.base.t,s.tgt?s.tgt.temb:null)}
       </div>
     </div>`;
 }
@@ -1261,9 +1284,11 @@ function render(){
   const plantPct=pctOf(s.ditanam,s.real);
   const top3=s.species.slice(0,3).map(([n])=>esc(n));
   const joinID=l=>l.length<=1?l.join(''):l.slice(0,-1).join(', ')+' dan '+l[l.length-1];
-  const tgtTxt=partialTarget()?'target tahunan':'target';
+  const tgtTxt=targetLabel().replace(/^Target/,'target');
   const note=`${isAllTime()?'Sepanjang program':`Dalam periode ${periodLabel()}`}, sebanyak ${fmtInt(s.lahan)} lahan seluas ${fmt(s.real)} ha terdaftar dalam program ARR`
-    +(s.pct!==null?`, atau ${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha`:'')
+    +(s.pct===null?'':s.base.acc
+      ?`, dengan akumulasi ${s.base.month} ${fmt(s.base.a+s.base.t)} ha atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`
+      :`, atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`)
     +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah ditanami ${fmtInt(s.tanaman)} pohon`
     +(top3.length?`, dengan ${joinID(top3)} sebagai jenis yang paling banyak ditanam.`:'.');
   const page=document.getElementById('pageBody');
@@ -1288,7 +1313,7 @@ function render(){
 
     <div class="sec-title">ARR</div>
     <div class="grid-row">
-      ${card('Total Lahan',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha`:'target belum tersedia')}
+      ${card('Total Lahan',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha${s.base.acc?' (akumulasi bulan)':''}`:'target belum tersedia')}
       ${card('Anggota Petani Terdaftar',fmtInt(s.petani),`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.pmp)} perempuan`)}
       ${card('Luas Sudah Ditanam',`${fmt(s.ditanam)} ha`,plantPct!==null?`${fmtPct(plantPct)}% dari luas terdaftar`:'—')}
       ${card('Jumlah Tanaman',fmtInt(s.tanaman),`${fmtInt(s.tanA)} agro, ${fmtInt(s.tanT)} reforestasi`)}
