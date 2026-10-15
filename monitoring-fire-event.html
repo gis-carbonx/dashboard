@@ -323,8 +323,8 @@ const WEATHER_ID='1nVvw7hVJjBb6nsHpwhCYykhk2cxIiZdiQaSiGAEe5H8';
 const WEATHER_HISTORY_URL=`https://docs.google.com/spreadsheets/d/${WEATHER_ID}/gviz/tq?tqx=out:csv&sheet=Weather`+'&'+Date.now();
 const BMKG_ID='1DL98t0o3UdEwgBJC8nH_WP80L6aLjdtEErAAVcNbcZ8';
 const BMKG_URL=`https://docs.google.com/spreadsheets/d/${BMKG_ID}/gviz/tq?tqx=out:csv&sheet=BMKG`+'&'+Date.now();
-const FDRS_ID='1w1YUvhKArfvN3QcY8S1N9t2TpmNBf2O1pywvNNPDz5Q';
-const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Final Data')}`+'&'+Date.now();
+const FDRS_ID='1BFHIizqJZdzJ-ZHt0X9etrDgIMY3Wr4rnIzWovJv2xA';
+const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_ID}/gviz/tq?tqx=out:csv&gid=0&headers=0`+'&'+Date.now();
 const CMI_URL='assets/json/CMI.json';
 
 const MN_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -755,24 +755,43 @@ function pickField(raw,...names){
   }
   return undefined;
 }
+function parseFdrsDate(v){
+  const s=str(v).trim();
+  const MON={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,agt:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
+  let m=s.match(/^(\d{1,2})[\s-]+([A-Za-z]{3})[A-Za-z]*\.?[\s-]+(\d{4})$/);
+  if(m&&MON[m[2].toLowerCase()]!==undefined)return new Date(+m[3],MON[m[2].toLowerCase()],+m[1]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  return null;
+}
 fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   const normalized=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const parsed=Papa.parse(normalized,{header:false,skipEmptyLines:true});
   const allRows=parsed.data;
   console.log('[FDRS] semua baris mentah:',allRows);
 
-  let targetRow=allRows.find(row=>str(row[0]).trim().toLowerCase()==='hari ini');
-  if(!targetRow){
+  // Baris tanggal = baris dengan sel tanggal terbanyak; kolom dipilih = tanggal terbaru yang ada isinya
+  let dateRow=null,best=0;
+  allRows.forEach(row=>{const n=row.filter(c=>parseFdrsDate(c)).length;if(n>best){best=n;dateRow=row;}});
+  const findLoc=re=>allRows.find(row=>re.test(str(row[0]).replace(/\s+/g,' ').trim()));
+  const row1=findLoc(/^cmi ?1$/i),row2=findLoc(/^cmi ?2$/i);
+  if(!dateRow||(!row1&&!row2)){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
 
-    const nonEmpty=allRows.filter(row=>row.some(cell=>str(cell)!==''));
-    targetRow=nonEmpty[nonEmpty.length-1];
-  }
-  console.log('[FDRS] baris yang dipakai:',targetRow);
+  let col=-1,latest=null;
+  dateRow.forEach((c,i)=>{
+    const d=parseFdrsDate(c);
+    if(!d)return;
+    if(!str(row1&&row1[i]).trim()&&!str(row2&&row2[i]).trim())return;
+    if(!latest||d>latest){latest=d;col=i;}
+  });
+  console.log('[FDRS] kolom tanggal terbaru:',col,str(dateRow[col]));
+  if(col<0){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
 
-  if(!targetRow){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
-  const blok1=str(targetRow[1]);
-  const blok2=str(targetRow[2]);
-  document.getElementById('fdrsDate').textContent='Hari ini';
+  const blok1=str(row1&&row1[col]).trim();
+  const blok2=str(row2&&row2[col]).trim();
+  document.getElementById('fdrsDate').textContent=latest.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
   const b1=document.getElementById('fdrsBlok1'),b2=document.getElementById('fdrsBlok2');
   b1.textContent=blok1||'–'; b1.className='fdrs-badge '+fdrsBadgeClass(blok1);
   b2.textContent=blok2||'–'; b2.className='fdrs-badge '+fdrsBadgeClass(blok2);

@@ -684,6 +684,8 @@ const catColorMap={};
 function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
 
 function fmtLabel(s){return(s||'').replace(/_/g,' ');}
+// ID patroli ada di kolom data-meta-instanceID (format "uuid:..."); _id/id dipertahankan untuk data lama
+function patrolId(r){return(r['data-meta-instanceID']||r['_id']||r['id']||'').replace(/^uuid:/,'');}
 function convert(url){if(!url||!url.trim())return null;const id=url.match(/[-\w]{25,}/);return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;}
 function toMidnight(y,m,d){return new Date(y,m,d);}
 
@@ -1257,7 +1259,7 @@ function openDetail(r){
     ${buildDetailSlider(imgs,uid)}<div style="height:6px"></div>
     <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${fmtLabel(finding)}</span></div>
     <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${r['data-start_date']||'-'}</span></div>
-    <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${r['_id']||r['id']||'-'}</span></div>
+    <div class="detail-row"><span class="detail-key">Patrol ID</span><span class="detail-val">${patrolId(r)||'-'}</span></div>
     <div class="detail-row"><span class="detail-key">Patrol Team</span><span class="detail-val">${r['data-base_info-nama']||'-'}</span></div>
     ${r['data-survey-description']?`<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">${r['data-survey-description']}</span></div>`:''}
     <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val" style="font-size:9px">${coord}</span></div>
@@ -1377,7 +1379,7 @@ function buildPatrolExportRows(){
     const pts=(r['data-coordinate']||'').split(',');
     const lat=pts[0]?parseFloat(pts[0]):'',lon=pts[1]?parseFloat(pts[1]):'';
     return{
-      'Patrol ID': r['_id']||r['id']||'',
+      'Patrol ID': patrolId(r),
       'Date': r['data-start_date']||'',
       'Officer': r['data-base_info-nama']||'',
       'Category': fmtLabel(r['data-survey-categ']||''),

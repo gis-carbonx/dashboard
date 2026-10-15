@@ -28,7 +28,7 @@
     .site-navbar{
       flex-shrink:0;
       display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-      padding:12px 32px;background-color:var(--color-cream);
+      height:56px;padding:0 32px;background-color:var(--color-cream);
       border-bottom:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif;
     }
     .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
@@ -39,7 +39,7 @@
     .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
     .site-navbar-spacer{justify-self:end}
     @media (max-width:768px){
-      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar{grid-template-columns:auto auto;padding:0 16px}
       .site-navbar-menu{gap:14px;justify-self:end}
       .site-navbar-spacer{display:none}
     }
@@ -65,38 +65,92 @@
     .fire-scroll{flex:1;min-height:0;overflow-y:auto}
     .fire-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
     .fire-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
-    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
+    .section-title{font-size:14.5px;font-weight:700;color:#1a2332;margin:28px 0 14px}
 
-    .year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
-    .year-filter-label{font-size:12px;font-weight:600;color:#6b7280}
-    .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
-    .year-chip{
-      padding:6px 16px;border-radius:20px;border:1px solid var(--color-sand);
-      background:var(--color-cream);color:#374151;font-size:12px;font-weight:600;
-      cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
-    }
-    .year-chip:hover{background:var(--color-sage)}
-    .year-chip.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+    .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+    .filter-row:last-child{margin-bottom:28px}
+    .filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0;min-width:58px}
+    .fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--color-sand);background:#fff;font-size:10.5px;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit}
+    .fpill.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+    .fpill:hover:not(.active){background:var(--color-cream);border-color:var(--color-cream);color:var(--color-fern)}
+    .filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--color-sand);background:#fff;font-size:10.5px;font-weight:600;color:#64748b;cursor:pointer;outline:none;font-family:inherit}
+    .filter-select:focus{border-color:var(--color-pine)}
 
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
-    .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
-    .stat-value-row{display:flex;align-items:center;gap:22px}
-    .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
-    .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
-    .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
+    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
+    .stat-label{font-size:11px;color:#64748b;font-weight:600;margin-bottom:10px}
+    .stat-value-row{display:block}
+    .stat-value{display:block;font-size:22px;font-weight:800;color:var(--color-pine);line-height:1}
+    .stat-sub-plain{display:block;font-size:10.5px;color:#64748b;font-weight:600;margin-top:5px}
 
-    .detection-row{display:flex;gap:18px;align-items:stretch;margin-bottom:18px;flex-wrap:wrap}
-    .illegal-map-panel{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;
-      flex:0 0 620px;max-width:620px;
-    }
-    #illegalMap,#bioMap{height:320px;width:100%}
+    .detection-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+    @media (max-width:900px){.detection-row{grid-template-columns:1fr}}
+    /* Peta: disamakan dengan peta "Sebaran Lahan Program" di planting-summary */
+    .illegal-map-panel{position:relative;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:360px;background:#EDE7D8}
+    #illegalMap,#bioMap,#fireMap{height:100%;width:100%}
 
+    /* Diagram komposisi temuan: bar horizontal satu warna, label & nilai langsung, tooltip saat hover */
+    .comp-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px;position:relative}
+    .comp-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+    .comp-title{font-size:11px;font-weight:600;color:#64748b}
+    .comp-total{font-size:11px;font-weight:600;color:#64748b}
+    .comp-chart{display:flex;flex-direction:column;gap:2px}
+    .comp-row{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:12px;padding:4px 6px;margin:0 -6px;border-radius:6px;cursor:default}
+    .comp-row:hover{background:var(--color-cream)}
+    .comp-lbl{font-size:11.5px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .comp-track{display:flex;align-items:center;gap:8px;min-width:0}
+    .comp-bar{height:14px;background:var(--color-pine);border-radius:0 4px 4px 0;min-width:2px;flex-shrink:0}
+    .comp-row:hover .comp-bar{background:#2a524c}
+    .comp-val{font-size:11px;font-weight:600;color:#1a2332;white-space:nowrap}
+    .comp-val small{font-weight:500;color:#a0aec0;margin-left:4px}
+    .comp-empty{font-size:11px;color:#a0aec0;padding:12px 0;text-align:center}
+    .comp-tip{position:absolute;z-index:5;pointer-events:none;background:#fff;border:1px solid var(--color-sand);border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.1);padding:8px 10px;font-size:11px;color:#374151;max-width:260px;display:none}
+    .comp-tip b{display:block;color:#1a2332;font-size:11.5px;margin-bottom:4px}
+    .comp-tip div{display:flex;justify-content:space-between;gap:12px;line-height:1.6}
+    .comp-tip span:last-child{font-weight:600;color:#1a2332}
+    @media (max-width:600px){.comp-row{grid-template-columns:110px minmax(0,1fr)}}
+    .map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:#1a2332;box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px}
+    .map-legend span{display:flex;align-items:center;gap:6px}
+    .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+    .lg-line{width:16px;border-top:2px solid #334155;flex-shrink:0}
+
+    /* Panel detail hanya muncul setelah kartu kategori / titik di peta diklik */
     .detection-table-panel{
-      display:none;flex:1;min-width:260px;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
-      padding:16px 18px;flex-direction:column;height:320px;overflow:hidden;position:relative;
+      display:none;min-width:0;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
+      padding:16px;flex-direction:column;max-height:360px;overflow:hidden;position:relative;
     }
     .detection-table-panel.visible{display:flex}
+    .detection-table-empty{font-size:11px;color:#a0aec0;padding:20px 0;text-align:center;line-height:1.6}
+
+    .pd-scroll{overflow-y:auto;min-height:0}
+    .pd-back{background:none;border:none;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:600;color:var(--color-fern);padding:0;margin-bottom:10px}
+    .pd-back:hover{color:var(--color-pine)}
+    /* Satu foto dengan ukuran tetap; foto lain (bila ada) dilihat lewat lightbox */
+    .pd-photo{display:block;width:100%;height:170px;object-fit:cover;border-radius:10px;background:#EDE7D8}
+    .pd-thumb{display:block;width:100%;padding:0;border:none;background:none;cursor:zoom-in;border-radius:10px}
+    .pd-thumb:focus-visible{outline:2px solid var(--color-pine);outline-offset:2px}
+
+    /* Lightbox foto temuan (sama seperti lightbox foto kegiatan di kth.html) */
+    .lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
+    .lb.open{display:flex}
+    .lb-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
+    .lb-img{max-width:min(1000px,100%);max-height:calc(100vh - 150px);border-radius:10px;object-fit:contain;background:#222}
+    .lb-cap{color:#eee;font-size:12.5px;text-align:center;line-height:1.5}
+    .lb-cap small{display:block;color:#bbb;font-size:11px}
+    .lb-btn{position:absolute;background:rgba(255,255,255,.12);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;font-family:inherit}
+    .lb-btn:hover{background:rgba(255,255,255,.25)}
+    .lb-close{top:14px;right:14px}
+    .lb-prev{left:14px;top:50%;transform:translateY(-50%)}
+    .lb-next{right:14px;top:50%;transform:translateY(-50%)}
+    .lb-btn[hidden]{display:none}
+    .pd-nophoto{height:170px;border-radius:10px;background:#EDE7D8;display:flex;align-items:center;justify-content:center;font-size:11px;color:#a0aec0}
+    .pd-title{font-size:14px;font-weight:800;color:#1a2332;margin-top:12px;padding-right:22px}
+    .pd-cat{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:#64748b;margin-top:4px}
+    .pd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:14px 0 0}
+    .pd-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#a0aec0}
+    .pd-val{font-size:12px;font-weight:600;color:#1a2332;margin-top:2px;word-break:break-word}
+    .pd-sec{border-top:1px solid #EDE7D8;padding-top:10px;margin-top:12px}
+    .pd-desc{font-size:12px;color:#374151;line-height:1.6;margin-top:4px;white-space:pre-line}
     .detection-table-close{
       position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;
       font-size:17px;line-height:1;color:#9ca3af;padding:4px 6px;font-family:'Libre Franklin',sans-serif;
@@ -119,17 +173,17 @@
     table.detection-table tbody td:last-child a{color:var(--color-fern);font-weight:600;text-decoration:none}
     table.detection-table tbody td:last-child a:hover{text-decoration:underline}
 
-    .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:8px}
+    .illegal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
     .illegal-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px;
       cursor:pointer;transition:box-shadow .15s,border-color .15s;
     }
-    .illegal-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.06)}
-    .illegal-card.active{border-color:var(--color-pine);box-shadow:0 3px 10px rgba(53,103,96,.15)}
-    .illegal-label{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280;font-weight:600;margin-bottom:14px}
+    .illegal-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.07)}
+    .illegal-card.active{border-color:var(--color-pine);box-shadow:0 4px 14px rgba(53,103,96,.15)}
+    .illegal-label{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;font-weight:600;margin-bottom:10px}
     .illegal-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
-    .illegal-value{font-size:32px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:8px}
-    .illegal-sub{font-size:11px;color:#6b7280;line-height:1.5}
+    .illegal-value{font-size:22px;font-weight:800;color:var(--color-pine);line-height:1}
+    .illegal-sub{font-size:10.5px;color:#64748b;font-weight:600;margin-top:5px}
 
     .cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:14px 0}
     .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
@@ -181,15 +235,7 @@
 
     <div class="fire-content" id="fireContentBody" style="display:none">
 
-      <div class="year-filter-bar">
-        <span class="year-filter-label">Year Filter</span>
-        <div class="year-filter-chips" id="yearFilterChips"></div>
-      </div>
-
-      <div class="year-filter-bar">
-        <span class="year-filter-label">Quarter Filter</span>
-        <div class="year-filter-chips" id="quarterFilterChips"></div>
-      </div>
+      <div id="filterBar"></div>
 
       <div class="stat-grid">
         <div class="stat-card">
@@ -206,12 +252,65 @@
             <span class="stat-sub-plain">total area patrolled</span>
           </div>
         </div>
+        <div class="stat-card">
+          <div class="stat-label">Route Length (km)</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statRouteLength">–</span>
+            <span class="stat-sub-plain" id="statRouteByJalur">–</span>
+          </div>
+        </div>
       </div>
 
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-      </p>
+      <p class="fire-note" id="notePatrol"></p>
+
+      <div class="section-title">Patrol Findings Composition</div>
+      <div class="comp-card">
+        <div class="comp-head">
+          <span class="comp-title">Findings by category</span>
+          <span class="comp-total" id="compTotal"></span>
+        </div>
+        <div class="comp-chart" id="compChart" role="list"></div>
+      </div>
+      <p class="fire-note" id="noteComp"></p>
+
+      <div class="section-title">Fire Monitoring</div>
+
+      <div class="detection-row">
+        <div class="illegal-map-panel">
+          <div id="fireMap"></div>
+        </div>
+        <div class="detection-table-panel" id="fireTablePanel"></div>
+      </div>
+
+      <div class="illegal-grid" id="fireGrid">
+        <div class="illegal-card" data-category="potential">
+          <div class="illegal-label"><span class="illegal-dot" id="dotPotential"></span>Potential Fire Area</div>
+          <div class="illegal-value" id="statPotential">–</div>
+          <div class="illegal-sub">findings recorded</div>
+        </div>
+        <div class="illegal-card" data-category="burnt">
+          <div class="illegal-label"><span class="illegal-dot" id="dotBurnt"></span>Burnt Area</div>
+          <div class="illegal-value" id="statBurnt">–</div>
+          <div class="illegal-sub">findings recorded</div>
+        </div>
+        <div class="illegal-card" data-category="hotspot">
+          <div class="illegal-label"><span class="illegal-dot" id="dotHotspot"></span>Hotspot Ground Check</div>
+          <div class="illegal-value" id="statHotspot">–</div>
+          <div class="illegal-sub">findings recorded</div>
+        </div>
+        <div class="illegal-card" data-category="prevention">
+          <div class="illegal-label"><span class="illegal-dot" id="dotPrevention"></span>Water Point &amp; Firebreak</div>
+          <div class="illegal-value" id="statPrevention">–</div>
+          <div class="illegal-sub">findings recorded</div>
+        </div>
+      </div>
+
+      <p class="fire-note" id="noteFire"></p>
+
+      <div class="cta-bar">
+        <span class="cta-text">A detailed visualization of fire events is available via the link below</span>
+        <a href="https://gis-carbonx.github.io/dashboard/monitoring-fire-event.html" class="cta-btn">View Fire Event Monitoring &rarr;</a>
+      </div>
 
       <div class="section-title">Illegal Activity Detection</div>
 
@@ -245,13 +344,7 @@
         </div>
       </div>
 
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
-        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
-        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
-        metus.
-      </p>
+      <p class="fire-note" id="noteIllegal"></p>
 
       <div class="section-title">Biodiversity Patrol Findings</div>
 
@@ -285,10 +378,7 @@
         </div>
       </div>
 
-      <p class="fire-note">
-        [placeholder] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-      </p>
+      <p class="fire-note" id="noteBio"></p>
 
       <div class="cta-bar">
         <span class="cta-text">A detailed visualization of patrol findings is available via the link below</span>
@@ -297,6 +387,16 @@
 
     </div>
   </div>
+</div>
+
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Finding photo">
+  <button type="button" class="lb-btn lb-close" data-lb="close" aria-label="Close">&times;</button>
+  <button type="button" class="lb-btn lb-prev" data-lb="prev" aria-label="Previous photo">&#8249;</button>
+  <figure class="lb-fig">
+    <img class="lb-img" id="lbImg" alt="">
+    <figcaption class="lb-cap" id="lbCap"></figcaption>
+  </figure>
+  <button type="button" class="lb-btn lb-next" data-lb="next" aria-label="Next photo">&#8250;</button>
 </div>
 
 <script>
@@ -335,6 +435,22 @@ function bioCategoryOf(finding,categ){
   if(finding==='rare_vegetation')return'habitat';
   return null;
 }
+
+const FIRE_COLORS={potential:'#f59e0b',burnt:'#991b1b',hotspot:'#db2777',prevention:'#2563eb'};
+const FIRE_LABELS={potential:'Potential Fire Area',burnt:'Burnt Area',hotspot:'Hotspot Ground Check',prevention:'Water Point & Firebreak'};
+
+// finding sudah lowercase; "ground chek hotspot" (salah ketik di sheet) ikut terbaca lewat kata "hotspot"
+function fireCategoryOf(finding,categ){
+  if(categ!=='fire')return null;
+  if(finding.includes('potential'))return'potential';
+  if(finding.includes('burnt'))return'burnt';
+  if(finding.includes('hotspot'))return'hotspot';
+  if(finding.includes('water point')||finding.includes('firebreak'))return'prevention';
+  return null;
+}
+
+// Label kategori (data-survey-categ) untuk diagram komposisi
+const CATEG_LABELS={fire:'Fire',landcover:'Land Cover',communities:'Community Engagement',illegal_activities:'Illegal Activities',biodiversity:'Biodiversity',ecosystem:'Ecosystem',natural_disturbance:'Natural Disturbance'};
 
 function toMidnight(y,m,d){return new Date(y,m,d);}
 
@@ -415,7 +531,11 @@ async function loadAll(){
       const luasDirect=parseFloat((r[7]||'').toString().trim());
       const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
       const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
-      return{date:d,luas:isNaN(luas)?0:luas};
+      // Kolom G = panjang rute (meter, koma sebagai pemisah ribuan, mis. "1,900"); kolom D = jalur patroli (Darat/Udara)
+      const panjang=parseFloat((r[6]||'').toString().trim().replace(/,/g,''));
+      const jalur=(r[3]||'').toString().trim();
+      const jenis=(r[2]||'').toString().trim(); // kolom C = jenis patroli (Patroli Api / Illegal Activities)
+      return{date:d,luas:isNaN(luas)?0:luas,panjang:isNaN(panjang)?0:panjang,jalur,jenis};
     }).filter(e=>e.date);
   }
   patrolEntries=[...parsePatrolSheet(patrol2026Raw),...parsePatrolSheet(patrol2025Raw)];
@@ -426,7 +546,8 @@ async function loadAll(){
     categ:(pickFieldExactOrPartial(row,'data-survey-categ','survey-categ','categ')||'').toString().trim().toLowerCase(),
     coordinate:(pickFieldExactOrPartial(row,'data-coordinate','coordinate')||'').toString().trim(),
     description:(pickFieldExactOrPartial(row,'data-survey-description','survey-description','description')||'').toString().trim(),
-    photoUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','link-foto','foto','photo','image','gambar','attachment')||'').toString().trim()
+    photoUrl:(pickFieldExactOrPartial(row,'data-documentation-image_1','data-documentation-image','documentation-image','link-foto','foto','photo','image','gambar','attachment')||'').toString().trim(),
+    photoUrl2:(pickFieldExactOrPartial(row,'data-documentation-image_2','documentation-image_2')||'').toString().trim()
   }));
 
   document.getElementById('fireTodayDate').textContent=fmtDateID(new Date());
@@ -442,11 +563,15 @@ async function loadAll(){
   document.getElementById('dotVoice').style.background=BIO_COLORS.voice;
   document.getElementById('dotSign').style.background=BIO_COLORS.sign;
   document.getElementById('dotHabitat').style.background=BIO_COLORS.habitat;
+  document.getElementById('dotPotential').style.background=FIRE_COLORS.potential;
+  document.getElementById('dotBurnt').style.background=FIRE_COLORS.burnt;
+  document.getElementById('dotHotspot').style.background=FIRE_COLORS.hotspot;
+  document.getElementById('dotPrevention').style.background=FIRE_COLORS.prevention;
 
-  buildYearChips();
-  buildQuarterChips();
-  initIllegalMap();
-  initBioMap();
+  buildYears();
+  illegalCtx=createFindingMap({mapId:'illegalMap',panelId:'illegalTablePanel',cardSel:'#illegalGrid .illegal-card',colors:ILLEGAL_COLORS,labels:ILLEGAL_LABELS,catOf:r=>categoryOf(r.finding,r.categ)});
+  bioCtx=createFindingMap({mapId:'bioMap',panelId:'bioTablePanel',cardSel:'#bioGrid .illegal-card',colors:BIO_COLORS,labels:BIO_LABELS,catOf:r=>bioCategoryOf(r.finding,r.categ)});
+  fireCtx=createFindingMap({mapId:'fireMap',panelId:'fireTablePanel',cardSel:'#fireGrid .illegal-card',colors:FIRE_COLORS,labels:FIRE_LABELS,catOf:r=>fireCategoryOf(r.finding,r.categ)});
   setupDetailTableClicks();
   render();
 
@@ -454,62 +579,96 @@ async function loadAll(){
   document.getElementById('fireContentBody').style.display='block';
 }
 
-function buildYearChips(){
-  const years=new Set();
-  patrolEntries.forEach(e=>years.add(e.date.getFullYear()));
-  submissionRows.forEach(r=>{if(r.dateObj)years.add(r.dateObj.getFullYear());});
-  const sortedYears=[...years].sort((a,b)=>a-b);
-  const defaultYear=sortedYears.includes(2026)?2026:null;
+// Filter mengikuti planting-summary: Tahun + Quarter ('yq'), atau Periode 'ytd' / 'mtd' / 'week' (mengabaikan Tahun & Quarter)
+let years=[],currentQuarterFilter=null;
+let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-  const chipsEl=document.getElementById('yearFilterChips');
-  const chipHtml=[`<button type="button" class="year-chip${defaultYear===null?' active':''}" data-year="all">All</button>`]
-    .concat(sortedYears.map(y=>`<button type="button" class="year-chip${y===defaultYear?' active':''}" data-year="${y}">${y}</button>`));
-  chipsEl.innerHTML=chipHtml.join('');
-  currentYearFilter=defaultYear;
-
-  chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      chipsEl.querySelectorAll('.year-chip').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      currentYearFilter=btn.dataset.year==='all'?null:parseInt(btn.dataset.year,10);
-      render();
-    });
-  });
+// Minggu = Sabtu s/d Jumat, sama seperti planting-summary
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);weeks.push({sat:new Date(sat),fri,label:`Week ${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function fmtShort(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
 }
 
-let currentQuarterFilter=null; 
-function getQuarter(date){
-  if(!date)return null;
-  return Math.floor(date.getMonth()/3)+1;
+function matchesDate(d){
+  if(!d)return false;
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){
+    const wk=getSelectedWeek();if(!wk)return false;
+    const endFri=new Date(wk.fri);endFri.setHours(23,59,59,999);
+    return d>=wk.sat&&d<=endFri;
+  }
+  if(currentYearFilter!==null&&d.getFullYear()!==currentYearFilter)return false;
+  if(currentQuarterFilter!==null&&Math.floor(d.getMonth()/3)+1!==currentQuarterFilter)return false;
+  return true;
 }
 
-function buildQuarterChips(){
-  const chipsEl=document.getElementById('quarterFilterChips');
-  const quarters=[1,2,3,4];
-  const chipHtml=[`<button type="button" class="year-chip active" data-quarter="all">All</button>`]
-    .concat(quarters.map(q=>`<button type="button" class="year-chip" data-quarter="${q}">Q${q}</button>`));
-  chipsEl.innerHTML=chipHtml.join('');
-  currentQuarterFilter=null;
-
-  chipsEl.querySelectorAll('.year-chip').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      chipsEl.querySelectorAll('.year-chip').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      currentQuarterFilter=btn.dataset.quarter==='all'?null:parseInt(btn.dataset.quarter,10);
-      render();
-    });
-  });
+function buildYears(){
+  const set=new Set();
+  patrolEntries.forEach(e=>set.add(e.date.getFullYear()));
+  submissionRows.forEach(r=>{if(r.dateObj)set.add(r.dateObj.getFullYear());});
+  years=[...set].sort((a,b)=>a-b);
+  currentYearFilter=years.includes(2026)?2026:null;
 }
 
-let currentFilteredSubmission=[]; 
+function setYear(y){currentYearFilter=y;periodMode='yq';render();}
+function setQuarter(q){currentQuarterFilter=q;periodMode='yq';render();}
+function setPeriod(p){periodMode=p;render();}
+function setWeekYear(v){weekYear=+v;weekIdx=null;render();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;render();}
+function setWeekPick(v){weekIdx=+v;render();}
+
+function weekPickerHtml(){
+  const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+  const weeks=getWeeksInMonth(weekYear,weekMonth),sel=weekIdx??defaultWeekIdx();
+  return`
+    <select class="filter-select" aria-label="Year" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Month" onchange="setWeekMonth(this.value)">${MONTH_NAMES.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Week" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtShort(w.sat)}–${fmtShort(w.fri)})</option>`).join('')}</select>`;
+}
+
+function renderFilters(){
+  const yq=periodMode==='yq';
+  document.getElementById('filterBar').innerHTML=`
+    <div class="filter-row">
+      <span class="filter-lbl">Filter</span>
+      <button type="button" class="fpill${yq&&currentYearFilter===null?' active':''}" onclick="setYear(null)">All</button>
+      ${years.map(y=>`<button type="button" class="fpill${yq&&currentYearFilter===y?' active':''}" onclick="setYear(${y})">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Quarter</span>
+      <button type="button" class="fpill${yq&&currentQuarterFilter===null?' active':''}" onclick="setQuarter(null)">All</button>
+      ${[1,2,3,4].map(q=>`<button type="button" class="fpill${yq&&currentQuarterFilter===q?' active':''}" onclick="setQuarter(${q})">Q${q}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Period</span>
+      <button type="button" class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      <button type="button" class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
+      <button type="button" class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Weekly</button>
+      ${periodMode==='week'?weekPickerHtml():''}
+    </div>`;
+}
+
+let currentFilteredSubmission=[];
 
 function render(){
-  let filteredPatrol=currentYearFilter===null?patrolEntries:patrolEntries.filter(e=>e.date.getFullYear()===currentYearFilter);
-  let filteredSubmission=currentYearFilter===null?submissionRows:submissionRows.filter(r=>r.dateObj&&r.dateObj.getFullYear()===currentYearFilter);
-  if(currentQuarterFilter!==null){
-    filteredPatrol=filteredPatrol.filter(e=>getQuarter(e.date)===currentQuarterFilter);
-    filteredSubmission=filteredSubmission.filter(r=>getQuarter(r.dateObj)===currentQuarterFilter);
-  }
+  renderFilters();
+  const filteredPatrol=patrolEntries.filter(e=>matchesDate(e.date));
+  const filteredSubmission=submissionRows.filter(r=>matchesDate(r.dateObj));
   currentFilteredSubmission=filteredSubmission;
 
   const patrolDateKeys=new Set(filteredPatrol.map(e=>dateKey(e.date)).filter(Boolean));
@@ -518,12 +677,32 @@ function render(){
   const totalCoverage=filteredPatrol.reduce((sum,e)=>sum+e.luas,0);
   document.getElementById('statPatrolCoverage').textContent=fmtNumberID(totalCoverage);
 
+  const routeByJalur={};
+  let totalRoute=0;
+  filteredPatrol.forEach(e=>{
+    totalRoute+=e.panjang;
+    const j=e.jalur||'Unspecified';
+    routeByJalur[j]=(routeByJalur[j]||0)+e.panjang;
+  });
+  document.getElementById('statRouteLength').textContent=fmtNumberID(totalRoute/1000);
+  const jalurParts=Object.entries(routeByJalur).sort((a,b)=>b[1]-a[1]).map(([j,m])=>`${fmtNumberID(m/1000)} km ${j}`);
+  document.getElementById('statRouteByJalur').textContent=jalurParts.length?jalurParts.join(', '):'no patrol routes recorded';
+
   let loggingCount=0,huntingCount=0,miningCount=0,otherCount=0;
   const illegalPoints=[];
   let directCount=0,voiceCount=0,signCount=0,habitatCount=0;
   const bioPoints=[];
+  const fireCounts={potential:0,burnt:0,hotspot:0,prevention:0};
+  const firePoints=[];
 
   filteredSubmission.forEach(r=>{
+    const fireCat=fireCategoryOf(r.finding,r.categ);
+    if(fireCat){
+      fireCounts[fireCat]++;
+      const c=parseCoord(r.coordinate);
+      if(c)firePoints.push({lat:c[0],lon:c[1],category:fireCat,row:r});
+    }
+
     const cat=categoryOf(r.finding,r.categ);
     if(cat==='logging')loggingCount++;
     else if(cat==='hunting')huntingCount++;
@@ -531,7 +710,7 @@ function render(){
     else if(cat==='other')otherCount++;
     if(cat&&r.coordinate){
       const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))illegalPoints.push({lat:parts[0],lon:parts[1],category:cat});
+      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))illegalPoints.push({lat:parts[0],lon:parts[1],category:cat,row:r});
     }
 
     const bioCat=bioCategoryOf(r.finding,r.categ);
@@ -541,7 +720,7 @@ function render(){
     else if(bioCat==='habitat')habitatCount++;
     if(bioCat&&r.coordinate){
       const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))bioPoints.push({lat:parts[0],lon:parts[1],category:bioCat});
+      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))bioPoints.push({lat:parts[0],lon:parts[1],category:bioCat,row:r});
     }
   });
   document.getElementById('statLogging').textContent=loggingCount;
@@ -552,163 +731,420 @@ function render(){
   document.getElementById('statVoice').textContent=voiceCount;
   document.getElementById('statSign').textContent=signCount;
   document.getElementById('statHabitat').textContent=habitatCount;
+  document.getElementById('statPotential').textContent=fireCounts.potential;
+  document.getElementById('statBurnt').textContent=fireCounts.burnt;
+  document.getElementById('statHotspot').textContent=fireCounts.hotspot;
+  document.getElementById('statPrevention').textContent=fireCounts.prevention;
 
-  renderIllegalPoints(illegalPoints);
-  renderBioPoints(bioPoints);
+  renderComposition(filteredSubmission);
+
+  renderNarratives({
+    filteredPatrol,filteredSubmission,patrolDays:patrolDateKeys.size,totalCoverage,totalRoute,jalurParts,
+    illegal:{logging:loggingCount,hunting:huntingCount,mining:miningCount,other:otherCount},
+    bio:{direct:directCount,voice:voiceCount,sign:signCount,habitat:habitatCount},
+    fire:fireCounts
+  });
+
+  renderMapPoints(fireCtx,firePoints);
+  renderMapPoints(illegalCtx,illegalPoints);
+  renderMapPoints(bioCtx,bioPoints);
   resetDetailTables();
 }
 
-function resetDetailTables(){
-  document.querySelectorAll('#illegalGrid .illegal-card, #bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-  const illegalPanel=document.getElementById('illegalTablePanel');
-  const bioPanel=document.getElementById('bioTablePanel');
-  illegalPanel.innerHTML='';
-  illegalPanel.classList.remove('visible');
-  bioPanel.innerHTML='';
-  bioPanel.classList.remove('visible');
+// --- Narasi otomatis (seperti planting-summary), mengikuti filter aktif ---
+function periodLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 January – ${fmtDateID(now)}`;
+  if(periodMode==='mtd')return`1 – ${fmtDateID(now)}`;
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtShort(wk.sat)} – ${fmtDateID(wk.fri)}`:'the selected week';}
+  if(currentYearFilter===null)return currentQuarterFilter===null?'the entire monitoring period':`Q${currentQuarterFilter} across all years`;
+  return currentQuarterFilter===null?String(currentYearFilter):`Q${currentQuarterFilter} ${currentYearFilter}`;
+}
+function joinEN(list){
+  return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+' and '+list[list.length-1];
+}
+function plural(n,word){return`${fmtNumberID(n)} ${word}${n===1?'':'s'}`;}
+function jenisLabel(j){
+  const t=j.toLowerCase();
+  if(t.includes('api'))return'fire patrol';
+  if(t.includes('illegal'))return'illegal activity patrol';
+  return j?j.toLowerCase()+' patrol':'unspecified patrol';
+}
+// Ambil nama utama dari deskripsi (bagian sebelum tanda kurung), mis. "Naja sumatrana (juvenile)" -> "Naja sumatrana"
+function speciesName(desc){
+  const s=(desc||'').split('(')[0].trim();
+  return s&&s.length<=40?s:null;
+}
+function topCounts(items,n){
+  const m={};items.forEach(v=>{if(v)m[v]=(m[v]||0)+1;});
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k])=>k);
 }
 
-function renderDetailTable(panelEl,mapInstance,rows,categoryLabel,cardGroupSelector){
-  if(!rows.length){
-    panelEl.innerHTML='';
-    panelEl.classList.remove('visible');
+function renderNarratives(s){
+  const period=periodLabel();
+
+  // 1) Patroli
+  let n1;
+  if(!s.filteredPatrol.length){
+    n1=`No patrol activities were recorded in the patrol schedule for ${period}.`;
+  }else{
+    const jenisCounts={};
+    s.filteredPatrol.forEach(e=>{const j=jenisLabel(e.jenis);jenisCounts[j]=(jenisCounts[j]||0)+1;});
+    const jenisParts=Object.entries(jenisCounts).sort((a,b)=>b[1]-a[1]).map(([j,c])=>plural(c,j));
+    n1=`During ${period}, patrol teams were active on ${plural(s.patrolDays,'day')}, covering ${fmtNumberID(s.totalCoverage)} ha of forest area along ${fmtNumberID(s.totalRoute/1000)} km of patrol routes`
+      +(s.jalurParts.length?` (${joinEN(s.jalurParts)})`:'')
+      +`. In total, ${plural(s.filteredPatrol.length,'patrol')} ${s.filteredPatrol.length===1?'was':'were'} carried out, consisting of ${joinEN(jenisParts)}.`;
+  }
+  document.getElementById('notePatrol').textContent=n1;
+
+  // 2) Aktivitas ilegal
+  const ill=s.illegal,illTotal=ill.logging+ill.hunting+ill.mining+ill.other;
+  let n2;
+  if(!illTotal){
+    n2=`No illegal activities were detected during patrols in ${period}.`;
+  }else{
+    const ranked=Object.entries(ill).filter(([,c])=>c>0).sort((a,b)=>b[1]-a[1]);
+    const [topCat,topN]=ranked[0];
+    const pct=(topN/illTotal*100).toLocaleString('id-ID',{maximumFractionDigits:1});
+    n2=`Patrols in ${period} detected ${plural(illTotal,'illegal activity finding')}, dominated by ${ILLEGAL_LABELS[topCat].toLowerCase()} with ${plural(topN,'finding')} (${pct}%)`;
+    const rest=ranked.slice(1).map(([c,n])=>`${ILLEGAL_LABELS[c].toLowerCase()} (${fmtNumberID(n)})`);
+    n2+=rest.length?`, followed by ${joinEN(rest)}.`:'.';
+    if(ill.other){
+      const otherTypes=topCounts(s.filteredSubmission.filter(r=>categoryOf(r.finding,r.categ)==='other').map(r=>r.finding.replace(/_/g,' ')),3);
+      if(otherTypes.length)n2+=` Other findings mainly comprise ${joinEN(otherTypes)}.`;
+    }
+    n2+=' Select a category card to view the location and documentation of each finding.';
+  }
+  document.getElementById('noteIllegal').textContent=n2;
+
+  // 3) Biodiversitas
+  const bio=s.bio,bioTotal=bio.direct+bio.voice+bio.sign+bio.habitat;
+  let n3;
+  if(!bioTotal){
+    n3=`No biodiversity findings were recorded during patrols in ${period}.`;
+  }else{
+    const parts=[[bio.direct,'direct encounter','direct encounters'],[bio.voice,'voice detection','voice detections'],[bio.sign,'sign of presence','signs of presence'],[bio.habitat,'notable vegetation finding','notable vegetation findings']]
+      .filter(([n])=>n>0).sort((a,b)=>b[0]-a[0]).map(([n,one,many])=>`${fmtNumberID(n)} ${n===1?one:many}`);
+    n3=`Patrol teams also recorded ${plural(bioTotal,'biodiversity finding')} in ${period}, comprising ${joinEN(parts)}.`;
+    const faunaRows=s.filteredSubmission.filter(r=>{const c=bioCategoryOf(r.finding,r.categ);return c==='direct'||c==='voice';});
+    const species=topCounts(faunaRows.map(r=>speciesName(r.description)),3);
+    if(species.length)n3+=` Wildlife documented through direct encounters and voice detections includes ${joinEN(species)}.`;
+    const flora=topCounts(s.filteredSubmission.filter(r=>bioCategoryOf(r.finding,r.categ)==='habitat').map(r=>speciesName(r.description)),2);
+    if(flora.length)n3+=` Notable vegetation recorded includes ${joinEN(flora)}.`;
+  }
+  document.getElementById('noteBio').textContent=n3;
+
+  // 4) Kebakaran
+  const fc=s.fire,fireTotal=fc.potential+fc.burnt+fc.hotspot+fc.prevention;
+  let n4;
+  if(!fireTotal){
+    n4=`No fire-related findings were recorded during patrols in ${period}.`;
+  }else{
+    const parts=[[fc.potential,'potential fire area','potential fire areas'],[fc.burnt,'burnt area observation','burnt area observations'],[fc.hotspot,'hotspot ground check','hotspot ground checks'],[fc.prevention,'water point or firebreak','water points and firebreaks']]
+      .filter(([n])=>n>0).sort((a,b)=>b[0]-a[0]).map(([n,one,many])=>`${fmtNumberID(n)} ${n===1?one:many}`);
+    n4=`Fire monitoring in ${period} produced ${plural(fireTotal,'fire-related finding')}, comprising ${joinEN(parts)}.`;
+    if(fc.burnt)n4+=` Burnt areas were documented ${fmtNumberID(fc.burnt)} time${fc.burnt===1?'':'s'}, ${fc.potential?`while ${fmtNumberID(fc.potential)} location${fc.potential===1?' was':'s were'} identified as potential fire areas for preventive attention`:'with no new potential fire areas identified'}.`;
+    n4+=' Select a category card or a point on the map to view the documentation of each finding.';
+  }
+  document.getElementById('noteFire').textContent=n4;
+}
+
+// --- Diagram komposisi temuan per kategori (data-survey-categ), mengikuti filter aktif ---
+function renderComposition(rows){
+  const chart=document.getElementById('compChart');
+  const byCat={};
+  rows.forEach(r=>{
+    const c=r.categ||'uncategorized';
+    if(!byCat[c])byCat[c]={n:0,findings:{}};
+    byCat[c].n++;
+    const f=titleCase(r.finding)||'Unspecified';
+    byCat[c].findings[f]=(byCat[c].findings[f]||0)+1;
+  });
+  const total=rows.length;
+  const cats=Object.entries(byCat).sort((a,b)=>b[1].n-a[1].n);
+  document.getElementById('compTotal').textContent=total?`${plural(total,'finding')} total`:'';
+
+  if(!cats.length){
+    chart.innerHTML='<div class="comp-empty">No findings recorded in this period.</div>';
+    document.getElementById('noteComp').textContent=`No patrol findings were submitted during ${periodLabel()}.`;
     return;
   }
-  panelEl.classList.add('visible');
+  const max=cats[0][1].n;
+  const label=c=>CATEG_LABELS[c]||titleCase(c);
+  // Bar maksimal 80% lebar agar nilai di ujung bar selalu muat
+  chart.innerHTML=cats.map(([c,d])=>{
+    const pct=d.n/total*100;
+    return`<div class="comp-row" role="listitem" data-cat="${esc(c)}">
+      <span class="comp-lbl" title="${esc(label(c))}">${esc(label(c))}</span>
+      <span class="comp-track">
+        <span class="comp-bar" style="width:${(d.n/max*80).toFixed(2)}%"></span>
+        <span class="comp-val">${fmtNumberID(d.n)}<small>${pct.toLocaleString('id-ID',{maximumFractionDigits:1})}%</small></span>
+      </span>
+    </div>`;
+  }).join('');
+
+  // Tooltip: rincian jenis temuan dalam kategori
+  const card=chart.closest('.comp-card');
+  let tip=card.querySelector('.comp-tip');
+  if(!tip){tip=document.createElement('div');tip.className='comp-tip';card.appendChild(tip);}
+  chart.querySelectorAll('.comp-row').forEach(row=>{
+    const d=byCat[row.dataset.cat];
+    const top=Object.entries(d.findings).sort((a,b)=>b[1]-a[1]);
+    const shown=top.slice(0,6),rest=top.slice(6).reduce((s,[,n])=>s+n,0);
+    const html=`<b>${esc(label(row.dataset.cat))}</b>`
+      +shown.map(([f,n])=>`<div><span>${esc(f)}</span><span>${fmtNumberID(n)}</span></div>`).join('')
+      +(rest?`<div><span>Others</span><span>${fmtNumberID(rest)}</span></div>`:'');
+    row.addEventListener('mouseenter',()=>{tip.innerHTML=html;tip.style.display='block';});
+    row.addEventListener('mousemove',e=>{
+      const box=card.getBoundingClientRect();
+      let x=e.clientX-box.left+14,y=e.clientY-box.top+14;
+      if(x+tip.offsetWidth>box.width)x=e.clientX-box.left-tip.offsetWidth-14;
+      tip.style.left=Math.max(0,x)+'px';tip.style.top=y+'px';
+    });
+    row.addEventListener('mouseleave',()=>{tip.style.display='none';});
+  });
+
+  // Narasi komposisi
+  const share=([c,d])=>`${label(c).toLowerCase()} (${(d.n/total*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%)`;
+  let note=`Of the ${plural(total,'finding')} submitted by patrol teams during ${periodLabel()}, ${label(cats[0][0]).toLowerCase()} accounted for the largest share (${(cats[0][1].n/total*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%)`;
+  const next=cats.slice(1,3).map(share);
+  note+=next.length?`, followed by ${joinEN(next)}.`:'.';
+  note+=' Hover over a bar to see the finding types within each category.';
+  document.getElementById('noteComp').textContent=note;
+}
+
+const esc=x=>(x??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function titleCase(s){return(s||'').replace(/_/g,' ').replace(/\s+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase());}
+function parseCoord(s){
+  const p=(s||'').split(',').map(v=>parseFloat(v.trim()));
+  return p.length>=2&&!isNaN(p[0])&&!isNaN(p[1])?p:null;
+}
+// Link Google Drive -> thumbnail yang bisa ditampilkan sebagai <img>
+function driveThumb(url,size){
+  if(!url||!/^https?:/i.test(url))return null;
+  const id=url.match(/[-\w]{25,}/);
+  return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w${size||800}`:null;
+}
+function fmtFindingDate(d){
+  if(!d)return'–';
+  const t=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
+  return`${fmtDateID(d)}, ${t} WIB`;
+}
+
+function hidePanel(ctx){
+  const panel=document.getElementById(ctx.panelId);
+  panel.innerHTML='';
+  panel.classList.remove('visible');
+  document.querySelectorAll(ctx.cardSel).forEach(c=>c.classList.remove('active'));
+  selectMarker(ctx,null);
+}
+
+function resetDetailTables(){
+  [illegalCtx,bioCtx,fireCtx].forEach(ctx=>{if(ctx)hidePanel(ctx);});
+}
+
+function bindClose(ctx,panel){
+  panel.querySelector('.detection-table-close').addEventListener('click',()=>hidePanel(ctx));
+}
+
+function renderDetailTable(ctx,rows,categoryLabel){
+  const panel=document.getElementById(ctx.panelId);
+  panel.classList.add('visible');
+  selectMarker(ctx,null);
+  if(!rows.length){
+    panel.innerHTML=`
+      <button type="button" class="detection-table-close" aria-label="Close">&times;</button>
+      <div class="detection-table-header">${esc(categoryLabel)} <span class="detection-table-count">(0)</span></div>
+      <div class="detection-table-empty">No ${esc(categoryLabel)} findings in this period.</div>`;
+    bindClose(ctx,panel);
+    return;
+  }
   const rowsHtml=rows.map((r,i)=>{
-    const photoHtml=r.photoUrl?`<a href="${r.photoUrl}" target="_blank" rel="noopener">View &#8599;</a>`:'–';
+    const photoHtml=r.photoUrl?`<a href="${esc(r.photoUrl)}" target="_blank" rel="noopener">View &#8599;</a>`:'–';
     return `<tr data-idx="${i}">
-      <td>${r.description||'–'}</td>
-      <td>${r.coordinate||'–'}</td>
+      <td>${esc(r.description)||'–'}</td>
+      <td>${esc(r.coordinate)||'–'}</td>
       <td>${photoHtml}</td>
     </tr>`;
   }).join('');
-  panelEl.innerHTML=`
+  panel.innerHTML=`
     <button type="button" class="detection-table-close" aria-label="Close">&times;</button>
-    <div class="detection-table-header">${categoryLabel} <span class="detection-table-count">(${rows.length})</span></div>
+    <div class="detection-table-header">${esc(categoryLabel)} <span class="detection-table-count">(${rows.length})</span></div>
+    <div class="detection-table-hint">Click a row to view finding details on the map.</div>
     <div class="detection-table-scroll">
       <table class="detection-table">
         <thead><tr><th>Description</th><th>Coordinate</th><th>Photo</th></tr></thead>
         <tbody>${rowsHtml}</tbody>
       </table>
     </div>`;
-  panelEl.querySelector('.detection-table-close').addEventListener('click',()=>{
-    panelEl.innerHTML='';
-    panelEl.classList.remove('visible');
-    if(cardGroupSelector)document.querySelectorAll(cardGroupSelector).forEach(c=>c.classList.remove('active'));
-  });
-  panelEl.querySelectorAll('tbody tr').forEach(tr=>{
-    tr.addEventListener('click',()=>{
+  bindClose(ctx,panel);
+  panel.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.addEventListener('click',e=>{
+      if(e.target.closest('a'))return;
       const r=rows[parseInt(tr.dataset.idx,10)];
-      if(!r||!r.coordinate||!mapInstance)return;
-      const parts=r.coordinate.split(',').map(s=>parseFloat(s.trim()));
-      if(parts.length>=2&&!isNaN(parts[0])&&!isNaN(parts[1]))mapInstance.setView([parts[0],parts[1]],17);
+      if(!r)return;
+      const c=parseCoord(r.coordinate);
+      if(c)ctx.map.setView(c,17);
+      showFindingDetail(ctx,r,()=>renderDetailTable(ctx,rows,categoryLabel));
     });
   });
 }
+
+// Detail satu temuan: foto, judul finding, tanggal, deskripsi
+function showFindingDetail(ctx,r,onBack){
+  const panel=document.getElementById(ctx.panelId);
+  const cat=ctx.catOf(r);
+  const photos=[r.photoUrl,r.photoUrl2].map(u=>({thumb:driveThumb(u,800),full:driveThumb(u,1600)})).filter(p=>p.thumb);
+  const photosHtml=photos.length
+    ?`<button type="button" class="pd-thumb" aria-label="View photo"><img class="pd-photo" src="${esc(photos[0].thumb)}" alt="Finding photo"></button>`
+    :'<div class="pd-nophoto">No photo</div>';
+  const c=parseCoord(r.coordinate);
+  panel.innerHTML=`
+    <button type="button" class="detection-table-close" aria-label="Close">&times;</button>
+    <div class="pd-scroll">
+      ${onBack?'<button type="button" class="pd-back">&larr; Back to list</button>':''}
+      ${photosHtml}
+      <div class="pd-title">${esc(titleCase(r.finding))||'–'}</div>
+      <div class="pd-cat"><i class="lg-dot" style="background:${ctx.colors[cat]||'#6b7280'}"></i>${esc(ctx.labels[cat]||titleCase(r.categ))}</div>
+      <div class="pd-grid">
+        <div><div class="pd-lbl">Date</div><div class="pd-val">${fmtFindingDate(r.dateObj)}</div></div>
+        <div><div class="pd-lbl">Coordinate</div><div class="pd-val">${c?`${c[0].toFixed(5)}, ${c[1].toFixed(5)}`:'–'}</div></div>
+      </div>
+      <div class="pd-sec">
+        <div class="pd-lbl">Description</div>
+        <div class="pd-desc">${esc(r.description)||'<span style="color:#a0aec0">No description.</span>'}</div>
+      </div>
+    </div>`;
+  panel.classList.add('visible');
+  bindClose(ctx,panel);
+  if(onBack)panel.querySelector('.pd-back').addEventListener('click',onBack);
+  const thumb=panel.querySelector('.pd-thumb');
+  if(thumb){
+    thumb.querySelector('img').addEventListener('error',()=>{thumb.outerHTML='<div class="pd-nophoto">Photo unavailable</div>';});
+    thumb.addEventListener('click',()=>lbOpen({
+      photos:photos.map(p=>p.full),
+      title:titleCase(r.finding)||'Finding',
+      meta:[fmtFindingDate(r.dateObj),ctx.labels[cat]].filter(Boolean)
+    },0,thumb));
+  }
+  selectMarker(ctx,r);
+}
+
+// Lightbox: klik foto temuan untuk memperbesar; panah kiri/kanan untuk foto lain di temuan yang sama (seperti kth.html)
+const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),item:null,i:0,last:null};
+function lbShow(){
+  const it=lb.item,n=it.photos.length;
+  lb.img.src=it.photos[lb.i];
+  lb.cap.innerHTML=`${esc(it.title)}<small>${[...it.meta.map(esc),n>1?`Photo ${lb.i+1} of ${n}`:''].filter(Boolean).join(' · ')}</small>`;
+  lb.el.querySelector('.lb-prev').hidden=lb.el.querySelector('.lb-next').hidden=n<2;
+}
+function lbOpen(item,i,trigger){
+  lb.item=item;lb.i=i;lb.last=trigger;
+  lbShow();
+  lb.el.classList.add('open');
+  lb.el.querySelector('.lb-close').focus();
+}
+function lbClose(){
+  lb.el.classList.remove('open');
+  lb.img.removeAttribute('src');
+  lb.last?.focus();
+}
+function lbStep(d){
+  const n=lb.item.photos.length;
+  lb.i=(lb.i+d+n)%n;lbShow();
+}
+lb.el.addEventListener('click',e=>{
+  const a=e.target.closest('[data-lb]')?.dataset.lb;
+  if(a==='close'||e.target===lb.el)lbClose();
+  else if(a==='prev')lbStep(-1);
+  else if(a==='next')lbStep(1);
+});
+document.addEventListener('keydown',e=>{
+  if(!lb.el.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  else if(e.key==='ArrowLeft')lbStep(-1);
+  else if(e.key==='ArrowRight')lbStep(1);
+});
 
 function setupDetailTableClicks(){
-  document.querySelectorAll('#illegalGrid .illegal-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      document.querySelectorAll('#illegalGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-      card.classList.add('active');
-      const cat=card.dataset.category;
-      const rows=currentFilteredSubmission.filter(r=>categoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('illegalTablePanel'),illegalMapInstance,rows,ILLEGAL_LABELS[cat],'#illegalGrid .illegal-card');
-    });
-  });
-  document.querySelectorAll('#bioGrid .illegal-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      document.querySelectorAll('#bioGrid .illegal-card').forEach(c=>c.classList.remove('active'));
-      card.classList.add('active');
-      const cat=card.dataset.category;
-      const rows=currentFilteredSubmission.filter(r=>bioCategoryOf(r.finding,r.categ)===cat);
-      renderDetailTable(document.getElementById('bioTablePanel'),bioMapInstance,rows,BIO_LABELS[cat],'#bioGrid .illegal-card');
+  [illegalCtx,bioCtx,fireCtx].forEach(ctx=>{
+    document.querySelectorAll(ctx.cardSel).forEach(card=>{
+      card.addEventListener('click',()=>{
+        document.querySelectorAll(ctx.cardSel).forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        const cat=card.dataset.category;
+        const rows=currentFilteredSubmission.filter(r=>ctx.catOf(r)===cat);
+        renderDetailTable(ctx,rows,ctx.labels[cat]);
+      });
     });
   });
 }
 
-let illegalMapInstance=null;
-let illegalMarkerLayer=null;
-let illegalMapBoundaryReady=false;
-let pendingIllegalPoints=null;
-function initIllegalMap(){
-  illegalMapInstance=L.map('illegalMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(illegalMapInstance);
-  illegalMapInstance.setView([0.8,110.3],11);
+// --- Peta temuan (illegal & biodiversity): basemap, batas CMI, legenda disamakan dengan planting-summary ---
+let illegalCtx=null,bioCtx=null,fireCtx=null;
 
-  illegalMarkerLayer=L.layerGroup(); 
+function createFindingMap(cfg){
+  const ctx={...cfg,map:null,layer:null,ready:false,pending:null,markers:new Map(),selected:null};
+  ctx.map=L.map(cfg.mapId,{zoomControl:true,attributionControl:false,scrollWheelZoom:true});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(ctx.map);
+  ctx.map.setView([0.8,110.3],11);
+  ctx.layer=L.layerGroup();
+
+  const legend=document.createElement('div');
+  legend.className='map-legend';
+  legend.innerHTML=Object.keys(cfg.labels).map(k=>`<span><i class="lg-dot" style="background:${cfg.colors[k]}"></i>${esc(cfg.labels[k])}</span>`).join('')
+    +'<span><i class="lg-line"></i>CMI Boundary</span>';
+  document.getElementById(cfg.mapId).parentElement.appendChild(legend);
+
+  const finish=()=>{
+    ctx.layer.addTo(ctx.map);
+    ctx.ready=true;
+    if(ctx.pending){renderMapPoints(ctx,ctx.pending);ctx.pending=null;}
+  };
   fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(illegalMapInstance);
-    illegalMarkerLayer.addTo(illegalMapInstance);
+    const boundary=L.geoJSON(j,{interactive:false,style:()=>({color:'#334155',weight:2,fillOpacity:0,opacity:.9})}).addTo(ctx.map);
     const bounds=boundary.getBounds();
     if(bounds.isValid()){
-      illegalMapInstance.fitBounds(bounds,{padding:[16,16]});
-      illegalMapInstance.setZoom(11);
+      ctx.map.fitBounds(bounds,{padding:[16,16]});
+      ctx.map.setZoom(11);
     }
-    illegalMapBoundaryReady=true;
-    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
-    setTimeout(()=>illegalMapInstance.invalidateSize(),150);
+    finish();
+    setTimeout(()=>ctx.map.invalidateSize(),150);
   }).catch(e=>{
     console.warn('Gagal memuat batas Project Area:',e);
-    illegalMarkerLayer.addTo(illegalMapInstance);
-    illegalMapBoundaryReady=true;
-    if(pendingIllegalPoints){renderIllegalPoints(pendingIllegalPoints);pendingIllegalPoints=null;}
+    finish();
   });
+  return ctx;
 }
 
-function renderIllegalPoints(points){
-  if(!illegalMapBoundaryReady||!illegalMarkerLayer){pendingIllegalPoints=points;return;}
-  illegalMarkerLayer.clearLayers();
+// Titik terpilih: garis tepi biru tebal, sama seperti lahan terpilih di planting-summary
+function markerStyle(ctx,cat,selected){
+  return{radius:selected?8:6,color:selected?'#1d4ed8':'#fff',weight:selected?3:1.5,fillColor:ctx.colors[cat]||'#6b7280',fillOpacity:.9};
+}
+function selectMarker(ctx,row){
+  if(ctx.selected&&ctx.markers.has(ctx.selected)){
+    const m=ctx.markers.get(ctx.selected);m.setStyle(markerStyle(ctx,m.options.category,false));
+  }
+  ctx.selected=row;
+  if(row&&ctx.markers.has(row)){
+    const m=ctx.markers.get(row);m.setStyle(markerStyle(ctx,m.options.category,true));m.bringToFront();
+  }
+}
+
+function renderMapPoints(ctx,points){
+  if(!ctx)return;
+  if(!ctx.ready){ctx.pending=points;return;}
+  ctx.layer.clearLayers();
+  ctx.markers.clear();
+  ctx.selected=null;
   points.forEach(p=>{
-    L.circleMarker([p.lat,p.lon],{
-      radius:6,color:'#fff',weight:1.5,
-      fillColor:ILLEGAL_COLORS[p.category]||'#6b7280',fillOpacity:.9
-    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${ILLEGAL_LABELS[p.category]}</b></div>`)
-      .addTo(illegalMarkerLayer);
-  });
-}
-
-let bioMapInstance=null;
-let bioMarkerLayer=null;
-let bioMapBoundaryReady=false;
-let pendingBioPoints=null;
-
-function initBioMap(){
-  bioMapInstance=L.map('bioMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(bioMapInstance);
-  bioMapInstance.setView([0.8,110.3],11);
-
-  bioMarkerLayer=L.layerGroup();
-
-  fetch(PROJECT_BOUNDARY_URL).then(r=>r.json()).then(j=>{
-    const boundary=L.geoJSON(j,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(bioMapInstance);
-    bioMarkerLayer.addTo(bioMapInstance);
-    const bounds=boundary.getBounds();
-    if(bounds.isValid()){
-      bioMapInstance.fitBounds(bounds,{padding:[16,16]});
-      bioMapInstance.setZoom(11);
-    }
-    bioMapBoundaryReady=true;
-    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
-    setTimeout(()=>bioMapInstance.invalidateSize(),150);
-  }).catch(e=>{
-    console.warn('Gagal memuat batas Project Area:',e);
-    bioMarkerLayer.addTo(bioMapInstance);
-    bioMapBoundaryReady=true;
-    if(pendingBioPoints){renderBioPoints(pendingBioPoints);pendingBioPoints=null;}
-  });
-}
-
-function renderBioPoints(points){
-  if(!bioMapBoundaryReady||!bioMarkerLayer){pendingBioPoints=points;return;}
-  bioMarkerLayer.clearLayers();
-  points.forEach(p=>{
-    L.circleMarker([p.lat,p.lon],{
-      radius:6,color:'#fff',weight:1.5,
-      fillColor:BIO_COLORS[p.category]||'#6b7280',fillOpacity:.9
-    }).bindPopup(`<div style="font-family:'Libre Franklin',sans-serif;font-size:12px"><b>${BIO_LABELS[p.category]}</b></div>`)
-      .addTo(bioMarkerLayer);
+    const m=L.circleMarker([p.lat,p.lon],{...markerStyle(ctx,p.category,false),category:p.category});
+    m.on('click',()=>{
+      document.querySelectorAll(ctx.cardSel).forEach(c=>c.classList.remove('active'));
+      showFindingDetail(ctx,p.row,null);
+    });
+    ctx.markers.set(p.row,m);
+    m.addTo(ctx.layer);
   });
 }
 
