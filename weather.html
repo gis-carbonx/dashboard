@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Weather | Sanggala Corridor Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/icons/favicon.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --color-cream:#FFFAF3;
+    --color-sand:#DCDACC;
+    --color-sage:#B5BBA9;
+    --color-moss:#8C9F8B;
+    --color-fern:#618273;
+    --color-pine:#356760;
+    --color-fire:#c2703f;
+    --color-ink:#2b2b28;
+    --color-muted:#8a8a82;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:'Libre Franklin', sans-serif;background:var(--color-cream);color:var(--color-ink)}
+  body{display:flex;flex-direction:column}
+
+  .site-navbar{
+    flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    height:56px;padding:0 32px;background-color:var(--color-cream);border-bottom:1px solid var(--color-sand);
+  }
+  .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+  .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+  .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+  .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+  .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+  .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+  .site-navbar-spacer{justify-self:end}
+  @media (max-width:768px){
+    .site-navbar{grid-template-columns:auto auto;padding:0 16px}
+    .site-navbar-menu{gap:14px;justify-self:end}
+    .site-navbar-spacer{display:none}
+  }
+
+  .dashboard-frame{
+    flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--color-sand);
+    overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
+    display:flex;flex-direction:column;
+  }
+
+  /* Header gelap, sama seperti halaman lain */
+  .frame-header{flex-shrink:0;background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0}
+  .frame-header-inner{
+    max-width:1180px;margin:0 auto;padding:0 36px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  }
+  .frame-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+  .frame-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+  .update-chip{text-align:right;flex-shrink:0}
+  .update-chip-label{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .update-chip-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+
+  .page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+  .page{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
+
+  /* Menu samping, sama seperti halaman lain */
+  .content-row{display:flex;align-items:flex-start;gap:20px}
+  .page-body-inner{flex:1;min-width:0}
+  .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:#3A342C;border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .side-item{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.5);transition:background .15s,color .15s}
+  .side-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .side-item:hover{background:rgba(255,255,255,.1);color:#fff}
+  .side-item.active{background:#fff;color:#3A342C;border-radius:50%}
+
+  .section-title{font-size:14.5px;font-weight:700;color:#1a2332;margin:32px 0 14px}
+  .section-title:first-child{margin-top:0}
+  .note{font-size:12px;color:#6b7280;line-height:1.65;margin:12px 0 0}
+
+  .fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--color-sand);background:#fff;font-size:10.5px;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit}
+  .fpill.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+  .fpill:hover:not(.active){background:var(--color-cream);border-color:var(--color-cream);color:var(--color-fern)}
+  .fpill:disabled{opacity:.4;cursor:default}
+
+  /* Panel peta */
+  .map-card{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;background:#fff}
+  .map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--color-sand)}
+  .layer-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .opacity-ctl{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:600;color:#64748b}
+  .opacity-ctl input{width:110px;accent-color:var(--color-pine)}
+  #weatherMap{height:520px;background:#EDE7D8}
+  @media (max-width:760px){#weatherMap{height:420px}}
+
+  .time-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--color-sand)}
+  .time-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-pine);flex-shrink:0}
+  .time-btn:hover{background:var(--color-cream)}
+  .time-btn svg{width:14px;height:14px;fill:currentColor}
+  .time-btn.play{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+  .time-slider{flex:1;min-width:0;accent-color:var(--color-pine)}
+  .time-label{font-size:12px;font-weight:700;color:var(--color-ink);white-space:nowrap;min-width:150px;text-align:right}
+  .time-label small{display:block;font-size:10px;font-weight:500;color:var(--color-muted)}
+
+  .map-status{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--color-fern);box-shadow:0 1px 4px rgba(0,0,0,.15);display:none}
+  .map-wrap{position:relative}
+
+  /* Kartu panduan membaca citra */
+  .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .guide-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column}
+  /* Sumber data menempel di dasar kartu agar sejajar antar kartu */
+  .guide-source{margin-top:auto;padding-top:10px;border-top:1px solid #EDE7D8;font-size:10px;color:var(--color-muted);line-height:1.5}
+  .guide-list+.guide-source{margin-top:auto}
+  .guide-list{margin-bottom:12px}
+  .guide-source a{color:var(--color-fern);font-weight:600;text-decoration:none}
+  .guide-source a:hover{text-decoration:underline}
+  .guide-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.07)}
+  .guide-card.active{border-color:var(--color-pine);box-shadow:0 4px 14px rgba(53,103,96,.12)}
+  .guide-title{font-size:12.5px;font-weight:700;color:#1a2332}
+  .guide-meta{font-size:10.5px;font-weight:600;color:var(--color-muted);margin-top:2px}
+  .guide-text{font-size:11.5px;color:#4b5563;line-height:1.6;margin-top:8px}
+  .guide-list{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:5px}
+  .guide-list li{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#4b5563;line-height:1.45}
+  .sw{width:12px;height:12px;border-radius:3px;flex-shrink:0;margin-top:1px;border:1px solid rgba(0,0,0,.1)}
+
+  .source-note{font-size:10.5px;color:var(--color-muted);line-height:1.6;margin-top:20px;border-top:1px solid #EDE7D8;padding-top:12px}
+  .source-note a{color:var(--color-fern);font-weight:600;text-decoration:none}
+  .source-note a:hover{text-decoration:underline}
+
+  /* Legenda resmi GIBS (SVG) untuk layer kuantitatif */
+  .legend-bar{padding:10px 16px 12px;border-top:1px solid var(--color-sand);display:none}
+  .legend-bar.visible{display:block}
+  .legend-bar img{display:block;width:100%;max-width:560px;height:auto}
+  /* Legenda GIBS berisi beberapa skala bertumpuk; tiap skala dipotong lalu disusun berdampingan */
+  .legend-row{display:grid;grid-template-columns:repeat(var(--n,1),minmax(0,300px));gap:24px;justify-content:center}
+  @media (max-width:640px){.legend-row{grid-template-columns:minmax(0,300px)}}
+  .legend-crop{position:relative;overflow:hidden;aspect-ratio:var(--ar)}
+  .legend-crop img{position:absolute;left:0;width:100%;max-width:none;height:auto}
+
+  /* Curah hujan di lokasi proyek (Open-Meteo) */
+  .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
+  @media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
+  .stat-label{font-size:11px;color:#64748b;font-weight:600;margin-bottom:10px}
+  .stat-value{font-size:22px;font-weight:800;color:var(--color-pine);line-height:1}
+  .stat-value small{font-size:12px;font-weight:700;margin-left:3px}
+  .stat-sub{font-size:10.5px;color:#64748b;font-weight:600;margin-top:5px}
+  .chart-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .chart-title{font-size:12.5px;font-weight:700;color:#1a2332}
+  .chart-legend{display:flex;gap:14px;font-size:10.5px;color:#64748b;font-weight:600}
+  .chart-legend span{display:inline-flex;align-items:center;gap:5px}
+  .chart-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+  .chart-wrap{position:relative;height:270px}
+  .aq-map{height:440px;background:#EDE7D8}
+  @media (max-width:760px){.aq-map{height:360px}}
+  .aq-legend{display:flex;align-items:flex-end;max-width:560px}
+  .aq-legend div{flex:1;text-align:left}
+  .aq-legend span{display:block;height:10px}
+  .aq-legend small{display:block;font-size:9px;color:#64748b;margin-top:3px;transform:translateX(-50%);width:max-content}
+  .aq-legend div:first-child small{transform:none}
+  .aq-legend-unit{font-size:9.5px;font-weight:600;color:#64748b;margin-left:10px;white-space:nowrap;align-self:center}
+  .loading-msg{padding:22px;text-align:center;color:var(--color-fern);font-size:11.5px}
+
+  .leaflet-container{font-family:'Libre Franklin',sans-serif}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="frame-header">
+    <div class="frame-header-inner">
+      <div>
+        <div class="frame-title">Weather</div>
+        <div class="frame-sub">Data Sekitaran Area Sanggala Corridor Project</div>      </div>
+      <div class="update-chip">
+        <div class="update-chip-label">Citra Terbaru</div>
+        <div class="update-chip-value" id="latestTime">&ndash;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+  <div class="page">
+   <div class="content-row">
+    <nav class="side-menu">
+      <a class="side-item" href="patrol-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+      <a class="side-item" href="monitoring-fire-event.html" title="Fire Alert" aria-label="Fire Alert"><svg viewBox="0 0 24 24"><path d="M12 3c.4 3-2.6 4.6-2.6 7.6 0 .9.3 1.7.8 2.3C8 12.6 6.5 10.9 6.5 9 4.9 10.6 4 12.7 4 14.9 4 18.8 7.6 21 12 21s8-2.2 8-6.1C20 9.6 15.4 6.2 12 3Z"/><path d="M12 21c-1.8 0-3-1.1-3-2.7 0-1.9 1.6-2.8 3-4.8 1.4 2 3 2.9 3 4.8 0 1.6-1.2 2.7-3 2.7Z"/></svg></a>
+      <a class="side-item" href="satellite-tracker.html" title="Satellite Tracker" aria-label="Satellite Tracker"><svg viewBox="0 0 24 24"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></svg></a>
+      <a class="side-item" href="land-clearing-alert.html" title="Land Clearing Alert" aria-label="Land Clearing Alert"><svg viewBox="0 0 24 24"><path d="M9 3 4.5 9.5h2.3L3.5 14.5h11L11.2 9.5h2.3Z"/><path d="M9 14.5V20"/><path d="M15.5 20h5"/><path d="M16.5 20v-3h3v3"/></svg></a>
+      <a class="side-item" href="community-fire-management.html" title="Community Fire Management" aria-label="Community Fire Management"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
+      <a class="side-item active" href="weather.html" title="Weather" aria-label="Weather"><svg viewBox="0 0 24 24"><path d="M7 15.5a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a3.5 3.5 0 0 1 .5 7Z"/><path d="M8.5 18.5 7.5 21"/><path d="M12.5 18.5l-1 2.5"/><path d="M16.5 18.5l-1 2.5"/></svg></a>
+    </nav>
+    <div class="page-body-inner">
+
+      <h2 class="section-title">Peta Cuaca Satelit</h2>
+      <div class="map-card">
+        <div class="map-toolbar">
+          <div class="layer-pills" id="layerPills"></div>
+          <label class="opacity-ctl">Opasitas
+            <input type="range" id="opacityInput" min="20" max="100" value="75">
+          </label>
+        </div>
+        <div class="map-wrap">
+          <div id="weatherMap"></div>
+          <div class="map-status" id="mapStatus"></div>
+        </div>
+        <div class="time-bar">
+          <button type="button" class="time-btn" id="prevBtn" aria-label="Sebelumnya"><svg viewBox="0 0 24 24"><path d="M15.5 5v14L6 12Z"/></svg></button>
+          <button type="button" class="time-btn play" id="playBtn" aria-label="Putar animasi"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7Z"/></svg></button>
+          <button type="button" class="time-btn" id="nextBtn" aria-label="Berikutnya"><svg viewBox="0 0 24 24"><path d="M8.5 5v14L18 12Z"/></svg></button>
+          <input type="range" class="time-slider" id="timeSlider" min="0" max="0" value="0" aria-label="Waktu citra">
+          <div class="time-label" id="timeLabel">&ndash;</div>
+        </div>
+        <div class="legend-bar" id="legendBar"></div>
+      </div>
+
+      <h2 class="section-title">Cara Membaca Citra</h2>
+      <div class="guide-grid" id="guideGrid">
+        <div class="guide-card" data-layer="rain">
+          <div class="guide-title">Curah Hujan (IMERG)</div>
+          <div class="guide-meta">mm/jam &middot; resolusi ±10 km</div>
+          <div class="guide-text">Estimasi intensitas hujan dari gabungan satelit gelombang mikro dan inframerah (NASA GPM). Area tanpa warna berarti tidak terdeteksi hujan. Jeda data sekitar 4–6 jam.</div>
+          <ul class="guide-list">
+            <li><span class="sw" style="background:linear-gradient(90deg,#0b7a3e,#9bd93a,#f2e33a)"></span>Hijau–kuning: hujan ringan (&lt; 2,5 mm/jam)</li>
+            <li><span class="sw" style="background:linear-gradient(90deg,#f5a623,#e8261f)"></span>Oranye–merah: hujan sedang (2,5–10 mm/jam)</li>
+            <li><span class="sw" style="background:linear-gradient(90deg,#c0141a,#4a0000)"></span>Merah tua: hujan lebat (&gt; 10 mm/jam)</li>
+          </ul>
+          <div class="guide-source">Sumber: <a href="https://gpm.nasa.gov/data/imerg" target="_blank" rel="noopener">NASA GPM IMERG</a> via <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener">NASA GIBS</a></div>
+        </div>
+        <div class="guide-card" data-layer="ir">
+          <div class="guide-title">Inframerah (Band 13)</div>
+          <div class="guide-meta">10,4 µm &middot; resolusi 2 km</div>
+          <div class="guide-text">Menunjukkan suhu puncak awan. Semakin dingin, semakin tinggi awannya.</div>
+          <ul class="guide-list">
+            <li><span class="sw" style="background:#3b3b3b"></span>Abu gelap: permukaan atau awan rendah, umumnya tidak hujan</li>
+            <li><span class="sw" style="background:#e6e6e6"></span>Putih: awan menengah–tinggi, mungkin hujan ringan</li>
+            <li><span class="sw" style="background:linear-gradient(90deg,#2f6fd6,#3fbf4a,#f2d43a,#e0402c)"></span>Berwarna: awan konvektif sangat dingin, potensi hujan lebat &amp; petir</li>
+          </ul>
+          <div class="guide-source">Sumber: Himawari-9 (<a href="https://www.data.jma.go.jp/mscweb/en/himawari89/" target="_blank" rel="noopener">JMA</a>) via <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener">NASA GIBS</a></div>
+        </div>
+        <div class="guide-card" data-layer="vis">
+          <div class="guide-title">Visible (Band 3)</div>
+          <div class="guide-meta">0,64 µm &middot; resolusi 1 km</div>
+          <div class="guide-text">Foto awan seperti dilihat mata, paling tajam untuk melihat bentuk awan dan asap.</div>
+          <ul class="guide-list">
+            <li><span class="sw" style="background:#f4f4f4"></span>Putih terang: awan tebal</li>
+            <li><span class="sw" style="background:#9a9a9a"></span>Abu keruh: awan tipis atau kabut asap</li>
+          </ul>
+          <div class="guide-source">Sumber: Himawari-9 (<a href="https://www.data.jma.go.jp/mscweb/en/himawari89/" target="_blank" rel="noopener">JMA</a>) via <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener">NASA GIBS</a></div>
+        </div>
+        <div class="guide-card" data-layer="airmass">
+          <div class="guide-title">Air Mass (RGB)</div>
+          <div class="guide-meta">Komposit beberapa kanal</div>
+          <div class="guide-text">Membedakan massa udara dan jenis awan dari warna gabungan.</div>
+          <ul class="guide-list">
+            <li><span class="sw" style="background:#f4f4f4"></span>Putih: awan tebal dan tinggi (potensi hujan)</li>
+            <li><span class="sw" style="background:#2e7d32"></span>Hijau: udara tropis yang lembap</li>
+            <li><span class="sw" style="background:#a0522d"></span>Merah–cokelat: udara kering di lapisan atas</li>
+          </ul>
+          <div class="guide-source">Sumber: Himawari-9 (<a href="https://www.data.jma.go.jp/mscweb/en/himawari89/" target="_blank" rel="noopener">JMA</a>) via <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener">NASA GIBS</a></div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Curah Hujan di Lokasi Proyek</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Hujan 24 Jam Terakhir</div>
+          <div class="stat-value" id="rainPast">&ndash;</div>
+          <div class="stat-sub">akumulasi model hingga jam ini</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Prakiraan 24 Jam ke Depan</div>
+          <div class="stat-value" id="rainNext">&ndash;</div>
+          <div class="stat-sub" id="rainNextSub">&ndash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Intensitas Tertinggi (24 jam ke depan)</div>
+          <div class="stat-value" id="rainPeak">&ndash;</div>
+          <div class="stat-sub" id="rainPeakSub">&ndash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peluang Hujan Tertinggi</div>
+          <div class="stat-value" id="rainProb">&ndash;</div>
+          <div class="stat-sub" id="rainProbSub">&ndash;</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">Curah hujan per jam &middot; 24 jam terakhir &amp; 48 jam ke depan</div>
+          <div class="chart-legend">
+            <span><i style="background:#4a7fc1"></i>Estimasi</span>
+            <span><i style="background:#356760"></i>Prakiraan</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="rainChart"></canvas></div>
+        <div class="loading-msg" id="rainChartMsg">Memuat data curah hujan&hellip;</div>
+      </div>
+
+      <!-- Sementara disembunyikan; aktifkan lagi dengan SHOW_AIR_QUALITY=true di script -->
+      <section id="aqSection" hidden>
+      <h2 class="section-title">Kualitas Udara &amp; Kabut Asap</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">PM2.5 Saat Ini</div>
+          <div class="stat-value" id="aqPm25">&ndash;</div>
+          <div class="stat-sub" id="aqPm25Sub">&ndash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Indeks Kualitas Udara (US AQI)</div>
+          <div class="stat-value" id="aqIndex">&ndash;</div>
+          <div class="stat-sub" id="aqIndexSub">&ndash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rata-rata PM2.5 24 Jam Terakhir</div>
+          <div class="stat-value" id="aqAvg">&ndash;</div>
+          <div class="stat-sub" id="aqAvgSub">&ndash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Puncak PM2.5 (72 jam ke depan)</div>
+          <div class="stat-value" id="aqPeak">&ndash;</div>
+          <div class="stat-sub" id="aqPeakSub">&ndash;</div>
+        </div>
+      </div>
+      <div class="map-card" style="margin-bottom:16px">
+        <div class="map-toolbar">
+          <div class="chart-title">Peta sebaran PM2.5 &middot; Kalimantan &amp; sekitarnya</div>
+          <label class="opacity-ctl">Opasitas
+            <input type="range" id="aqOpacityInput" min="20" max="100" value="65">
+          </label>
+        </div>
+        <div class="map-wrap">
+          <div id="aqMap" class="aq-map"></div>
+          <div class="map-status" id="aqMapStatus"></div>
+        </div>
+        <div class="time-bar">
+          <button type="button" class="time-btn" id="aqPrevBtn" aria-label="Sebelumnya"><svg viewBox="0 0 24 24"><path d="M15.5 5v14L6 12Z"/></svg></button>
+          <button type="button" class="time-btn play" id="aqPlayBtn" aria-label="Putar animasi"><svg viewBox="0 0 24 24" id="aqPlayIcon"><path d="M8 5v14l11-7Z"/></svg></button>
+          <button type="button" class="time-btn" id="aqNextBtn" aria-label="Berikutnya"><svg viewBox="0 0 24 24"><path d="M8.5 5v14L18 12Z"/></svg></button>
+          <input type="range" class="time-slider" id="aqTimeSlider" min="0" max="0" value="0" aria-label="Waktu peta PM2.5">
+          <div class="time-label" id="aqTimeLabel">&ndash;</div>
+        </div>
+        <div class="legend-bar visible">
+          <div class="aq-legend" id="aqLegend"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">PM2.5 per jam &middot; 24 jam terakhir &amp; 72 jam ke depan</div>
+          <div class="chart-legend">
+            <span><i style="background:#4a7fc1;height:2px"></i>Estimasi model (lalu)</span>
+            <span><i style="background:#c2703f;height:2px"></i>Prakiraan</span>
+            <span><i style="background:#356760;height:2px"></i>Batas WHO 24 jam (15 µg/m³)</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="aqChart"></canvas></div>
+        <div class="loading-msg" id="aqChartMsg">Memuat data kualitas udara&hellip;</div>
+      </div>
+      <p class="note" id="aqNote"></p>
+      </section>
+
+    </div>
+   </div>
+  </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const GIBS='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
+// windowH = rentang pencarian waktu ke belakang (jam), frames = jumlah frame animasi terakhir yang diambil
+const LAYERS={
+  ir:     {id:'Himawari_AHI_Band13_Clean_Infrared',label:'Inframerah',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
+           note:'Animasi 3 jam terakhir, interval 10 menit. Citra biasanya tersedia 20–40 menit setelah observasi.'},
+  rain:   {id:'IMERG_Precipitation_Rate_30min',   label:'Curah Hujan',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:36,frames:12,
+           legend:'https://gibs.earthdata.nasa.gov/legends/GPM_Precipitation_Rate_H.svg',
+           // SVG 302,4×140,4 berisi skala Rain Rate (y 0–63,18) dan Snow Rate (y 63,18–126,36); hanya Rain Rate yang relevan
+           legendSize:[302.4,140.4],legendCrops:[[0,63.18]],
+           note:'Animasi 6 jam data terakhir yang tersedia, interval 30 menit. Data IMERG terlambat sekitar 4–6 jam dari waktu sekarang.'},
+  vis:    {id:'Himawari_AHI_Band3_Red_Visible_1km',label:'Visible',   tms:'GoogleMapsCompatible_Level7',maxNative:7,windowH:6,frames:18,
+           note:'Animasi 3 jam terakhir, interval 10 menit. Hanya bermakna pada siang hari.'},
+  airmass:{id:'Himawari_AHI_Air_Mass',             label:'Air Mass',  tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
+           note:'Animasi 3 jam terakhir, interval 10 menit.'}
+};
+const FRAME_MS=700;            // jeda antar frame saat diputar
+const CMI_URL='assets/json/CMI.json';
+
+let activeKey='ir',frames=[],frameLayers=[],idx=0,timer=null,opacity=.75,loadToken=0;
+
+// --- Peta dasar: basemap terang, citra Himawari di tengah, label & batas di atas ---
+const map=L.map('weatherMap',{zoomControl:true,attributionControl:true,minZoom:4,maxZoom:10});
+map.attributionControl.setPrefix(false);
+map.createPane('labels');map.getPane('labels').style.zIndex=450;map.getPane('labels').style.pointerEvents='none';
+// Basemap Esri tanpa API key, sumber yang sama dengan peta di halaman lain
+const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
+L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,attribution:'Basemap: Esri'}).addTo(map);
+L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,pane:'labels'}).addTo(map);
+map.setView([0.8,110.3],7);
+
+fetch(CMI_URL).then(r=>r.json()).then(j=>{
+  const b=L.geoJSON(j,{style:{color:'#fff',weight:2.5,fillOpacity:0},pane:'labels'}).addTo(map);
+  L.geoJSON(j,{style:{color:'#356760',weight:1.5,fillOpacity:0},pane:'labels'}).addTo(map);
+  map.setView(b.getBounds().getCenter(),7);
+}).catch(()=>{});
+
+// --- Waktu tersedia dari GIBS (endpoint Domains): "start/end/PT10M,..." atau ".../P1D" ---
+function isoMin(d){return d.toISOString().slice(0,19)+'Z';}
+function isoDay(d){return d.toISOString().slice(0,10);}
+function periodMs(p){
+  const m=(p||'').match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?$/);
+  if(!m)return 10*60e3;
+  return ((+m[1]||0)*86400+(+m[2]||0)*3600+(+m[3]||0)*60)*1e3||10*60e3;
+}
+async function fetchFrames(key){
+  const L_=LAYERS[key],end=new Date(),start=new Date(end.getTime()-L_.windowH*3600e3);
+  const url=`${GIBS}/1.0.0/${L_.id}/default/${L_.tms}/all/${isoMin(start)}--${isoMin(end)}.xml`;
+  const txt=await (await fetch(url)).text();
+  const dom=(txt.match(/<Domain>([^<]*)<\/Domain>/)||[])[1]||'';
+  const times=[];
+  dom.split(',').filter(Boolean).forEach(part=>{
+    const [a,b,p]=part.split('/');
+    const t0=new Date(a.includes('T')?a:a+'T00:00:00Z');
+    if(!b){times.push(t0);return;}
+    const t1=new Date(b.includes('T')?b:b+'T00:00:00Z'),step=periodMs(p);
+    for(let t=t0.getTime();t<=t1.getTime();t+=step)times.push(new Date(t));
+  });
+  // Ambil N frame terakhir dari data yang tersedia (bukan dari jam sekarang), karena tiap layer punya jeda berbeda
+  return times.filter(t=>t>=start).sort((a,b)=>a-b).slice(-L_.frames);
+}
+
+function fmtWIB(d,opts){return d.toLocaleString('id-ID',Object.assign({timeZone:'Asia/Jakarta'},opts));}
+function relTime(d){
+  const m=Math.round((Date.now()-d.getTime())/60e3);
+  return m<60?`${m} menit lalu`:`${Math.floor(m/60)} jam ${m%60} menit lalu`;
+}
+
+function setStatus(msg){const el=document.getElementById('mapStatus');el.textContent=msg||'';el.style.display=msg?'block':'none';}
+
+// Satu tile layer per frame agar animasi tidak berkedip; hanya frame aktif yang terlihat
+function buildFrameLayers(){
+  frameLayers.forEach(l=>map.removeLayer(l));
+  const L_=LAYERS[activeKey];
+  frameLayers=frames.map(t=>L.tileLayer(
+    `${GIBS}/${L_.id}/default/${L_.daily?isoDay(t):isoMin(t)}/${L_.tms}/{z}/{y}/{x}.png`,
+    {maxNativeZoom:L_.maxNative,maxZoom:10,opacity:0,attribution:'NASA GIBS'}
+  ).addTo(map));
+}
+function fmtFrame(t,long){
+  if(LAYERS[activeKey].daily)return fmtWIB(t,{weekday:long?undefined:'short',day:'numeric',month:'short',year:long?'numeric':undefined});
+  return fmtWIB(t,{day:'numeric',month:'short',year:long?'numeric':undefined,hour:'2-digit',minute:'2-digit'})+' WIB';
+}
+function showFrame(i){
+  if(!frames.length)return;
+  idx=(i+frames.length)%frames.length;
+  frameLayers.forEach((l,k)=>l.setOpacity(k===idx?opacity:0));
+  const t=frames[idx];
+  document.getElementById('timeSlider').value=idx;
+  document.getElementById('timeLabel').innerHTML=`${fmtFrame(t,false)}<small>${LAYERS[activeKey].daily?'citra harian':relTime(t)}</small>`;
+}
+
+async function loadLayer(key){
+  activeKey=key;stop();
+  renderPills();
+  document.querySelectorAll('.guide-card').forEach(c=>c.classList.toggle('active',c.dataset.layer===key));
+  const L_=LAYERS[key];
+  const lb=document.getElementById('legendBar');
+  lb.classList.toggle('visible',!!L_.legend);
+  if(L_.legend){
+    // legendCrops = [y awal, tinggi] tiap skala dalam satuan SVG; masing-masing dipotong dan disusun berdampingan
+    const [w,h]=L_.legendSize||[1,1],crops=L_.legendCrops||[[0,h]];
+    lb.innerHTML=`<div class="legend-row" style="--n:${crops.length}">`
+      +crops.map(([y0,ch])=>`<div class="legend-crop" style="--ar:${w}/${ch}">`
+        +`<img src="${L_.legend}" alt="Legenda ${L_.label}" loading="lazy" style="top:${(-y0/ch*100).toFixed(3)}%"></div>`).join('')
+      +'</div>';
+  }else lb.innerHTML='';
+  const token=++loadToken;
+  setStatus('Memuat citra…');
+  try{
+    const f=await fetchFrames(key);
+    if(token!==loadToken)return;
+    frames=f;
+    if(!frames.length){setStatus('Belum ada citra yang tersedia untuk layer ini');frameLayers.forEach(l=>map.removeLayer(l));frameLayers=[];return;}
+    buildFrameLayers();
+    const slider=document.getElementById('timeSlider');
+    slider.max=frames.length-1;
+    showFrame(frames.length-1);
+    document.getElementById('latestTime').textContent=fmtFrame(frames[frames.length-1],true);
+    setStatus('');
+  }catch(e){
+    console.error('[Weather] gagal memuat',e);
+    if(token===loadToken)setStatus('Gagal memuat citra dari NASA GIBS');
+  }
+}
+
+function renderPills(){
+  document.getElementById('layerPills').innerHTML=Object.entries(LAYERS).map(([k,v])=>
+    `<button type="button" class="fpill${k===activeKey?' active':''}" data-key="${k}">${v.label}</button>`).join('');
+}
+document.getElementById('layerPills').addEventListener('click',e=>{
+  const b=e.target.closest('[data-key]');if(b&&b.dataset.key!==activeKey)loadLayer(b.dataset.key);
+});
+document.getElementById('guideGrid').addEventListener('click',e=>{
+  if(e.target.closest('a'))return;   // klik link sumber tidak mengganti layer
+  const c=e.target.closest('[data-layer]');if(c&&c.dataset.layer!==activeKey)loadLayer(c.dataset.layer);
+});
+
+// --- Kontrol animasi ---
+const PLAY_SVG='<path d="M8 5v14l11-7Z"/>',PAUSE_SVG='<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>';
+function stop(){clearInterval(timer);timer=null;document.getElementById('playIcon').innerHTML=PLAY_SVG;}
+function play(){
+  if(frames.length<2)return;
+  if(idx===frames.length-1)showFrame(0);
+  timer=setInterval(()=>{
+    if(idx>=frames.length-1){showFrame(frames.length-1);stop();return;}
+    showFrame(idx+1);
+  },FRAME_MS);
+  document.getElementById('playIcon').innerHTML=PAUSE_SVG;
+}
+document.getElementById('playBtn').addEventListener('click',()=>timer?stop():play());
+document.getElementById('prevBtn').addEventListener('click',()=>{stop();showFrame(idx-1);});
+document.getElementById('nextBtn').addEventListener('click',()=>{stop();showFrame(idx+1);});
+document.getElementById('timeSlider').addEventListener('input',e=>{stop();showFrame(+e.target.value);});
+document.getElementById('opacityInput').addEventListener('input',e=>{opacity=e.target.value/100;showFrame(idx);});
+
+// Urutkan kartu panduan mengikuti urutan pill layer
+const guideGrid=document.getElementById('guideGrid');
+Object.keys(LAYERS).forEach(k=>{const c=guideGrid.querySelector(`[data-layer="${k}"]`);if(c)guideGrid.appendChild(c);});
+
+loadLayer('ir');
+// Muat ulang daftar citra tiap 10 menit (kecuali sedang diputar)
+setInterval(()=>{if(!timer)loadLayer(activeKey);},10*60e3);
+
+// --- Curah hujan per jam di lokasi proyek (Open-Meteo, tanpa API key) ---
+// Warna konsisten di kedua grafik: biru = estimasi model terbaru, warna tema = prakiraan
+const EST_COLOR='#4a7fc1',RAIN_FC_COLOR='#356760',AQ_FC_COLOR='#c2703f';
+// Arsir area jam yang sudah lewat + garis "Sekarang".
+// Label zona digambar di ruang padding di atas area grafik agar tidak tertutup batang; null = tanpa label.
+function pastRegionPlugin(cut,isBar,pastLabel=null,futLabel=null){
+  const xAt=c=>{const xs=c.scales.x;return isBar?xs.getPixelForValue(cut)-(xs.getPixelForValue(1)-xs.getPixelForValue(0))/2:xs.getPixelForValue(cut);};
+  return{id:'pastRegion',
+    beforeDatasetsDraw(c){
+      const {top,bottom,left}=c.chartArea,ctx=c.ctx,x=xAt(c);
+      ctx.save();ctx.fillStyle='rgba(74,127,193,.06)';ctx.fillRect(left,top,x-left,bottom-top);ctx.restore();
+    },
+    afterDraw(c){
+      const {top,bottom,left,right}=c.chartArea,ctx=c.ctx,x=xAt(c);
+      ctx.save();
+      ctx.strokeStyle='#1a2332';ctx.setLineDash([3,3]);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,top-14);ctx.lineTo(x,bottom);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='600 9.5px Libre Franklin, sans-serif';ctx.textBaseline='middle';
+      // "Sekarang" sebagai pil kecil di ujung atas garis
+      const nowTxt='Sekarang',w=ctx.measureText(nowTxt).width+10;
+      ctx.fillStyle='#1a2332';ctx.beginPath();ctx.roundRect(x-w/2,top-22,w,14,7);ctx.fill();
+      ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(nowTxt,x,top-15);
+      if(pastLabel&&x-left>w/2+90){ctx.fillStyle='#4a7fc1';ctx.textAlign='left';ctx.fillText(pastLabel,left+2,top-15);}
+      if(futLabel&&right-x>w/2+90){ctx.fillStyle=RAIN_FC_COLOR;ctx.textAlign='right';ctx.fillText(futLabel,right-2,top-15);}
+      ctx.restore();
+    }};
+}
+let rainChart=null;
+function fmtMm(v){return v.toLocaleString('id-ID',{maximumFractionDigits:1});}
+function rainClass(mmPerHour){
+  if(mmPerHour<0.1)return'tidak hujan';
+  if(mmPerHour<2.5)return'hujan ringan';
+  if(mmPerHour<10)return'hujan sedang';
+  if(mmPerHour<50)return'hujan lebat';
+  return'hujan sangat lebat';
+}
+async function loadPointRain(lat,lon){
+  const msg=document.getElementById('rainChartMsg');
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`
+      +'&hourly=precipitation,precipitation_probability&past_days=1&forecast_days=3&timezone=Asia%2FJakarta';
+    const j=await (await fetch(url)).json();
+    const h=j.hourly;if(!h||!h.time)throw new Error('respons tidak valid');
+    // Waktu dari Open-Meteo sudah dalam WIB ("2026-10-15T13:00"); bandingkan sebagai jam lokal
+    const pad=n=>String(n).padStart(2,'0');
+    const nowW=new Date(Date.now()+7*3600e3),nowKey=`${nowW.getUTCFullYear()}-${pad(nowW.getUTCMonth()+1)}-${pad(nowW.getUTCDate())}T${pad(nowW.getUTCHours())}:00`;
+    let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
+    const from=Math.max(0,nowIdx-24),to=Math.min(h.time.length,nowIdx+48);
+    const times=h.time.slice(from,to),rain=h.precipitation.slice(from,to).map(v=>v||0),prob=h.precipitation_probability.slice(from,to);
+    const cut=nowIdx-from;
+    const past=rain.slice(0,cut).reduce((a,b)=>a+b,0);
+    const next24=rain.slice(cut,cut+24),nextSum=next24.reduce((a,b)=>a+b,0);
+    const peak=Math.max(0,...next24),peakAt=times[cut+next24.indexOf(peak)];
+    const probs=prob.slice(cut,cut+24).map(v=>v??0),pMax=Math.max(0,...probs),pAt=times[cut+probs.indexOf(pMax)];
+    const hh=t=>t?t.slice(11,16)+' WIB':'–';
+    const day=t=>{if(!t)return'';const d=t.slice(0,10),today=nowKey.slice(0,10);return d===today?'hari ini':'besok';};
+
+    document.getElementById('rainPast').innerHTML=`${fmtMm(past)}<small>mm</small>`;
+    document.getElementById('rainNext').innerHTML=`${fmtMm(nextSum)}<small>mm</small>`;
+    document.getElementById('rainNextSub').textContent=next24.filter(v=>v>=0.1).length+' jam diprakirakan hujan';
+    document.getElementById('rainPeak').innerHTML=`${fmtMm(peak)}<small>mm/jam</small>`;
+    document.getElementById('rainPeakSub').textContent=peak>=0.1?`${rainClass(peak)}, ${day(peakAt)} ${hh(peakAt)}`:'tidak ada hujan berarti';
+    document.getElementById('rainProb').innerHTML=`${pMax}<small>%</small>`;
+    document.getElementById('rainProbSub').textContent=pMax>0?`${day(pAt)} ${hh(pAt)}`:'–';
+
+    const canvas=document.getElementById('rainChart');
+    if(rainChart)rainChart.destroy();
+    // Satu seri batang: jam yang sudah lewat = estimasi (biru), jam mendatang = prakiraan (hijau)
+    const isPast=i=>i<cut;
+    const hourOf=i=>+times[i].slice(11,13);
+    rainChart=new Chart(canvas,{
+      type:'bar',
+      data:{labels:times,datasets:[
+        {label:'Curah hujan',data:rain,yAxisID:'y',
+          backgroundColor:rain.map((_,i)=>isPast(i)?EST_COLOR:RAIN_FC_COLOR),
+          borderRadius:2,barPercentage:.85,categoryPercentage:1}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        layout:{padding:{top:26}},
+        plugins:{legend:{display:false},tooltip:{displayColors:false,callbacks:{
+          title:items=>{const t=times[items[0].dataIndex];return`${+t.slice(8,10)}/${+t.slice(5,7)} pukul ${t.slice(11,16)} WIB`;},
+          label:c=>`${isPast(c.dataIndex)?'Estimasi':'Prakiraan'}: ${fmtMm(c.parsed.y)} mm`,
+          afterLabel:c=>isPast(c.dataIndex)||prob[c.dataIndex]==null?'':`Peluang hujan: ${prob[c.dataIndex]}%`
+        }}},
+        scales:{
+          // Label tiap 6 jam; tanggal ditampilkan di bawah pukul 00:00, garis tipis sebagai pemisah hari
+          x:{ticks:{font:{size:9.5},color:'#8a8a82',maxRotation:0,autoSkip:false,
+              callback:(v,i)=>{const h=hourOf(i);if(h%6)return null;
+                const t=times[i];return h===0?[t.slice(11,16),`${+t.slice(8,10)}/${+t.slice(5,7)}`]:t.slice(11,16);}},
+            grid:{drawTicks:false,color:ctx=>ctx.index!=null&&times[ctx.index]&&hourOf(ctx.index)===0?'#e4dfd2':'transparent'}},
+          y:{beginAtZero:true,suggestedMax:2,title:{display:true,text:'mm/jam',font:{size:9},color:'#9a9a90'},
+            ticks:{font:{size:9},color:'#9a9a90',maxTicksLimit:5},grid:{color:'#f1efe6'},border:{display:false}}
+        }},
+      plugins:[pastRegionPlugin(cut,true,'24 jam terakhir','48 jam ke depan')]
+    });
+    msg.style.display='none';
+  }catch(e){
+    console.error('[Weather] Open-Meteo gagal',e);
+    msg.textContent='Gagal memuat data curah hujan dari Open-Meteo.';msg.style.color='#a5382c';
+  }
+}
+// --- Kualitas udara di lokasi proyek (Open-Meteo Air Quality / model CAMS, tanpa API key) ---
+// Kategori mengikuti US AQI (EPA); ini bukan ISPU KLHK
+const AQI_CATS=[
+  {max:50, label:'Baik',                               color:'#2e7d32'},
+  {max:100,label:'Sedang',                             color:'#b08900'},
+  {max:150,label:'Tidak sehat bagi kelompok sensitif', color:'#d9730d'},
+  {max:200,label:'Tidak sehat',                        color:'#c0392b'},
+  {max:300,label:'Sangat tidak sehat',                 color:'#7b2d8e'},
+  {max:Infinity,label:'Berbahaya',                     color:'#7a1f1f'}
+];
+function aqiCat(v){return AQI_CATS.find(c=>v<=c.max)||AQI_CATS[AQI_CATS.length-1];}
+const WHO_PM25_24H=15;
+let aqChart=null;
+
+async function loadPointAirQuality(lat,lon){
+  const msg=document.getElementById('aqChartMsg');
+  try{
+    const url=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`
+      +'&hourly=pm2_5&current=pm2_5,pm10,us_aqi&past_days=1&forecast_days=4&timezone=Asia%2FJakarta';
+    const j=await (await fetch(url)).json();
+    const h=j.hourly,cur=j.current;if(!h||!h.time||!cur)throw new Error('respons tidak valid');
+
+    // "Sekarang" = jam data current dari Open-Meteo (sudah WIB)
+    const nowKey=cur.time.slice(0,13)+':00';
+    let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
+    const from=Math.max(0,nowIdx-24),to=Math.min(h.time.length,nowIdx+73);
+    const times=h.time.slice(from,to),pm=h.pm2_5.slice(from,to),cut=nowIdx-from;
+    // Open-Meteo tidak menyimpan prakiraan lama untuk kualitas udara, jadi grafik PM2.5 tidak punya pembanding prakiraan kemarin
+
+    const past=pm.slice(0,cut).filter(v=>v!=null);
+    const avg=past.length?past.reduce((a,b)=>a+b,0)/past.length:null;
+    const fut=pm.slice(cut).map(v=>v??-1),peak=Math.max(...fut),peakAt=times[cut+fut.indexOf(peak)];
+    const day=t=>{const d=t.slice(0,10),today=nowKey.slice(0,10);
+      const diff=Math.round((new Date(d)-new Date(today))/864e5);return diff===0?'hari ini':diff===1?'besok':`${+d.slice(8,10)}/${+d.slice(5,7)}`;};
+
+    const cat=aqiCat(cur.us_aqi);
+    document.getElementById('aqPm25').innerHTML=`${fmtMm(cur.pm2_5)}<small>µg/m³</small>`;
+    document.getElementById('aqPm25Sub').textContent=`PM10 ${fmtMm(cur.pm10)} µg/m³ · pukul ${cur.time.slice(11,16)} WIB`;
+    const idxEl=document.getElementById('aqIndex');
+    idxEl.textContent=cur.us_aqi;idxEl.style.color=cat.color;
+    document.getElementById('aqIndexSub').textContent=cat.label;
+    document.getElementById('aqAvg').innerHTML=avg!==null?`${fmtMm(avg)}<small>µg/m³</small>`:'–';
+    document.getElementById('aqAvgSub').textContent=avg===null?'–':avg<=WHO_PM25_24H?'di bawah batas WHO (15 µg/m³)':`${fmtMm(avg/WHO_PM25_24H)}× batas WHO (15 µg/m³)`;
+    document.getElementById('aqPeak').innerHTML=peak>=0?`${fmtMm(peak)}<small>µg/m³</small>`:'–';
+    document.getElementById('aqPeakSub').textContent=peak>=0?`${day(peakAt)} ${peakAt.slice(11,16)} WIB`:'–';
+
+    const labels=times.map(t=>t.slice(11,13)==='00'?[t.slice(11,16),`${+t.slice(8,10)}/${+t.slice(5,7)}`]:t.slice(11,16));
+    // Estimasi model = biru (jam lalu), prakiraan = oranye (jam mendatang); bertemu di titik "sekarang"
+    const fcLine=times.map((_,i)=>i>=cut?pm[i]:null);
+    const estLine=times.map((_,i)=>i<=cut?pm[i]:null);
+    if(aqChart)aqChart.destroy();
+    aqChart=new Chart(document.getElementById('aqChart'),{
+      type:'line',
+      data:{labels,datasets:[
+        {label:'Estimasi model',data:estLine,borderColor:EST_COLOR,backgroundColor:'rgba(74,127,193,.12)',fill:'origin',borderWidth:2,pointRadius:0,tension:.3,spanGaps:false},
+        {label:'Prakiraan',data:fcLine,borderColor:AQ_FC_COLOR,backgroundColor:'rgba(194,112,63,.10)',fill:false,borderWidth:2,pointRadius:0,tension:.3,spanGaps:false},
+        {label:'Batas WHO',data:times.map(()=>WHO_PM25_24H),borderColor:'#356760',borderDash:[5,4],borderWidth:1.2,pointRadius:0,fill:false}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        // Di titik "sekarang" kedua garis bernilai sama; tampilkan sekali saja
+        plugins:{legend:{display:false},tooltip:{filter:i=>i.raw!=null&&i.dataset.label!=='Batas WHO'&&!(i.dataIndex===cut&&i.dataset.label==='Prakiraan'),callbacks:{
+          title:items=>{const t=times[items[0].dataIndex];return`${+t.slice(8,10)}/${+t.slice(5,7)} ${t.slice(11,16)} WIB`;},
+          label:c=>` ${c.dataset.label}: ${fmtMm(c.parsed.y)} µg/m³`
+        }}},
+        scales:{
+          x:{ticks:{font:{size:9},color:'#9a9a90',maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false}},
+          y:{beginAtZero:true,suggestedMax:40,title:{display:true,text:'µg/m³',font:{size:9},color:'#9a9a90'},ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}}
+        }},
+      plugins:[pastRegionPlugin(cut,false,null)]
+    });
+    msg.style.display='none';
+    document.getElementById('aqNote').textContent=
+      `Estimasi model CAMS (Copernicus) untuk titik ${lat.toFixed(3)}, ${lon.toFixed(3)}, termasuk emisi dari kebakaran yang terdeteksi satelit; bukan pengukuran stasiun. `      +`Kategori mengikuti US AQI, bukan ISPU KLHK. Nilai model beresolusi kasar sehingga puncak asap lokal bisa lebih tinggi atau lebih rendah dari pengukuran stasiun.`;
+  }catch(e){
+    console.error('[Weather] Open-Meteo Air Quality gagal',e);
+    msg.textContent='Gagal memuat data kualitas udara dari Open-Meteo.';msg.style.color='#a5382c';
+  }
+}
+
+// --- Peta sebaran PM2.5 (CAMS global via WMS publik ECMWF, tanpa API key) ---
+// Daftar waktu tidak bisa dibaca dari GetCapabilities (tidak ada CORS), jadi frame dihitung per 3 jam
+// lalu dimuat lebih dulu; frame di luar rentang data (server membalas XML) otomatis dibuang.
+const CAMS_WMS='https://eccharts.ecmwf.int/wms/?token=public';
+const AQ_BOUNDS=L.latLngBounds([-5,106],[5,119]);
+const AQ_COLORS=[[2,'#1464d1'],[5,'#2881ef'],[10,'#50a4f4'],[20,'#00db00'],[30,'#50ef50'],[40,'#9fe532'],
+                 [50,'#e5db32'],[75,'#e5ae2d'],[100,'#ef8128'],[150,'#f93c3c'],[200,'#ef0081']];
+const AQ_HOURS_BACK=24,AQ_HOURS_AHEAD=72,AQ_STEP_H=3;
+let aqFrames=[],aqOverlays=[],aqIdx=0,aqTimer=null,aqOpacity=.65;
+
+function initAirQualityMap(){
+document.getElementById('aqLegend').innerHTML=AQ_COLORS.map(([v,c],i)=>
+  `<div><span style="background:${c}"></span><small>${i===AQ_COLORS.length-1?v+'+':v}</small></div>`).join('')
+  +'<span class="aq-legend-unit">µg/m³</span>';
+
+const aqMap=L.map('aqMap',{zoomControl:true,attributionControl:true,minZoom:4,maxZoom:10});
+aqMap.attributionControl.setPrefix(false);
+aqMap.createPane('labels');aqMap.getPane('labels').style.zIndex=450;aqMap.getPane('labels').style.pointerEvents='none';
+L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,attribution:'Basemap: Esri'}).addTo(aqMap);
+L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,pane:'labels'}).addTo(aqMap);
+aqMap.fitBounds(AQ_BOUNDS);
+fetch(CMI_URL).then(r=>r.json()).then(j=>{
+  L.geoJSON(j,{style:{color:'#fff',weight:2.5,fillOpacity:0},pane:'labels'}).addTo(aqMap);
+  L.geoJSON(j,{style:{color:'#356760',weight:1.5,fillOpacity:0},pane:'labels'}).addTo(aqMap);
+}).catch(()=>{});
+
+function aqImageUrl(t){
+  const sw=L.CRS.EPSG3857.project(AQ_BOUNDS.getSouthWest()),ne=L.CRS.EPSG3857.project(AQ_BOUNDS.getNorthEast());
+  const w=1024,h=Math.round(w*(ne.y-sw.y)/(ne.x-sw.x));
+  return `${CAMS_WMS}&service=WMS&request=GetMap&version=1.3.0&layers=composition_pm2p5&styles=sh_all_pmx_regional`
+    +`&crs=EPSG:3857&bbox=${sw.x.toFixed(0)},${sw.y.toFixed(0)},${ne.x.toFixed(0)},${ne.y.toFixed(0)}`
+    +`&width=${w}&height=${h}&format=image/png&transparent=true&time=${isoMin(t)}`;
+}
+function preloadImage(url){return new Promise(res=>{const im=new Image();im.onload=()=>res(true);im.onerror=()=>res(false);im.src=url;});}
+function setAqStatus(msg){const el=document.getElementById('aqMapStatus');el.textContent=msg||'';el.style.display=msg?'block':'none';}
+
+function showAqFrame(i){
+  if(!aqFrames.length)return;
+  aqIdx=(i+aqFrames.length)%aqFrames.length;
+  aqOverlays.forEach((o,k)=>o.setOpacity(k===aqIdx?aqOpacity:0));
+  const t=aqFrames[aqIdx],isPast=t.getTime()<=Date.now();
+  document.getElementById('aqTimeSlider').value=aqIdx;
+  document.getElementById('aqTimeLabel').innerHTML=`${fmtWIB(t,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} WIB<small>${isPast?'analisis model':'prakiraan'}</small>`;
+}
+async function loadAqMap(){
+  setAqStatus('Memuat peta PM2.5…');
+  const step=AQ_STEP_H*3600e3,now=Date.now();
+  const start=Math.floor((now-AQ_HOURS_BACK*3600e3)/step)*step,end=now+AQ_HOURS_AHEAD*3600e3;
+  const cands=[];for(let t=start;t<=end;t+=step)cands.push(new Date(t));
+  // Muat dengan maksimal 6 permintaan paralel agar tidak membebani server
+  const ok=new Array(cands.length).fill(false);let done=0,next=0;
+  async function worker(){
+    while(next<cands.length){
+      const k=next++;ok[k]=await preloadImage(aqImageUrl(cands[k]));
+      setAqStatus(`Memuat peta PM2.5… ${++done}/${cands.length}`);
+    }
+  }
+  await Promise.all(Array.from({length:6},worker));
+  aqFrames=cands.filter((_,k)=>ok[k]);
+  if(!aqFrames.length){setAqStatus('Peta PM2.5 dari CAMS tidak tersedia saat ini');return;}
+  aqOverlays=aqFrames.map(t=>L.imageOverlay(aqImageUrl(t),AQ_BOUNDS,{opacity:0,interactive:false,
+    attribution:'PM2.5: CAMS (Copernicus/ECMWF)'}).addTo(aqMap));
+  document.getElementById('aqTimeSlider').max=aqFrames.length-1;
+  // Frame awal = waktu terdekat dengan sekarang
+  let best=0;aqFrames.forEach((t,k)=>{if(Math.abs(t-now)<Math.abs(aqFrames[best]-now))best=k;});
+  showAqFrame(best);
+  setAqStatus('');
+}
+
+function stopAq(){clearInterval(aqTimer);aqTimer=null;document.getElementById('aqPlayIcon').innerHTML=PLAY_SVG;}
+function playAq(){
+  if(aqFrames.length<2)return;
+  if(aqIdx===aqFrames.length-1)showAqFrame(0);
+  aqTimer=setInterval(()=>{if(aqIdx>=aqFrames.length-1){stopAq();return;}showAqFrame(aqIdx+1);},FRAME_MS);
+  document.getElementById('aqPlayIcon').innerHTML=PAUSE_SVG;
+}
+document.getElementById('aqPlayBtn').addEventListener('click',()=>aqTimer?stopAq():playAq());
+document.getElementById('aqPrevBtn').addEventListener('click',()=>{stopAq();showAqFrame(aqIdx-1);});
+document.getElementById('aqNextBtn').addEventListener('click',()=>{stopAq();showAqFrame(aqIdx+1);});
+document.getElementById('aqTimeSlider').addEventListener('input',e=>{stopAq();showAqFrame(+e.target.value);});
+document.getElementById('aqOpacityInput').addEventListener('input',e=>{aqOpacity=e.target.value/100;showAqFrame(aqIdx);});
+
+// Klik peta: nilai PM2.5 saat ini di titik tersebut (Open-Meteo)
+aqMap.on('click',async e=>{
+  const {lat,lng}=e.latlng;
+  const pop=L.popup().setLatLng(e.latlng).setContent('<span style="font-size:11px">Memuat…</span>').openOn(aqMap);
+  try{
+    const j=await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&current=pm2_5,us_aqi&timezone=Asia%2FJakarta`)).json();
+    const c=j.current,cat=aqiCat(c.us_aqi);
+    pop.setContent(`<div style="font-size:11px;line-height:1.5"><b style="font-size:13px">${fmtMm(c.pm2_5)} µg/m³</b> PM2.5<br>`
+      +`US AQI <b style="color:${cat.color}">${c.us_aqi}</b> · ${cat.label}<br><span style="color:#8a8a82">${lat.toFixed(3)}, ${lng.toFixed(3)} · ${c.time.slice(11,16)} WIB</span></div>`);
+  }catch(err){pop.setContent('<span style="font-size:11px;color:#a5382c">Gagal memuat nilai</span>');}
+});
+loadAqMap();
+}
+
+// Bagian Kualitas Udara & Kabut Asap sementara disembunyikan; ubah ke true untuk menampilkan lagi
+const SHOW_AIR_QUALITY=false;
+if(SHOW_AIR_QUALITY){
+  document.getElementById('aqSection').hidden=false;
+  initAirQualityMap();
+}
+
+// Titik acuan = tengah batas CMI; fallback ke koordinat default bila GeoJSON gagal dimuat
+function loadPointData(lat,lon){
+  loadPointRain(lat,lon);
+  if(SHOW_AIR_QUALITY)loadPointAirQuality(lat,lon);
+}
+fetch(CMI_URL).then(r=>r.json()).then(j=>{
+  const c=L.geoJSON(j).getBounds().getCenter();loadPointData(c.lat,c.lng);
+}).catch(()=>loadPointData(0.8,110.3));
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>
