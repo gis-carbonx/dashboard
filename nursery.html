@@ -297,8 +297,8 @@ const isMati=cat=>cat.includes('mati');
 const TIPE_ORDER=['Semai','Proses','BST','Pemanfaatan','Mati'];
 const TIPE_DESC={
   Semai:'Masih di tahap semai',
-  Proses:'Pembesaran, belum naik ke BST',
-  BST:'Stok bibit siap tanam, termasuk sambungan',
+  Proses:'Pembesaran',
+  BST:'Stok bibit siap tanam',
   Pemanfaatan:'Penanaman, penyulaman & support',
   Mati:'Mati di semua tahap'
 };
@@ -525,9 +525,14 @@ function compositionChartHTML(year,periode){
 const validId=id=>/^\d{4}-\d{2}\//.test(id||'');
 const inCohort=(r,year)=>year==='all'||r.id.slice(0,4)===year;
 
-function batchStock(){
+// Bibit hidup per batch pada akhir periode (akumulasi, sama dengan Stok BST Aktual):
+// "all"/tahun berjalan = sampai sekarang; tahun lalu = sampai 31 Desember tahun itu.
+function stockRefDate(year){
+  return year==='all'||+year>=new Date().getFullYear()?new Date():new Date(+year,11,31);
+}
+function batchStock(year='all'){
   const batches={},unk={};
-  rows.forEach(r=>{
+  stockRows(year).forEach(r=>{
     if(!r.jenis||r.jenis==='#N/A')return;
     const jk=r.jenis.toLowerCase();
     const out=isMati(r.cat)||PEMANFAATAN.has(r.cat);
@@ -544,17 +549,19 @@ function batchStock(){
       const t=Math.min(b.alive,amt);b.alive-=t;amt-=t;
     });
   });
-  const now=new Date();
+  // Usia (bulan sejak semai) dihitung sampai tanggal acuan periode
+  const ref=stockRefDate(year);
   list.forEach(b=>{
     const y=+b.id.slice(0,4),m=+b.id.slice(5,7);
-    b.age=Math.max(0,(now.getFullYear()-y)*12+(now.getMonth()+1-m));
+    b.age=Math.max(0,(ref.getFullYear()-y)*12+(ref.getMonth()+1-m));
   });
   return list;
 }
 
 const AGE_BINS=[[0,3,'0–3'],[4,6,'4–6'],[7,12,'7–12'],[13,18,'13–18'],[19,24,'19–24'],[25,Infinity,'>24']];
 function ageChartHTML(year,periode){
-  const list=batchStock().filter(b=>b.alive>0&&inCohort(b,year));
+  // Semua batch yang masih punya bibit hidup pada akhir periode (bukan hanya batch semai tahun itu)
+  const list=batchStock(year).filter(b=>b.alive>0);
   const bins=AGE_BINS.map(([lo,hi,lbl])=>{
     const members=list.filter(b=>b.age>=lo&&b.age<=hi).sort((a,b)=>b.alive-a.alive);
     return{lbl,members,total:members.reduce((a,b)=>a+b.alive,0)};
@@ -849,7 +856,7 @@ function render(){
       <div class="row-desc">Menampilkan bibit yang masih hidup di nursery berdasarkan usianya, serta tingkat keberhasilan (survival rate) setiap jenis tanaman dari semai hingga menjadi bibit siap tanam (BST).</div>
     </div>
     <div class="chart-pair even">
-      ${ageChartHTML(selectedYear,cohort)}
+      ${ageChartHTML(selectedYear,stockAsOf(selectedYear)?`Per ${stockAsOf(selectedYear)}`:periode)}
       ${survivalChartHTML(selectedYear,cohort)}
     </div>
     <div class="row-head">
