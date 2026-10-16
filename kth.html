@@ -192,7 +192,7 @@ const SHEET_ID='1_8jR1z131_-9k3QVbsaGFRn8MY2JPPiEAgWOZliKo_k';
 const NEWS_GID=0,PENGURUS_GID=859770829;
 const NEWS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${NEWS_GID}`;
 const PENGURUS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PENGURUS_GID}`;
-// Data peserta (petani) diambil dari sheet ARR_SUMMARY yang sama dengan planting-summary.html
+// Data peserta dari sheet ARR_SUMMARY (sama dengan planting-summary)
 const ARR_SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac';
 const PESERTA_URL=`https://docs.google.com/spreadsheets/d/${ARR_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ARR_SUMMARY`;
 
@@ -220,8 +220,7 @@ function fmtDate(d){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Urutan tampil jabatan pengurus (dicocokkan per kata kunci, "wakil" dicek sebelum "ketua").
-// Jabatan lain (seksi, koordinator, dll) ditaruh setelah sekretaris; anggota paling akhir.
+// Urutan jabatan ("wakil" dicek sebelum "ketua"); jabatan lain setelah sekretaris, anggota terakhir
 function roleRank(j){
   const n=j.toLowerCase();
   if(/wakil/.test(n))return 1;
@@ -234,8 +233,7 @@ function roleRank(j){
 
 let kegiatanList=[],pengurusList=[],peserta=null;
 
-// Peserta unik = petani yang tergabung di KTH (kolom KTH berisi "KTH") dan jenis kelaminnya terisi,
-// sama seperti hitungan "Unik Peserta Program" di planting-summary.html.
+// Peserta unik = petani KTH dengan jenis kelamin terisi (sama dengan planting-summary)
 function parsePeserta(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   const byName={};
@@ -392,14 +390,12 @@ function render(){
   });
 }
 
-// Slider foto di dalam kartu: tandai titik foto yang sedang tampil
 function phIndex(track){return Math.round(track.scrollLeft/(track.clientWidth||1));}
 function phUpdate(cv){
   const i=phIndex(cv.querySelector('.photo-track'));
   cv.querySelectorAll('.ph-dot').forEach((d,j)=>d.classList.toggle('on',j===i));
 }
 
-// Carousel kegiatan: sembunyikan panah di ujung awal/akhir
 function carUpdate(c){
   const list=c.querySelector('.activity-list');
   const max=list.scrollWidth-list.clientWidth;
@@ -408,7 +404,7 @@ function carUpdate(c){
 }
 window.addEventListener('resize',()=>document.querySelectorAll('.carousel').forEach(carUpdate));
 
-// Lightbox: klik foto kegiatan untuk memperbesar; panah kiri/kanan untuk foto lain di kegiatan yang sama
+// Lightbox foto kegiatan; panah untuk foto lain di kegiatan yang sama
 const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),k:null,i:0,last:null};
 function lbShow(){
   const k=kegiatanList[lb.k],n=k.fotos.length;

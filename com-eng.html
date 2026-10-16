@@ -244,8 +244,8 @@ async function loadAll(){
     fetchCsv(COMDEV_SUMMARY_URL),
     fetchCsv(COMDEV_INDIVIDUALS_URL)
   ]);
-  const row1=summaryRows[0]||[];  // baris 1 di sheet
-  const row2=summaryRows[1]||[];  // baris 2 di sheet
+  const row1=summaryRows[0]||[];
+  const row2=summaryRows[1]||[];
 
   const totalBeneficiaries=row1[COL.G];
   const male=row2[COL.G];

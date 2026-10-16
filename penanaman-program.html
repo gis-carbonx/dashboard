@@ -220,7 +220,7 @@ let searchQuery='',progFilter='all',kthFilter='',statusFilter='all';
 let years=[],kthNames=[];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-// --- Filter Waktu: Semua / Tahun / Bulan / Mingguan / Custom (sama seperti di dashboard planting monitoring) ---
+// --- Filter waktu: Semua / Tahun / Bulan / Mingguan / Custom ---
 let timePreset='all',timeYear=null,timeMonth=null,timeWeekYear=null,timeWeekMonth=null,timeWeekIdx=0,timeCustomStart=null,timeCustomEnd=null;
 
 function getWeeksInMonth(yr,mo){
@@ -239,7 +239,7 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-// Baca kolom berdasarkan NAMA header (tidak peka huruf besar/kecil). Posisi kolom hanya dipakai bila header tidak ditemukan sama sekali.
+// Baca kolom lewat nama header; posisi kolom hanya cadangan
 function colV(raw,keys,names,idx){
   const v=pickCI(raw,keys,...names);
   if(v!==undefined)return v;
@@ -251,8 +251,7 @@ let EXISTING_PLANT_COLS=[],PLANTED_PLANT_COLS=[];
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // Jenis tanaman dibaca lewat NAMA header, bukan posisi kolom (jumlah & letak kolom bisa berubah):
-  //   "E-<Nama>" = tanaman eksisting, "P-<Nama>" = tanaman hasil penanaman project (termasuk "Asam Keranji")
+  // Header "E-<jenis>" = tanaman eksisting, "P-<jenis>" = tanaman program
   const headerKeys=data.length?Object.keys(data[0]):[];
   EXISTING_PLANT_COLS=[];PLANTED_PLANT_COLS=[];
   headerKeys.forEach(h=>{
@@ -402,7 +401,7 @@ function computeStats(){
     if(st.group==='agro')luasAgro+=luas;else luasTemb+=luas;
     tanamanTotal+=r.jumlahTanaman;
     if(parseDate(r.tglRealisasi))luasTertanam+=luas;
-    // Petani hanya dihitung bila Jenis Kelamin terisi ("Laki-laki" / "Perempuan"), sama seperti planting-summary
+    // Petani dihitung hanya bila Jenis Kelamin terisi (sama dengan planting-summary)
     const p=str(r.petani).toLowerCase(),g=str(r.jk).toLowerCase();
     if(!p)return;
     if(g.startsWith('laki')){laki.add(p);petaniSet.add(p);}
@@ -429,7 +428,6 @@ function syncPillActive(wrapId,val){
   document.querySelectorAll(`#${wrapId} .fpill`).forEach(b=>b.classList.toggle('active',b.dataset.val===String(val)));
 }
 
-// --- Waktu: preset + picker (Tahun/Bulan/Minggu/Custom), mengikuti pola di dashboard planting monitoring ---
 function populateTimeFilterOptions(){
   const curYear=new Date().getFullYear();
   const yrList=years.length?years:[curYear];
@@ -668,7 +666,6 @@ function renderPage(){
   populateTimeFilterOptions();
   renderList();
   fitExploreRow();
-  // Hitung ulang saat layar berubah ukuran atau baris pemilih waktu muncul/hilang
   if(window.ResizeObserver){
     const ro=new ResizeObserver(fitExploreRow);
     ro.observe(document.querySelector('.page-scroll'));
@@ -676,8 +673,7 @@ function renderPage(){
   }else window.addEventListener('resize',fitExploreRow);
 }
 
-// Tinggi daftar lahan diatur agar saat halaman di-scroll sampai kotak pencarian berada di batas atas,
-// daftar lahan pas habis di bawah layar (pencarian + filter + daftar terlihat utuh dalam satu layar)
+// Tinggi daftar: saat pencarian di batas atas, pencarian + filter + daftar muat satu layar
 function fitExploreRow(){
   const sc=document.querySelector('.page-scroll'),search=document.getElementById('searchInput'),row=document.getElementById('exploreRow');
   if(!sc||!search||!row)return;

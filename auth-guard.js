@@ -189,9 +189,7 @@
   function init() {
     injectCSS();
 
-    // Navbar situs dibiarkan normal — semua elemen body LAIN dianggap konten yang dikunci.
-    // Urutan pencarian: navbar situs standar dulu, baru fallback ke top-bar internal
-    // (dipakai halaman yang link Home/Activities/Dashboard-nya dipindah ke dropdown menu).
+    // Navbar situs tetap normal, elemen body lain dikunci; cari navbar standar dulu, lalu top-bar internal
     const navbar = document.querySelector(".site-navbar, .navbar, .top-bar");
     const lockables = Array.prototype.filter.call(document.body.children, function (el) {
       return el !== navbar && el.tagName !== "SCRIPT";

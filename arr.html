@@ -352,7 +352,6 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 
 let rows=[],targetData={},years=[];
 
-// Tahap insentif reguler
 const INS_STAGES=[
   {key:'persiapan',label:'Persiapan Lahan',idx:17},
   {key:'tanam',    label:'Penanaman',      idx:18},
@@ -578,7 +577,7 @@ function niceScale(max,n=4){
   for(let v=0;v<=top+step/2;v+=step)ticks.push(+v.toFixed(6));
   return{max:top,ticks};
 }
-// Rentang data (tanggal partisipasi/realisasi paling awal s.d. bulan ini), dihitung sekali lalu disimpan
+// Rentang data dihitung sekali lalu disimpan
 let _span=null;
 function dataSpan(){
   if(_span&&_span.n===rows.length)return _span;
@@ -588,8 +587,7 @@ function dataSpan(){
   _span={n:rows.length,start:min,months:min?(now.getFullYear()-min.getFullYear())*12+now.getMonth()-min.getMonth()+1:0};
   return _span;
 }
-// Filter "All": interval menyesuaikan panjang data agar grafik tidak terlalu jarang/padat (maks ±24 titik):
-// ≤ 2 tahun per bulan, ≤ 6 tahun per kuartal, selebihnya per tahun
+// Filter All: ≤ 2 tahun per bulan, ≤ 6 tahun per kuartal, selebihnya per tahun (maks ±24 titik)
 function bucketUnit(){
   if(periodMode==='mtd'||periodMode==='week')return'hari';
   if(periodMode==='yq'&&currentYear==='all'){
@@ -773,7 +771,7 @@ function trendCardHTML(){
 
 /* --- Penanaman --- */
 let lcData=null;
-// Kumulatif efisien: tanggal diurutkan sekali, lalu dijumlahkan sambil berjalan per titik waktu
+// Tanggal diurutkan sekali, lalu dijumlah berjalan
 function cumulativeSeries(){
   const bk=timeBuckets();
   const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
@@ -884,7 +882,7 @@ function speciesCardHTML(s){
 /* --- Insentif --- */
 // Lahan dihitung menurut tanggal bergabung (Tgl_Partisipasi)
 const insRows=()=>rows.filter(r=>inPeriod(r.tglPartisipasi));
-// Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi terisi), sama dengan planting.html
+// Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi)
 const insRegRows=()=>insRows().filter(r=>(r.prog==='Agro_Reg'||r.prog==='Temb_Reg')&&r.tglRealisasi);
 const hasBPO=r=>r.pupukCair>0||r.pupukPadat>0||!!r.tglBPO;
 const hasMTL=r=>r.insentifMTL>0||!!r.tglMTL;
@@ -955,7 +953,6 @@ function insThnCardHTML(i){
     </div>`;
 }
 
-// Tabel insentif
 const insState={view:'reguler',q:'',prog:'',desa:'',dusun:'',status:'',nominal:false,open:false};
 const insBaseRows=()=>insState.view==='reguler'?insRegRows():insThnRows();
 const regStatus=r=>INS_STAGES.some(s=>stageStatus(r.stages[s.key])==='unpaid')?'belum':'sudah';

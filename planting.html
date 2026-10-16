@@ -974,9 +974,8 @@ function closeModal(id){
 }
 function openGrafikModal(){document.getElementById('grafikModal').style.display='flex';switchGrafikTab(grafikTab);}
 
-// --- Detail Jumlah Tanaman: progres penanaman per tahun + jenis tanaman yang sudah ditanam ---
-// Catatan: lahan "sudah ditanam" = punya Tgl_Realisasi (jumlah tanaman TIDAK menjadi syarat; kalau belum terisi, ditampilkan apa adanya/0).
-// Sama seperti renderTanamanPanel di bawah, tapi di sini tidak dibatasi filter waktu halaman utama, supaya tabel progres bisa menunjukkan riwayat tiap tahun.
+// --- Detail Jumlah Tanaman: progres per tahun + jenis yang sudah ditanam ---
+// Sudah ditanam = punya Tgl_Realisasi; tidak dibatasi filter halaman agar riwayat tiap tahun terlihat
 function getPlantedRowsAll(){
   return Object.values(sheetMap).filter(r=>parseDate(r.tglRealisasi));
 }
@@ -987,9 +986,8 @@ function openTanamanModal(){
   populateTnYearSelect();
   renderTnChart();
 }
-// Luas lahan sesuai kelompok program (agro → luasAgro, temb → luasTemb)
 const progLuas=r=>{const grp=PROG[r.prog]?.group;return grp==='agro'?r.luasAgro:grp==='temb'?r.luasTemb:0;};
-// Perbandingan bulanan: luas terdaftar program (Tgl_Partisipasi) vs luas sudah ditanam (Tgl_Realisasi), kumulatif
+// Bulanan kumulatif: luas terdaftar (Tgl_Partisipasi) vs sudah ditanam (Tgl_Realisasi)
 function computeTnMonthlySeries(year){
   const monthReg=Array(12).fill(0),monthTan=Array(12).fill(0);
   let baseReg=0,baseTan=0;
@@ -1004,7 +1002,6 @@ function computeTnMonthlySeries(year){
   getPlantedRowsAll().forEach(r=>{
     add(parseDate(r.tglRealisasi),progLuas(r),monthTan,v=>baseTan+=v);
   });
-  // Bulan setelah bulan berjalan (tahun ini) tidak ditampilkan
   const now=new Date(),lastM=year===now.getFullYear()?now.getMonth():11;
   let cR=baseReg,cT=baseTan;
   const regCum=[],tanCum=[];
@@ -1256,7 +1253,7 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-// Baca kolom berdasarkan NAMA header (tidak peka huruf besar/kecil). Posisi kolom hanya dipakai bila header tidak ditemukan sama sekali.
+// Baca kolom lewat nama header; posisi kolom hanya cadangan
 function colV(raw,keys,names,idx){
   const v=pickCI(raw,keys,...names);
   if(v!==undefined)return v;
@@ -1266,7 +1263,7 @@ function colV(raw,keys,names,idx){
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   _rawRows=data;
-  // semua header berawalan "P-" = jenis tanaman hasil penanaman project (termasuk "P-Asam Keranji"), dibaca lewat NAMA header
+  // Header "P-<jenis>" = tanaman program
   PLANTED_PLANT_COLS=[];
   const headerKeys0=data.length?Object.keys(data[0]):[];
   headerKeys0.forEach(h=>{
@@ -1378,12 +1375,12 @@ function renderTanamanPanel(){
   let agroTotalHa=0,tembTotalHa=0;
   Object.values(sheetMap).forEach(r=>{
     const grp=PROG[r.prog]?.group;
-    // total lahan yang sudah masuk/terdaftar (Tgl_Partisipasi, kolom J) pada periode filter
+    // Terdaftar = Tgl_Partisipasi (kolom J) di periode filter
     if(rowInRange(r)&&parseDate(r.tglPartisipasi)){
       if(grp==='agro')agroTotalHa+=r.luasAgro;
       else if(grp==='temb')tembTotalHa+=r.luasTemb;
     }
-    // luas yang sudah ditanam: cukup punya Tgl_Realisasi (kolom K). Jumlah tanaman (kolom AX Total_Tanaman) hanya ditampilkan apa adanya, bukan syarat.
+    // Sudah ditanam = punya Tgl_Realisasi (kolom K); jumlah tanaman bukan syarat
     if(rowInRangeField(r,'tglRealisasi')&&parseDate(r.tglRealisasi)){
       if(grp==='agro'){agroHa+=r.luasAgro;agroTan+=r.jumlahTanaman;}
       else if(grp==='temb'){tembHa+=r.luasTemb;tembTan+=r.jumlahTanaman;}
@@ -2045,7 +2042,7 @@ function buildInsData(){
     const keys2=Object.keys(raw),row=sheetMap[id];
     const stages={};
     INS_STAGES.forEach((s,i)=>{
-      const hv=pickCI(raw,keys2,'Insentif_T'+(i+1)); // dibaca lewat nama header Insentif_T1..T10; posisi kolom hanya cadangan
+      const hv=pickCI(raw,keys2,'Insentif_T'+(i+1));
       const byName=hv!==undefined?str(hv):str(raw[s.key]||raw[s.label]||'');
       const byIdx=hv===undefined&&keys2[s.idx]?str(raw[keys2[s.idx]]):'';
       stages[s.key]=byName||byIdx;
@@ -2100,7 +2097,7 @@ function getInsYearRows(){
 }
 
 function renderInsTable(){
-  // Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi terisi), sama dengan arr.html
+  // Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi)
   const rows=getInsYearRows().filter(r=>(r.prog==='Agro_Reg'||r.prog==='Temb_Reg')&&parseDate(r.tglRealisasi));
   insFilteredRows=rows;
   updateInsentifSub();

@@ -476,7 +476,7 @@ function bioCategoryOf(finding,categ){
 const FIRE_COLORS={potential:'#f59e0b',burnt:'#991b1b',hotspot:'#db2777',prevention:'#2563eb'};
 const FIRE_LABELS={potential:'Potential Fire Area',burnt:'Burnt Area',hotspot:'Hotspot Ground Check',prevention:'Water Point & Firebreak'};
 
-// finding sudah lowercase; "ground chek hotspot" (salah ketik di sheet) ikut terbaca lewat kata "hotspot"
+// "ground chek hotspot" (salah ketik di sheet) terbaca lewat kata "hotspot"
 function fireCategoryOf(finding,categ){
   if(categ!=='fire')return null;
   if(finding.includes('potential'))return'potential';
@@ -486,7 +486,6 @@ function fireCategoryOf(finding,categ){
   return null;
 }
 
-// Label kategori (data-survey-categ) untuk diagram komposisi
 const CATEG_LABELS={fire:'Fire',landcover:'Land Cover',communities:'Community Engagement',illegal_activities:'Illegal Activities',biodiversity:'Biodiversity',ecosystem:'Ecosystem',natural_disturbance:'Natural Disturbance'};
 
 function toMidnight(y,m,d){return new Date(y,m,d);}
@@ -551,7 +550,7 @@ function pickFieldExactOrPartial(row,...patterns){
   return undefined;
 }
 
-// --- FDRS: rating terbaru per lokasi (sheet Auto Fire Danger Rating), tidak mengikuti filter ---
+// FDRS: rating terbaru per lokasi, tidak mengikuti filter
 const FDRS_SHEET_ID='1BFHIizqJZdzJ-ZHt0X9etrDgIMY3Wr4rnIzWovJv2xA';
 const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&headers=0&t=${Date.now()}`;
 const FDRS_MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
@@ -599,7 +598,7 @@ async function loadAll(){
       const luasDirect=parseFloat((r[7]||'').toString().trim());
       const luasRaw=(r[7]||'').toString().trim().replace(/\./g,'').replace(',','.');
       const luas=!isNaN(luasDirect)?luasDirect:parseFloat(luasRaw);
-      // Kolom G = panjang rute (meter, koma sebagai pemisah ribuan, mis. "1,900"); kolom D = jalur patroli (Darat/Udara)
+      // Kolom G = panjang rute (m, koma ribuan), D = jalur patroli
       const panjang=parseFloat((r[6]||'').toString().trim().replace(/,/g,''));
       const jalur=(r[3]||'').toString().trim();
       const jenis=(r[2]||'').toString().trim(); // kolom C = jenis patroli (Patroli Api / Illegal Activities)
@@ -647,12 +646,12 @@ async function loadAll(){
   document.getElementById('fireContentBody').style.display='block';
 }
 
-// Filter mengikuti planting-summary: Tahun + Quarter ('yq'), atau Periode 'ytd' / 'mtd' / 'week' (mengabaikan Tahun & Quarter)
+// Filter periode (sama dengan planting-summary)
 let years=[],currentQuarterFilter=null;
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Minggu = Sabtu s/d Jumat, sama seperti planting-summary
+// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -819,7 +818,7 @@ function render(){
   resetDetailTables();
 }
 
-// --- Narasi otomatis (seperti planting-summary), mengikuti filter aktif ---
+// --- Narasi otomatis (mengikuti filter) ---
 function periodLabel(){
   const now=new Date();
   if(periodMode==='ytd')return`1 January – ${fmtDateID(now)}`;
@@ -838,7 +837,7 @@ function jenisLabel(j){
   if(t.includes('illegal'))return'illegal activity patrol';
   return j?j.toLowerCase()+' patrol':'unspecified patrol';
 }
-// Ambil nama utama dari deskripsi (bagian sebelum tanda kurung), mis. "Naja sumatrana (juvenile)" -> "Naja sumatrana"
+// Nama utama dari deskripsi, mis. "Naja sumatrana (juvenile)" -> "Naja sumatrana"
 function speciesName(desc){
   const s=(desc||'').split('(')[0].trim();
   return s&&s.length<=40?s:null;
@@ -917,7 +916,7 @@ function renderNarratives(s){
   document.getElementById('noteFire').textContent=n4;
 }
 
-// --- Diagram komposisi temuan per kategori (data-survey-categ), mengikuti filter aktif ---
+// --- Diagram komposisi temuan per kategori ---
 function renderComposition(rows){
   const chart=document.getElementById('compChart');
   const byCat={};
@@ -951,7 +950,6 @@ function renderComposition(rows){
     </div>`;
   }).join('');
 
-  // Tooltip: rincian jenis temuan dalam kategori
   const card=chart.closest('.comp-card');
   let tip=card.querySelector('.comp-tip');
   if(!tip){tip=document.createElement('div');tip.className='comp-tip';card.appendChild(tip);}
@@ -972,7 +970,6 @@ function renderComposition(rows){
     row.addEventListener('mouseleave',()=>{tip.style.display='none';});
   });
 
-  // Narasi komposisi
   const share=([c,d])=>`${label(c).toLowerCase()} (${(d.n/total*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%)`;
   let note=`Of the ${plural(total,'finding')} submitted by patrol teams during ${periodLabel()}, ${label(cats[0][0]).toLowerCase()} accounted for the largest share (${(cats[0][1].n/total*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%)`;
   const next=cats.slice(1,3).map(share);
@@ -1058,7 +1055,6 @@ function renderDetailTable(ctx,rows,categoryLabel){
   });
 }
 
-// Detail satu temuan: foto, judul finding, tanggal, deskripsi
 function showFindingDetail(ctx,r,onBack){
   const panel=document.getElementById(ctx.panelId);
   const cat=ctx.catOf(r);
@@ -1098,7 +1094,7 @@ function showFindingDetail(ctx,r,onBack){
   selectMarker(ctx,r);
 }
 
-// Lightbox: klik foto temuan untuk memperbesar; panah kiri/kanan untuk foto lain di temuan yang sama (seperti kth.html)
+// Lightbox foto temuan; panah untuk foto lain di temuan yang sama
 const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),item:null,i:0,last:null};
 function lbShow(){
   const it=lb.item,n=it.photos.length;
@@ -1148,7 +1144,7 @@ function setupDetailTableClicks(){
   });
 }
 
-// --- Peta temuan (illegal & biodiversity): basemap, batas CMI, legenda disamakan dengan planting-summary ---
+// --- Peta temuan (illegal & biodiversity) ---
 let illegalCtx=null,bioCtx=null,fireCtx=null;
 
 function createFindingMap(cfg){
@@ -1185,7 +1181,6 @@ function createFindingMap(cfg){
   return ctx;
 }
 
-// Titik terpilih: garis tepi biru tebal, sama seperti lahan terpilih di planting-summary
 function markerStyle(ctx,cat,selected){
   return{radius:selected?8:6,color:selected?'#1d4ed8':'#fff',weight:selected?3:1.5,fillColor:ctx.colors[cat]||'#6b7280',fillOpacity:.9};
 }

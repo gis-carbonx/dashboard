@@ -199,7 +199,7 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-// Baca kolom berdasarkan NAMA header (tidak peka huruf besar/kecil). Posisi kolom hanya dipakai bila header tidak ditemukan sama sekali.
+// Baca kolom lewat nama header; posisi kolom hanya cadangan
 function colV(raw,keys,names,idx){
   const v=pickCI(raw,keys,...names);
   if(v!==undefined)return v;
@@ -215,10 +215,10 @@ function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){
 let sheetMap={},targetData={},currentYear='all',currentQuarter='all',years=[];
 const QUARTERS=['1','2','3','4'];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-// Mode periode: 'yq' = filter Tahun + Quarter; 'ytd' / 'mtd' / 'week' = filter periode (mengabaikan Tahun & Quarter)
+// 'yq' = Tahun + Quarter; 'ytd'/'mtd'/'week' mengabaikan keduanya
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 
-// Minggu = Sabtu s/d Jumat, sama seperti filter Mingguan di planting.html
+// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -240,8 +240,7 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // semua header berawalan "P-" = jenis tanaman hasil penanaman project (termasuk "P-Asam Keranji"), dibaca lewat NAMA header
-  // "E-<Nama>" = tanaman eksisting (dipakai di detail peta)
+  // Header "P-<jenis>" = tanaman program, "E-<jenis>" = tanaman eksisting
   const plantCols=[],existCols=[];
   (data.length?Object.keys(data[0]):[]).forEach(h=>{
     let m=h.match(/^P-\s*(.+)$/i);
@@ -296,7 +295,7 @@ function parseTargetSheet(csv){
   });
 }
 
-// --- Nursery: sheet Log, rumus mengikuti "Panduan Rumus Sheet Nursery Stock" (sama dengan nursery.html) ---
+// --- Nursery (sheet Log, rumus Panduan Nursery Stock) ---
 const NURSERY_SHEET_ID='1or3IIjtpas5QD8PRAfO8WdhW6iTc-xH7v0B7hNOAF5M';
 const NURSERY_URL=`https://docs.google.com/spreadsheets/d/${NURSERY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Log`;
 const NCAT={pemb:'pembesaranregular',matiPemb:'matipembesaran',bst:'bstregular',matiBst:'matibstregular',tanam:'penanaman',sulam:'penyulaman',support:'support'};
@@ -317,7 +316,7 @@ function parseNursery(csv){
     });
   });
 }
-// Akhir periode filter untuk angka stok (akumulasi); null = semua data sampai sekarang
+// Akhir periode untuk angka stok; null = semua data
 function periodEndDate(){
   const now=new Date();
   if(periodMode==='week'){const wk=getSelectedWeek();if(wk){const e=new Date(wk.fri);e.setHours(23,59,59,999);return e<now?e:null;}}
@@ -338,7 +337,7 @@ function matchesDateFilter(d){
 }
 function computeNursery(){
   if(!nurseryRows)return null;
-  // 1) Stok aktual = Σ per jenis: Pembesaran (E) + BST (H), akumulasi sampai akhir periode
+  // Stok = Σ per jenis Pembesaran (E) + BST (H), akumulasi s/d akhir periode
   const end=periodEndDate();
   const upTo=nurseryRows.filter(r=>!end||(r.date&&r.date<=end));
   const by={};
@@ -350,7 +349,7 @@ function computeNursery(){
     bst+=Math.max(0,g(NCAT.bst)-g(NCAT.matiBst)-g(NCAT.tanam)-g(NCAT.sulam)-g(NCAT.support));
   });
   const last=upTo.reduce((a,r)=>r.date&&(!a||r.date>a)?r.date:a,null);
-  // 2) Distribusi = Penanaman + Penyulaman + Support di dalam periode
+  // Distribusi = Penanaman + Penyulaman + Support di dalam periode
   const dist={tanam:0,sulam:0,support:0};
   nurseryRows.forEach(r=>{
     if(!matchesDateFilter(r.date))return;
@@ -391,7 +390,6 @@ function computeSubAreas(){
   return{aRegHa,aBPOHa,tRegHa,tMTLHa};
 }
 
-// Jumlah tanaman per petak dikelompokkan berdasarkan program petak (Agro_* / Temb_*)
 function computeTanamanTotal(){
   let total=0,agro=0,temb=0;
   Object.values(sheetMap).forEach(r=>{
@@ -403,7 +401,7 @@ function computeTanamanTotal(){
   return{total,agro,temb};
 }
 
-// Lahan sudah ditanam = punya Tgl_Realisasi (sesuai filter). Jumlah tanaman bukan syarat, hanya ditampilkan apa adanya.
+// Sudah ditanam = punya Tgl_Realisasi; jumlah tanaman bukan syarat
 function computePlanting(){
   let agro=0,temb=0;const speciesMap={};
   Object.values(sheetMap).forEach(r=>{
@@ -418,7 +416,7 @@ function joinID(list){
   return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
 }
 
-// Tahun target saat mode periode aktif (target di sheet bersifat tahunan)
+// Target di sheet tahunan
 function periodTargetYear(){
   if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
@@ -439,12 +437,11 @@ function computeTarget(){
 }
 function pctText(val,target){
   if(target===null||target===undefined||target<=0)return'';
-  // target di sheet bersifat tahunan; saat filter quarter aktif, persentase dibandingkan ke target tahunan
+  // Filter quarter tetap dibandingkan ke target tahunan
   const partial=periodMode==='yq'?currentQuarter!=='all':periodMode!=='ytd';
   return(val/target*100).toFixed(1)+(partial?'% dari target tahunan':'% dari target');
 }
 
-// Peserta dihitung di agroforestri/reforestasi jika punya luasan di program tsb
 function computePesertaTotal(){
   const all=new Set(),agro=new Set(),temb=new Set();
   Object.values(sheetMap).forEach(r=>{
@@ -547,7 +544,6 @@ function render(){
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(peserta.total)} individu penggarap lahan.`;
   const sub=computeSubAreas();
-  // Capaian vs target dijelaskan di kalimat; rincian sub program ditampilkan di dalam panel
   const tgtPhrase=(val,target)=>target!==null&&target>0
     ?`atau ${pctText(val,target)} sebesar ${fmt(target)} ha`
     :'(target belum tersedia)';
@@ -640,9 +636,8 @@ function render(){
   updateSebaran();
 }
 
-// --- Sebaran Lahan Program: peta kecil (batas CMI + lahan agroforestri), klik lahan untuk detail ---
-// Warna peta per kelompok (Agroforestri / Reforestasi); nama sub program ditampilkan di panel detail
-// color = isi, stroke = garis tepi (lebih gelap agar tidak menyatu dengan basemap topografi)
+// --- Sebaran Lahan Program (klik lahan untuk detail) ---
+// color = isi, stroke = garis tepi gelap agar kontras dengan basemap
 const GROUP_STYLE={agro:{label:'Agroforestri',color:'#2e7d32',stroke:'#0f3d13'},temb:{label:'Reforestasi',color:'#d9480f',stroke:'#7a2300'}};
 const PROG_INFO={
   Agro_Reg:{group:'agro',label:'Agroforestri Reguler'},
@@ -657,7 +652,6 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 function featId(f){const p=f.properties||{};return str(p.id_lahan||p.ID_Petak||p.id_petak||p.ID_LAHAN||p.Id_Lahan||p.IDLAHAN||'');}
 function lahanStyle(id){
   const g=GROUP_STYLE[PROG_INFO[sheetMap[id].prog].group],sel=id===selectedLahan;
-  // lahan terpilih: garis tepi biru tebal agar kontras dengan hijau/oranye dan basemap
   return{color:sel?'#1d4ed8':g.stroke,weight:sel?3.5:1.8,fillColor:g.color,fillOpacity:sel?.9:.75,opacity:1};
 }
 
@@ -687,7 +681,7 @@ async function initSebaran(){
   updateSebaran(true);
 }
 
-// Lahan yang tampil mengikuti filter di atas (berdasarkan Tgl_Partisipasi)
+// Lahan mengikuti filter (Tgl_Partisipasi)
 function updateSebaran(fit){
   if(!lgLahan)return;
   lgLahan.clearLayers();
@@ -698,7 +692,7 @@ function updateSebaran(fit){
   });
   if(selectedLahan&&!lgLahan.hasLayer(lahanLayers[selectedLahan]))selectLahan(null);
   if(fit){
-    // Zoom awal ke sebaran lahan (lebih dekat daripada seluruh batas CMI); bila tidak ada lahan, pakai batas CMI
+    // Zoom ke sebaran lahan; bila kosong, ke batas CMI
     const b=n?lgLahan.getBounds():cmiBounds;
     if(b&&b.isValid())sebaranMap.fitBounds(b,{padding:[20,20]});
   }

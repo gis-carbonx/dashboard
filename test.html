@@ -156,12 +156,7 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// --- Klasifikasi kategori (kolom "Category") ---
-// Dipecah lebih rinci karena "Jumlah Tanaman di Nursery" sekarang dihitung sebagai
-// snapshot langsung (jumlah baris pada tahap-tahap tertentu), BUKAN model masuk-keluar.
-// "Semai Biji" dan "Grafting" (bare, bukan Pembesaran/BST Grafting) sengaja TIDAK
-// dihitung sebagai bagian dari stok nursery, begitu juga kategori "Mati" dan kategori
-// output (Penanaman/Penyulaman/Support).
+// Stok nursery = snapshot tahap tertentu; Semai Biji, Grafting mentah, Mati & output tidak dihitung
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';
@@ -177,9 +172,9 @@ function classifyCategory(raw){
   if(n.includes('grafting')){
     if(n.includes('bst'))return'bst_grafting';
     if(n.includes('pembesaran'))return'pembesaran_grafting';
-    return'grafting'; // Grafting mentah -> tidak dihitung sebagai stok nursery
+    return'grafting';
   }
-  if(n.includes('semai'))return'semai'; // Semai Biji -> tidak dihitung sebagai stok nursery
+  if(n.includes('semai'))return'semai';
   if(n.includes('pembesaran'))return'pembesaran_reguler';
   if(n.includes('bst'))return'bst_reguler';
   return'other';

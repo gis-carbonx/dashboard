@@ -438,7 +438,7 @@ function renderTable(){
   document.getElementById('pgPrev').disabled=currentPage<=1;
   document.getElementById('pgNext').disabled=currentPage>=totalPages;
 }
-// --- Export: seluruh data yang lolos filter aktif (bukan hanya halaman tabel) ---
+// Export: seluruh data hasil filter, bukan hanya halaman tabel
 const EXPORT_HEADERS=['Tanggal','Jam','Latitude','Longitude','Desa','Blok','Satelit','Instrumen','Owner','Penutup Lahan','Keterangan'];
 function exportRows(){
   const pad=n=>String(n).padStart(2,'0');
@@ -580,12 +580,12 @@ function renderFireTrendChart(){
 let maxFireDate=null;
 let filterRangeStart=null,filterRangeEnd=null;
 
-// Filter mengikuti patrol-summary: Tahun + Quarter ('yq'), atau Periode 'ytd' / 'mtd' / 'week' (mengabaikan Tahun & Quarter)
+// Filter periode (sama dengan patrol-summary)
 let fireYears=[],yearFilter=null,quarterFilter=null;
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Minggu = Sabtu s/d Jumat, sama seperti patrol-summary
+// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -647,7 +647,6 @@ function weekPickerHtml(){
     <select class="filter-select" aria-label="Month" onchange="setWeekMonth(this.value)">${MONTH_NAMES.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
     <select class="filter-select" aria-label="Week" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtDateShort(w.sat)}–${fmtDateShort(w.fri)})</option>`).join('')}</select>`;
 }
-// Versi ringkas: Tahun & Quarter sebagai dropdown, Periode sebagai pill
 function renderFilters(){
   const yq=periodMode==='yq';
   document.getElementById('fireFilterBar').innerHTML=`

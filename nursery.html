@@ -276,10 +276,8 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// --- Kategori Log, mengikuti "Panduan Rumus Sheet Nursery Stock" ---
-// Category dicocokkan persis (setelah dinormalisasi huruf kecil tanpa spasi/tanda baca).
-// Grafting, Pembesaran - Grafting, dan Rootstock Return hanya catatan: tidak menambah/mengurangi stok,
-// karena bibit sambungan tetap dihitung di BST - Regular.
+// Kategori Log sesuai Panduan Rumus Nursery Stock
+// Grafting, Pembesaran - Grafting & Rootstock Return hanya catatan: sambungan tetap dihitung di BST - Regular
 const normCat=s=>str(s).toLowerCase().replace(/[^a-z]/g,'');
 const CAT={
   semai:'semaibiji',          // Semai - Biji
@@ -291,7 +289,7 @@ const CAT={
   tanam:'penanaman',sulam:'penyulaman',support:'support'
 };
 const PEMANFAATAN=new Set([CAT.tanam,CAT.sulam,CAT.support]);
-// Total Mati = semua Category yang mengandung kata "Mati" (setara SUMIFS "*Mati*")
+// Total Mati = Category berisi "Mati" (setara SUMIFS "*Mati*")
 const isMati=cat=>cat.includes('mati');
 
 const TIPE_ORDER=['Semai','Proses','BST','Pemanfaatan','Mati'];
@@ -304,7 +302,7 @@ const TIPE_DESC={
 };
 const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
 
-// Kolom O–T di sheet Nursery Stock; Tipe Intervensi kosong/tidak dikenal tidak masuk kolom mana pun
+// Kolom O–T sheet; tipe kosong/tidak dikenal tidak masuk kolom mana pun
 const INTERVENSI=['Agroforestry','Tembawang','Enrichment','Kebun Entres','Kebun Inti','Other'];
 const IV_NONE='Tanpa Tipe Intervensi';
 function normIntervensi(v){
@@ -344,16 +342,14 @@ function computeStats(year){
   const jenisSet=new Set();
   list.forEach(r=>{
     if(r.cat===CAT.semai)semai+=r.jumlah;
-    // Produksi BST = Σ BST - Regular; baris grafting/rootstock hanya catatan
     if(r.cat===CAT.bst)bst+=r.jumlah;
     if(PEMANFAATAN.has(r.cat))pemanfaatan+=r.jumlah;
-    // semua kategori dihitung: jenis dianggap ada di tahun tsb selama punya catatan apa pun
     if(r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
   });
   return{semai,bst,pemanfaatan,jenis:jenisSet.size};
 }
 
-// cumulative=true: semua transaksi sampai akhir periode (untuk angka stok); false: transaksi di tahun itu saja
+// cumulative: transaksi s/d akhir periode (stok); selain itu hanya di periode
 function flowByJenis(year,cumulative=false){
   const list=cumulative?stockRows(year):year==='all'?rows:rows.filter(r=>r.year===year);
   const by={};
@@ -370,15 +366,13 @@ function flowByJenis(year,cumulative=false){
     const proses=Math.max(0,c(CAT.pemb)-c(CAT.matiPemb)-c(CAT.bst));            // E  Pembesaran - Regular
     const stok=Math.max(0,c(CAT.bst)-c(CAT.matiBst)-dist);                      // H  BST - Regular
     const mati=Object.keys(o.c).filter(isMati).reduce((a,k)=>a+o.c[k],0);      // N  Total Mati ("*Mati*")
-    // Sisa di tahap semai; bernilai 0 bila neraca sheet seimbang (W = 0)
+    // Sisa semai; 0 bila neraca sheet seimbang (W = 0)
     const semai=Math.max(0,masuk-c(CAT.pemb)-c(CAT.matiSemai));
     return{jenis:o.jenis,masuk,semai,proses,stok,dist,mati,total:semai+proses+stok+dist+mati};
   }).filter(o=>o.total>0);
 }
 
-// Stok BST aktual: akumulasi transaksi Log sampai akhir periode.
-// "all" = sampai tanggal Log terakhir; tahun = sampai 31 Desember tahun itu (tahun berjalan = tanggal Log terakhir).
-// Rumus per jenis sama dengan kolom H Nursery Stock.
+// Stok BST aktual = akumulasi s/d akhir periode (rumus kolom H)
 const stockRows=year=>year==='all'?rows:rows.filter(r=>r.year&&r.year<=year);
 function bstStockActual(year){
   const by={};
@@ -393,7 +387,6 @@ function bstStockActual(year){
   },0);
 }
 
-// Tanggal acuan stok aktual, mis. "31 Desember 2025" atau tanggal Log terakhir "10 Oktober 2026"
 function stockAsOf(year){
   const fmt=(y,mo,dd)=>new Date(y,mo-1,dd).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
   if(year!=='all'&&+year<new Date().getFullYear())return fmt(+year,12,31);
@@ -480,8 +473,7 @@ function bindDonut(tipe){
   });
 }
 
-// Hanya bibit yang masih ada di nursery: Pembesaran (kolom E) + BST (kolom H) = Total Bibit (kolom K)
-// Warna dari palet: sage (masih tumbuh) → pine (siap tanam), kontras jelas namun tetap selaras
+// Stok tersisa: Pembesaran (E) + BST (H) = Total Bibit (K)
 const COMP_SEGS=[
   {key:'proses',label:'Pembesaran',color:'#B5BBA9'},
   {key:'stok',label:'BST (siap tanam)',color:'#356760'}
@@ -525,8 +517,7 @@ function compositionChartHTML(year,periode){
 const validId=id=>/^\d{4}-\d{2}\//.test(id||'');
 const inCohort=(r,year)=>year==='all'||r.id.slice(0,4)===year;
 
-// Bibit hidup per batch pada akhir periode (akumulasi, sama dengan Stok BST Aktual):
-// "all"/tahun berjalan = sampai sekarang; tahun lalu = sampai 31 Desember tahun itu.
+// Bibit hidup per batch pada akhir periode (akumulasi)
 function stockRefDate(year){
   return year==='all'||+year>=new Date().getFullYear()?new Date():new Date(+year,11,31);
 }
@@ -549,7 +540,6 @@ function batchStock(year='all'){
       const t=Math.min(b.alive,amt);b.alive-=t;amt-=t;
     });
   });
-  // Usia (bulan sejak semai) dihitung sampai tanggal acuan periode
   const ref=stockRefDate(year);
   list.forEach(b=>{
     const y=+b.id.slice(0,4),m=+b.id.slice(5,7);
@@ -560,7 +550,6 @@ function batchStock(year='all'){
 
 const AGE_BINS=[[0,3,'0–3'],[4,6,'4–6'],[7,12,'7–12'],[13,18,'13–18'],[19,24,'19–24'],[25,Infinity,'>24']];
 function ageChartHTML(year,periode){
-  // Semua batch yang masih punya bibit hidup pada akhir periode (bukan hanya batch semai tahun itu)
   const list=batchStock(year).filter(b=>b.alive>0);
   const bins=AGE_BINS.map(([lo,hi,lbl])=>{
     const members=list.filter(b=>b.age>=lo&&b.age<=hi).sort((a,b)=>b.alive-a.alive);
@@ -605,7 +594,7 @@ function ageChartHTML(year,periode){
     </div>`;
 }
 
-// Kematian sebelum bibit naik ke BST (sambungan/rootstock yang mati dicatat sebagai Mati - BST Regular)
+// Mati sebelum BST (sambungan/rootstock yang mati dicatat sebagai Mati - BST Regular)
 const PRE_BST_MATI=new Set([CAT.matiSemai,CAT.matiPemb]);
 function survivalChartHTML(year,periode){
   const by={};
@@ -655,7 +644,7 @@ function pemanfaatanChartHTML(year,periode){
     const j=r.jenis&&r.jenis!=='#N/A'?r.jenis:'Tidak diketahui';
     o.jenis[j]=(o.jenis[j]||0)+r.jumlah;
   });
-  // Baris "Tanpa Tipe Intervensi" hanya muncul bila ada data yang belum diisi (penanda masalah input Log)
+  // Baris "Tanpa Tipe Intervensi" hanya muncul bila ada data belum diisi
   const keys=by[IV_NONE].total>0?[...INTERVENSI,IV_NONE]:INTERVENSI;
   const total=keys.reduce((a,t)=>a+by[t].total,0);
   const max=Math.max(1,...keys.map(t=>by[t].total));

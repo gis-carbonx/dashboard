@@ -12,198 +12,166 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
+    /* Gaya disamakan dengan planting-summary.html (token warna, kartu, judul, peta, panel detail) */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --color-cream:#FFFAF3;
-      --color-sand:#DCDACC;
-      --color-sage:#B5BBA9;
-      --color-moss:#8C9F8B;
-      --color-fern:#618273;
-      --color-pine:#356760;
-      --color-delta:#f97316;
-      --color-fire:#c2703f;
+      --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
+      --dark:#3A342C;
+      --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
+      --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+      --danger:#8a1f1f;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
+    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
     body{display:flex;flex-direction:column}
 
     .site-navbar{
       flex-shrink:0;
-      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-      padding:12px 32px;background-color:var(--color-cream);
-      border-bottom:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif;
+      height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+      padding:0 32px;background-color:#FFFAF3;border-bottom:1px solid #DCDACC;
     }
     .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
-    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
-    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-brand img{width:26px;height:26px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:#356760}
     .site-navbar-menu{display:flex;gap:32px;justify-self:center}
-    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
-    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-menu a{text-decoration:none;color:#618273;font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:#356760}
     .site-navbar-spacer{justify-self:end}
     @media (max-width:768px){
-      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar{grid-template-columns:auto auto;padding:0 16px}
       .site-navbar-menu{gap:14px;justify-self:end}
       .site-navbar-spacer{display:none}
     }
 
-    .dashboard-frame{
-      flex:1;min-height:0;
-      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
-      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
-      display:flex;flex-direction:column;
-    }
+    .dashboard-frame{flex:1;min-height:0;margin:0 28px 28px 28px;border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.10);background:#fff;overflow:hidden;display:flex;flex-direction:column}
 
-    .bio-header{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0;flex-shrink:0}
-    .bio-header-inner{
-      max-width:1180px;margin:0 auto;padding:0 36px;
-      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
-    }
-    .bio-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
-    .bio-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
-    .bio-header-right{text-align:right;flex-shrink:0}
-    .bio-header-updated-label{font-size:9.5px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.55);text-transform:uppercase}
-    .bio-header-updated-value{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
+    .hero{background:var(--dark);color:#fff;padding:14px 0;flex-shrink:0}
+    .hero-inner{max-width:1180px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+    .hero-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+    .hero-date{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+    .hero-right{text-align:right;flex-shrink:0}
+    .hero-upd-lbl{font-size:9.5px;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.55);text-transform:uppercase}
+    .hero-upd-val{font-size:12px;font-weight:700;color:#fff;margin-top:2px}
 
-    .bio-scroll{flex:1;min-height:0;overflow-y:auto}
-    .bio-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
-    .bio-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
-    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
+    .page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+    .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,320px));gap:18px;margin-bottom:8px}
-    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
-    .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
-    .stat-value-row{display:flex;align-items:center;gap:22px}
-    .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
-    .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
-    .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:140px}
+    .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+    .side-item{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.5);cursor:pointer;background:none;border:none;transition:background .15s,color .15s}
+    .side-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .side-item:hover{background:rgba(255,255,255,.1);color:#fff}
+    .side-item.active{background:#fff;color:var(--dark);border-radius:50%}
 
-    .cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:14px 0}
-    .cta-text{font-size:13px;color:#2b2b28;line-height:1.6;max-width:640px}
-    .cta-btn{
-      background:var(--color-fire);border:1px solid var(--color-fire);color:#fff;font-size:11px;font-weight:600;
-      padding:9px 20px;border-radius:20px;text-decoration:none;white-space:nowrap;
-      transition:opacity .15s;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
-      min-width:130px;text-align:center;
-    }
-    .cta-btn:hover{opacity:.88}
+    .page-body-inner{flex:1;min-width:0}
 
-    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,380px));gap:18px;margin-bottom:8px}
-    .breakdown-card{
-      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px 18px;
-      display:flex;flex-direction:column;gap:9px;
-    }
-    .breakdown-label{font-size:13.5px;font-weight:800;color:#1f2937}
-    .breakdown-value{font-size:30px;font-weight:800;color:var(--color-pine);line-height:1}
-    .breakdown-divider{height:1px;background:#e5e7eb;width:100%}
-    .breakdown-sub-row{display:flex}
-    .breakdown-sub-col{display:flex;flex-direction:column;gap:2px}
-    .breakdown-sub-col+.breakdown-sub-col{border-left:1px solid #e5e7eb;margin-left:14px;padding-left:14px}
-    .breakdown-sub-label{font-size:10.5px;color:#9ca3af}
-    .breakdown-sub-value{font-size:15px;font-weight:800;color:#1f2937;line-height:1}
+    /* Filter: sama dengan planting-summary */
+    .filter-bar{margin-bottom:28px}
+    .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+    .filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
+    .fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit}
+    .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
+    .filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
+    .filter-select:focus{border-color:var(--primary)}
 
-    .presence-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
-    @media (max-width:620px){ .presence-row-grid{grid-template-columns:1fr} }
-    .presence-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
-    .presence-panel-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:12px}
-    .presence-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #f3f4f6}
-    .presence-row:last-child{border-bottom:none}
-    .presence-row-left{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0}
-    .presence-row-right{flex-shrink:0;text-align:right;padding-left:8px}
-    .presence-badge{
-      width:34px;height:34px;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .presence-badge img{width:100%;height:100%;object-fit:contain}
-    .presence-name{
-      font-size:12.5px;font-weight:700;color:#1f2937;font-style:italic;cursor:pointer;
-      text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s;
-    }
-    .presence-name:hover{text-decoration-color:#1f2937}
-    .presence-local{font-size:11px;color:#9ca3af;margin-top:1px}
-    .presence-detected{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px}
-    .presence-last-detection{font-size:10.5px;color:#9ca3af;white-space:nowrap}
-    .presence-not-detected{font-size:11px;color:#9ca3af;margin-top:4px;font-style:italic}
+    .sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
+    .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:28px 0 14px}
+    .sec-title+.sub-title{margin-top:0}
+    .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
+    .sub-desc{font-size:12px;color:var(--text-2);margin:-8px 0 14px}
 
-    .patrol-findings-section{margin-top:20px}
-    .patrol-findings-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:12px}
-    .patrol-findings-row{display:flex;gap:18px;flex-wrap:wrap}
-    .patrol-findings-map-col{flex:0 0 680px;max-width:680px}
-    @media (max-width:760px){ .patrol-findings-map-col{flex:1 1 100%;max-width:100%} }
-    .patrol-findings-map-wrap{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:300px}
+    .two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:8px}
+    .two-col-row .page-note{margin:10px 0 0}
+    .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:900px){.two-col-row{grid-template-columns:1fr;gap:20px}}
+
+    .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
+    .card-val-lg{font-size:22px;font-weight:800;color:var(--primary);line-height:1}
+    .card-val-suffix{font-size:14px;font-weight:700;color:var(--text-3);margin-left:2px}
+    .card-sub-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+    .card-lbl.species{font-style:italic;color:var(--text);font-weight:700}
+    .card-lbl.species small{display:block;font-style:normal;font-weight:600;color:var(--text-2);font-size:10.5px;margin-top:2px}
+    .quad-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    @media (max-width:900px){.quad-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+    .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
+
+    /* --- Peta sebaran (sama dengan "Sebaran Lahan Program" di planting-summary) --- */
+    .sebaran-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:8px}
+    @media (max-width:900px){.sebaran-row{grid-template-columns:1fr}}
+    .sebaran-map-wrap{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:360px;background:var(--border-lt)}
     #presenceMap{width:100%;height:100%}
-    .presence-map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 2px 0}
-    .presence-map-legend-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:#6b7280}
-    .presence-map-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .patrol-findings-info-col{
-      display:none;position:relative;
-      flex:1;min-width:260px;height:300px;background:#fff;
-      border:1px solid var(--color-sand);border-radius:14px;overflow-y:auto;
-    }
-    .patrol-findings-info-col.open{display:block}
-    .species-info-close{
-      position:absolute;top:10px;right:10px;z-index:1;
-      width:24px;height:24px;border-radius:6px;border:none;background:#f3f4f6;color:#6b7280;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;
-    }
-    .species-info-close:hover{background:#e5e7eb;color:#1f2937}
-    .species-info-title{padding:14px 40px 0 18px;font-size:13px;font-weight:700;color:#1f2937;font-style:italic}
-    .species-info-local{padding:2px 18px 0;font-size:11px;color:#6b7280}
-    .sp-gallery{display:flex;gap:6px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:thin}
-    .sp-gallery img{height:100px;width:auto;border-radius:8px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
-    .sp-gallery-empty{padding:14px 18px 4px;font-size:11px;color:#9ca3af;font-style:italic}
-    .sp-modal-status{display:flex;align-items:center;gap:8px;padding:12px 18px 0}
-    .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
-    .sp-modal-desc{padding:10px 18px 6px;font-size:11.5px;line-height:1.6;color:#374151}
-    .sp-desc-block{padding-top:2px}
-    .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
-    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Libre Franklin',sans-serif}
-    .sp-desc-source-tag:hover{color:#1f2937}
-    .sp-desc-chevron{font-size:9px;color:#9ca3af;transition:transform .2s}
+    .map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px}
+    .map-legend span{display:flex;align-items:center;gap:6px}
+    .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+    .lg-line{width:16px;border-top:2px solid #334155;flex-shrink:0}
+
+    /* Panel detail spesies di kanan peta (sama dengan panel detail lahan) */
+    .lahan-detail{position:relative;border:1px solid var(--border);border-radius:14px;padding:16px;height:360px;overflow-y:auto;background:#fff}
+    .ld-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;color:var(--text-3);line-height:1.6;padding:0 12px}
+    .species-info-close{position:absolute;top:10px;right:10px;z-index:1;width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .species-info-close:hover{background:var(--primary-bg);color:var(--primary)}
+    .species-info-title{font-size:14px;font-weight:800;color:var(--text);font-style:italic;padding-right:28px}
+    .species-info-local{font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:4px}
+    .sp-gallery{display:flex;gap:6px;overflow-x:auto;margin:14px 0 4px;scrollbar-width:thin}
+    .sp-gallery img{height:96px;width:auto;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--border-lt)}
+    .sp-gallery-empty{margin:14px 0 4px;font-size:11px;color:var(--text-3)}
+    .sp-modal-status{margin-top:10px}
+    .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff;display:inline-block}
+    .sp-desc-block{border-top:1px solid var(--border-lt);margin-top:10px}
+    .sp-desc-source-tag{font-size:9.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;padding:10px 0 6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
+    .sp-desc-source-tag:hover{color:var(--primary)}
+    .sp-desc-chevron{font-size:9px;color:var(--text-3);transition:transform .2s}
     .sp-desc-chevron.open{transform:rotate(180deg)}
     .sp-desc-body{overflow:hidden;max-height:0;transition:max-height .2s ease}
     .sp-desc-body.open{max-height:1000px}
-    .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
-    .sp-modal-source-note{padding:0 18px 14px;font-size:9px;color:#9ca3af}
+    .sp-modal-desc{font-size:11.5px;line-height:1.6;color:var(--text-2);padding-bottom:6px}
+    .sp-modal-loading{padding:30px 0;text-align:center;font-size:12px;color:var(--text-3)}
+    .sp-modal-source-note{font-size:9.5px;color:var(--text-3);margin-top:10px}
 
-    .species-stat-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px}
-    .species-stat-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:16px}
-    .species-stat-row{display:grid;grid-template-columns:1.5fr 1fr;gap:28px;align-items:start}
-    @media (max-width:800px){ .species-stat-row{grid-template-columns:1fr} }
+    /* Daftar kehadiran spesies (gaya baris seperti daftar tanaman di panel detail lahan) */
+    .presence-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+    .presence-row:last-child{border-bottom:none;padding-bottom:0}
+    .presence-row-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+    .presence-row-right{flex-shrink:0;text-align:right}
+    .presence-badge{width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .presence-badge img{width:100%;height:100%;object-fit:contain}
+    .presence-name{font-size:12px;font-weight:700;color:var(--text);font-style:italic;cursor:pointer}
+    .presence-name:hover{color:var(--primary);text-decoration:underline}
+    .presence-local{font-size:10.5px;color:var(--text-2);margin-top:1px}
+    .presence-detected{font-size:10.5px;font-weight:700;color:var(--primary);margin-top:3px}
+    .presence-not-detected{font-size:10.5px;color:var(--text-3);margin-top:3px}
+    .presence-last-detection{font-size:10px;color:var(--text-3);white-space:nowrap}
+    .presence-empty{font-size:11px;color:var(--text-3);padding:6px 0}
+
+    /* Statistik spesies & tabel (header tabel mengikuti label kecil .ld-lbl planting-summary) */
+    .species-stat-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start}
+    @media (max-width:900px){.species-stat-row{grid-template-columns:1fr}}
     .species-chart-wrap{position:relative;height:220px}
-    .species-table{width:100%;border-collapse:collapse;font-size:12px}
-    .species-table th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;padding-bottom:8px;border-bottom:1px solid var(--color-sand);font-weight:700}
-    .species-table th:not(:first-child),.species-table td:not(:first-child){text-align:right}
-    .species-table td{padding:8px 0;border-bottom:1px solid #f3f4f6;color:#374151}
-    .species-table td:first-child{font-style:italic;color:#374151}
-    .species-table td:nth-child(2){font-weight:700;color:var(--color-pine)}
-    .species-table td:nth-child(3){font-size:11px;color:#6b7280}
-
-    .hunting-panel{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px}
-    .hunting-panel-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:14px}
-    .hunting-dot{width:9px;height:9px;border-radius:50%;background:#dc2626;flex-shrink:0}
-    .hunting-tbl-wrap{border:1px solid var(--color-sand);border-radius:8px;overflow:hidden}
-    table.hunting-table{width:100%;border-collapse:collapse;font-size:12px}
-    .hunting-table thead th{
-      background:transparent;color:var(--color-pine);padding:9px 12px;text-align:left;
-      font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;
-      border-bottom:1px solid var(--color-sand);
-    }
-    .hunting-table tbody td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:top}
-    .hunting-table tbody tr:last-child td{border-bottom:none}
-    .hunting-table tbody tr:hover td{background:#FFFAF3}
-    .hunting-date-cell{white-space:nowrap;font-weight:600;color:#374151}
-    .hunting-finding-cell{font-weight:700;color:#8a1f1f;white-space:nowrap}
-    .hunting-coord-cell{font-family:'Libre Franklin',sans-serif;font-size:11px;color:#6b7280;white-space:nowrap}
-    .hunting-desc-cell{font-style:italic;color:#6b7280}
-    .hunting-photo-cell a{color:#8a1f1f;font-weight:700;text-decoration:none;font-size:11px;white-space:nowrap}
+    .tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+    .tbl th{text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:0 10px 8px 0;border-bottom:1px solid var(--border);white-space:nowrap}
+    .tbl td{padding:8px 10px 8px 0;border-bottom:1px solid var(--border-lt);color:var(--text-2);vertical-align:top}
+    .tbl tbody tr:last-child td{border-bottom:none}
+    .tbl tbody tr:hover td{background:var(--primary-bg)}
+    .tbl .num{text-align:right;padding-right:0}
+    .species-table td:first-child{font-style:italic;color:var(--text);font-weight:600}
+    .species-table td:nth-child(2){font-weight:700;color:var(--primary);text-align:right}
+    .species-table th:nth-child(2),.species-table th:nth-child(3),.species-table td:nth-child(3){text-align:right;padding-right:0}
+    .hunting-date-cell{white-space:nowrap;font-weight:600;color:var(--text)}
+    .hunting-finding-cell{font-weight:700;color:var(--danger);white-space:nowrap}
+    .hunting-coord-cell{font-size:11px;white-space:nowrap}
+    .hunting-desc-cell{color:var(--text-2)}
+    .hunting-photo-cell a{color:var(--primary);font-weight:600;text-decoration:none;white-space:nowrap}
     .hunting-photo-cell a:hover{text-decoration:underline}
-    .hunting-more-btn{
-      background:none;border:none;color:var(--color-fern);font-size:11.5px;font-weight:600;cursor:pointer;
-      padding:10px 0 0;display:flex;align-items:center;gap:4px;font-family:'Libre Franklin',sans-serif;
-    }
-    .hunting-more-btn:hover{color:var(--color-pine)}
-    .hunting-empty{font-size:12px;color:#9ca3af;padding:8px 0}
+    .hunting-empty{font-size:11.5px;color:var(--text-3)}
+    .hunting-more-btn{background:none;border:none;color:var(--primary-md);font-size:11px;font-weight:600;cursor:pointer;padding:10px 0 0;display:flex;align-items:center;gap:4px;font-family:inherit}
+    .hunting-more-btn:hover{color:var(--primary)}
+    .tbl-scroll{overflow-x:auto}
 
-    .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
+    .leaflet-container,.leaflet-popup-content{font-family:'Libre Franklin',system-ui,sans-serif}
+
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
   </style>
 </head>
 <body>
@@ -221,162 +189,141 @@
 </header>
 
 <div class="dashboard-frame">
-  <div class="bio-header">
-    <div class="bio-header-inner">
+  <div class="hero">
+    <div class="hero-inner">
       <div>
-        <div class="bio-header-title">Biodiversity Monitoring</div>
-        <div class="bio-header-date" id="bioTodayDate">–</div>
+        <div class="hero-title">Biodiversity Monitoring</div>
+        <div class="hero-date" id="bioTodayDate">–</div>
       </div>
-      <div class="bio-header-right">
-        <div class="bio-header-updated-label">Last Updated</div>
-        <div class="bio-header-updated-value" id="bioLastUpdated">–</div>
+      <div class="hero-right">
+        <div class="hero-upd-lbl">Last Updated</div>
+        <div class="hero-upd-val" id="bioLastUpdated">–</div>
       </div>
     </div>
   </div>
 
-  <div class="bio-scroll" id="bioContent">
-    <div class="loading-msg" id="bioLoading">Loading monitoring data…</div>
+  <div class="page-scroll" id="bioContent">
+    <div class="content-row">
+      <nav class="side-menu">
+        <a class="side-item active" href="biodiversity-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+        <a class="side-item" href="cameratrap-monitoring.html" title="Camera Trap" aria-label="Camera Trap"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></svg></a>
+        <a class="side-item" href="bioacoustic-monitoring.html" title="Bioacoustic" aria-label="Bioacoustic"><svg viewBox="0 0 24 24"><path d="M3 12h2"/><path d="M7 8v8"/><path d="M11 5v14"/><path d="M15 9v6"/><path d="M19 7v10"/><path d="M21 12h0"/></svg></a>      </nav>
+      <div class="page-body-inner">
+        <div class="loading-note" id="bioLoading">Loading monitoring data…</div>
 
-    <div class="bio-content" id="bioContentBody" style="display:none">
+        <div id="bioContentBody" style="display:none">
+          <div id="bioFilterBar" class="filter-bar"></div>
+          <div class="sec-title">Summary</div>
+          <div class="sub-title">Monitoring Coverage &amp; Species</div>
 
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total monitoring points</div>
-          <div class="stat-value-row">
-            <span class="stat-value" id="statGridMonitored">–<span class="stat-value-suffix" id="statGridTotal"></span></span>
-            <span class="stat-sub-plain">grid cells equipped with monitoring devices</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total patrol coverage</div>
-          <div class="stat-value-row">
-            <span class="stat-value" id="statPatrolPct">–%</span>
-            <span class="stat-sub-plain" id="statPatrolSub">grid cells patrolled</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="breakdown-grid" style="margin-top:20px">
-        <div class="breakdown-card">
-          <span class="breakdown-label">Species Detected</span>
-          <span class="breakdown-value" id="statSpeciesTotal">–</span>
-          <div class="breakdown-divider"></div>
-          <div class="breakdown-sub-row">
-            <div class="breakdown-sub-col">
-              <span class="breakdown-sub-label">Camera Trap</span>
-              <span class="breakdown-sub-value" id="statSpeciesCt">–</span>
+          <div class="two-col-row" style="margin-bottom:20px">
+            <div class="col">
+              <div class="pair-row">
+                <div class="card">
+                  <div class="card-lbl">Monitoring Points</div>
+                  <div class="card-val-lg" id="statGridMonitored">–<span class="card-val-suffix" id="statGridTotal"></span></div>
+                  <div class="card-sub-pct">grid cells with monitoring devices</div>
+                </div>
+                <div class="card">
+                  <div class="card-lbl">Patrol Coverage</div>
+                  <div class="card-val-lg" id="statPatrolPct">–%</div>
+                  <div class="card-sub-pct" id="statPatrolSub">grid cells patrolled</div>
+                </div>
+              </div>
+              <p class="page-note" id="noteCoverage"></p>
             </div>
-            <div class="breakdown-sub-col">
-              <span class="breakdown-sub-label">Bioacoustic</span>
-              <span class="breakdown-sub-value" id="statSpeciesBio">–</span>
-            </div>
-          </div>
-        </div>
-        <div class="breakdown-card">
-          <span class="breakdown-label">Threatened Species</span>
-          <span class="breakdown-value" id="statThreatenedTotal">–</span>
-          <div class="breakdown-divider"></div>
-          <div class="breakdown-sub-row">
-            <div class="breakdown-sub-col">
-              <span class="breakdown-sub-label">Endangered</span>
-              <span class="breakdown-sub-value" id="statThreatenedEn">–</span>
-            </div>
-            <div class="breakdown-sub-col">
-              <span class="breakdown-sub-label">Critically Endangered</span>
-              <span class="breakdown-sub-value" id="statThreatenedCr">–</span>
+            <div class="col">
+              <div class="pair-row">
+                <div class="card">
+                  <div class="card-lbl">Camera Trap Installed</div>
+                  <div class="card-val-lg" id="statCtInstalled">–</div>
+                  <div class="card-sub-pct" id="statCtInstalledSub">–</div>
+                </div>
+                <div class="card">
+                  <div class="card-lbl">Bioacoustic Installed</div>
+                  <div class="card-val-lg" id="statBioInstalled">–</div>
+                  <div class="card-sub-pct" id="statBioInstalledSub">–</div>
+                </div>
+              </div>
+              <p class="page-note" id="noteDevices"></p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <p class="bio-note">
-        [placeholder 1] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel.
-      </p>
+          <div class="two-col-row">
+            <div class="col">
+              <div class="pair-row">
+                <div class="card">
+                  <div class="card-lbl">Species Detected</div>
+                  <div class="card-val-lg" id="statSpeciesTotal">–</div>
+                  <div class="card-sub-pct"><span id="statSpeciesCt">–</span> camera trap, <span id="statSpeciesBio">–</span> bioacoustic</div>
+                </div>
+                <div class="card">
+                  <div class="card-lbl">Threatened Species</div>
+                  <div class="card-val-lg" id="statThreatenedTotal">–</div>
+                  <div class="card-sub-pct"><span id="statThreatenedEn">–</span> endangered, <span id="statThreatenedCr">–</span> critically endangered</div>
+                </div>
+              </div>
+              <p class="page-note" id="noteSpecies"></p>
+            </div>
+          </div>
 
-      <div class="patrol-findings-section">
-        <div class="patrol-findings-title">Trigger Species &amp; Apex Predator Distribution</div>
-        <div class="patrol-findings-row">
-          <div class="patrol-findings-map-col">
-            <div class="patrol-findings-map-wrap">
+          <div class="sub-title">Key Species Monitoring</div>
+          <div class="quad-row" id="keySpeciesGrid"></div>
+          <p class="page-note" id="noteKeySpecies"></p>
+
+          <div class="sub-title">Trigger Species &amp; Apex Predator Distribution</div>
+          <p class="sub-desc">Detection locations of trigger species and apex predators from camera traps and bioacoustic recorders. Click a species name to see its details.</p>
+          <div class="sebaran-row">
+            <div class="sebaran-map-wrap">
               <div id="presenceMap"></div>
+              <div class="map-legend" id="presenceMapLegend"></div>
             </div>
-            <div class="presence-map-legend" id="presenceMapLegend"></div>
+            <div class="lahan-detail" id="speciesInfoPanel"></div>
           </div>
-          <div class="patrol-findings-info-col" id="speciesInfoPanel"></div>
+
+          <div class="two-col-row" style="margin-top:16px">
+            <div class="card">
+              <div class="card-lbl">Trigger Species Presence</div>
+              <div id="triggerSpeciesList"></div>
+            </div>
+            <div class="card">
+              <div class="card-lbl">Apex Predator Presence</div>
+              <div id="apexPredatorList"></div>
+            </div>
+          </div>
+          <p class="page-note" id="notePresence"></p>
+
+          <div class="sub-title">Species Statistics</div>
+          <div class="card">
+            <div class="species-stat-row">
+              <div>
+                <div class="card-lbl">Detections by class</div>
+                <div class="species-chart-wrap"><canvas id="chartSpeciesClass"></canvas></div>
+              </div>
+              <div>
+                <div class="card-lbl">Most detected species</div>
+                <table class="tbl species-table">
+                  <thead><tr><th>Species</th><th>Detections</th><th>Last Detection</th></tr></thead>
+                  <tbody id="topSpeciesTbody"><tr><td colspan="3">Loading…</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <p class="page-note" id="noteStats"></p>
+
+          <div class="sub-title">Hunting Records</div>
+          <div class="card">
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr><th>Date</th><th>Finding</th><th>Coordinates</th><th>Description</th><th>Photo</th></tr></thead>
+                <tbody id="huntingList"></tbody>
+              </table>
+            </div>
+            <button class="hunting-more-btn" id="huntingMoreBtn" style="display:none">&#9660; Show more</button>
+          </div>
+          <p class="page-note" id="noteHunting"></p>
         </div>
       </div>
-
-      <div class="presence-row-grid">
-        <div class="presence-panel">
-          <div class="presence-panel-title">Trigger Species Presence</div>
-          <div id="triggerSpeciesList"></div>
-        </div>
-        <div class="presence-panel">
-          <div class="presence-panel-title">Apex Predator Presence</div>
-          <div id="apexPredatorList"></div>
-        </div>
-      </div>
-
-      <p class="bio-note">
-        [placeholder 2] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
-        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
-        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
-        metus.
-      </p>
-
-      <div class="species-stat-panel">
-        <div class="species-stat-title">Species Statistics — Sanggala Project Area</div>
-        <div class="species-stat-row">
-          <div class="species-chart-wrap"><canvas id="chartSpeciesClass"></canvas></div>
-          <table class="species-table">
-            <thead><tr><th>Species</th><th>Detection Count</th><th>Last Detection</th></tr></thead>
-            <tbody id="topSpeciesTbody"><tr><td colspan="3" style="color:#9ca3af;padding:12px 0">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <p class="bio-note">
-        [placeholder 3] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
-        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
-        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
-        metus.
-      </p>
-
-      <div class="hunting-panel">
-        <div class="hunting-panel-title"><span class="hunting-dot"></span>Hunting Records</div>
-        <div class="hunting-tbl-wrap">
-          <table class="hunting-table">
-            <thead><tr><th>Date</th><th>Finding</th><th>Coordinates</th><th>Description</th><th>Photo</th></tr></thead>
-            <tbody id="huntingList"></tbody>
-          </table>
-        </div>
-        <button class="hunting-more-btn" id="huntingMoreBtn" style="display:none">&#9660; Show more</button>
-      </div>
-
-      <p class="bio-note">
-        [placeholder 4] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum massa lorem, eget
-        gravida odio dapibus feugiat. Curabitur egestas dapibus justo, et varius odio pharetra vel. Duis nec porta
-        velit. Praesent eu elit molestie, semper leo sit amet, lobortis velit. Ut at iaculis mauris. Praesent non
-        risus blandit est placerat bibendum vel nec leo. Donec quam tortor, blandit in leo nec, hendrerit accumsan
-        metus.
-      </p>
-
-      <div class="cta-bar">
-        <span class="cta-text">Detailed camera trap distribution data is available via the link below</span>
-        <a href="cameratrap-monitoring.html" class="cta-btn">Camera Trap &rarr;</a>
-      </div>
-      <div class="cta-bar">
-        <span class="cta-text">Detailed bioacoustic distribution data is available via the link below</span>
-        <a href="bioacoustic-monitoring.html" class="cta-btn">Bioacoustic &rarr;</a>
-      </div>
-      <div class="cta-bar">
-        <span class="cta-text">The quarterly report is available via the link below</span>
-        <a href="biodiversity-report.html" class="cta-btn">Report &rarr;</a>
-      </div>
-
     </div>
   </div>
 </div>
@@ -424,6 +371,9 @@ function parseDateStr(s){
   m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m){if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[1]-1,+m[2]);}
+  // Tahun dua digit (mis. 5/8/26)
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(m){const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];if(+m[1]>12)return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(yyyy,+m[1]-1,+m[2]);return toMidnight(yyyy,+m[1]-1,+m[2]);}
   const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
   return null;
 }
@@ -520,6 +470,169 @@ function pickFieldExactOrPartial(row,...patterns){
 }
 
 let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[],patrol2026Dates=[];
+// Data lengkap; ctRows/bioRows/huntingRecords = hasil filter aktif
+let allCt=[],allBio=[],allHunting=[];
+// Alat terpasang = punya catatan (kolom Date) di periode filter; satu pemasangan = ID alat + Batch
+let ctDeployments=[],bioDeployments=[];
+// "CT 12" ≠ "CT12" (beda Site): jangan hapus spasi di tengah ID
+const normUnitId=s=>(s||'').trim();
+function buildDeployments(rows){
+  return rows.filter(r=>r.id&&r.date);
+}
+function groupDeployments(rows){
+  const map={};
+  rows.forEach(r=>{
+    const key=r.id+'|'+r.batch;
+    const d=map[key]||(map[key]={id:r.id,name:r.name||r.id,batch:r.batch,sites:new Set()});
+    if(r.site)d.sites.add(r.site);
+  });
+  return Object.values(map).map(d=>({...d,sites:[...d.sites]}));
+}
+// ≤ 5 alat: sebut ID + site; lebih banyak: ringkas per site agar kalimat tidak panjang
+let activeCtDeps=[],activeBioDeps=[];
+const MAX_LISTED=5;
+function deviceListText(deps){
+  const byId={};
+  deps.forEach(d=>{const o=byId[d.id]||(byId[d.id]={name:d.name,sites:new Set()});d.sites.forEach(s=>o.sites.add(s));});
+  const devices=Object.values(byId).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+  if(devices.length<=MAX_LISTED)
+    return': '+joinEN(devices.map(o=>o.sites.size?`${o.name} (${[...o.sites].join(', ')})`:o.name));
+  const perSite={};
+  devices.forEach(o=>(o.sites.size?[...o.sites]:['unknown site']).forEach(s=>perSite[s]=(perSite[s]||0)+1));
+  const sites=Object.entries(perSite).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const fmt=list=>joinEN(list.map(([s,n])=>`${s} (${n})`));
+  if(sites.length<=MAX_LISTED)return` across ${sites.length} site${sites.length===1?'':'s'}: ${fmt(sites)}`;
+  // Banyak site: sebut hanya site dengan >1 alat
+  const multi=sites.filter(([,n])=>n>1).slice(0,3);
+  return` across ${sites.length} sites`+(multi.length?`, including ${fmt(multi)}`:'');
+}
+// Key species: catatan independen per trigger species, termasuk baris tanpa koordinat
+let keySpeciesRows=[];
+function renderKeySpecies(){
+  const norm=s=>(s||'').trim().toLowerCase();
+  const rows=keySpeciesRows.filter(r=>matchesDate(r.date));
+  const vals=TRIGGER_SPECIES.map(sp=>({...sp,val:rows.filter(r=>r.species===norm(sp.latin)).reduce((s,r)=>s+r.indep,0)}));
+  const allTime=periodMode==='yq'&&currentYear==='all'&&currentQuarter==='all';
+  document.getElementById('keySpeciesGrid').innerHTML=vals.map(sp=>`
+    <div class="card">
+      <div class="card-lbl species">${sp.latin}<small>${sp.local}</small></div>
+      <div class="card-val-lg">${sp.val}</div>
+      <div class="card-sub-pct">${allTime?'records across all periods':'records in this period'}</div>
+    </div>`).join('');
+  keySpeciesCache=vals;
+}
+let keySpeciesCache=[];
+
+function renderDeviceCounts(){
+  activeCtDeps=groupDeployments(ctDeployments.filter(r=>matchesDate(r.date)));
+  activeBioDeps=groupDeployments(bioDeployments.filter(r=>matchesDate(r.date)));
+  const show=(valId,subId,a)=>{
+    const ids=new Set(a.map(d=>d.id)),batches=new Set(a.map(d=>d.batch));
+    document.getElementById(valId).textContent=ids.size;
+    document.getElementById(subId).textContent=a.length
+      ?`${batches.size} deployment batch${batches.size===1?'':'es'}`
+      :'no records in this period';
+  };
+  show('statCtInstalled','statCtInstalledSub',activeCtDeps);
+  show('statBioInstalled','statBioInstalledSub',activeBioDeps);
+}
+
+// Filter periode (sama dengan planting-summary)
+let years=[],currentYear='all',currentQuarter='all';
+let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+// Minggu = Sabtu–Jumat
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);weeks.push({sat:new Date(sat),fri,label:`Week ${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
+}
+function matchesDate(d){
+  if(!d)return periodMode==='yq'&&currentYear==='all'&&currentQuarter==='all';
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=new Date(wk.fri.getFullYear(),wk.fri.getMonth(),wk.fri.getDate(),23,59,59);}
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
+}
+const fmtShortD=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+function periodLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 January – ${fmtDateID(now)}`;
+  if(periodMode==='mtd')return`1 – ${fmtDateID(now)}`;
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtShortD(wk.sat)} – ${fmtDateID(wk.fri)}`:'the selected week';}
+  if(currentYear==='all')return currentQuarter==='all'?'the entire monitoring period':`Q${currentQuarter} across all years`;
+  return currentQuarter==='all'?String(currentYear):`Q${currentQuarter} ${currentYear}`;
+}
+function periodYear(){
+  if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
+  return currentYear==='all'?null:+currentYear;
+}
+function setFilter(y){currentYear=y;periodMode='yq';applyFilter();}
+function setQuarter(q){currentQuarter=q;periodMode='yq';applyFilter();}
+function setPeriod(p){periodMode=p;applyFilter();}
+function setWeekYear(v){weekYear=+v;weekIdx=null;applyFilter();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;applyFilter();}
+function setWeekPick(v){weekIdx=+v;applyFilter();}
+function weekPickerHtml(){
+  const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+  const weeks=getWeeksInMonth(weekYear,weekMonth),sel=weekIdx??defaultWeekIdx();
+  return`
+    <select class="filter-select" aria-label="Year" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Month" onchange="setWeekMonth(this.value)">${MONTH_NAMES.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+    <select class="filter-select" aria-label="Week" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtShortD(w.sat)}–${fmtShortD(w.fri)})</option>`).join('')}</select>`;
+}
+function renderFilters(){
+  const yq=periodMode==='yq';
+  document.getElementById('bioFilterBar').innerHTML=`
+    <div class="filter-row">
+      <span class="filter-lbl">Filter</span>
+      <button type="button" class="fpill${yq&&currentYear==='all'?' active':''}" onclick="setFilter('all')">All</button>
+      ${years.map(y=>`<button type="button" class="fpill${yq&&currentYear===String(y)?' active':''}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Quarter</span>
+      <button type="button" class="fpill${yq&&currentQuarter==='all'?' active':''}" onclick="setQuarter('all')">All</button>
+      ${[1,2,3,4].map(q=>`<button type="button" class="fpill${yq&&currentQuarter===String(q)?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Period</span>
+      <button type="button" class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      <button type="button" class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
+      <button type="button" class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Weekly</button>
+      ${periodMode==='week'?weekPickerHtml():''}
+    </div>`;
+}
+function applyFilter(){
+  renderFilters();
+  ctRows=allCt.filter(r=>matchesDate(r.Date));
+  bioRows=allBio.filter(r=>matchesDate(r.Date));
+  huntingRecords=allHunting.filter(r=>matchesDate(r.dateObj));
+  huntingExpanded=false;
+  renderMonitoringCoverage();
+  renderPatrolCoverage();
+  renderDeviceCounts();
+  renderSpeciesCounts();
+  renderKeySpecies();
+  renderPresenceLists();
+  renderPresenceMarkers();
+  renderSpeciesStats();
+  renderHuntingRecords();
+  renderNotes();
+}
 
 async function loadAll(){
   const[ctRaw,bioRaw,grid,boundary,patrolRaw,patrol2026Raw,subRaw]=await Promise.all([
@@ -593,14 +706,28 @@ async function loadAll(){
   const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
   document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
 
+  // Apex predator dari seluruh data agar daftarnya sama di semua periode
+  allCt=ctRows;allBio=bioRows;allHunting=huntingRecords;
+  // Kolom CT: [2] Batch [6] Site [9] CameraID [10] Date [14] Species [17] Independency
+  // Kolom bioacoustic: [0] Recorder [1] Batch [3] Grid [7] Date [10] Species (1 catatan/baris)
+  const normSp=s=>(s||'').trim().toLowerCase();
+  keySpeciesRows=[
+    ...ctRaw.slice(1).map(r=>({unit:(r[9]||'').trim(),date:parseDateStr(r[10]),species:normSp(r[14]),indep:Math.max(0,parseInt(r[17])||0)})),
+    ...bioRaw.slice(1).map(r=>({unit:(r[0]||'').trim(),date:parseDateStr(r[7]),species:normSp(r[10]),indep:1}))
+  ].filter(r=>r.unit&&r.date&&r.species);
+  ctDeployments=buildDeployments(ctRaw.slice(1).map(r=>({id:normUnitId(r[9]),name:normUnitId(r[9]),batch:(r[2]||'').trim(),
+    site:(r[6]||'').trim(),date:parseDateStr(r[10])})));
+  // Bioacoustic tidak punya kolom Site; lokasi memakai Grid
+  bioDeployments=buildDeployments(bioRaw.slice(1).map(r=>({id:normUnitId(r[0]),name:(r[0]||'').trim(),batch:(r[1]||'').trim(),
+    site:(r[3]||'').trim()?`grid ${(r[3]||'').trim()}`:'',date:parseDateStr(r[7])})));
   buildApexPredatorSpecies();
-  renderMonitoringCoverage();
-  renderPatrolCoverage();
-  renderSpeciesCounts();
-  renderPresenceLists();
+  const yrs=new Set();
+  [...allCt,...allBio].forEach(r=>{if(r.Date)yrs.add(r.Date.getFullYear());});
+  allHunting.forEach(r=>{if(r.dateObj)yrs.add(r.dateObj.getFullYear());});
+  years=[...yrs].sort((a,b)=>a-b);
+
   initPresenceMap();
-  renderSpeciesStats();
-  renderHuntingRecords();
+  applyFilter();
 
   document.getElementById('bioLoading').style.display='none';
   document.getElementById('bioContentBody').style.display='block';
@@ -640,22 +767,32 @@ function renderPatrolCoverage(){
   const totalOverallStr=findPatrolValue(k=>k.includes('total petak keseluruhan'));
   const totalOverall=parseInt((totalOverallStr||'').replace(/[^\d]/g,''))||0;
 
+  // Data patroli hanya per tahun; "All" memakai tahun terbaru
+  const wantYear=periodYear();
   let best=null;
   for(const k in patrolMap){
     const m=k.match(/total petak unik tahun (\d{4})/);
-    if(m){const yr=+m[1];if(!best||yr>best.yr)best={yr,val:patrolMap[k]};}
+    if(!m)continue;
+    const yr=+m[1];
+    if(wantYear!==null){if(yr===wantYear)best={yr,val:patrolMap[k]};}
+    else if(!best||yr>best.yr)best={yr,val:patrolMap[k]};
   }
-  const uniqueYear=best?parseInt((best.val||'').replace(/[^\d]/g,'')):0;
-  const yearLabel=best?best.yr:new Date().getFullYear();
-
+  if(!best){
+    document.getElementById('statPatrolPct').textContent='–%';
+    document.getElementById('statPatrolSub').textContent=`no patrol data for ${wantYear??'this period'}`;
+    return;
+  }
+  const uniqueYear=parseInt((best.val||'').replace(/[^\d]/g,''))||0;
   const pct=totalOverall?Math.round((uniqueYear/totalOverall)*1000)/10:0;
   document.getElementById('statPatrolPct').textContent=(totalOverall?pct:'–')+'%';
-  document.getElementById('statPatrolSub').textContent=`grid cells patrolled in ${yearLabel}`;
+  document.getElementById('statPatrolSub').textContent=`grid cells patrolled in ${best.yr}`;
 }
 
+// Hanya nama ilmiah (≥ 2 kata, tanpa "/"); nama lokal seperti "bajing" atau "tikus" diabaikan
+const isScientificName=s=>{const n=(s||'').trim();return !!n&&!n.includes('/')&&n.split(/\s+/).length>=2;};
 function uniqueSpeciesSet(rows){
   const s=new Set();
-  rows.forEach(r=>{if(r.Species&&r.Indep>0)s.add(r.Species.trim().toLowerCase());});
+  rows.forEach(r=>{if(r.Indep>0&&isScientificName(r.Species))s.add(r.Species.trim().toLowerCase());});
   return s;
 }
 function renderSpeciesCounts(){
@@ -667,10 +804,11 @@ function renderSpeciesCounts(){
   document.getElementById('statSpeciesCt').textContent=ctSp.size;
   document.getElementById('statSpeciesBio').textContent=bioSp.size;
 
+  // Terancam = subset spesies unik di atas
   const iucnMap={};
   combined.forEach(r=>{
-    if(!r.Species)return;
-    const key=r.Species.trim().toLowerCase();
+    const key=(r.Species||'').trim().toLowerCase();
+    if(!allSp.has(key))return;
     if(!iucnMap[key]&&r.IUCN)iucnMap[key]=r.IUCN.trim().toUpperCase();
   });
   const counts={EN:0,CR:0};let total=0;
@@ -737,7 +875,7 @@ function renderPresenceLists(){
   document.getElementById('triggerSpeciesList').innerHTML=TRIGGER_SPECIES.map(renderPresenceRow).join('');
   document.getElementById('apexPredatorList').innerHTML=APEX_PREDATOR_SPECIES.length
     ? APEX_PREDATOR_SPECIES.map(renderPresenceRow).join('')
-    : '<div style="font-size:11px;color:#9ca3af;font-style:italic;padding:8px 0">No feline species have been recorded in the data yet.</div>';
+    : '<div class="presence-empty">No feline species have been recorded in the data yet.</div>';
 }
 
 const SOURCE_COLORS={cameratrap:'#356760',bioacoustic:'#8C9F8B'};
@@ -819,10 +957,11 @@ function toggleDescBlock(btn){
   chevron.classList.toggle('open',!isOpen);
 }
 const SPECIES_INFO_CLOSE_BTN='<button type="button" class="species-info-close" onclick="closeSpeciesInfoPanel()">&#10005;</button>';
+const SPECIES_INFO_EMPTY='<div class="ld-empty">Click a species name in the presence lists below to see its photos, IUCN status and description.</div>';
 function closeSpeciesInfoPanel(){
   const panel=document.getElementById('speciesInfoPanel');
   panel.classList.remove('open');
-  panel.innerHTML='';
+  panel.innerHTML=SPECIES_INFO_EMPTY;
 }
 async function openSpeciesInfoInline(latinName,localName,iucn){
   if(!latinName)return;
@@ -888,16 +1027,18 @@ function renderSpeciesInfoInline(latinName,localName,iucn,info){
 }
 let presenceMapInstance=null;
 function initPresenceMap(){
-  const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  const map=L.map('presenceMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:true});
   presenceMapInstance=map;
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
   map.setView([0.8,110.3],11);
+  closeSpeciesInfoPanel();
 
-  const markerLayer=L.layerGroup(); 
+  const markerLayer=L.layerGroup();
+  presenceMarkerLayer=markerLayer;
 
   if(boundaryGeo){
 
-    const boundary=L.geoJSON(boundaryGeo,{style:{color:'#7c3aed',weight:2.5,fillOpacity:0,dashArray:'6 4'}}).addTo(map);
+    const boundary=L.geoJSON(boundaryGeo,{interactive:false,style:{color:'#334155',weight:2,fillOpacity:0,opacity:.9}}).addTo(map);
 
     markerLayer.addTo(map);
 
@@ -910,11 +1051,23 @@ function initPresenceMap(){
     setTimeout(()=>map.invalidateSize(),150);
   }else{
     console.warn('Project Area boundary not available (failed to load).');
-    markerLayer.addTo(map); 
+    markerLayer.addTo(map);
   }
 
+  document.getElementById('presenceMapLegend').innerHTML=
+    `<span><i class="lg-dot" style="background:${SOURCE_COLORS.cameratrap}"></i>${SOURCE_LABELS.cameratrap}</span>`+
+    `<span><i class="lg-dot" style="background:${SOURCE_COLORS.bioacoustic}"></i>${SOURCE_LABELS.bioacoustic}</span>`+
+    `<span><i class="lg-dot" style="background:#374151"></i>Both sources</span>`+
+    '<span><i class="lg-line"></i>Project Area</span>';
+}
+
+// Peta dibuat sekali; hanya marker yang digambar ulang saat filter berubah
+let presenceMarkerLayer=null;
+function renderPresenceMarkers(){
+  if(!presenceMarkerLayer)return;
+  const markerLayer=presenceMarkerLayer;
+  markerLayer.clearLayers();
   const allSpecies=[...TRIGGER_SPECIES,...APEX_PREDATOR_SPECIES];
-  const legendEl=document.getElementById('presenceMapLegend');
   const locationMap={};
   allSpecies.forEach(sp=>{
     const locs=speciesLocations(sp.latin);
@@ -944,11 +1097,6 @@ function initPresenceMap(){
       .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
       .addTo(markerLayer);
   });
-
-  legendEl.innerHTML=
-    `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.cameratrap}"></span>${SOURCE_LABELS.cameratrap}</span>`+
-    `<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:${SOURCE_COLORS.bioacoustic}"></span>${SOURCE_LABELS.bioacoustic}</span>`+
-    '<span class="presence-map-legend-item"><span class="presence-map-legend-dot" style="background:transparent;border:1.5px dashed #7c3aed;width:9px;height:9px"></span>Project Area</span>';
 }
 
 let speciesClassChart=null;
@@ -974,8 +1122,8 @@ function renderSpeciesStats(){
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{enabled:true}},
       scales:{
-        x:{beginAtZero:true,ticks:{font:{size:9},color:'#9a9a90'},grid:{color:'#f1efe6'}},
-        y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false}}
+        x:{beginAtZero:true,ticks:{font:{size:10},color:'#a0aec0'},grid:{color:'#EDE7D8'},border:{display:false}},
+        y:{ticks:{font:{size:11},color:'#1a2332'},grid:{display:false},border:{display:false}}
       }
     }
   });
@@ -992,7 +1140,55 @@ function renderSpeciesStats(){
   const tbody=document.getElementById('topSpeciesTbody');
   tbody.innerHTML=top.length
     ? top.map(([sp,count])=>`<tr><td>${sp}</td><td>${count}</td><td>${fmtDateShort(spLastDate[sp])}</td></tr>`).join('')
-    : '<tr><td colspan="3" style="color:#9ca3af;padding:12px 0">No data available</td></tr>';
+    : '<tr><td colspan="3" class="hunting-empty">No data available</td></tr>';
+  topSpeciesCache=top;
+}
+
+// Kalimat ringkasan di bawah tiap bagian
+let topSpeciesCache=[];
+const txt=id=>(document.getElementById(id)?.textContent||'').trim();
+const joinEN=list=>list.length<=1?list.join(''):list.slice(0,-1).join(', ')+' and '+list[list.length-1];
+function renderNotes(){
+  const P=periodLabel(),inP=/^(the|Q\d across)/.test(P)?`over ${P}`:`in ${P}`;
+  const monitored=txt('statGridMonitored').replace(/\/.*/,'').trim(),total=txt('statGridTotal').replace('/','');
+  const patrolSub=txt('statPatrolSub');
+  document.getElementById('noteCoverage').textContent=
+    `${inP[0].toUpperCase()+inP.slice(1)}, monitoring devices (camera traps and bioacoustic recorders) recorded data in ${monitored}${total?` of ${total}`:''} grid cells within the project area. `
+    +(patrolSub.startsWith('no patrol')
+      ? `No patrol coverage data is available for this period.`
+      : `Patrol teams covered ${txt('statPatrolPct')} of grid cells (${patrolSub.replace(/^grid cells patrolled in /,'')}).`);
+
+  const plural=(n,w)=>`${n} ${w}${+n===1?'':'s'}`;
+  const nCt=+txt('statCtInstalled'),nBio=+txt('statBioInstalled');
+  const ctPart=nCt?`${plural(nCt,'camera trap')} recorded data${deviceListText(activeCtDeps)}.`:'No camera trap records were captured.';
+  const bioPart=nBio?` ${nBio===1?'One bioacoustic recorder':`${nBio} bioacoustic recorders`} recorded data${deviceListText(activeBioDeps)}.`:' No bioacoustic recordings were captured.';
+  document.getElementById('noteDevices').textContent=`${inP[0].toUpperCase()+inP.slice(1)}, ${ctPart[0].toLowerCase()+ctPart.slice(1)}${bioPart}`;
+
+  document.getElementById('noteSpecies').textContent=
+    `A total of ${txt('statSpeciesTotal')} species were detected ${inP}: ${txt('statSpeciesCt')} by camera traps and ${txt('statSpeciesBio')} by bioacoustic recorders. `
+    +`${txt('statThreatenedTotal')} of them are threatened (${txt('statThreatenedEn')} Endangered, ${txt('statThreatenedCr')} Critically Endangered on the IUCN Red List).`;
+
+  const seenKey=keySpeciesCache.filter(k=>k.val>0);
+  document.getElementById('noteKeySpecies').textContent=seenKey.length
+    ? `${seenKey.length} of ${keySpeciesCache.length} key species were recorded ${inP}: `
+      +joinEN(seenKey.map(k=>`${k.local.split(' (')[0]} (${plural(k.val,'record')})`))+'.'
+    : `None of the ${keySpeciesCache.length} key species were recorded ${inP}.`;
+
+  const detected=list=>list.filter(sp=>speciesDetectionCount(sp.latin)>0);
+  const trig=detected(TRIGGER_SPECIES),apex=detected(APEX_PREDATOR_SPECIES);
+  document.getElementById('notePresence').textContent=
+    `${trig.length} of ${TRIGGER_SPECIES.length} trigger species were detected ${inP}`
+    +(trig.length?` (${joinEN(trig.map(s=>s.local.split(' (')[0]))})`:'')
+    +`, and ${apex.length} of ${APEX_PREDATOR_SPECIES.length} apex predator (feline) species ${apex.length===1?'was':'were'} recorded in the project area.`;
+
+  document.getElementById('noteStats').textContent=topSpeciesCache.length
+    ? `${inP[0].toUpperCase()+inP.slice(1)}, the most frequently detected species is ${topSpeciesCache[0][0]} with ${topSpeciesCache[0][1]} independent detections`
+      +(topSpeciesCache.length>1?`, followed by ${joinEN(topSpeciesCache.slice(1,3).map(([s,c])=>`${s} (${c})`))}.`:'.')
+    : `No species detections were recorded ${inP}.`;
+
+  document.getElementById('noteHunting').textContent=huntingRecords.length
+    ? `${huntingRecords.length} hunting-related finding${huntingRecords.length===1?' was':'s were'} recorded during patrols ${inP}, most recently on ${fmtDateID(huntingRecords[0].dateObj)}.`
+    : `No hunting-related findings were recorded during patrols ${inP}.`;
 }
 
 let huntingExpanded=false;
@@ -1010,6 +1206,11 @@ function huntingRowHtml(r){
 function renderHuntingRecords(){
   const listEl=document.getElementById('huntingList');
   const moreBtn=document.getElementById('huntingMoreBtn');
+  if(!huntingRecords.length&&allHunting.length){
+    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">No hunting records in the selected period.</td></tr>';
+    moreBtn.style.display='none';
+    return;
+  }
   if(!huntingRecords.length){
     listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">No matching hunting records found. Open the browser Console (F12) for diagnostics — the "submission" tab is most likely at the wrong gid, or the sheet has not been shared publicly ("Anyone with the link → Viewer").</td></tr>';
     moreBtn.style.display='none';

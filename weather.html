@@ -380,13 +380,13 @@
 <script>
 'use strict';
 const GIBS='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
-// windowH = rentang pencarian waktu ke belakang (jam), frames = jumlah frame animasi terakhir yang diambil
+// windowH = jam pencarian ke belakang, frames = jumlah frame animasi
 const LAYERS={
   ir:     {id:'Himawari_AHI_Band13_Clean_Infrared',label:'Inframerah',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
            note:'Animasi 3 jam terakhir, interval 10 menit. Citra biasanya tersedia 20–40 menit setelah observasi.'},
   rain:   {id:'IMERG_Precipitation_Rate_30min',   label:'Curah Hujan',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:36,frames:12,
            legend:'https://gibs.earthdata.nasa.gov/legends/GPM_Precipitation_Rate_H.svg',
-           // SVG 302,4×140,4 berisi skala Rain Rate (y 0–63,18) dan Snow Rate (y 63,18–126,36); hanya Rain Rate yang relevan
+           // Legenda SVG: Rain Rate di y 0–63,18 (Snow Rate di bawahnya tidak dipakai)
            legendSize:[302.4,140.4],legendCrops:[[0,63.18]],
            note:'Animasi 6 jam data terakhir yang tersedia, interval 30 menit. Data IMERG terlambat sekitar 4–6 jam dari waktu sekarang.'},
   vis:    {id:'Himawari_AHI_Band3_Red_Visible_1km',label:'Visible',   tms:'GoogleMapsCompatible_Level7',maxNative:7,windowH:6,frames:18,
@@ -394,16 +394,15 @@ const LAYERS={
   airmass:{id:'Himawari_AHI_Air_Mass',             label:'Air Mass',  tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
            note:'Animasi 3 jam terakhir, interval 10 menit.'}
 };
-const FRAME_MS=700;            // jeda antar frame saat diputar
+const FRAME_MS=700;
 const CMI_URL='assets/json/CMI.json';
 
 let activeKey='ir',frames=[],frameLayers=[],idx=0,timer=null,opacity=.75,loadToken=0;
 
-// --- Peta dasar: basemap terang, citra Himawari di tengah, label & batas di atas ---
 const map=L.map('weatherMap',{zoomControl:true,attributionControl:true,minZoom:4,maxZoom:10});
 map.attributionControl.setPrefix(false);
 map.createPane('labels');map.getPane('labels').style.zIndex=450;map.getPane('labels').style.pointerEvents='none';
-// Basemap Esri tanpa API key, sumber yang sama dengan peta di halaman lain
+// Basemap Esri (tanpa API key)
 const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
 L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,attribution:'Basemap: Esri'}).addTo(map);
 L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,pane:'labels'}).addTo(map);
@@ -415,7 +414,7 @@ fetch(CMI_URL).then(r=>r.json()).then(j=>{
   map.setView(b.getBounds().getCenter(),7);
 }).catch(()=>{});
 
-// --- Waktu tersedia dari GIBS (endpoint Domains): "start/end/PT10M,..." atau ".../P1D" ---
+// Format Domains GIBS: "start/end/PT10M,..." atau ".../P1D"
 function isoMin(d){return d.toISOString().slice(0,19)+'Z';}
 function isoDay(d){return d.toISOString().slice(0,10);}
 function periodMs(p){
@@ -436,7 +435,7 @@ async function fetchFrames(key){
     const t1=new Date(b.includes('T')?b:b+'T00:00:00Z'),step=periodMs(p);
     for(let t=t0.getTime();t<=t1.getTime();t+=step)times.push(new Date(t));
   });
-  // Ambil N frame terakhir dari data yang tersedia (bukan dari jam sekarang), karena tiap layer punya jeda berbeda
+  // Ambil N frame terakhir yang tersedia (tiap layer punya jeda berbeda)
   return times.filter(t=>t>=start).sort((a,b)=>a-b).slice(-L_.frames);
 }
 
@@ -448,7 +447,7 @@ function relTime(d){
 
 function setStatus(msg){const el=document.getElementById('mapStatus');el.textContent=msg||'';el.style.display=msg?'block':'none';}
 
-// Satu tile layer per frame agar animasi tidak berkedip; hanya frame aktif yang terlihat
+// Satu layer per frame agar animasi tidak berkedip
 function buildFrameLayers(){
   frameLayers.forEach(l=>map.removeLayer(l));
   const L_=LAYERS[activeKey];
@@ -478,7 +477,7 @@ async function loadLayer(key){
   const lb=document.getElementById('legendBar');
   lb.classList.toggle('visible',!!L_.legend);
   if(L_.legend){
-    // legendCrops = [y awal, tinggi] tiap skala dalam satuan SVG; masing-masing dipotong dan disusun berdampingan
+    // legendCrops = [y awal, tinggi] tiap skala (satuan SVG)
     const [w,h]=L_.legendSize||[1,1],crops=L_.legendCrops||[[0,h]];
     lb.innerHTML=`<div class="legend-row" style="--n:${crops.length}">`
       +crops.map(([y0,ch])=>`<div class="legend-crop" style="--ar:${w}/${ch}">`
@@ -516,7 +515,6 @@ document.getElementById('guideGrid').addEventListener('click',e=>{
   const c=e.target.closest('[data-layer]');if(c&&c.dataset.layer!==activeKey)loadLayer(c.dataset.layer);
 });
 
-// --- Kontrol animasi ---
 const PLAY_SVG='<path d="M8 5v14l11-7Z"/>',PAUSE_SVG='<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>';
 function stop(){clearInterval(timer);timer=null;document.getElementById('playIcon').innerHTML=PLAY_SVG;}
 function play(){
@@ -534,19 +532,16 @@ document.getElementById('nextBtn').addEventListener('click',()=>{stop();showFram
 document.getElementById('timeSlider').addEventListener('input',e=>{stop();showFrame(+e.target.value);});
 document.getElementById('opacityInput').addEventListener('input',e=>{opacity=e.target.value/100;showFrame(idx);});
 
-// Urutkan kartu panduan mengikuti urutan pill layer
 const guideGrid=document.getElementById('guideGrid');
 Object.keys(LAYERS).forEach(k=>{const c=guideGrid.querySelector(`[data-layer="${k}"]`);if(c)guideGrid.appendChild(c);});
 
 loadLayer('ir');
-// Muat ulang daftar citra tiap 10 menit (kecuali sedang diputar)
 setInterval(()=>{if(!timer)loadLayer(activeKey);},10*60e3);
 
-// --- Curah hujan per jam di lokasi proyek (Open-Meteo, tanpa API key) ---
-// Warna konsisten di kedua grafik: biru = estimasi model terbaru, warna tema = prakiraan
+// --- Curah hujan (Open-Meteo) ---
+// Biru = estimasi, warna tema = prakiraan
 const EST_COLOR='#4a7fc1',RAIN_FC_COLOR='#356760',AQ_FC_COLOR='#c2703f';
-// Arsir area jam yang sudah lewat + garis "Sekarang".
-// Label zona digambar di ruang padding di atas area grafik agar tidak tertutup batang; null = tanpa label.
+// Arsir jam lalu + garis "Sekarang"; label zona di padding atas agar tidak tertutup batang
 function pastRegionPlugin(cut,isBar,pastLabel=null,futLabel=null){
   const xAt=c=>{const xs=c.scales.x;return isBar?xs.getPixelForValue(cut)-(xs.getPixelForValue(1)-xs.getPixelForValue(0))/2:xs.getPixelForValue(cut);};
   return{id:'pastRegion',
@@ -560,7 +555,6 @@ function pastRegionPlugin(cut,isBar,pastLabel=null,futLabel=null){
       ctx.strokeStyle='#1a2332';ctx.setLineDash([3,3]);ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(x,top-14);ctx.lineTo(x,bottom);ctx.stroke();ctx.setLineDash([]);
       ctx.font='600 9.5px Libre Franklin, sans-serif';ctx.textBaseline='middle';
-      // "Sekarang" sebagai pil kecil di ujung atas garis
       const nowTxt='Sekarang',w=ctx.measureText(nowTxt).width+10;
       ctx.fillStyle='#1a2332';ctx.beginPath();ctx.roundRect(x-w/2,top-22,w,14,7);ctx.fill();
       ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(nowTxt,x,top-15);
@@ -585,7 +579,7 @@ async function loadPointRain(lat,lon){
       +'&hourly=precipitation,precipitation_probability&past_days=1&forecast_days=3&timezone=Asia%2FJakarta';
     const j=await (await fetch(url)).json();
     const h=j.hourly;if(!h||!h.time)throw new Error('respons tidak valid');
-    // Waktu dari Open-Meteo sudah dalam WIB ("2026-10-15T13:00"); bandingkan sebagai jam lokal
+    // Waktu Open-Meteo sudah WIB; dibandingkan sebagai jam lokal
     const pad=n=>String(n).padStart(2,'0');
     const nowW=new Date(Date.now()+7*3600e3),nowKey=`${nowW.getUTCFullYear()}-${pad(nowW.getUTCMonth()+1)}-${pad(nowW.getUTCDate())}T${pad(nowW.getUTCHours())}:00`;
     let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
@@ -609,7 +603,6 @@ async function loadPointRain(lat,lon){
 
     const canvas=document.getElementById('rainChart');
     if(rainChart)rainChart.destroy();
-    // Satu seri batang: jam yang sudah lewat = estimasi (biru), jam mendatang = prakiraan (hijau)
     const isPast=i=>i<cut;
     const hourOf=i=>+times[i].slice(11,13);
     rainChart=new Chart(canvas,{
@@ -627,7 +620,7 @@ async function loadPointRain(lat,lon){
           afterLabel:c=>isPast(c.dataIndex)||prob[c.dataIndex]==null?'':`Peluang hujan: ${prob[c.dataIndex]}%`
         }}},
         scales:{
-          // Label tiap 6 jam; tanggal ditampilkan di bawah pukul 00:00, garis tipis sebagai pemisah hari
+          // Label tiap 6 jam; tanggal di bawah 00:00
           x:{ticks:{font:{size:9.5},color:'#8a8a82',maxRotation:0,autoSkip:false,
               callback:(v,i)=>{const h=hourOf(i);if(h%6)return null;
                 const t=times[i];return h===0?[t.slice(11,16),`${+t.slice(8,10)}/${+t.slice(5,7)}`]:t.slice(11,16);}},
@@ -643,8 +636,8 @@ async function loadPointRain(lat,lon){
     msg.textContent='Gagal memuat data curah hujan dari Open-Meteo.';msg.style.color='#a5382c';
   }
 }
-// --- Kualitas udara di lokasi proyek (Open-Meteo Air Quality / model CAMS, tanpa API key) ---
-// Kategori mengikuti US AQI (EPA); ini bukan ISPU KLHK
+// --- Kualitas udara (Open-Meteo / CAMS) ---
+// Kategori US AQI (EPA), bukan ISPU KLHK
 const AQI_CATS=[
   {max:50, label:'Baik',                               color:'#2e7d32'},
   {max:100,label:'Sedang',                             color:'#b08900'},
@@ -665,12 +658,11 @@ async function loadPointAirQuality(lat,lon){
     const j=await (await fetch(url)).json();
     const h=j.hourly,cur=j.current;if(!h||!h.time||!cur)throw new Error('respons tidak valid');
 
-    // "Sekarang" = jam data current dari Open-Meteo (sudah WIB)
     const nowKey=cur.time.slice(0,13)+':00';
     let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
     const from=Math.max(0,nowIdx-24),to=Math.min(h.time.length,nowIdx+73);
     const times=h.time.slice(from,to),pm=h.pm2_5.slice(from,to),cut=nowIdx-from;
-    // Open-Meteo tidak menyimpan prakiraan lama untuk kualitas udara, jadi grafik PM2.5 tidak punya pembanding prakiraan kemarin
+    // Open-Meteo tidak menyimpan prakiraan lama kualitas udara, jadi tanpa pembanding
 
     const past=pm.slice(0,cut).filter(v=>v!=null);
     const avg=past.length?past.reduce((a,b)=>a+b,0)/past.length:null;
@@ -690,7 +682,6 @@ async function loadPointAirQuality(lat,lon){
     document.getElementById('aqPeakSub').textContent=peak>=0?`${day(peakAt)} ${peakAt.slice(11,16)} WIB`:'–';
 
     const labels=times.map(t=>t.slice(11,13)==='00'?[t.slice(11,16),`${+t.slice(8,10)}/${+t.slice(5,7)}`]:t.slice(11,16));
-    // Estimasi model = biru (jam lalu), prakiraan = oranye (jam mendatang); bertemu di titik "sekarang"
     const fcLine=times.map((_,i)=>i>=cut?pm[i]:null);
     const estLine=times.map((_,i)=>i<=cut?pm[i]:null);
     if(aqChart)aqChart.destroy();
@@ -702,7 +693,7 @@ async function loadPointAirQuality(lat,lon){
         {label:'Batas WHO',data:times.map(()=>WHO_PM25_24H),borderColor:'#356760',borderDash:[5,4],borderWidth:1.2,pointRadius:0,fill:false}
       ]},
       options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-        // Di titik "sekarang" kedua garis bernilai sama; tampilkan sekali saja
+        // Titik "sekarang" ada di kedua garis; tampilkan sekali
         plugins:{legend:{display:false},tooltip:{filter:i=>i.raw!=null&&i.dataset.label!=='Batas WHO'&&!(i.dataIndex===cut&&i.dataset.label==='Prakiraan'),callbacks:{
           title:items=>{const t=times[items[0].dataIndex];return`${+t.slice(8,10)}/${+t.slice(5,7)} ${t.slice(11,16)} WIB`;},
           label:c=>` ${c.dataset.label}: ${fmtMm(c.parsed.y)} µg/m³`
@@ -722,9 +713,8 @@ async function loadPointAirQuality(lat,lon){
   }
 }
 
-// --- Peta sebaran PM2.5 (CAMS global via WMS publik ECMWF, tanpa API key) ---
-// Daftar waktu tidak bisa dibaca dari GetCapabilities (tidak ada CORS), jadi frame dihitung per 3 jam
-// lalu dimuat lebih dulu; frame di luar rentang data (server membalas XML) otomatis dibuang.
+// --- Peta PM2.5 (CAMS via WMS ECMWF) ---
+// GetCapabilities tanpa CORS: frame per 3 jam dimuat dulu, yang gagal (balasan XML) dibuang
 const CAMS_WMS='https://eccharts.ecmwf.int/wms/?token=public';
 const AQ_BOUNDS=L.latLngBounds([-5,106],[5,119]);
 const AQ_COLORS=[[2,'#1464d1'],[5,'#2881ef'],[10,'#50a4f4'],[20,'#00db00'],[30,'#50ef50'],[40,'#9fe532'],
@@ -771,7 +761,7 @@ async function loadAqMap(){
   const step=AQ_STEP_H*3600e3,now=Date.now();
   const start=Math.floor((now-AQ_HOURS_BACK*3600e3)/step)*step,end=now+AQ_HOURS_AHEAD*3600e3;
   const cands=[];for(let t=start;t<=end;t+=step)cands.push(new Date(t));
-  // Muat dengan maksimal 6 permintaan paralel agar tidak membebani server
+  // Maks. 6 permintaan paralel
   const ok=new Array(cands.length).fill(false);let done=0,next=0;
   async function worker(){
     while(next<cands.length){
@@ -785,7 +775,6 @@ async function loadAqMap(){
   aqOverlays=aqFrames.map(t=>L.imageOverlay(aqImageUrl(t),AQ_BOUNDS,{opacity:0,interactive:false,
     attribution:'PM2.5: CAMS (Copernicus/ECMWF)'}).addTo(aqMap));
   document.getElementById('aqTimeSlider').max=aqFrames.length-1;
-  // Frame awal = waktu terdekat dengan sekarang
   let best=0;aqFrames.forEach((t,k)=>{if(Math.abs(t-now)<Math.abs(aqFrames[best]-now))best=k;});
   showAqFrame(best);
   setAqStatus('');
@@ -804,7 +793,6 @@ document.getElementById('aqNextBtn').addEventListener('click',()=>{stopAq();show
 document.getElementById('aqTimeSlider').addEventListener('input',e=>{stopAq();showAqFrame(+e.target.value);});
 document.getElementById('aqOpacityInput').addEventListener('input',e=>{aqOpacity=e.target.value/100;showAqFrame(aqIdx);});
 
-// Klik peta: nilai PM2.5 saat ini di titik tersebut (Open-Meteo)
 aqMap.on('click',async e=>{
   const {lat,lng}=e.latlng;
   const pop=L.popup().setLatLng(e.latlng).setContent('<span style="font-size:11px">Memuat…</span>').openOn(aqMap);
@@ -818,14 +806,14 @@ aqMap.on('click',async e=>{
 loadAqMap();
 }
 
-// Bagian Kualitas Udara & Kabut Asap sementara disembunyikan; ubah ke true untuk menampilkan lagi
+// Sementara disembunyikan; ubah ke true untuk menampilkan lagi
 const SHOW_AIR_QUALITY=false;
 if(SHOW_AIR_QUALITY){
   document.getElementById('aqSection').hidden=false;
   initAirQualityMap();
 }
 
-// Titik acuan = tengah batas CMI; fallback ke koordinat default bila GeoJSON gagal dimuat
+// Titik acuan = tengah CMI (fallback koordinat default)
 function loadPointData(lat,lon){
   loadPointRain(lat,lon);
   if(SHOW_AIR_QUALITY)loadPointAirQuality(lat,lon);
