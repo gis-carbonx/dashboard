@@ -578,19 +578,41 @@ function niceScale(max,n=4){
   for(let v=0;v<=top+step/2;v+=step)ticks.push(+v.toFixed(6));
   return{max:top,ticks};
 }
+// Rentang data (tanggal partisipasi/realisasi paling awal s.d. bulan ini), dihitung sekali lalu disimpan
+let _span=null;
+function dataSpan(){
+  if(_span&&_span.n===rows.length)return _span;
+  let min=null;
+  rows.forEach(r=>[r.tglPartisipasi,r.tglRealisasi].forEach(d=>{if(d&&(!min||d<min))min=d;}));
+  const now=new Date();
+  _span={n:rows.length,start:min,months:min?(now.getFullYear()-min.getFullYear())*12+now.getMonth()-min.getMonth()+1:0};
+  return _span;
+}
+// Filter "All": interval menyesuaikan panjang data agar grafik tidak terlalu jarang/padat (maks ±24 titik):
+// ≤ 2 tahun per bulan, ≤ 6 tahun per kuartal, selebihnya per tahun
 function bucketUnit(){
   if(periodMode==='mtd'||periodMode==='week')return'hari';
-  if(periodMode==='yq'&&currentYear==='all')return'tahun';
+  if(periodMode==='yq'&&currentYear==='all'){
+    const m=dataSpan().months;
+    return m<=24?'bulan':m<=72?'kuartal':'tahun';
+  }
   return'bulan';
 }
 function timeBuckets(){
   const now=new Date(),unit=bucketUnit(),out=[];
-  if(unit==='tahun'){
-    const ys=new Set();
-    rows.forEach(r=>{[r.tglPartisipasi,r.tglRealisasi].forEach(d=>{if(d)ys.add(d.getFullYear());});});
-    const list=[...ys].sort((a,b)=>a-b);
-    if(!list.length)return[];
-    for(let y=list[0];y<=list[list.length-1];y++)out.push({label:String(y),full:`Tahun ${y}`,start:new Date(y,0,1),end:new Date(y,11,31,23,59,59)});
+  if(periodMode==='yq'&&currentYear==='all'){
+    const s=dataSpan().start;
+    if(!s)return[];
+    const yy=y=>`'${String(y).slice(2)}`;
+    if(unit==='tahun'){
+      for(let y=s.getFullYear();y<=now.getFullYear();y++)out.push({label:String(y),full:`Tahun ${y}`,start:new Date(y,0,1),end:new Date(y,11,31,23,59,59)});
+    }else if(unit==='kuartal'){
+      for(let y=s.getFullYear(),q=Math.floor(s.getMonth()/3);y<now.getFullYear()||(y===now.getFullYear()&&q<=Math.floor(now.getMonth()/3));q===3?(q=0,y++):q++)
+        out.push({label:`Q${q+1} ${yy(y)}`,full:`Kuartal ${q+1} ${y}`,start:new Date(y,q*3,1),end:new Date(y,q*3+3,0,23,59,59)});
+    }else{
+      for(let y=s.getFullYear(),m=s.getMonth();y<now.getFullYear()||(y===now.getFullYear()&&m<=now.getMonth());m===11?(m=0,y++):m++)
+        out.push({label:`${MN[m].slice(0,3)} ${yy(y)}`,full:`${MN[m]} ${y}`,start:new Date(y,m,1),end:new Date(y,m+1,0,23,59,59)});
+    }
     return out;
   }
   if(unit==='hari'){
@@ -711,7 +733,7 @@ function trendCardHTML(){
     const o=data.find(b=>d>=b.start&&d<=b.end);if(!o)return;
     o.a+=r.luasAgroAT;o.t+=r.luasTembAU;o.n++;
   });
-  const unit={tahun:'Tahunan',bulan:'Bulanan',hari:'Harian'}[bucketUnit()];
+  const unit={tahun:'Tahunan',kuartal:'per Kuartal',bulan:'Bulanan',hari:'Harian'}[bucketUnit()];
   if(!data.length||!data.some(o=>o.a+o.t>0))return`
     <div class="card chart-card"><div class="chart-title">Partisipasi Lahan ${unit}</div><div class="chart-sub">${periodLabel()}</div><div class="empty">Tidak ada lahan terdaftar pada periode ini.</div></div>`;
   const sc=niceScale(Math.max(...data.map(o=>Math.max(o.a,o.t))));
@@ -751,15 +773,16 @@ function trendCardHTML(){
 
 /* --- Penanaman --- */
 let lcData=null;
+// Kumulatif efisien: tanggal diurutkan sekali, lalu dijumlahkan sambil berjalan per titik waktu
 function cumulativeSeries(){
   const bk=timeBuckets();
   const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
+  const sorted=k=>rows.filter(r=>r[k]).map(r=>[r[k],luas(r)]).sort((a,b)=>a[0]-b[0]);
+  const P=sorted('tglPartisipasi'),R=sorted('tglRealisasi');
+  let ip=0,ir=0,reg=0,tan=0;
   return bk.map(b=>{
-    let reg=0,tan=0;
-    rows.forEach(r=>{
-      if(r.tglPartisipasi&&r.tglPartisipasi<=b.end)reg+=luas(r);
-      if(r.tglRealisasi&&r.tglRealisasi<=b.end)tan+=luas(r);
-    });
+    while(ip<P.length&&P[ip][0]<=b.end)reg+=P[ip++][1];
+    while(ir<R.length&&R[ir][0]<=b.end)tan+=R[ir++][1];
     return{...b,reg,tan};
   });
 }
