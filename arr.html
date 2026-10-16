@@ -861,7 +861,8 @@ function speciesCardHTML(s){
 /* --- Insentif --- */
 // Lahan dihitung menurut tanggal bergabung (Tgl_Partisipasi)
 const insRows=()=>rows.filter(r=>inPeriod(r.tglPartisipasi));
-const insRegRows=()=>insRows().filter(r=>r.prog==='Agro_Reg'||r.prog==='Temb_Reg');
+// Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi terisi), sama dengan planting.html
+const insRegRows=()=>insRows().filter(r=>(r.prog==='Agro_Reg'||r.prog==='Temb_Reg')&&r.tglRealisasi);
 const hasBPO=r=>r.pupukCair>0||r.pupukPadat>0||!!r.tglBPO;
 const hasMTL=r=>r.insentifMTL>0||!!r.tglMTL;
 const insThnRows=()=>insRows().filter(r=>hasBPO(r)||hasMTL(r));

@@ -2100,7 +2100,8 @@ function getInsYearRows(){
 }
 
 function renderInsTable(){
-  const rows=getInsYearRows().filter(r=>r.prog==='Agro_Reg'||r.prog==='Temb_Reg');
+  // Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi terisi), sama dengan arr.html
+  const rows=getInsYearRows().filter(r=>(r.prog==='Agro_Reg'||r.prog==='Temb_Reg')&&parseDate(r.tglRealisasi));
   insFilteredRows=rows;
   updateInsentifSub();
   const desaList=[...new Set(rows.map(r=>r.desa).filter(Boolean))].sort();

@@ -872,7 +872,7 @@ function render(){
   page.innerHTML=body;
   bindDonut(flow);
   drawTreemap();
-  page.querySelectorAll('.iv-row[data-iv]').forEach(b=>b.addEventListener('click',()=>{
+  page.querySelectorAll('.iv-row[data-iv]').forEach(b=>b. addEventListener('click',()=>{
     const t=b.dataset.iv,g=b.parentElement;
     if(openIv.has(t))openIv.delete(t);else openIv.add(t);
     g.classList.toggle('open',openIv.has(t));

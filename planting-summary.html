@@ -296,6 +296,71 @@ function parseTargetSheet(csv){
   });
 }
 
+// --- Nursery: sheet Log, rumus mengikuti "Panduan Rumus Sheet Nursery Stock" (sama dengan nursery.html) ---
+const NURSERY_SHEET_ID='1or3IIjtpas5QD8PRAfO8WdhW6iTc-xH7v0B7hNOAF5M';
+const NURSERY_URL=`https://docs.google.com/spreadsheets/d/${NURSERY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Log`;
+const NCAT={pemb:'pembesaranregular',matiPemb:'matipembesaran',bst:'bstregular',matiBst:'matibstregular',tanam:'penanaman',sulam:'penyulaman',support:'support'};
+let nurseryRows=null;   // null = belum/gagal dimuat
+function parseNursery(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  nurseryRows=[];
+  data.forEach(raw=>{
+    const keys=Object.keys(raw);
+    const cat=str(pickCI(raw,keys,'Category')).toLowerCase().replace(/[^a-z]/g,'');
+    const jenis=str(pickCI(raw,keys,'Jenis Tanaman'));
+    if(!cat||!jenis||jenis==='#N/A')return;
+    const m=str(pickCI(raw,keys,'Tanggal')).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    nurseryRows.push({
+      date:m?new Date(+m[1],+m[2]-1,+m[3]):null,
+      jenis:jenis.toLowerCase(),cat,
+      jumlah:parseFloat(str(pickCI(raw,keys,'Jumlah')).replace(/,/g,''))||0
+    });
+  });
+}
+// Akhir periode filter untuk angka stok (akumulasi); null = semua data sampai sekarang
+function periodEndDate(){
+  const now=new Date();
+  if(periodMode==='week'){const wk=getSelectedWeek();if(wk){const e=new Date(wk.fri);e.setHours(23,59,59,999);return e<now?e:null;}}
+  if(periodMode!=='yq'||currentYear==='all')return null;
+  const y=+currentYear,q=currentQuarter==='all'?4:+currentQuarter;
+  const e=new Date(y,q*3,0,23,59,59,999);
+  return e<now?e:null;
+}
+function matchesDateFilter(d){
+  if(!d)return false;
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=new Date(wk.fri.getFullYear(),wk.fri.getMonth(),wk.fri.getDate(),23,59,59);}
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
+}
+function computeNursery(){
+  if(!nurseryRows)return null;
+  // 1) Stok aktual = Σ per jenis: Pembesaran (E) + BST (H), akumulasi sampai akhir periode
+  const end=periodEndDate();
+  const upTo=nurseryRows.filter(r=>!end||(r.date&&r.date<=end));
+  const by={};
+  upTo.forEach(r=>{const o=by[r.jenis]||(by[r.jenis]={});o[r.cat]=(o[r.cat]||0)+r.jumlah;});
+  let pemb=0,bst=0;
+  Object.values(by).forEach(c=>{
+    const g=k=>c[k]||0;
+    pemb+=Math.max(0,g(NCAT.pemb)-g(NCAT.matiPemb)-g(NCAT.bst));
+    bst+=Math.max(0,g(NCAT.bst)-g(NCAT.matiBst)-g(NCAT.tanam)-g(NCAT.sulam)-g(NCAT.support));
+  });
+  const last=upTo.reduce((a,r)=>r.date&&(!a||r.date>a)?r.date:a,null);
+  // 2) Distribusi = Penanaman + Penyulaman + Support di dalam periode
+  const dist={tanam:0,sulam:0,support:0};
+  nurseryRows.forEach(r=>{
+    if(!matchesDateFilter(r.date))return;
+    if(r.cat===NCAT.tanam)dist.tanam+=r.jumlah;
+    else if(r.cat===NCAT.sulam)dist.sulam+=r.jumlah;
+    else if(r.cat===NCAT.support)dist.support+=r.jumlah;
+  });
+  return{pemb,bst,stok:pemb+bst,asOf:end||last,dist,distTotal:dist.tanam+dist.sulam+dist.support};
+}
+
 function matchesFilter(row,field){
   const d=parseDate(row[field]);
   if(!d)return false;
@@ -444,6 +509,32 @@ function weekPickerHtml(){
     <select class="filter-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})</option>`).join('')}</select>`;
 }
 
+function nurseryHtml(){
+  const n=computeNursery();
+  if(!n)return'<p class="page-note">Data nursery gagal dimuat.</p>';
+  const asOf=n.asOf?fmtD(n.asOf,'l'):'saat ini';
+  const note=`Per ${asOf}, tersedia ${fmtInt(n.stok)} bibit di nursery, terdiri dari ${fmtInt(n.pemb)} bibit dalam tahap pembesaran dan ${fmtInt(n.bst)} bibit siap tanam (BST). `
+    +`Dalam periode ${yearLabel()}, sebanyak ${fmtInt(n.distTotal)} bibit telah didistribusikan melalui penanaman, penyulaman, dan support.`;
+  return`
+    <div class="two-col-row">
+      <div class="col">
+        <div class="pair-row">
+          <div class="card">
+            <div class="card-lbl">Total Bibit Tersedia</div>
+            <div class="card-val-lg">${fmtInt(n.stok)}</div>
+            <div class="card-sub-pct">${fmtInt(n.pemb)} pembesaran, ${fmtInt(n.bst)} BST</div>
+          </div>
+          <div class="card">
+            <div class="card-lbl">Bibit Didistribusikan</div>
+            <div class="card-val-lg">${fmtInt(n.distTotal)}</div>
+            <div class="card-sub-pct">${fmtInt(n.dist.tanam)} penanaman, ${fmtInt(n.dist.sulam)} penyulaman, ${fmtInt(n.dist.support)} support</div>
+          </div>
+        </div>
+        <p class="page-note">${note}</p>
+      </div>
+    </div>`;
+}
+
 function render(){
   const yq=periodMode==='yq';
   const areas=computeAreas();
@@ -542,6 +633,8 @@ function render(){
       </div>
     </div>
 
+    <div class="sub-title">Nursery</div>
+    ${nurseryHtml()}
   `;
   document.getElementById('pageBody').innerHTML=body;
   updateSebaran();
@@ -644,9 +737,14 @@ function selectLahan(id){
 (async function boot(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    const [csvTxt,tgtTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>'')]);
+    const [csvTxt,tgtTxt,nurTxt]=await Promise.all([
+      getText(CSV_URL),
+      getText(TARGET_URL).catch(()=>''),
+      getText(NURSERY_URL).catch(e=>{console.warn('Gagal memuat data nursery',e);return'';})
+    ]);
     parseSheet(csvTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
+    if(nurTxt)parseNursery(nurTxt);
     const yrsData=new Set();
     Object.values(sheetMap).forEach(r=>{const d=parseDate(r.tglPartisipasi);if(d)yrsData.add(d.getFullYear());});
     Object.keys(targetData).forEach(y=>yrsData.add(+y));
