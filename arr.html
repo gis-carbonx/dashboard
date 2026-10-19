@@ -16,7 +16,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
-  --dark:#3A342C;
+  --dark:#3A342C;--c-petani:#8B7BB0;
   --bg:#FFFAF3;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
   --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
 }
@@ -254,10 +254,14 @@ body{display:flex;flex-direction:column}
 /* Jenis tanaman */
 .sl{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .sl-row{display:grid;grid-template-columns:130px 1fr 60px 46px;gap:10px;align-items:center;padding:4px 4px;border-radius:6px}
-.sl-row:hover{background:var(--bg)}
+.sl-row{outline:none}
+.sl-row:hover,.sl-row:focus{background:var(--bg)}
+.sl-row .tt-box{position:fixed;z-index:50}
+.sl-row:hover .tt-box,.sl-row:focus .tt-box{display:block}
 .sl-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sl-track{height:12px}
-.sl-bar{height:100%;background:var(--primary);border-radius:0 3px 3px 0;min-width:2px}
+.sl-track{height:12px;display:flex}
+.sl-bar{height:100%;background:var(--primary);min-width:2px}
+.sl-bar:last-child{border-radius:0 3px 3px 0}
 .sl-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
 .sl-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:640px){
@@ -533,7 +537,8 @@ function compute(){
     if(inPeriod(r.tglRealisasi)){
       if(r.prog.startsWith('Agro')){dA+=r.luasAgro;tanA+=r.jumlahTanaman;}
       else{dT+=r.luasTemb;tanT+=r.jumlahTanaman;}
-      r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
+      const agro=r.prog.startsWith('Agro');
+      r.plantedPlants.forEach(p=>{const o=speciesMap[p.name]||(speciesMap[p.name]={a:0,t:0});o[agro?'a':'t']+=p.count;});
     }
   });
   const tgt=getTarget();
@@ -543,7 +548,8 @@ function compute(){
     tanaman:tanA+tanT,tanA,tanT,
     sub:{aReg,aBPO,tReg,tMTL},
     subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
-    species:Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]),
+    // [nama, total, agroforestri, reforestasi]
+    species:Object.entries(speciesMap).map(([n,o])=>[n,o.a+o.t,o.a,o.t]).sort((a,b)=>b[1]-a[1]),
     pct:target>0?(base.a+base.t)/target*100:null,
     petani:petani.size,laki:laki.size,pmp:pmp.size};
 }
@@ -777,20 +783,24 @@ function cumulativeSeries(){
   const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
   const sorted=k=>rows.filter(r=>r[k]).map(r=>[r[k],luas(r)]).sort((a,b)=>a[0]-b[0]);
   const P=sorted('tglPartisipasi'),R=sorted('tglRealisasi');
-  let ip=0,ir=0,reg=0,tan=0;
+  // Petani unik yang sudah menanam, dihitung pada tanggal realisasi pertamanya
+  const F=rows.filter(r=>r.tglRealisasi&&r.petani).map(r=>[r.tglRealisasi,r.petani.toLowerCase()]).sort((a,b)=>a[0]-b[0]);
+  const seen=new Set();
+  let ip=0,ir=0,iff=0,reg=0,tan=0;
   return bk.map(b=>{
     while(ip<P.length&&P[ip][0]<=b.end)reg+=P[ip++][1];
     while(ir<R.length&&R[ir][0]<=b.end)tan+=R[ir++][1];
-    return{...b,reg,tan};
+    while(iff<F.length&&F[iff][0]<=b.end)seen.add(F[iff++][1]);
+    return{...b,reg,tan,pet:seen.size};
   });
 }
 function plantingCardHTML(s){
   lcData=cumulativeSeries();
-  const strip=(name,color,ha,total,tan)=>{
+  const strip=(name,color,ha,total,tan,verb='ditanam')=>{
     const p=pctOf(ha,total);
     return`<div class="pl-item">
       <div class="pl-name"><i class="sw" style="background:${color}"></i>${name}</div>
-      <div class="pl-val">${fmt(ha)} ha <small>ditanam</small></div>
+      <div class="pl-val">${fmt(ha)} ha <small>${verb}</small></div>
       <div class="pl-sub">${p===null?'':`${fmtPct(p)}% dari ${fmt(total)} ha terdaftar &middot; `}${fmtInt(tan)} tanaman</div>
     </div>`;
   };
@@ -800,11 +810,12 @@ function plantingCardHTML(s){
       <div class="chart-sub">${periodLabel()}</div>
       <div class="pl-strip">
         ${strip('Agroforestri','var(--c-agro)',s.dA,s.rA,s.tanA)}
-        ${strip('Reforestasi','var(--c-temb)',s.dT,s.rT,s.tanT)}
+        ${strip('Reforestasi','var(--c-temb)',s.dT,s.rT,s.tanT,'ditanam/diintervensi')}
       </div>
       <div class="lg">
         <span class="lg-item"><i class="ln" style="background:var(--text-3)"></i>Luas terdaftar (kumulatif)</span>
         <span class="lg-item"><i class="ln" style="background:var(--primary)"></i>Luas sudah ditanam (kumulatif)</span>
+        <span class="lg-item"><i style="background:var(--c-petani)"></i>Petani sudah menanam (kumulatif, sumbu kanan)</span>
       </div>
       ${lcData.length?'<div class="lc" id="lineChart"></div>':'<div class="empty">Belum ada data.</div>'}
     </div>`;
@@ -813,10 +824,19 @@ function drawLine(){
   const el=document.getElementById('lineChart');
   if(!el||!lcData||!lcData.length)return;
   const W=el.clientWidth,H=el.clientHeight||230;
-  const pl=52,pr=12,pt=12,pb=24,iw=W-pl-pr,ih=H-pt-pb;
+  const pl=52,pr=48,pt=12,pb=24,iw=W-pl-pr,ih=H-pt-pb;
   const sc=niceScale(Math.max(...lcData.map(d=>Math.max(d.reg,d.tan))));
   const n=lcData.length,step=n>1?iw/(n-1):0;
   const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
+  // Sumbu kanan (petani) memakai posisi gridline yang sama dengan sumbu kiri
+  const k=sc.ticks.length-1,rawP=Math.max(1,...lcData.map(d=>d.pet))/k;
+  const pP=Math.pow(10,Math.floor(Math.log10(rawP)));
+  const stepP=Math.max(1,[1,2,5,10].map(m=>m*pP).find(s=>s>=rawP));
+  const scP={max:stepP*k,ticks:sc.ticks.map((_,i)=>i*stepP)};
+  const yP=v=>pt+ih-(v/scP.max)*ih;
+  const bw=Math.max(3,Math.min(18,(n>1?step:iw)*0.45));
+  const bars=lcData.map((d,i)=>{const bh=pt+ih-yP(d.pet);
+    return bh>0?`<rect x="${(Math.min(Math.max(x(i)-bw/2,pl),W-pr-bw)).toFixed(1)}" y="${yP(d.pet).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--c-petani)" opacity=".55"/>`:'';}).join('');
   const path=k=>lcData.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(d[k]).toFixed(1)}`).join('');
   const area=k=>`${path(k)}L${x(n-1).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
   const every=Math.ceil(n/(W<480?6:12));
@@ -824,6 +844,8 @@ function drawLine(){
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik kumulatif luas terdaftar dan luas sudah ditanam">
       ${sc.ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--border-lt)"/>
         <text x="${pl-8}" y="${y(t)+3}" text-anchor="end" font-size="10" fill="var(--text-3)">${fmtHaShort(t)} ha</text>`).join('')}
+      ${scP.ticks.map(t=>`<text x="${W-pr+8}" y="${yP(t)+3}" text-anchor="start" font-size="10" fill="var(--c-petani)">${fmtInt(t)}</text>`).join('')}
+      ${bars}
       ${lcData.map((d,i)=>i%every===0||i===n-1?`<text x="${x(i)}" y="${H-6}" text-anchor="${n>1&&i===n-1?'end':n>1&&i===0?'start':'middle'}" font-size="10.5" fill="var(--text-2)">${d.label}</text>`:'').join('')}
       <path d="${area('reg')}" fill="var(--text-3)" opacity=".10"/>
       <path d="${area('tan')}" fill="var(--primary)" opacity=".14"/>
@@ -846,7 +868,8 @@ function drawLine(){
     tip.innerHTML=`<div class="tt-head"><strong>${d.full}</strong></div>
       <div class="tt-row"><span><i class="sw" style="background:var(--text-3)"></i>Terdaftar</span><span>${fmt(d.reg)} ha</span></div>
       <div class="tt-row"><span><i class="sw" style="background:var(--primary)"></i>Sudah ditanam</span><span>${fmt(d.tan)} ha</span></div>
-      <div class="tt-row"><span>Persentase ditanam</span><b>${d.reg>0?fmtPct(d.tan/d.reg*100):'0,0'}%</b></div>`;
+      <div class="tt-row"><span>Persentase ditanam</span><b>${d.reg>0?fmtPct(d.tan/d.reg*100):'0,0'}%</b></div>
+      <div class="tt-row"><span><i class="sw" style="background:var(--c-petani)"></i>Petani sudah menanam</span><span>${fmtInt(d.pet)} petani</span></div>`;
     tip.style.display='block';
     const left=cx+14+tip.offsetWidth>W?cx-14-tip.offsetWidth:cx+14;
     tip.style.left=Math.max(0,left)+'px';
@@ -864,10 +887,16 @@ window.addEventListener('resize',()=>{clearTimeout(lcResize);lcResize=setTimeout
 function speciesCardHTML(s){
   const total=s.species.reduce((a,[,v])=>a+v,0);
   const max=s.species.length?s.species[0][1]:1;
-  const list=s.species.map(([name,v])=>`
-    <div class="sl-row" title="${esc(name)}: ${fmtInt(v)} tanaman">
+  const w=v=>(v/max*100).toFixed(1);
+  const list=s.species.map(([name,v,a,t])=>`
+    <div class="sl-row" tabindex="0" aria-label="${esc(name)}: ${fmtInt(v)} tanaman">
+      <div class="tt-box"><div class="tt-head"><strong>${esc(name)}</strong></div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-agro)"></i>Agroforestri</span><span>${fmtInt(a)} tanaman</span></div>
+        <div class="tt-row"><span><i class="sw" style="background:var(--c-temb)"></i>Reforestasi</span><span>${fmtInt(t)} tanaman</span></div>
+        <div class="tt-row"><span>Total</span><b>${fmtInt(v)} tanaman</b></div>
+      </div>
       <div class="sl-lbl">${esc(name)}</div>
-      <div class="sl-track"><div class="sl-bar" style="width:${(v/max*100).toFixed(1)}%"></div></div>
+      <div class="sl-track">${a?`<div class="sl-bar" style="width:${w(a)}%;background:var(--c-agro)"></div>`:''}${t?`<div class="sl-bar" style="width:${w(t)}%;background:var(--c-temb)"></div>`:''}</div>
       <div class="sl-val">${fmtInt(v)}</div>
       <div class="sl-pct">${total?fmtPct(v/total*100):'0,0'}%</div>
     </div>`).join('');
@@ -875,6 +904,10 @@ function speciesCardHTML(s){
     <div class="card chart-card">
       <div class="chart-title">Jenis Tanaman yang Ditanam</div>
       <div class="chart-sub">${periodLabel()} &middot; ${fmtInt(s.species.length)} jenis &middot; ${fmtInt(total)} tanaman</div>
+      <div class="lg">
+        <span class="lg-item"><i style="background:var(--c-agro)"></i>Agroforestri</span>
+        <span class="lg-item"><i style="background:var(--c-temb)"></i>Reforestasi</span>
+      </div>
       ${s.species.length?`<div class="sl">${list}</div>`:'<div class="empty">Belum ada data jenis tanaman pada periode ini.</div>'}
     </div>`;
 }
@@ -1396,7 +1429,7 @@ function render(){
   `;
   updateInsTable();
   updateKTHTable();
-  page.querySelectorAll('.kb-row').forEach(row=>{
+  page.querySelectorAll('.kb-row,.sl-row').forEach(row=>{
     ['mouseenter','mousemove','focus'].forEach(ev=>row.addEventListener(ev,()=>placeKbTip(row)));
   });
   drawLine();
