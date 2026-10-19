@@ -828,11 +828,11 @@ function drawLine(){
   const sc=niceScale(Math.max(...lcData.map(d=>Math.max(d.reg,d.tan))));
   const n=lcData.length,step=n>1?iw/(n-1):0;
   const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
-  // Sumbu kanan (petani) memakai posisi gridline yang sama dengan sumbu kiri
-  const k=sc.ticks.length-1,rawP=Math.max(1,...lcData.map(d=>d.pet))/k;
-  const pP=Math.pow(10,Math.floor(Math.log10(rawP)));
-  const stepP=Math.max(1,[1,2,5,10].map(m=>m*pP).find(s=>s>=rawP));
-  const scP={max:stepP*k,ticks:sc.ticks.map((_,i)=>i*stepP)};
+  // Sumbu kanan (petani) diskalakan proporsional dengan luas ditanam:
+  // jumlah petani akhir setinggi luas ditanam akhir (mis. 25 petani = 100 ha)
+  const last=lcData[n-1],maxPet=Math.max(1,...lcData.map(d=>d.pet));
+  const perHa=last.tan>0&&last.pet>0?last.pet/last.tan:maxPet/sc.max;
+  const scP={max:sc.max*perHa,ticks:sc.ticks.map(t=>t*perHa)};
   const yP=v=>pt+ih-(v/scP.max)*ih;
   const bw=Math.max(3,Math.min(18,(n>1?step:iw)*0.45));
   const bars=lcData.map((d,i)=>{const bh=pt+ih-yP(d.pet);
@@ -844,7 +844,7 @@ function drawLine(){
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik kumulatif luas terdaftar dan luas sudah ditanam">
       ${sc.ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--border-lt)"/>
         <text x="${pl-8}" y="${y(t)+3}" text-anchor="end" font-size="10" fill="var(--text-3)">${fmtHaShort(t)} ha</text>`).join('')}
-      ${scP.ticks.map(t=>`<text x="${W-pr+8}" y="${yP(t)+3}" text-anchor="start" font-size="10" fill="var(--c-petani)">${fmtInt(t)}</text>`).join('')}
+      ${scP.ticks.map(t=>`<text x="${W-pr+8}" y="${yP(t)+3}" text-anchor="start" font-size="10" fill="var(--c-petani)">${fmtInt(Math.round(t))}</text>`).join('')}
       ${bars}
       ${lcData.map((d,i)=>i%every===0||i===n-1?`<text x="${x(i)}" y="${H-6}" text-anchor="${n>1&&i===n-1?'end':n>1&&i===0?'start':'middle'}" font-size="10.5" fill="var(--text-2)">${d.label}</text>`:'').join('')}
       <path d="${area('reg')}" fill="var(--text-3)" opacity=".10"/>
@@ -1453,5 +1453,6 @@ function render(){
   }
 })();
 </script>
+<script src="auth-guard.js"></script>
 </body>
 </html>

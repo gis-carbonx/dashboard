@@ -65,7 +65,7 @@ body{display:flex;flex-direction:column}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .page-note{font-size:12px;color:var(--text-2);line-height:1.65;margin:16px 0 28px}
 
-.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:28px}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
@@ -355,26 +355,14 @@ function render(){
     `;
   }).join('');
 
+  const card=(lbl,val,sub)=>`<div class="card"><div class="card-lbl">${lbl}</div><div class="card-val-lg">${val}</div>${sub?`<div class="card-sub">${sub}</div>`:''}</div>`;
   const body=`
     <div class="sec-title">KTH</div>
     <div class="grid-row">
-      <div class="card">
-        <div class="card-lbl">Jumlah KTH</div>
-        <div class="card-val-lg">${fmtInt(jumlahKth)}</div>
-      </div>
-      <div class="card">
-        <div class="card-lbl">Jumlah Kegiatan</div>
-        <div class="card-val-lg">${fmtInt(jumlahKegiatan)}</div>
-      </div>
-      <div class="card">
-        <div class="card-lbl">Jumlah Pengurus</div>
-        <div class="card-val-lg">${fmtInt(jumlahPengurus)}</div>
-      </div>
-      ${peserta?`<div class="card">
-        <div class="card-lbl">Peserta Unik Tergabung</div>
-        <div class="card-val-lg">${fmtInt(peserta.total)}</div>
-        <div class="card-sub">${fmtInt(peserta.l)} laki-laki, ${fmtInt(peserta.p)} perempuan</div>
-      </div>`:''}
+      ${card('Jumlah KTH',fmtInt(jumlahKth))}
+      ${card('Jumlah Kegiatan',fmtInt(jumlahKegiatan))}
+      ${card('Jumlah Pengurus',fmtInt(jumlahPengurus))}
+      ${peserta?card('Peserta Unik Tergabung',fmtInt(peserta.total),`${fmtInt(peserta.l)} laki-laki, ${fmtInt(peserta.p)} perempuan`):''}
     </div>
     ${blocks||'<div class="loading-note">Belum ada data KTH.</div>'}
   `;
@@ -480,5 +468,6 @@ document.addEventListener('keydown',e=>{
   }
 })();
 </script>
+<script src="auth-guard.js"></script>
 </body>
 </html>

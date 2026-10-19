@@ -111,12 +111,15 @@
     .ld-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;color:var(--text-3);line-height:1.6;padding:0 12px}
     .species-info-close{position:absolute;top:10px;right:10px;z-index:1;width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
     .species-info-close:hover{background:var(--primary-bg);color:var(--primary)}
+    .species-info-back{display:block;margin:0 0 10px;padding:0;border:none;background:none;font-family:inherit;font-size:10.5px;font-weight:700;color:var(--primary);cursor:pointer}
+    .species-info-back:hover{text-decoration:underline}
+    .species-info-head{display:flex;align-items:center;gap:10px;padding-right:28px}
     .species-info-title{font-size:14px;font-weight:800;color:var(--text);font-style:italic;padding-right:28px}
     .species-info-local{font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:4px}
     .sp-gallery{display:flex;gap:6px;overflow-x:auto;margin:14px 0 4px;scrollbar-width:thin}
     .sp-gallery img{height:96px;width:auto;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--border-lt)}
     .sp-gallery-empty{margin:14px 0 4px;font-size:11px;color:var(--text-3)}
-    .sp-modal-status{margin-top:10px}
+    .sp-modal-status{font-size:10.5px;font-weight:600;color:var(--text-2);margin-bottom:3px}
     .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff;display:inline-block}
     .sp-desc-block{border-top:1px solid var(--border-lt);margin-top:10px}
     .sp-desc-source-tag{font-size:9.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;padding:10px 0 6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:none;border:none;width:100%;font-family:inherit}
@@ -272,7 +275,7 @@
           <p class="page-note" id="noteKeySpecies"></p>
 
           <div class="sub-title">Trigger Species &amp; Apex Predator Distribution</div>
-          <p class="sub-desc">Detection locations of trigger species and apex predators from camera traps and bioacoustic recorders. Click a species name to see its details.</p>
+          <p class="sub-desc">Detection locations of trigger species and apex predators from camera traps and bioacoustic recorders. Click a point on the map or a species name to see its details.</p>
           <div class="sebaran-row">
             <div class="sebaran-map-wrap">
               <div id="presenceMap"></div>
@@ -888,10 +891,43 @@ function speciesLocations(latinName){
     if(norm(r.Species)!==norm(latinName))return;
     if(isNaN(r.Latitude)||isNaN(r.Longitude))return;
     const key=r.Latitude.toFixed(5)+'_'+r.Longitude.toFixed(5);
-    if(!map[key])map[key]={lat:r.Latitude,lon:r.Longitude,sources:new Set()};
-    map[key].sources.add(r.Source);
+    if(!map[key])map[key]={lat:r.Latitude,lon:r.Longitude,sources:new Set(),count:0,last:null};
+    const o=map[key];
+    o.sources.add(r.Source);
+    o.count+=r.Indep||0;
+    if(r.Date&&(!o.last||r.Date>o.last))o.last=r.Date;
   });
   return Object.values(map);
+}
+// Daftar spesies yang ditemukan pada satu titik, ditampilkan di panel kanan peta
+let lastLocation=null;
+function showLocationSpecies(loc){
+  lastLocation=loc;
+  const panel=document.getElementById('speciesInfoPanel');
+  panel.classList.add('open');
+  delete panel.dataset.req;
+  const rows=loc.species.map((s,i)=>{
+    const src=[...s.sources].map(k=>SOURCE_LABELS[k]||k).join(' & ');
+    return `<div class="presence-row">
+      <div class="presence-row-left">
+        <div class="presence-badge"><img src="${IUCN_LOGO_URL(s.iucn)}" alt="${s.iucn||''}" title="${s.iucn||''}" onerror="this.parentElement.textContent='${s.iucn||''}'"></div>
+        <div>
+          <div class="presence-name" onclick="openLocationSpecies(${i})">${s.latin}</div>
+          <div class="presence-local">${s.local||''}</div>
+          <div class="presence-detected">Detected ${s.count} times &middot; ${src}</div>
+        </div>
+      </div>
+      <div class="presence-row-right">${s.last?`<span class="presence-last-detection">Last: ${fmtDateShort(s.last)}</span>`:''}</div>
+    </div>`;
+  }).join('');
+  panel.innerHTML=SPECIES_INFO_CLOSE_BTN+
+    `<div class="species-info-title" style="font-style:normal">${loc.species.length} species at this point</div>`+
+    `<div class="species-info-local">${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)} &middot; click a species to see its details</div>`+
+    `<div style="margin-top:10px">${rows}</div>`;
+}
+function openLocationSpecies(i){
+  const s=lastLocation&&lastLocation.species[i];if(!s)return;
+  openSpeciesInfoInline(s.latin,s.local,s.iucn,true);
 }
 function zoomToSpecies(latinName){
   if(!presenceMapInstance)return;
@@ -957,19 +993,23 @@ function toggleDescBlock(btn){
   chevron.classList.toggle('open',!isOpen);
 }
 const SPECIES_INFO_CLOSE_BTN='<button type="button" class="species-info-close" onclick="closeSpeciesInfoPanel()">&#10005;</button>';
-const SPECIES_INFO_EMPTY='<div class="ld-empty">Click a species name in the presence lists below to see its photos, IUCN status and description.</div>';
+const SPECIES_INFO_EMPTY='<div class="ld-empty">Click a point on the map or a species name in the presence lists below to see its photos, IUCN status and description.</div>';
+const SPECIES_INFO_BACK_BTN='<button type="button" class="species-info-back" onclick="lastLocation&&showLocationSpecies(lastLocation)">Back</button>';
 function closeSpeciesInfoPanel(){
   const panel=document.getElementById('speciesInfoPanel');
   panel.classList.remove('open');
+  delete panel.dataset.req;
   panel.innerHTML=SPECIES_INFO_EMPTY;
 }
-async function openSpeciesInfoInline(latinName,localName,iucn){
+async function openSpeciesInfoInline(latinName,localName,iucn,fromLocation=false){
   if(!latinName)return;
   const panel=document.getElementById('speciesInfoPanel');
   panel.classList.add('open');
-  panel.innerHTML=SPECIES_INFO_CLOSE_BTN+'<div class="sp-modal-loading">Loading species info…</div>';
+  const back=fromLocation?SPECIES_INFO_BACK_BTN:'';
+  panel.dataset.req=latinName;
+  panel.innerHTML=SPECIES_INFO_CLOSE_BTN+back+'<div class="sp-modal-loading">Loading species info…</div>';
 
-  if(spInfoCache[latinName]){renderSpeciesInfoInline(latinName,localName,iucn,spInfoCache[latinName]);return;}
+  if(spInfoCache[latinName]){renderSpeciesInfoInline(latinName,localName,iucn,spInfoCache[latinName],fromLocation);return;}
 
   try{
     const gbifMatch=await fetch(`https://api.gbif.org/v1/species/match?name=${encodeURIComponent(latinName)}`).then(r=>r.ok?r.json():null).catch(()=>null);
@@ -1001,28 +1041,34 @@ async function openSpeciesInfoInline(latinName,localName,iucn){
 
     const info={images,descriptions};
     spInfoCache[latinName]=info;
-    renderSpeciesInfoInline(latinName,localName,iucn,info);
+    // Abaikan hasil bila pengguna sudah membuka spesies/titik lain selama fetch
+    if(panel.dataset.req!==latinName)return;
+    renderSpeciesInfoInline(latinName,localName,iucn,info,fromLocation);
   }catch(err){
     console.warn('Species info fetch failed:',err);
-    panel.innerHTML=SPECIES_INFO_CLOSE_BTN+'<div class="sp-modal-loading">Unable to load species info right now. Please try again later.</div>';
+    if(panel.dataset.req!==latinName)return;
+    panel.innerHTML=SPECIES_INFO_CLOSE_BTN+back+'<div class="sp-modal-loading">Unable to load species info right now. Please try again later.</div>';
   }
 }
-function renderSpeciesInfoInline(latinName,localName,iucn,info){
+function renderSpeciesInfoInline(latinName,localName,iucn,info,fromLocation=false){
   const panel=document.getElementById('speciesInfoPanel');
   const galleryHtml=info.images.length
     ? `<div class="sp-gallery">${info.images.map(src=>`<img src="${src}" alt="${latinName}" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
     : `<div class="sp-gallery-empty">No reference photos found on GBIF for this species.</div>`;
   const statusHtml=iucn
-    ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
+    ? `<div class="sp-modal-status">${IUCN_FULL[iucn]||iucn}</div>`
     : '';
   const descHtml=info.descriptions.length
     ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
     : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">No description found on GBIF or Wikipedia for this species.</div>`;
   panel.innerHTML=
-    SPECIES_INFO_CLOSE_BTN+
-    `<div class="species-info-title">${latinName}</div>`+
-    (localName?`<div class="species-info-local">${localName}</div>`:'')+
-    galleryHtml+statusHtml+descHtml+
+    SPECIES_INFO_CLOSE_BTN+(fromLocation?SPECIES_INFO_BACK_BTN:'')+
+    `<div class="species-info-head">`+
+      (iucn?`<div class="presence-badge"><img src="${IUCN_LOGO_URL(iucn)}" alt="${iucn}" title="${IUCN_FULL[iucn]||iucn}" onerror="this.parentElement.style.display='none'"></div>`:'')+
+      `<div>${statusHtml}<div class="species-info-title">${latinName}</div>`+
+      (localName?`<div class="species-info-local">${localName}</div>`:'')+
+    `</div></div>`+
+    galleryHtml+descHtml+
     `<div class="sp-modal-source-note">Photo: GBIF.</div>`;
 }
 let presenceMapInstance=null;
@@ -1074,7 +1120,7 @@ function renderPresenceMarkers(){
     locs.forEach(loc=>{
       const key=loc.lat.toFixed(5)+'_'+loc.lon.toFixed(5);
       if(!locationMap[key])locationMap[key]={lat:loc.lat,lon:loc.lon,species:[]};
-      locationMap[key].species.push({latin:sp.latin,sources:loc.sources});
+      locationMap[key].species.push({latin:sp.latin,local:sp.local,iucn:sp.iucn,sources:loc.sources,count:loc.count,last:loc.last});
     });
   });
 
@@ -1095,6 +1141,11 @@ function renderPresenceMarkers(){
     const isMultiSpecies=loc.species.length>1;
     L.circleMarker([loc.lat,loc.lon],{radius:isMultiSpecies?8:6,color:'#fff',weight:1.5,fillColor:markerColor,fillOpacity:.9})
       .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
+      // Klik titik: 1 spesies langsung ke detail, >1 spesies tampilkan daftar temuan di panel kanan
+      .on('click',()=>{
+        if(isMultiSpecies)showLocationSpecies(loc);
+        else{const s=loc.species[0];openSpeciesInfoInline(s.latin,s.local,s.iucn);}
+      })
       .addTo(markerLayer);
   });
 }
