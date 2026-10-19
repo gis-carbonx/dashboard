@@ -71,6 +71,7 @@ body{display:flex;flex-direction:column}
 .filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
 .filter-select:focus{border-color:var(--primary)}
 
+
 .sec-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:18px}
 .sub-title{font-size:14.5px;font-weight:700;color:var(--text);margin:0 0 14px}
 .sub-title:not(:first-of-type){margin-top:28px}
@@ -84,6 +85,17 @@ body{display:flex;flex-direction:column}
 .card-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
 .card-val-lg{font-size:22px;font-weight:800;color:var(--primary)!important;line-height:1}
 .card-sub-pct{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+.card-val-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.card-val-row .card-val-lg{white-space:nowrap}
+.card-tgt{font-size:10.5px;font-weight:700;color:var(--primary-md);text-align:right;line-height:1.25}
+.card-split{display:flex;justify-content:space-between;gap:8px}
+/* Kartu Summary & Nursery mengikuti kartu Agroforestri/Reforestasi: tinggi sama, keterangan 10px di bawah angka */
+.pair-row .card{min-height:122px}
+/* Tinggi baris angka disamakan dengan baris angka + target (2 baris) */
+.pair-row .card-val-row,.pair-row .card-lbl+.card-val-lg{min-height:27px}
+.pair-row .card-lbl+.card-val-lg{display:flex;align-items:flex-end}
+.pair-row .card-val-lg+.card-sub-pct,.pair-row .card-val-row+.card-sub-pct{margin-top:10px}
+.card-split span:last-child{white-space:nowrap}
 
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
@@ -285,13 +297,19 @@ function parseTargetSheet(csv){
     const isENP=uraian==='pa'||uraian.includes('protected');
     const isENL=uraian==='loa'||uraian.includes('logged');
     if(!isA&&!isT&&!isENP&&!isENL)return;
-    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0,enp_utama:0,enl_utama:0,enp_total:0,enl_total:0};
+    if(!targetData[tahun])targetData[tahun]={agro_utama:0,temb_utama:0,agro_total:0,temb_total:0,enp_utama:0,enl_utama:0,enp_total:0,enl_total:0,monthly:Array.from({length:12},()=>({agro:0,temb:0}))};
     const td=targetData[tahun];
     const utama=parseFloat(str(row[1]))||0,total=parseFloat(str(row[15]))||0;
     if(isA){td.agro_utama+=utama;td.agro_total+=total;}
     if(isT){td.temb_utama+=utama;td.temb_total+=total;}
     if(isENP){td.enp_utama+=utama;td.enp_total+=total;}
     if(isENL){td.enl_utama+=utama;td.enl_total+=total;}
+    // Kolom D–O = target per bulan (sama dengan planting.html)
+    for(let m=0;m<12;m++){
+      const v=parseFloat(str(row[3+m]))||0;
+      if(isA)td.monthly[m].agro+=v;
+      if(isT)td.monthly[m].temb+=v;
+    }
   });
 }
 
@@ -435,6 +453,61 @@ function computeTarget(){
   const td=targetData[+currentYear];
   return td?{agro:td.agro_total??null,temb:td.temb_total??null}:{agro:null,temb:null};
 }
+// Target luas per program sesuai periode filter: tahunan, quarter (Σ 3 bulan), atau bulanan
+const TGT_KEYS=['agro','temb'];
+function periodTarget(){
+  const pick=(td,suffix,label)=>{
+    if(!td)return{label};
+    const o={label};TGT_KEYS.forEach(k=>{o[k]=td[`${k}_${suffix}`]||null;});return o;
+  };
+  const sumMonths=(td,ms,label)=>{
+    const o={label};
+    if(!td||!td.monthly)return o;
+    TGT_KEYS.forEach(k=>{o[k]=ms.reduce((s,m)=>s+td.monthly[m][k],0)||null;});
+    return o;
+  };
+  const now=new Date();
+  if(periodMode==='ytd')return pick(targetData[now.getFullYear()],'total','target tahunan');
+  if(periodMode==='mtd')return sumMonths(targetData[now.getFullYear()],[now.getMonth()],'target bulanan');
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?sumMonths(targetData[wk.fri.getFullYear()],[wk.fri.getMonth()],'target bulanan'):{label:''};}
+  if(currentYear==='all'){
+    const o={label:'target keseluruhan'};
+    TGT_KEYS.forEach(k=>{o[k]=Object.values(targetData).reduce((s,td)=>s+(td[`${k}_utama`]||0),0)||null;});
+    return o;
+  }
+  const td=targetData[+currentYear];
+  if(currentQuarter==='all')return pick(td,'total','target tahunan');
+  const q=+currentQuarter;
+  return sumMonths(td,[3*q-3,3*q-2,3*q-1],`target Q${q}`);
+}
+// Luas pembanding target; mode mingguan memakai akumulasi bulan s/d minggu terpilih (seperti planting.html)
+function targetRealAreas(areas){
+  if(periodMode!=='week')return areas;
+  const wk=getSelectedWeek();if(!wk)return areas;
+  let agro=0,temb=0;
+  Object.values(sheetMap).forEach(r=>{
+    const d=parseDate(r.tglPartisipasi);
+    if(!d||d.getFullYear()!==wk.fri.getFullYear()||d.getMonth()!==wk.fri.getMonth()||d>wk.fri)return;
+    agro+=r.luasAgro;temb+=r.luasTemb;
+  });
+  return{agro,temb};
+}
+// Petani unik per sub program dalam periode filter
+function computeSubPetani(){
+  const s={aReg:new Set(),aBPO:new Set(),tReg:new Set(),tMTL:new Set()};
+  Object.values(sheetMap).forEach(r=>{
+    if(!r.petani||!matchesFilter(r,'tglPartisipasi'))return;
+    const p=r.petani.toLowerCase();
+    Object.keys(s).forEach(k=>{if(r[k]>0)s[k].add(p);});
+  });
+  return{aReg:s.aReg.size,aBPO:s.aBPO.size,tReg:s.tReg.size,tMTL:s.tMTL.size};
+}
+// Keterangan kartu, satu rincian per baris
+const subLines=(...lines)=>lines.map((l,i)=>`<div class="card-sub-pct"${i?' style="margin-top:2px"':''}>${l}</div>`).join('');
+function pctOfTarget(val,target,label){
+  if(target===null||target===undefined||!(target>0))return'target belum tersedia';
+  return`${(val/target*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})}% ${label}`;
+}
 function pctText(val,target){
   if(target===null||target===undefined||target<=0)return'';
   // Filter quarter tetap dibandingkan ke target tahunan
@@ -519,12 +592,12 @@ function nurseryHtml(){
           <div class="card">
             <div class="card-lbl">Total Bibit Tersedia</div>
             <div class="card-val-lg">${fmtInt(n.stok)}</div>
-            <div class="card-sub-pct">${fmtInt(n.pemb)} pembesaran, ${fmtInt(n.bst)} BST</div>
+            ${subLines(`${fmtInt(n.pemb)} pembesaran`,`${fmtInt(n.bst)} bibit siap tanam`)}
           </div>
           <div class="card">
             <div class="card-lbl">Bibit Didistribusikan</div>
             <div class="card-val-lg">${fmtInt(n.distTotal)}</div>
-            <div class="card-sub-pct">${fmtInt(n.dist.tanam)} penanaman, ${fmtInt(n.dist.sulam)} penyulaman, ${fmtInt(n.dist.support)} support</div>
+            ${subLines(`${fmtInt(n.dist.tanam)} penanaman, ${fmtInt(n.dist.sulam)} penyulaman, ${fmtInt(n.dist.support)} support`)}
           </div>
         </div>
         <p class="page-note">${note}</p>
@@ -544,6 +617,8 @@ function render(){
   const totalTgt=(tgt.agro!==null&&tgt.temb!==null)?tgt.agro+tgt.temb:null;
   const note1=`Dalam periode ${yearLabel()}, luas area program adalah ${fmt(totalHa)} ha. Setiap lahan agroforestri, tergabung pada paling tidak satu dari ${fmtInt(kthCount)} KTH yang ada. Dimana terdapat ${fmtInt(petakCount)} petak, yang dikelola oleh ${fmtInt(peserta.total)} individu penggarap lahan.`;
   const sub=computeSubAreas();
+  const ptgt=periodTarget(),tgtReal=targetRealAreas(areas),subP=computeSubPetani();
+  const subLine=(ha,name,n)=>`<span>${fmt(ha)} ha ${name}</span><span>${fmtInt(n)} petani</span>`;
   const tgtPhrase=(val,target)=>target!==null&&target>0
     ?`atau ${pctText(val,target)} sebesar ${fmt(target)} ha`
     :'(target belum tersedia)';
@@ -574,7 +649,6 @@ function render(){
       <button class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Mingguan</button>
       ${periodMode==='week'?weekPickerHtml():''}
     </div>
-
     <div class="sec-title">Summary</div>
     <div class="sub-title">Agroforestry and Restoration</div>
 
@@ -589,7 +663,7 @@ function render(){
           <div class="card">
             <div class="card-lbl">Unik Peserta Program</div>
             <div class="card-val-lg">${fmtInt(peserta.total)}</div>
-            <div class="card-sub-pct">${fmtInt(peserta.agro)} agro, ${fmtInt(peserta.temb)} reforestasi</div>
+            ${subLines(`${fmtInt(peserta.agro)} agroforestri`,`${fmtInt(peserta.temb)} reforestasi`)}
           </div>
         </div>
         <p class="page-note">${note1}</p>
@@ -598,13 +672,15 @@ function render(){
         <div class="pair-row">
           <div class="card">
             <div class="card-lbl">Agroforestri</div>
-            <div class="card-val-lg">${fmt(areas.agro)} ha</div>
-            <div class="card-sub-pct">${fmt(sub.aBPOHa)} ha BPO, ${fmt(sub.aRegHa)} ha reguler</div>
+            <div class="card-val-row"><div class="card-val-lg">${fmt(areas.agro)} ha</div><span class="card-tgt">${pctOfTarget(tgtReal.agro,ptgt.agro,ptgt.label)}</span></div>
+            <div class="card-sub-pct card-split">${subLine(sub.aBPOHa,'BPO',subP.aBPO)}</div>
+            <div class="card-sub-pct card-split" style="margin-top:2px">${subLine(sub.aRegHa,'reguler',subP.aReg)}</div>
           </div>
           <div class="card">
             <div class="card-lbl">Reforestasi</div>
-            <div class="card-val-lg">${fmt(areas.temb)} ha</div>
-            <div class="card-sub-pct">${fmt(sub.tMTLHa)} ha MTL, ${fmt(sub.tRegHa)} ha reguler</div>
+            <div class="card-val-row"><div class="card-val-lg">${fmt(areas.temb)} ha</div><span class="card-tgt">${pctOfTarget(tgtReal.temb,ptgt.temb,ptgt.label)}</span></div>
+            <div class="card-sub-pct card-split">${subLine(sub.tMTLHa,'MTL',subP.tMTL)}</div>
+            <div class="card-sub-pct card-split" style="margin-top:2px">${subLine(sub.tRegHa,'reguler',subP.tReg)}</div>
           </div>
         </div>
         <p class="page-note">${note2}</p>
@@ -616,13 +692,13 @@ function render(){
         <div class="pair-row">
           <div class="card">
             <div class="card-lbl">Luas Sudah Ditanam</div>
-            <div class="card-val-lg">${fmt(plant.luas)} ha</div>
-            <div class="card-sub-pct">${fmt(plant.agro)} ha agro, ${fmt(plant.temb)} ha reforestasi</div>
+            <div class="card-val-row"><div class="card-val-lg">${fmt(plant.luas)} ha</div><span class="card-tgt">${plantPct}% dari terdaftar</span></div>
+            ${subLines(`${fmt(plant.agro)} ha agroforestri`,`${fmt(plant.temb)} ha reforestasi`)}
           </div>
           <div class="card">
             <div class="card-lbl">Jumlah Tanaman</div>
             <div class="card-val-lg">${fmtInt(tanaman.total)}</div>
-            <div class="card-sub-pct">${fmtInt(tanaman.agro)} agro, ${fmtInt(tanaman.temb)} reforestasi</div>
+            ${subLines(`${fmtInt(tanaman.agro)} agroforestri`,`${fmtInt(tanaman.temb)} reforestasi`)}
           </div>
         </div>
         <p class="page-note">${note3}</p>
