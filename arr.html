@@ -94,7 +94,6 @@ body{display:flex;flex-direction:column}
 .row-head+.grid-row{margin-bottom:16px}
 @media (max-width:980px){.chart-pair,.chart-pair.even,.chart-pair.wide{grid-template-columns:1fr}}
 
-/* Insentif: tahap */
 :root{--c-paid:#356760;--c-early:#8C9F8B;--c-unpaid:#EDE7D8}
 .st-head,.st-row{display:grid;grid-template-columns:110px 1fr 52px 120px;gap:10px;align-items:center}
 .st-head{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:0 4px 4px}
@@ -108,7 +107,6 @@ body{display:flex;flex-direction:column}
 .st-row .tt-box{left:120px;top:calc(100% - 2px)}
 .st-row:hover .tt-box,.st-row:focus .tt-box{display:block}
 
-/* Insentif: tabel */
 .ins-card{padding:18px 20px 14px;margin-bottom:32px}
 .ins-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .ins-hd-r{display:flex;align-items:center;gap:8px}
@@ -141,7 +139,6 @@ body{display:flex;flex-direction:column}
 .ins-tbl .muted{color:var(--text-2)}
 .ins-tbl tfoot td{font-weight:600;border-top:1px solid var(--text);border-bottom:none;position:sticky;bottom:0;background:#fff}
 
-/* Tabel ringkas + "Tampilkan semua" */
 .clip{position:relative}
 .clip.open .ins-scroll{max-height:420px;overflow:auto}
 .clip.clipped .ins-scroll{max-height:150px;overflow:hidden}
@@ -152,7 +149,6 @@ body{display:flex;flex-direction:column}
 .more-btn{display:block;margin:8px auto 0;padding:5px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--primary);cursor:pointer;font-family:inherit}
 .more-btn:hover{background:var(--primary-bg);border-color:var(--primary-md)}
 
-/* Batang per KTH */
 .kb-list{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .kb-row{position:relative;display:grid;grid-template-columns:140px 1fr 72px;gap:10px;align-items:center;padding:4px;border-radius:6px;outline:none}
 .kb-row:hover,.kb-row:focus{background:var(--bg)}
@@ -162,7 +158,6 @@ body{display:flex;flex-direction:column}
 .kb-bar{display:flex;gap:2px;height:100%;border-radius:0 3px 3px 0;overflow:hidden;min-width:2px}
 .kb-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .kb-val.b{font-size:12px;font-weight:700;color:var(--text)}
-/* fixed agar tidak terpotong .kb-list */
 .kb-row .tt-box{position:fixed;z-index:50}
 .kb-row:hover .tt-box,.kb-row:focus .tt-box{display:block}
 @media (max-width:640px){.kb-row{grid-template-columns:96px 1fr 60px;gap:8px}}
@@ -177,7 +172,6 @@ body{display:flex;flex-direction:column}
 .lg-item i,.sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .lg-item i.ln{height:2px;width:14px;border-radius:1px}
 
-/* Capaian target */
 .tg-list{display:flex;flex-direction:column;gap:16px}
 .tg-row.main{padding-bottom:14px;border-bottom:1px solid var(--border-lt)}
 .tg-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
@@ -189,7 +183,6 @@ body{display:flex;flex-direction:column}
 .tg-meta{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-2);margin-top:5px;font-variant-numeric:tabular-nums}
 .tg-meta b{color:var(--text);font-weight:700}
 
-/* Sub program */
 .sp-group{margin-bottom:14px}
 .sp-group:last-child{margin-bottom:0}
 .sp-ghd{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text);padding:0 0 6px;border-bottom:1px solid var(--border-lt);margin-bottom:6px}
@@ -202,7 +195,6 @@ body{display:flex;flex-direction:column}
 .sp-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
 .sp-n{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
 
-/* Tooltip */
 .tt-box{display:none;position:absolute;z-index:6;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:200px}
 .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
 .tt-head strong{color:var(--text);font-weight:700}
@@ -212,7 +204,6 @@ body{display:flex;flex-direction:column}
 .sp-row .tt-box{left:150px;top:calc(100% - 2px)}
 .sp-row:hover .tt-box,.sp-row:focus .tt-box{display:block}
 
-/* Donut petani */
 .donut-wrap{display:flex;justify-content:center;margin:2px 0 14px}
 .donut{width:160px;height:160px;overflow:visible}
 .donut circle.seg{fill:none;stroke-width:26}
@@ -224,7 +215,6 @@ body{display:flex;flex-direction:column}
 .kv small{font-size:10.5px;color:var(--text-2);font-weight:600;margin-left:6px}
 .kv-sep{border-top:1px solid var(--border-lt);margin:8px 0 6px;padding-top:8px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
 
-/* Bar bulanan */
 .bc-plot{flex:1;min-height:240px;display:grid;grid-template-columns:44px 1fr;grid-template-rows:1fr auto;column-gap:8px;margin-top:4px}
 .bc-yaxis{position:relative}
 .bc-yaxis span{position:absolute;right:0;transform:translateY(50%);font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -240,7 +230,6 @@ body{display:flex;flex-direction:column}
 .bc-col:nth-last-of-type(-n+3) .tt-box{left:auto;right:0;transform:none}
 .bc-col:hover .tt-box,.bc-col:focus .tt-box{display:block}
 
-/* Garis kumulatif */
 .pl-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .pl-item{background:var(--bg);border-radius:10px;padding:10px 12px}
 .pl-name{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--text)}
@@ -251,7 +240,6 @@ body{display:flex;flex-direction:column}
 .lc svg{display:block;width:100%;height:100%}
 .lc .tt-box{top:8px}
 
-/* Jenis tanaman */
 .sl{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .sl-row{display:grid;grid-template-columns:130px 1fr 60px 46px;gap:10px;align-items:center;padding:4px 4px;border-radius:6px}
 .sl-row{outline:none}
@@ -408,7 +396,6 @@ function parseSheet(csv){
       desa:str(raw['Desa']||''),dusun:str(colV(raw,keys,['dusun'],44)),
       tglPartisipasi:parseDate(tglPartisipasi),tglRealisasi:parseDate(tglRealisasi),
       luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,jumlahTanaman,plantedPlants,
-      // fallback ke kolom sub program
       luasAgro,luasTemb,luas:luasAgro+luasTemb,
       nominalStages,stages,
       pupukPadat:num(colV(raw,keys,['PupukPadat','Pupuk_Padat'],39)),
@@ -583,7 +570,6 @@ function niceScale(max,n=4){
   for(let v=0;v<=top+step/2;v+=step)ticks.push(+v.toFixed(6));
   return{max:top,ticks};
 }
-// Rentang data dihitung sekali lalu disimpan
 let _span=null;
 function dataSpan(){
   if(_span&&_span.n===rows.length)return _span;
@@ -635,7 +621,6 @@ function timeBuckets(){
   return out;
 }
 
-/* --- Capaian target --- */
 function targetCardHTML(s){
   const item=(cls,name,color,val,base,tgtVal)=>{
     const p=pctOf(base,tgtVal);
@@ -700,7 +685,6 @@ function subProgramCardHTML(s){
     </div>`;
 }
 
-/* --- Partisipasi --- */
 function petaniCardHTML(s){
   const R=62,C=2*Math.PI*R,GAP=2,total=s.laki+s.pmp;
   let acc=0;
@@ -775,9 +759,7 @@ function trendCardHTML(){
     </div>`;
 }
 
-/* --- Penanaman --- */
 let lcData=null;
-// Tanggal diurutkan sekali, lalu dijumlah berjalan
 function cumulativeSeries(){
   const bk=timeBuckets();
   const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
@@ -912,7 +894,6 @@ function speciesCardHTML(s){
     </div>`;
 }
 
-/* --- Insentif --- */
 // Lahan dihitung menurut tanggal bergabung (Tgl_Partisipasi)
 const insRows=()=>rows.filter(r=>inPeriod(r.tglPartisipasi));
 // Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi)
@@ -1120,7 +1101,6 @@ async function downloadIns(type){
   if(!vis.length){alert('Tidak ada data.');return;}
   await exportTable(type,hdr,body,`Insentif Program ${reg?'Reguler':'Tahunan'}`,`Insentif_${reg?'Reguler':'Tahunan'}`,reg);
 }
-/* --- KTH --- */
 const NO_KTH='Tanpa KTH';
 function kthData(){
   const by={};
@@ -1196,7 +1176,6 @@ function kthTanamCardHTML(list){
     </div>`;
 }
 
-// Tooltip di bawah baris, pindah ke atas bila tidak muat
 function placeKbTip(row){
   const tip=row.querySelector('.tt-box');if(!tip)return;
   tip.style.display='block';
@@ -1262,7 +1241,6 @@ function updateKTHTable(){
   document.getElementById('kthCount').textContent=`${fmtInt(vis.length)} lahan`;
   applyClip('kth',vis.length,kthState.open);
 }
-// Tabel ringkas bila baris > CLIP_PREVIEW
 const CLIP_PREVIEW=5;
 function applyClip(prefix,n,open){
   const many=n>CLIP_PREVIEW,btn=document.getElementById(prefix+'More');
@@ -1287,7 +1265,6 @@ async function downloadKTH(type){
   await exportTable(type,KTH_HDR,vis.map((o,i)=>[i+1,...kthRowCells(o,raw)]),kthState.kth?`Daftar Lahan ${kthState.kth}`:'Daftar Lahan per KTH',kthState.kth?`Lahan_${kthState.kth.replace(/[^\w]+/g,'_')}`:'Lahan_per_KTH',false);
 }
 
-// wide = PDF A3 dengan huruf lebih kecil
 async function exportTable(type,hdr,body,title,prefix,wide){
   const fname=`${prefix}_${periodLabel().replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')}`;
   const sub=`PT Citra Mulia Inti | ${periodLabel()} | ${body.length} baris | ${fmtD(new Date(),'l')}`;

@@ -46,7 +46,6 @@ body{display:flex;flex-direction:column}
 .hero-date{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
 
 .page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
-/* Halaman bisa di-scroll: kartu & filter ikut tergulir ke atas, daftar lahan tetap setinggi hampir satu layar */
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
 .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:var(--dark);border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -59,7 +58,6 @@ body{display:flex;flex-direction:column}
 
 .page-body-inner{flex:1;min-width:0;display:flex;flex-direction:column}
 
-/* Tata letak kartu sama dengan planting-summary: dua kolom (jarak 40px), tiap kolom berisi sepasang kartu (jarak 14px) */
 .stat-pairs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:16px;flex-shrink:0}
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:900px){.stat-pairs{grid-template-columns:1fr;gap:14px}}
@@ -220,7 +218,6 @@ let searchQuery='',progFilter='all',kthFilter='',statusFilter='all';
 let years=[],kthNames=[];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-// --- Filter waktu: Semua / Tahun / Bulan / Mingguan / Custom ---
 let timePreset='all',timeYear=null,timeMonth=null,timeWeekYear=null,timeWeekMonth=null,timeWeekIdx=0,timeCustomStart=null,timeCustomEnd=null;
 
 function getWeeksInMonth(yr,mo){
@@ -385,7 +382,6 @@ function renderList(){
   listEl.querySelectorAll('.lahan-row').forEach(el=>{
     el.addEventListener('click',()=>openDetail(el.dataset.id));
   });
-  // kalau lahan yang sedang aktif sudah tidak ada di hasil filter, tutup panel detail
   if(activeId&&!rows.some(r=>r.id===activeId))closeDetail();
   renderStats();
 }

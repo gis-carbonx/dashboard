@@ -65,7 +65,6 @@ body{display:flex;flex-direction:column}
 .dl-wrap.open .dl-menu{display:block}
 .dl-menu button{display:block;width:100%;padding:9px 13px;border:none;background:none;text-align:left;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit}
 .dl-menu button:hover{background:var(--primary-bg);color:var(--primary-md)}
-/* Filter */
 .filters{flex-shrink:0;margin-bottom:6px;display:flex;justify-content:space-between;gap:16px}
 .filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 .filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
@@ -74,7 +73,6 @@ body{display:flex;flex-direction:column}
 .fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .fpill:hover:not(.active){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
 .sel{min-width:150px}
-/* Sort kolom */
 .tbl th.sortable{padding:0}
 .tbl th.sortable button{display:flex;align-items:center;gap:4px;width:100%;padding:7px 10px;border:none;background:none;font:inherit;font-weight:600;color:var(--text);cursor:pointer;text-align:left;white-space:nowrap}
 .tbl th.sortable.r button{justify-content:flex-end}
@@ -93,11 +91,9 @@ body{display:flex;flex-direction:column}
 .tbl tbody tr.active td{background:#f1ede2}
 .tbl .r{text-align:right;font-variant-numeric:tabular-nums}
 .tbl .muted{color:var(--text-2)}
-/* Panel terbuka: tampilkan nama, program & luas saja */
 .explore.open .full{display:none}
 .empty{padding:40px 10px;text-align:center;color:var(--text-3);font-size:12px}
 
-/* Panel samping */
 .panel{flex:0 0 0%;min-width:0;overflow:hidden;border:0 solid var(--border);border-radius:12px;display:flex;flex-direction:column;transition:flex .25s ease}
 .explore.open .panel{flex:1.2 1 0%;border-width:1px}
 .panel-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -235,7 +231,6 @@ function parseSheet(csv){
       petani:str(raw['Petani']),jk:str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']),
       kth:str(raw['KTH']),desa:str(raw['Desa']),dusun:str(colV(raw,keys,['dusun'],44)),
       tglPartisipasi,tglRealisasi:str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']),
-      // fallback ke kolom sub program
       luas:group==='agro'?(luasAgro>0?luasAgro:aReg+aBPO):(luasTemb>0?luasTemb:tReg+tMTL),
       planted:plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0),
       existing:existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0)};
@@ -342,7 +337,6 @@ function updateTable(){
   document.getElementById('count').textContent=`${fmtInt(vis.length)} lahan · ${fmt(vis.reduce((a,r)=>a+r.luas,0))} ha`;
 }
 
-/* --- Ekspor (mengikuti filter & urutan) --- */
 const EXPORT_HDR=['No','Nama Petani','ID Lahan','Desa','KTH','Program','Luas (ha)','Tgl Partisipasi'];
 function exportBody(raw){
   return visibleRows().map((r,i)=>[i+1,r.petani,r.id,r.desa,r.kth,PROG_INFO[r.prog].label,raw?+r.luas.toFixed(2):fmt(r.luas),fmtDate(r.tglPartisipasi)]);
@@ -373,7 +367,6 @@ function exportPDF(){
   doc.save(exportName()+'.pdf');
 }
 
-/* --- Panel --- */
 function openPanel(id){
   const r=byId[id];if(!r)return;
   activeId=id;
@@ -415,7 +408,6 @@ function detailHTML(r){
     </div>`;
 }
 
-/* --- Peta --- */
 let map=null,geoReady=null,lahanLayers={};
 function featId(f){const p=f.properties||{};return str(p.id_lahan||p.ID_Petak||p.id_petak||p.ID_LAHAN||p.Id_Lahan||p.IDLAHAN||'');}
 function lahanStyle(id){
@@ -448,7 +440,6 @@ async function showOnMap(id){
   const note=document.getElementById('mapNote');
   note.style.display='flex';note.textContent='Memuat peta...';
   await ensureMap();
-  // tunggu animasi panel sebelum invalidateSize
   setTimeout(()=>{
     if(id!==activeId)return;
     map.invalidateSize();

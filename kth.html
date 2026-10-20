@@ -73,7 +73,6 @@ body{display:flex;flex-direction:column}
 
 .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
-/* --- KTH-specific, kept minimal & consistent with the card/sub-title system above --- */
 .kth-block{border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:18px}
 .kth-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .kth-name{font-size:14.5px;font-weight:700;color:var(--text)}
@@ -89,7 +88,6 @@ body{display:flex;flex-direction:column}
 .person.female{border:2px solid #D99AAB;padding:4px 11px 4px 4px}
 .person.female .person-pic{box-shadow:0 0 0 2.5px #B5627A}
 
-/* Carousel kegiatan: kartu dengan foto besar, geser (swipe/scroll) atau tombol panah */
 .carousel{position:relative}
 .activity-list{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}
 .activity-list::-webkit-scrollbar{display:none}
@@ -99,7 +97,6 @@ body{display:flex;flex-direction:column}
 .photo-track::-webkit-scrollbar{display:none}
 .activity-cover .thumb{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;scroll-snap-align:start}
 .activity-cover .thumb:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
-/* Navigasi foto dalam kartu: ‹ • • • › di bawah foto */
 .photo-nav{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(20,18,15,.55);border-radius:14px;padding:3px 4px}
 .ph-btn{width:22px;height:22px;border:none;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:15px;line-height:1;cursor:pointer;font-family:inherit}
 .ph-btn:hover{background:rgba(255,255,255,.35)}
@@ -117,7 +114,6 @@ body{display:flex;flex-direction:column}
 .car-next{right:8px}
 .car-btn[disabled]{opacity:0;pointer-events:none}
 
-/* --- Lightbox foto kegiatan --- */
 .lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
 .lb.open{display:flex}
 .lb-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
@@ -192,7 +188,6 @@ const SHEET_ID='1_8jR1z131_-9k3QVbsaGFRn8MY2JPPiEAgWOZliKo_k';
 const NEWS_GID=0,PENGURUS_GID=859770829;
 const NEWS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${NEWS_GID}`;
 const PENGURUS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PENGURUS_GID}`;
-// Data peserta dari sheet ARR_SUMMARY (sama dengan planting-summary)
 const ARR_SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac';
 const PESERTA_URL=`https://docs.google.com/spreadsheets/d/${ARR_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ARR_SUMMARY`;
 
@@ -392,7 +387,6 @@ function carUpdate(c){
 }
 window.addEventListener('resize',()=>document.querySelectorAll('.carousel').forEach(carUpdate));
 
-// Lightbox foto kegiatan; panah untuk foto lain di kegiatan yang sama
 const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),k:null,i:0,last:null};
 function lbShow(){
   const k=kegiatanList[lb.k],n=k.fotos.length;

@@ -99,8 +99,6 @@ body{display:flex;flex-direction:column}
 .donut circle.seg{fill:none;stroke-width:30;cursor:pointer;transition:opacity .15s,stroke-width .15s}
 .donut.hovering circle.seg{opacity:.35}
 .donut.hovering circle.seg.on{opacity:1;stroke-width:34}
-.donut-c1{font-size:19px;font-weight:800;fill:var(--text)}
-.donut-c2{font-size:10px;fill:var(--text-2)}
 .dn-legend{display:flex;flex-direction:column;gap:2px}
 .dn-row{display:grid;grid-template-columns:10px 1fr auto 46px;gap:8px;align-items:center;padding:5px 6px;border-radius:6px;cursor:default;outline:none}
 .dn-row:hover,.dn-row:focus,.dn-row.on{background:var(--bg)}
@@ -109,7 +107,10 @@ body{display:flex;flex-direction:column}
 .dn-name small{display:block;font-size:10px;color:var(--text-3);margin-top:1px}
 .dn-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
 .dn-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
-
+.dn-legend{position:relative}
+.dn-legend .dn-tt{left:50%;transform:translateX(-50%);top:auto;bottom:calc(100% + 6px);min-width:250px}
+.dn-row:hover .dn-tt,.dn-row:focus .dn-tt,.dn-row.on .dn-tt{display:block}
+.dn-tt-total{border-top:1px solid var(--border-lt);margin-top:4px;padding-top:6px}
 .tt-box{display:none;position:absolute;z-index:5;top:calc(100% - 2px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
 .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
 .tt-head strong{color:var(--text);font-weight:700}
@@ -280,12 +281,12 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 // Grafting, Pembesaran - Grafting & Rootstock Return hanya catatan: sambungan tetap dihitung di BST - Regular
 const normCat=s=>str(s).toLowerCase().replace(/[^a-z]/g,'');
 const CAT={
-  semai:'semaibiji',          // Semai - Biji
-  matiSemai:'matisemai',      // Mati - Semai
-  pemb:'pembesaranregular',   // Pembesaran - Regular
-  matiPemb:'matipembesaran',  // Mati - Pembesaran
-  bst:'bstregular',           // BST - Regular
-  matiBst:'matibstregular',   // Mati - BST Regular (termasuk sambungan/rootstock yang mati)
+  semai:'semaibiji',
+  matiSemai:'matisemai',
+  pemb:'pembesaranregular',
+  matiPemb:'matipembesaran',
+  bst:'bstregular',
+  matiBst:'matibstregular',   // termasuk sambungan/rootstock yang mati
   tanam:'penanaman',sulam:'penyulaman',support:'support'
 };
 const PEMANFAATAN=new Set([CAT.tanam,CAT.sulam,CAT.support]);
@@ -302,7 +303,6 @@ const TIPE_DESC={
 };
 const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
 
-// Kolom O–T sheet; tipe kosong/tidak dikenal tidak masuk kolom mana pun
 const INTERVENSI=['Agroforestry','Tembawang','Enrichment','Kebun Entres','Kebun Inti','Other'];
 const IV_NONE='Tanpa Tipe Intervensi';
 function normIntervensi(v){
@@ -310,8 +310,9 @@ function normIntervensi(v){
   return INTERVENSI.find(t=>normCat(t)===n)||IV_NONE;
 }
 
-const YEAR_OPTIONS=['all','2025','2026'];
+const YEAR_OPTIONS=['all','2024','2025','2026'];
 let rows=[],selectedYear='all';
+const CAT_LABEL={};
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
@@ -323,6 +324,7 @@ function parseSheet(csv){
     const tanggal=str(pickCI(raw,keys,'Tanggal'));
     const m=tanggal.match(/(\d{4})/);
     const d=tanggal.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(!CAT_LABEL[normCat(category)])CAT_LABEL[normCat(category)]=category;
     rows.push({
       year:m?m[1]:'',
       date:d?d[0]:'',
@@ -368,7 +370,7 @@ function flowByJenis(year,cumulative=false){
     const mati=Object.keys(o.c).filter(isMati).reduce((a,k)=>a+o.c[k],0);      // N  Total Mati ("*Mati*")
     // Sisa semai; 0 bila neraca sheet seimbang (W = 0)
     const semai=Math.max(0,masuk-c(CAT.pemb)-c(CAT.matiSemai));
-    return{jenis:o.jenis,masuk,semai,proses,stok,dist,mati,total:semai+proses+stok+dist+mati};
+    return{jenis:o.jenis,c:o.c,masuk,semai,proses,stok,dist,mati,total:semai+proses+stok+dist+mati};
   }).filter(o=>o.total>0);
 }
 
@@ -397,13 +399,22 @@ function stockAsOf(year){
 function flowTotals(year){
   const tipe={};
   TIPE_ORDER.forEach(t=>tipe[t]={total:0});
+  const cat={};
   flowByJenis(year).forEach(o=>{
     tipe.Semai.total+=o.semai;
     tipe.Proses.total+=o.proses;
     tipe.BST.total+=o.stok;
     tipe.Pemanfaatan.total+=o.dist;
     tipe.Mati.total+=o.mati;
+    Object.entries(o.c).forEach(([k,v])=>{cat[k]=(cat[k]||0)+v;});
   });
+  const g=k=>cat[k]||0;
+  const dist=g(CAT.tanam)+g(CAT.sulam)+g(CAT.support);
+  tipe.Semai.parts=[['Semai - Biji',g(CAT.semai),'+'],['Pindah ke pembesaran',g(CAT.pemb),'−'],['Mati - Semai',g(CAT.matiSemai),'−']];
+  tipe.Proses.parts=[['Pembesaran - Regular',g(CAT.pemb),'+'],['Mati - Pembesaran',g(CAT.matiPemb),'−'],['Naik ke BST',g(CAT.bst),'−']];
+  tipe.BST.parts=[['BST - Regular',g(CAT.bst),'+'],['Mati - BST Regular',g(CAT.matiBst),'−'],['Pemanfaatan',dist,'−']];
+  tipe.Pemanfaatan.parts=[['Penanaman',g(CAT.tanam)],['Penyulaman',g(CAT.sulam)],['Support',g(CAT.support)]];
+  tipe.Mati.parts=Object.keys(cat).filter(isMati).sort().map(k=>[CAT_LABEL[k]||k,cat[k]]);
   return tipe;
 }
 
@@ -424,12 +435,19 @@ function tipeDonutHTML(tipe,periode){
   }).join('');
   const legend=TIPE_ORDER.map(t=>{
     const v=tipe[t].total;
+    const parts=tipe[t].parts||[];
+    const signed=parts.some(p=>p[2]);
+    const tip=(parts.length
+      ?parts.map(([lbl,n,sg])=>`<div class="tt-row"><span>${sg?`${sg} `:''}${esc(lbl)}</span><span>${fmtInt(n)}</span></div>`).join('')
+      :'<div class="tt-row"><span>Tidak ada data</span></div>')
+      +`<div class="tt-row dn-tt-total"><span>${signed?'Sisa':'Total'} ${t}</span><b>${fmtInt(v)} bibit</b></div>`;
     return`
       <div class="dn-row" data-tipe="${t}" tabindex="0">
         <i style="background:${TIPE_COLOR[t]}"></i>
         <span class="dn-name">${t}<small>${TIPE_DESC[t]}</small></span>
         <span class="dn-val">${fmtInt(v)}</span>
         <span class="dn-pct">${fmtPct(total?v/total*100:0)}</span>
+        <div class="tt-box dn-tt"><div class="tt-head"><strong>${t}</strong> &middot; ${fmtPct(total?v/total*100:0)} dari seluruh bibit</div>${tip}</div>
       </div>`;
   }).join('');
   return`
@@ -439,8 +457,6 @@ function tipeDonutHTML(tipe,periode){
       <div class="donut-wrap">
         <svg class="donut" viewBox="0 0 190 190" role="img" aria-label="Diagram status seluruh bibit per tipe">
           ${segs}
-          <text class="donut-c1" x="95" y="95" text-anchor="middle" id="donutC1"></text>
-          <text class="donut-c2" x="95" y="112" text-anchor="middle" id="donutC2"></text>
         </svg>
       </div>
       <div class="dn-legend">${legend}</div>
@@ -451,19 +467,13 @@ function bindDonut(tipe){
   const card=document.getElementById('donutCard');
   if(!card)return;
   const svg=card.querySelector('.donut');
-  const c1=card.querySelector('#donutC1'),c2=card.querySelector('#donutC2');
-  const total=TIPE_ORDER.reduce((a,t)=>a+tipe[t].total,0);
-  const def=[c1.textContent,c2.textContent];
   const on=t=>{
     svg.classList.add('hovering');
     card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.toggle('on',el.dataset.tipe===t));
-    c1.textContent=fmtPct(total?tipe[t].total/total*100:0);
-    c2.textContent=`${t} · ${fmtInt(tipe[t].total)} bibit`;
   };
   const off=()=>{
     svg.classList.remove('hovering');
     card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.remove('on'));
-    [c1.textContent,c2.textContent]=def;
   };
   card.querySelectorAll('[data-tipe]').forEach(el=>{
     el.addEventListener('mouseenter',()=>on(el.dataset.tipe));
@@ -473,7 +483,6 @@ function bindDonut(tipe){
   });
 }
 
-// Stok tersisa: Pembesaran (E) + BST (H) = Total Bibit (K)
 const COMP_SEGS=[
   {key:'proses',label:'Pembesaran',color:'#B5BBA9'},
   {key:'stok',label:'BST (siap tanam)',color:'#356760'}
@@ -517,7 +526,6 @@ function compositionChartHTML(year,periode){
 const validId=id=>/^\d{4}-\d{2}\//.test(id||'');
 const inCohort=(r,year)=>year==='all'||r.id.slice(0,4)===year;
 
-// Bibit hidup per batch pada akhir periode (akumulasi)
 function stockRefDate(year){
   return year==='all'||+year>=new Date().getFullYear()?new Date():new Date(+year,11,31);
 }
@@ -644,7 +652,6 @@ function pemanfaatanChartHTML(year,periode){
     const j=r.jenis&&r.jenis!=='#N/A'?r.jenis:'Tidak diketahui';
     o.jenis[j]=(o.jenis[j]||0)+r.jumlah;
   });
-  // Baris "Tanpa Tipe Intervensi" hanya muncul bila ada data belum diisi
   const keys=by[IV_NONE].total>0?[...INTERVENSI,IV_NONE]:INTERVENSI;
   const total=keys.reduce((a,t)=>a+by[t].total,0);
   const max=Math.max(1,...keys.map(t=>by[t].total));

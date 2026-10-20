@@ -197,7 +197,6 @@
 
     const overlay = buildOverlay();
 
-    // ---- Tombol Logout (pojok kanan atas) ----
     const logoutBtn = document.createElement("button");
     logoutBtn.type = "button";
     logoutBtn.className = "authg-logout-btn";
@@ -259,7 +258,6 @@
       lock();
     }
 
-    // ---- Elemen form ----
     const loginView = document.getElementById("authgLoginView");
     const changeView = document.getElementById("authgChangePassView");
     const loginForm = document.getElementById("authgLoginForm");

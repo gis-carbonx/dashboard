@@ -12,7 +12,6 @@
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-    /* Gaya disamakan dengan planting-summary.html (token warna, kartu, judul, peta, panel detail) */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
@@ -63,7 +62,6 @@
 
     .page-body-inner{flex:1;min-width:0}
 
-    /* Filter: sama dengan planting-summary */
     .filter-bar{margin-bottom:28px}
     .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
     .filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
@@ -96,7 +94,6 @@
 
     .loading-note{padding:60px 40px;text-align:center;color:var(--text-3);font-size:13px}
 
-    /* --- Peta sebaran (sama dengan "Sebaran Lahan Program" di planting-summary) --- */
     .sebaran-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:8px}
     @media (max-width:900px){.sebaran-row{grid-template-columns:1fr}}
     .sebaran-map-wrap{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:360px;background:var(--border-lt)}
@@ -106,7 +103,6 @@
     .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
     .lg-line{width:16px;border-top:2px solid #334155;flex-shrink:0}
 
-    /* Panel detail spesies di kanan peta (sama dengan panel detail lahan) */
     .lahan-detail{position:relative;border:1px solid var(--border);border-radius:14px;padding:16px;height:360px;overflow-y:auto;background:#fff}
     .ld-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;color:var(--text-3);line-height:1.6;padding:0 12px}
     .species-info-close{position:absolute;top:10px;right:10px;z-index:1;width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
@@ -132,7 +128,6 @@
     .sp-modal-loading{padding:30px 0;text-align:center;font-size:12px;color:var(--text-3)}
     .sp-modal-source-note{font-size:9.5px;color:var(--text-3);margin-top:10px}
 
-    /* Daftar kehadiran spesies (gaya baris seperti daftar tanaman di panel detail lahan) */
     .presence-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-lt)}
     .presence-row:last-child{border-bottom:none;padding-bottom:0}
     .presence-row-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
@@ -147,7 +142,6 @@
     .presence-last-detection{font-size:10px;color:var(--text-3);white-space:nowrap}
     .presence-empty{font-size:11px;color:var(--text-3);padding:6px 0}
 
-    /* Statistik spesies & tabel (header tabel mengikuti label kecil .ld-lbl planting-summary) */
     .species-stat-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start}
     @media (max-width:900px){.species-stat-row{grid-template-columns:1fr}}
     .species-chart-wrap{position:relative;height:220px}
@@ -473,7 +467,6 @@ function pickFieldExactOrPartial(row,...patterns){
 }
 
 let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[],patrol2026Dates=[];
-// Data lengkap; ctRows/bioRows/huntingRecords = hasil filter aktif
 let allCt=[],allBio=[],allHunting=[];
 // Alat terpasang = punya catatan (kolom Date) di periode filter; satu pemasangan = ID alat + Batch
 let ctDeployments=[],bioDeployments=[];
@@ -505,7 +498,6 @@ function deviceListText(deps){
   const sites=Object.entries(perSite).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
   const fmt=list=>joinEN(list.map(([s,n])=>`${s} (${n})`));
   if(sites.length<=MAX_LISTED)return` across ${sites.length} site${sites.length===1?'':'s'}: ${fmt(sites)}`;
-  // Banyak site: sebut hanya site dengan >1 alat
   const multi=sites.filter(([,n])=>n>1).slice(0,3);
   return` across ${sites.length} sites`+(multi.length?`, including ${fmt(multi)}`:'');
 }
@@ -540,7 +532,6 @@ function renderDeviceCounts(){
   show('statBioInstalled','statBioInstalledSub',activeBioDeps);
 }
 
-// Filter periode (sama dengan planting-summary)
 let years=[],currentYear='all',currentQuarter='all';
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -807,7 +798,6 @@ function renderSpeciesCounts(){
   document.getElementById('statSpeciesCt').textContent=ctSp.size;
   document.getElementById('statSpeciesBio').textContent=bioSp.size;
 
-  // Terancam = subset spesies unik di atas
   const iucnMap={};
   combined.forEach(r=>{
     const key=(r.Species||'').trim().toLowerCase();
@@ -899,7 +889,6 @@ function speciesLocations(latinName){
   });
   return Object.values(map);
 }
-// Daftar spesies yang ditemukan pada satu titik, ditampilkan di panel kanan peta
 let lastLocation=null;
 function showLocationSpecies(loc){
   lastLocation=loc;
@@ -1107,7 +1096,6 @@ function initPresenceMap(){
     '<span><i class="lg-line"></i>Project Area</span>';
 }
 
-// Peta dibuat sekali; hanya marker yang digambar ulang saat filter berubah
 let presenceMarkerLayer=null;
 function renderPresenceMarkers(){
   if(!presenceMarkerLayer)return;
@@ -1141,7 +1129,6 @@ function renderPresenceMarkers(){
     const isMultiSpecies=loc.species.length>1;
     L.circleMarker([loc.lat,loc.lon],{radius:isMultiSpecies?8:6,color:'#fff',weight:1.5,fillColor:markerColor,fillOpacity:.9})
       .bindPopup(`<div style="font-family:'Libre Franklin',sans-serif">${popupHtml}</div>`)
-      // Klik titik: 1 spesies langsung ke detail, >1 spesies tampilkan daftar temuan di panel kanan
       .on('click',()=>{
         if(isMultiSpecies)showLocationSpecies(loc);
         else{const s=loc.species[0];openSpeciesInfoInline(s.latin,s.local,s.iucn);}
@@ -1195,7 +1182,6 @@ function renderSpeciesStats(){
   topSpeciesCache=top;
 }
 
-// Kalimat ringkasan di bawah tiap bagian
 let topSpeciesCache=[];
 const txt=id=>(document.getElementById(id)?.textContent||'').trim();
 const joinEN=list=>list.length<=1?list.join(''):list.slice(0,-1).join(', ')+' and '+list[list.length-1];

@@ -56,7 +56,6 @@
   .report-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
   .report{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
 
-  /* Menu samping, sama seperti patrol-summary */
   .content-row{display:flex;align-items:flex-start;gap:20px}
   .page-body-inner{flex:1;min-width:0}
   .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:#3A342C;border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -122,7 +121,6 @@
   .trend-granularity{font-size:10px;font-weight:600;color:var(--color-muted);text-transform:none;font-family:'Libre Franklin',sans-serif}
   .trend-chart-wrap{position:relative;flex:1;min-height:150px;margin-top:6px}
 
-  /* Filter waktu, sama seperti patrol-summary */
   .fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--color-sand);background:#fff;font-size:10.5px;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit}
   .fpill.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
   .fpill:hover:not(.active){background:var(--color-cream);border-color:var(--color-cream);color:var(--color-fern)}
@@ -141,7 +139,6 @@
   .two-col-row{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-items:stretch}
   @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
   .map-panel{padding:0;overflow:hidden;display:flex;flex-direction:column}
-  /* Peta mengisi tinggi panel agar sejajar dengan panel Lokasi Titik Api */
   #map{width:100%;flex:1;min-height:340px}
   .map-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--color-muted);padding:12px 18px;border-top:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif}
   .legend-line{display:inline-block;width:16px;height:2px;background:var(--color-pine);margin-right:5px;vertical-align:middle}
@@ -390,7 +387,6 @@ const map=L.map('map',{zoomControl:true,attributionControl:false});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(map);
 map.setView([0.8,110.3],11);
 let mapBounds=null;
-// Tinggi peta berubah mengikuti isi panel lokasi; beri tahu Leaflet agar tile tidak terpotong
 if(window.ResizeObserver)new ResizeObserver(()=>map.invalidateSize()).observe(document.getElementById('map'));
 const fireLayer=L.layerGroup().addTo(map);
 
@@ -580,7 +576,6 @@ function renderFireTrendChart(){
 let maxFireDate=null;
 let filterRangeStart=null,filterRangeEnd=null;
 
-// Filter periode (sama dengan patrol-summary)
 let fireYears=[],yearFilter=null,quarterFilter=null;
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -803,7 +798,7 @@ function parseBmkgDateTime(s){
 function fmtJam(d){return d?d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'–';}
 
 Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(res)=>{
-  const dataRows=res.data.slice(1); // baris pertama = header
+  const dataRows=res.data.slice(1);
   forecastBmkg=dataRows.map(row=>{
     const dateObj=parseBmkgDateTime(row[0]);
     if(!dateObj)return null;

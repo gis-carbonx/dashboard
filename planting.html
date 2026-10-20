@@ -974,7 +974,6 @@ function closeModal(id){
 }
 function openGrafikModal(){document.getElementById('grafikModal').style.display='flex';switchGrafikTab(grafikTab);}
 
-// --- Detail Jumlah Tanaman: progres per tahun + jenis yang sudah ditanam ---
 // Sudah ditanam = punya Tgl_Realisasi; tidak dibatasi filter halaman agar riwayat tiap tahun terlihat
 function getPlantedRowsAll(){
   return Object.values(sheetMap).filter(r=>parseDate(r.tglRealisasi));

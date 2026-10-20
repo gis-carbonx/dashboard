@@ -50,7 +50,6 @@
     display:flex;flex-direction:column;
   }
 
-  /* Header gelap, sama seperti halaman lain */
   .frame-header{flex-shrink:0;background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0}
   .frame-header-inner{
     max-width:1180px;margin:0 auto;padding:0 36px;
@@ -65,7 +64,6 @@
   .page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
   .page{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
 
-  /* Menu samping, sama seperti halaman lain */
   .content-row{display:flex;align-items:flex-start;gap:20px}
   .page-body-inner{flex:1;min-width:0}
   .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:#3A342C;border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -83,7 +81,6 @@
   .fpill:hover:not(.active){background:var(--color-cream);border-color:var(--color-cream);color:var(--color-fern)}
   .fpill:disabled{opacity:.4;cursor:default}
 
-  /* Panel peta */
   .map-card{border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;background:#fff}
   .map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--color-sand)}
   .layer-pills{display:flex;gap:6px;flex-wrap:wrap}
@@ -104,10 +101,8 @@
   .map-status{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--color-fern);box-shadow:0 1px 4px rgba(0,0,0,.15);display:none}
   .map-wrap{position:relative}
 
-  /* Kartu panduan membaca citra */
   .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
   .guide-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column}
-  /* Sumber data menempel di dasar kartu agar sejajar antar kartu */
   .guide-source{margin-top:auto;padding-top:10px;border-top:1px solid #EDE7D8;font-size:10px;color:var(--color-muted);line-height:1.5}
   .guide-list+.guide-source{margin-top:auto}
   .guide-list{margin-bottom:12px}
@@ -126,17 +121,14 @@
   .source-note a{color:var(--color-fern);font-weight:600;text-decoration:none}
   .source-note a:hover{text-decoration:underline}
 
-  /* Legenda resmi GIBS (SVG) untuk layer kuantitatif */
   .legend-bar{padding:10px 16px 12px;border-top:1px solid var(--color-sand);display:none}
   .legend-bar.visible{display:block}
   .legend-bar img{display:block;width:100%;max-width:560px;height:auto}
-  /* Legenda GIBS berisi beberapa skala bertumpuk; tiap skala dipotong lalu disusun berdampingan */
   .legend-row{display:grid;grid-template-columns:repeat(var(--n,1),minmax(0,300px));gap:24px;justify-content:center}
   @media (max-width:640px){.legend-row{grid-template-columns:minmax(0,300px)}}
   .legend-crop{position:relative;overflow:hidden;aspect-ratio:var(--ar)}
   .legend-crop img{position:absolute;left:0;width:100%;max-width:none;height:auto}
 
-  /* Curah hujan di lokasi proyek (Open-Meteo) */
   .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
   @media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
@@ -309,7 +301,6 @@
         <div class="loading-msg" id="rainChartMsg">Memuat data curah hujan&hellip;</div>
       </div>
 
-      <!-- Sementara disembunyikan; aktifkan lagi dengan SHOW_AIR_QUALITY=true di script -->
       <section id="aqSection" hidden>
       <h2 class="section-title">Kualitas Udara &amp; Kabut Asap</h2>
       <div class="stat-grid">
@@ -402,7 +393,6 @@ let activeKey='ir',frames=[],frameLayers=[],idx=0,timer=null,opacity=.75,loadTok
 const map=L.map('weatherMap',{zoomControl:true,attributionControl:true,minZoom:4,maxZoom:10});
 map.attributionControl.setPrefix(false);
 map.createPane('labels');map.getPane('labels').style.zIndex=450;map.getPane('labels').style.pointerEvents='none';
-// Basemap Esri (tanpa API key)
 const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
 L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,attribution:'Basemap: Esri'}).addTo(map);
 L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,pane:'labels'}).addTo(map);
@@ -447,7 +437,6 @@ function relTime(d){
 
 function setStatus(msg){const el=document.getElementById('mapStatus');el.textContent=msg||'';el.style.display=msg?'block':'none';}
 
-// Satu layer per frame agar animasi tidak berkedip
 function buildFrameLayers(){
   frameLayers.forEach(l=>map.removeLayer(l));
   const L_=LAYERS[activeKey];
@@ -511,7 +500,7 @@ document.getElementById('layerPills').addEventListener('click',e=>{
   const b=e.target.closest('[data-key]');if(b&&b.dataset.key!==activeKey)loadLayer(b.dataset.key);
 });
 document.getElementById('guideGrid').addEventListener('click',e=>{
-  if(e.target.closest('a'))return;   // klik link sumber tidak mengganti layer
+  if(e.target.closest('a'))return;
   const c=e.target.closest('[data-layer]');if(c&&c.dataset.layer!==activeKey)loadLayer(c.dataset.layer);
 });
 
@@ -538,10 +527,7 @@ Object.keys(LAYERS).forEach(k=>{const c=guideGrid.querySelector(`[data-layer="${
 loadLayer('ir');
 setInterval(()=>{if(!timer)loadLayer(activeKey);},10*60e3);
 
-// --- Curah hujan (Open-Meteo) ---
-// Biru = estimasi, warna tema = prakiraan
 const EST_COLOR='#4a7fc1',RAIN_FC_COLOR='#356760',AQ_FC_COLOR='#c2703f';
-// Arsir jam lalu + garis "Sekarang"; label zona di padding atas agar tidak tertutup batang
 function pastRegionPlugin(cut,isBar,pastLabel=null,futLabel=null){
   const xAt=c=>{const xs=c.scales.x;return isBar?xs.getPixelForValue(cut)-(xs.getPixelForValue(1)-xs.getPixelForValue(0))/2:xs.getPixelForValue(cut);};
   return{id:'pastRegion',
@@ -620,7 +606,6 @@ async function loadPointRain(lat,lon){
           afterLabel:c=>isPast(c.dataIndex)||prob[c.dataIndex]==null?'':`Peluang hujan: ${prob[c.dataIndex]}%`
         }}},
         scales:{
-          // Label tiap 6 jam; tanggal di bawah 00:00
           x:{ticks:{font:{size:9.5},color:'#8a8a82',maxRotation:0,autoSkip:false,
               callback:(v,i)=>{const h=hourOf(i);if(h%6)return null;
                 const t=times[i];return h===0?[t.slice(11,16),`${+t.slice(8,10)}/${+t.slice(5,7)}`]:t.slice(11,16);}},
@@ -636,7 +621,6 @@ async function loadPointRain(lat,lon){
     msg.textContent='Gagal memuat data curah hujan dari Open-Meteo.';msg.style.color='#a5382c';
   }
 }
-// --- Kualitas udara (Open-Meteo / CAMS) ---
 // Kategori US AQI (EPA), bukan ISPU KLHK
 const AQI_CATS=[
   {max:50, label:'Baik',                               color:'#2e7d32'},
@@ -693,7 +677,6 @@ async function loadPointAirQuality(lat,lon){
         {label:'Batas WHO',data:times.map(()=>WHO_PM25_24H),borderColor:'#356760',borderDash:[5,4],borderWidth:1.2,pointRadius:0,fill:false}
       ]},
       options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-        // Titik "sekarang" ada di kedua garis; tampilkan sekali
         plugins:{legend:{display:false},tooltip:{filter:i=>i.raw!=null&&i.dataset.label!=='Batas WHO'&&!(i.dataIndex===cut&&i.dataset.label==='Prakiraan'),callbacks:{
           title:items=>{const t=times[items[0].dataIndex];return`${+t.slice(8,10)}/${+t.slice(5,7)} ${t.slice(11,16)} WIB`;},
           label:c=>` ${c.dataset.label}: ${fmtMm(c.parsed.y)} µg/m³`
@@ -713,7 +696,6 @@ async function loadPointAirQuality(lat,lon){
   }
 }
 
-// --- Peta PM2.5 (CAMS via WMS ECMWF) ---
 // GetCapabilities tanpa CORS: frame per 3 jam dimuat dulu, yang gagal (balasan XML) dibuang
 const CAMS_WMS='https://eccharts.ecmwf.int/wms/?token=public';
 const AQ_BOUNDS=L.latLngBounds([-5,106],[5,119]);
@@ -761,7 +743,6 @@ async function loadAqMap(){
   const step=AQ_STEP_H*3600e3,now=Date.now();
   const start=Math.floor((now-AQ_HOURS_BACK*3600e3)/step)*step,end=now+AQ_HOURS_AHEAD*3600e3;
   const cands=[];for(let t=start;t<=end;t+=step)cands.push(new Date(t));
-  // Maks. 6 permintaan paralel
   const ok=new Array(cands.length).fill(false);let done=0,next=0;
   async function worker(){
     while(next<cands.length){

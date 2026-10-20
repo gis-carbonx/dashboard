@@ -65,7 +65,6 @@
     .fire-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
     .fire-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
     .fire-note{font-size:12px;color:#6b7280;line-height:1.65;margin:16px 0 28px}
-    /* Menu samping, sama seperti planting-summary */
     .content-row{display:flex;align-items:flex-start;gap:20px}
     .page-body-inner{flex:1;min-width:0}
     .side-menu{position:sticky;top:20px;width:60px;flex-shrink:0;background:#3A342C;border-radius:18px;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -102,11 +101,9 @@
 
     .detection-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
     @media (max-width:900px){.detection-row{grid-template-columns:1fr}}
-    /* Peta: disamakan dengan peta "Sebaran Lahan Program" di planting-summary */
     .illegal-map-panel{position:relative;border:1px solid var(--color-sand);border-radius:14px;overflow:hidden;height:360px;background:#EDE7D8}
     #illegalMap,#bioMap,#fireMap{height:100%;width:100%}
 
-    /* Diagram komposisi temuan: bar horizontal satu warna, label & nilai langsung, tooltip saat hover */
     .comp-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px;position:relative}
     .comp-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
     .comp-title{font-size:11px;font-weight:600;color:#64748b}
@@ -131,7 +128,6 @@
     .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
     .lg-line{width:16px;border-top:2px solid #334155;flex-shrink:0}
 
-    /* Panel detail hanya muncul setelah kartu kategori / titik di peta diklik */
     .detection-table-panel{
       display:none;min-width:0;background:#fff;border:1px solid var(--color-sand);border-radius:14px;
       padding:16px;flex-direction:column;max-height:360px;overflow:hidden;position:relative;
@@ -142,12 +138,10 @@
     .pd-scroll{overflow-y:auto;min-height:0}
     .pd-back{background:none;border:none;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:600;color:var(--color-fern);padding:0;margin-bottom:10px}
     .pd-back:hover{color:var(--color-pine)}
-    /* Satu foto dengan ukuran tetap; foto lain (bila ada) dilihat lewat lightbox */
     .pd-photo{display:block;width:100%;height:170px;object-fit:cover;border-radius:10px;background:#EDE7D8}
     .pd-thumb{display:block;width:100%;padding:0;border:none;background:none;cursor:zoom-in;border-radius:10px}
     .pd-thumb:focus-visible{outline:2px solid var(--color-pine);outline-offset:2px}
 
-    /* Lightbox foto temuan (sama seperti lightbox foto kegiatan di kth.html) */
     .lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
     .lb.open{display:flex}
     .lb-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
@@ -646,7 +640,6 @@ async function loadAll(){
   document.getElementById('fireContentBody').style.display='block';
 }
 
-// Filter periode (sama dengan planting-summary)
 let years=[],currentQuarterFilter=null;
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -818,7 +811,6 @@ function render(){
   resetDetailTables();
 }
 
-// --- Narasi otomatis (mengikuti filter) ---
 function periodLabel(){
   const now=new Date();
   if(periodMode==='ytd')return`1 January – ${fmtDateID(now)}`;
@@ -850,7 +842,6 @@ function topCounts(items,n){
 function renderNarratives(s){
   const period=periodLabel();
 
-  // 1) Patroli
   let n1;
   if(!s.filteredPatrol.length){
     n1=`No patrol activities were recorded in the patrol schedule for ${period}.`;
@@ -864,7 +855,6 @@ function renderNarratives(s){
   }
   document.getElementById('notePatrol').textContent=n1;
 
-  // 2) Aktivitas ilegal
   const ill=s.illegal,illTotal=ill.logging+ill.hunting+ill.mining+ill.other;
   let n2;
   if(!illTotal){
@@ -884,7 +874,6 @@ function renderNarratives(s){
   }
   document.getElementById('noteIllegal').textContent=n2;
 
-  // 3) Biodiversitas
   const bio=s.bio,bioTotal=bio.direct+bio.voice+bio.sign+bio.habitat;
   let n3;
   if(!bioTotal){
@@ -901,7 +890,6 @@ function renderNarratives(s){
   }
   document.getElementById('noteBio').textContent=n3;
 
-  // 4) Kebakaran
   const fc=s.fire,fireTotal=fc.potential+fc.burnt+fc.hotspot+fc.prevention;
   let n4;
   if(!fireTotal){
@@ -916,7 +904,6 @@ function renderNarratives(s){
   document.getElementById('noteFire').textContent=n4;
 }
 
-// --- Diagram komposisi temuan per kategori ---
 function renderComposition(rows){
   const chart=document.getElementById('compChart');
   const byCat={};
@@ -938,7 +925,6 @@ function renderComposition(rows){
   }
   const max=cats[0][1].n;
   const label=c=>CATEG_LABELS[c]||titleCase(c);
-  // Bar maksimal 80% lebar agar nilai di ujung bar selalu muat
   chart.innerHTML=cats.map(([c,d])=>{
     const pct=d.n/total*100;
     return`<div class="comp-row" role="listitem" data-cat="${esc(c)}">
@@ -984,7 +970,6 @@ function parseCoord(s){
   const p=(s||'').split(',').map(v=>parseFloat(v.trim()));
   return p.length>=2&&!isNaN(p[0])&&!isNaN(p[1])?p:null;
 }
-// Link Google Drive -> thumbnail yang bisa ditampilkan sebagai <img>
 function driveThumb(url,size){
   if(!url||!/^https?:/i.test(url))return null;
   const id=url.match(/[-\w]{25,}/);
@@ -1094,7 +1079,6 @@ function showFindingDetail(ctx,r,onBack){
   selectMarker(ctx,r);
 }
 
-// Lightbox foto temuan; panah untuk foto lain di temuan yang sama
 const lb={el:document.getElementById('lightbox'),img:document.getElementById('lbImg'),cap:document.getElementById('lbCap'),item:null,i:0,last:null};
 function lbShow(){
   const it=lb.item,n=it.photos.length;
@@ -1144,7 +1128,6 @@ function setupDetailTableClicks(){
   });
 }
 
-// --- Peta temuan (illegal & biodiversity) ---
 let illegalCtx=null,bioCtx=null,fireCtx=null;
 
 function createFindingMap(cfg){
