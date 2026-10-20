@@ -138,11 +138,23 @@
     .presence-name:hover{color:var(--primary);text-decoration:underline}
     .presence-local{font-size:10.5px;color:var(--text-2);margin-top:1px}
     .presence-detected{font-size:10.5px;font-weight:700;color:var(--primary);margin-top:3px}
+    .presence-row{flex-wrap:wrap}
+    .det-toggle{display:inline-flex;align-items:center;gap:4px;padding:0;border:none;background:none;font-family:inherit;cursor:pointer;text-align:left}
+    .det-toggle:hover{text-decoration:underline}
+    .det-chev{font-size:9px;transition:transform .15s}
+    .det-toggle.open .det-chev{transform:rotate(180deg)}
+    .det-list{display:none;flex-basis:100%;margin:2px 0 0 40px;padding:6px 10px;border-left:2px solid var(--border-lt);max-height:180px;overflow-y:auto}
+    .det-list.open{display:block}
+    .det-row{display:grid;grid-template-columns:82px 1fr auto;gap:10px;align-items:center;font-size:10.5px;color:var(--text-2);padding:3px 0;font-variant-numeric:tabular-nums}
+    .det-date{font-weight:600;color:var(--text)}
+    .det-src{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .det-src i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .det-n{font-weight:700;color:var(--primary)}
     .presence-not-detected{font-size:10.5px;color:var(--text-3);margin-top:3px}
     .presence-last-detection{font-size:10px;color:var(--text-3);white-space:nowrap}
     .presence-empty{font-size:11px;color:var(--text-3);padding:6px 0}
 
-    .species-stat-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start}
+    .species-stat-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:28px;align-items:start}
     @media (max-width:900px){.species-stat-row{grid-template-columns:1fr}}
     .species-chart-wrap{position:relative;height:220px}
     .tbl{width:100%;border-collapse:collapse;font-size:11.5px}
@@ -151,15 +163,32 @@
     .tbl tbody tr:last-child td{border-bottom:none}
     .tbl tbody tr:hover td{background:var(--primary-bg)}
     .tbl .num{text-align:right;padding-right:0}
-    .species-table td:first-child{font-style:italic;color:var(--text);font-weight:600}
-    .species-table td:nth-child(2){font-weight:700;color:var(--primary);text-align:right}
-    .species-table th:nth-child(2),.species-table th:nth-child(3),.species-table td:nth-child(3){text-align:right;padding-right:0}
+    .sp-tm{position:relative;height:220px}    .sp-tile{position:absolute;padding:1.5px}
+    .sp-tile-in{width:100%;height:100%;border-radius:6px;padding:7px 8px;overflow:hidden;cursor:default;transition:filter .15s;display:flex;flex-direction:column;gap:2px}
+    .sp-tile:hover .sp-tile-in{filter:brightness(1.08)}
+    .sp-tile-name{font-size:11.5px;font-weight:700;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sp-tile-n{font-size:10.5px;font-weight:600;opacity:.85}
+    .sp-tm-tip{display:none;position:absolute;z-index:20;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:10px 12px;min-width:200px}
+    .sp-tm-tip .tt-head{font-size:12px;font-weight:700;font-style:italic;color:var(--text)}
+    .sp-tm-tip .tt-sub{font-size:10.5px;color:var(--text-2);margin:2px 0 6px}
+    .sp-tm-tip .tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0}
+    .sp-tm-tip .tt-row b{color:var(--text)}
+    .sp-tm-empty{height:100%;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text-3)}
     .hunting-date-cell{white-space:nowrap;font-weight:600;color:var(--text)}
     .hunting-finding-cell{font-weight:700;color:var(--danger);white-space:nowrap}
     .hunting-coord-cell{font-size:11px;white-space:nowrap}
     .hunting-desc-cell{color:var(--text-2)}
-    .hunting-photo-cell a{color:var(--primary);font-weight:600;text-decoration:none;white-space:nowrap}
-    .hunting-photo-cell a:hover{text-decoration:underline}
+    .hunting-photo-btn{padding:0;border:none;background:none;font-family:inherit;font-size:inherit;color:var(--primary);font-weight:600;white-space:nowrap;cursor:pointer}
+    .hunting-photo-btn:hover{text-decoration:underline}
+    .lb{position:fixed;inset:0;z-index:1000;background:rgba(20,18,15,.86);display:none;align-items:center;justify-content:center;padding:56px 16px}
+    .lb.open{display:flex}
+    .lb-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
+    .lb-img{max-width:min(1000px,100%);max-height:calc(100vh - 150px);border-radius:10px;object-fit:contain;background:#222}
+    .lb-cap{color:#eee;font-size:12.5px;text-align:center;line-height:1.5}
+    .lb-cap small{display:block;color:#bbb;font-size:11px}
+    .lb-btn{position:absolute;background:rgba(255,255,255,.12);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;font-family:inherit}
+    .lb-btn:hover{background:rgba(255,255,255,.25)}
+    .lb-close{top:14px;right:14px}
     .hunting-empty{font-size:11.5px;color:var(--text-3)}
     .hunting-more-btn{background:none;border:none;color:var(--primary-md);font-size:11px;font-weight:600;cursor:pointer;padding:10px 0 0;display:flex;align-items:center;gap:4px;font-family:inherit}
     .hunting-more-btn:hover{color:var(--primary)}
@@ -298,11 +327,8 @@
                 <div class="species-chart-wrap"><canvas id="chartSpeciesClass"></canvas></div>
               </div>
               <div>
-                <div class="card-lbl">Most detected species</div>
-                <table class="tbl species-table">
-                  <thead><tr><th>Species</th><th>Detections</th><th>Last Detection</th></tr></thead>
-                  <tbody id="topSpeciesTbody"><tr><td colspan="3">Loading…</td></tr></tbody>
-                </table>
+                <div class="card-lbl" id="speciesTreemapLbl">Detections per species</div>
+                <div class="sp-tm" id="speciesTreemap"></div>
               </div>
             </div>
           </div>
@@ -725,6 +751,7 @@ async function loadAll(){
 
   document.getElementById('bioLoading').style.display='none';
   document.getElementById('bioContentBody').style.display='block';
+  drawSpeciesTreemap();
 }
 
 function uniqueLocations(rows){
@@ -845,7 +872,7 @@ function renderPresenceRow(sp){
   const count=speciesDetectionCount(sp.latin);
   const lastDate=count>0?speciesLastDetectionDate(sp.latin):null;
   const detectedHtml=count>0
-    ? `<div class="presence-detected">Detected ${count} times</div>`
+    ? detToggleHtml(`Detected ${count} times`)
     : `<div class="presence-not-detected">Not yet detected</div>`;
   const lastDetectionHtml=count>0
     ? `<span class="presence-last-detection">Last detection: ${fmtDateShort(lastDate)}</span>`
@@ -862,7 +889,39 @@ function renderPresenceRow(sp){
       </div>
     </div>
     <div class="presence-row-right">${lastDetectionHtml}</div>
+    ${count>0?detListHtml(speciesDetections(sp.latin)):''}
   </div>`;
+}
+// Satu entri = tanggal + alat + sumber; jumlah = Σ Independency (camera trap) atau baris (bioacoustic)
+function speciesDetections(latinName,loc=null){
+  const norm=s=>(s||'').trim().toLowerCase();
+  const by={};
+  [...ctRows,...bioRows].forEach(r=>{
+    if(norm(r.Species)!==norm(latinName)||!r.Date)return;
+    if(loc&&(r.Latitude.toFixed(5)!==loc.lat.toFixed(5)||r.Longitude.toFixed(5)!==loc.lon.toFixed(5)))return;
+    const unit=(r.UnitID||'').trim();
+    const k=`${r.Date.getTime()}|${r.Source}|${unit}`;
+    const o=by[k]||(by[k]={date:r.Date,source:r.Source,unit,n:0});
+    o.n+=r.Indep||0;
+  });
+  return Object.values(by).filter(o=>o.n>0).sort((a,b)=>b.date-a.date);
+}
+function detToggleHtml(label){
+  return `<button type="button" class="presence-detected det-toggle" onclick="toggleDetections(this)" aria-expanded="false">${label}<span class="det-chev">▾</span></button>`;
+}
+function detListHtml(list){
+  return `<div class="det-list">${list.map(d=>`<div class="det-row">
+      <span class="det-date">${fmtDateShort(d.date)}</span>
+      <span class="det-src"><i style="background:${SOURCE_COLORS[d.source]||'#94a3b8'}"></i>${SOURCE_LABELS[d.source]||d.source}${d.unit?` &middot; ${d.unit.replace(/[&<>"']/g,c=>`&#${c.charCodeAt(0)};`)}`:''}</span>
+      <span class="det-n">${d.n}&times;</span>
+    </div>`).join('')}</div>`;
+}
+function toggleDetections(btn){
+  const list=btn.closest('.presence-row').querySelector('.det-list');
+  const open=!list.classList.contains('open');
+  list.classList.toggle('open',open);
+  btn.classList.toggle('open',open);
+  btn.setAttribute('aria-expanded',open);
 }
 function renderPresenceLists(){
   document.getElementById('triggerSpeciesList').innerHTML=TRIGGER_SPECIES.map(renderPresenceRow).join('');
@@ -903,15 +962,16 @@ function showLocationSpecies(loc){
         <div>
           <div class="presence-name" onclick="openLocationSpecies(${i})">${s.latin}</div>
           <div class="presence-local">${s.local||''}</div>
-          <div class="presence-detected">Detected ${s.count} times &middot; ${src}</div>
+          ${detToggleHtml(`Detected ${s.count} times &middot; ${src}`)}
         </div>
       </div>
       <div class="presence-row-right">${s.last?`<span class="presence-last-detection">Last: ${fmtDateShort(s.last)}</span>`:''}</div>
+      ${detListHtml(speciesDetections(s.latin,loc))}
     </div>`;
   }).join('');
   panel.innerHTML=SPECIES_INFO_CLOSE_BTN+
     `<div class="species-info-title" style="font-style:normal">${loc.species.length} species at this point</div>`+
-    `<div class="species-info-local">${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)} &middot; click a species to see its details</div>`+
+    `<div class="species-info-local">${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}</div>`+
     `<div style="margin-top:10px">${rows}</div>`;
 }
 function openLocationSpecies(i){
@@ -982,7 +1042,7 @@ function toggleDescBlock(btn){
   chevron.classList.toggle('open',!isOpen);
 }
 const SPECIES_INFO_CLOSE_BTN='<button type="button" class="species-info-close" onclick="closeSpeciesInfoPanel()">&#10005;</button>';
-const SPECIES_INFO_EMPTY='<div class="ld-empty">Click a point on the map or a species name in the presence lists below to see its photos, IUCN status and description.</div>';
+const SPECIES_INFO_EMPTY='';
 const SPECIES_INFO_BACK_BTN='<button type="button" class="species-info-back" onclick="lastLocation&&showLocationSpecies(lastLocation)">Back</button>';
 function closeSpeciesInfoPanel(){
   const panel=document.getElementById('speciesInfoPanel');
@@ -1147,40 +1207,109 @@ function renderSpeciesStats(){
   const classData=classLabels.map(k=>classTotals[k]);
   const palette=['#356760','#618273','#8C9F8B','#B5BBA9','#DCDACC'];
 
+  if(!classLabels.includes(selectedClass))selectedClass=null;
   const canvas=document.getElementById('chartSpeciesClass');
   if(speciesClassChart)speciesClassChart.destroy();
   speciesClassChart=new Chart(canvas,{
     type:'bar',
     data:{labels:classLabels,datasets:[{
       data:classData,
-      backgroundColor:classLabels.map((_,i)=>palette[i%palette.length]),
+      backgroundColor:classBarColors(classLabels,palette),
       borderRadius:4,barPercentage:.55
     }]},
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      onClick:(e,els)=>{
+        if(!els.length)return;
+        const c=classLabels[els[0].index];
+        setSelectedClass(selectedClass===c?null:c);
+      },
+      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       plugins:{legend:{display:false},tooltip:{enabled:true}},
       scales:{
         x:{beginAtZero:true,ticks:{font:{size:10},color:'#a0aec0'},grid:{color:'#EDE7D8'},border:{display:false}},
-        y:{ticks:{font:{size:11},color:'#1a2332'},grid:{display:false},border:{display:false}}
+        y:{ticks:{font:c=>({size:11,weight:classLabels[c.index]===selectedClass?'700':'400'}),
+          color:c=>selectedClass&&classLabels[c.index]!==selectedClass?'#a0aec0':'#1a2332'},grid:{display:false},border:{display:false}}
       }
     }
   });
-  const spTotals={};
-  const spLastDate={};
+  const sp={};
   combined.forEach(r=>{
     if(!r.Species||r.Indep<=0)return;
-    spTotals[r.Species]=(spTotals[r.Species]||0)+r.Indep;
-    if(r.Date&&(!spLastDate[r.Species]||r.Date>spLastDate[r.Species])){
-      spLastDate[r.Species]=r.Date;
-    }
+    const o=sp[r.Species]||(sp[r.Species]={name:r.Species,local:(r.LocalName||'').trim(),cls:r.Class,n:0,last:null});
+    o.n+=r.Indep;
+    if(r.Date&&(!o.last||r.Date>o.last))o.last=r.Date;
   });
-  const top=Object.entries(spTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const tbody=document.getElementById('topSpeciesTbody');
-  tbody.innerHTML=top.length
-    ? top.map(([sp,count])=>`<tr><td>${sp}</td><td>${count}</td><td>${fmtDateShort(spLastDate[sp])}</td></tr>`).join('')
-    : '<tr><td colspan="3" class="hunting-empty">No data available</td></tr>';
-  topSpeciesCache=top;
+  const ranked=Object.values(sp).sort((a,b)=>b.n-a.n);
+  topSpeciesCache=ranked.slice(0,5).map(o=>[o.name,o.n]);
+  treemapData={all:ranked,total:ranked.reduce((a,o)=>a+o.n,0),classLabels,palette,
+    color:c=>palette[Math.max(0,classLabels.indexOf(c))%palette.length],
+    dark:c=>Math.max(0,classLabels.indexOf(c))%palette.length<3};
+  drawSpeciesTreemap();
 }
+
+let treemapData=null,selectedClass=null;
+function classBarColors(labels,palette){
+  return labels.map((c,i)=>palette[i%palette.length]+(selectedClass&&c!==selectedClass?'40':''));
+}
+function setSelectedClass(c){
+  selectedClass=c;
+  if(speciesClassChart&&treemapData){
+    speciesClassChart.data.datasets[0].backgroundColor=classBarColors(treemapData.classLabels,treemapData.palette);
+    speciesClassChart.update('none');
+  }
+  drawSpeciesTreemap();
+}
+function squarify(vals,x,y,w,h){
+  const out=[];let i=0;
+  while(i<vals.length){
+    const short=Math.min(w,h);
+    const worst=r=>{const s=r.reduce((a,b)=>a+b,0);return Math.max(short*short*Math.max(...r)/(s*s),s*s/(short*short*Math.min(...r)));};
+    const row=[vals[i]];let j=i+1;
+    while(j<vals.length&&worst([...row,vals[j]])<=worst(row))row.push(vals[j++]);
+    const s=row.reduce((a,b)=>a+b,0);
+    if(w>=h){const rw=s/h;let cy=y;row.forEach(v=>{out.push({x,y:cy,w:rw,h:v/rw});cy+=v/rw;});x+=rw;w-=rw;}
+    else{const rh=s/w;let cx=x;row.forEach(v=>{out.push({x:cx,y,w:v/rh,h:rh});cx+=v/rh;});y+=rh;h-=rh;}
+    i=j;
+  }
+  return out;
+}
+function drawSpeciesTreemap(){
+  const el=document.getElementById('speciesTreemap');
+  if(!el||!treemapData)return;
+  const {all,total,color,dark}=treemapData;
+  const items=selectedClass?all.filter(o=>o.cls===selectedClass):all;
+  document.getElementById('speciesTreemapLbl').innerHTML=selectedClass
+    ?`Detections per species &middot; ${selectedClass} (${items.length} species)`
+    :`Detections per species (${items.length} species)`;
+  if(!items.length){el.innerHTML='<div class="sp-tm-empty">No data available</div>';return;}
+  const W=el.clientWidth,H=el.clientHeight,sum=items.reduce((a,o)=>a+o.n,0);
+  const rects=squarify(items.map(o=>o.n/sum*W*H),0,0,W,H);
+  el.innerHTML=items.map((o,i)=>{
+    const r=rects[i],fg=dark(o.cls)?'#fff':'#1a2332';
+    const label=r.w>60&&r.h>34?`<div class="sp-tile-name">${o.name}</div><div class="sp-tile-n">${o.n}</div>`
+      :r.w>28&&r.h>18?`<div class="sp-tile-n">${o.n}</div>`:'';
+    return `<div class="sp-tile" data-i="${i}" style="left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px">
+      <div class="sp-tile-in" style="background:${color(o.cls)};color:${fg};border-radius:${Math.min(6,r.w/4,r.h/4).toFixed(1)}px;${label?'':'padding:0'}">${label}</div></div>`;
+  }).join('')+'<div class="sp-tm-tip"></div>';
+  const tip=el.querySelector('.sp-tm-tip');
+  el.querySelectorAll('.sp-tile').forEach(t=>{
+    t.addEventListener('mousemove',e=>{
+      const o=items[+t.dataset.i];
+      tip.innerHTML=`<div class="tt-head">${o.name}</div><div class="tt-sub">${o.local||'–'}${o.cls?` &middot; ${o.cls}`:''}</div>
+        <div class="tt-row"><span>Detections</span><b>${o.n}</b></div>
+        <div class="tt-row"><span>Share of all detections</span><b>${(o.n/total*100).toFixed(1)}%</b></div>
+        <div class="tt-row"><span>Last detection</span><b>${fmtDateShort(o.last)}</b></div>`;
+      tip.style.display='block';
+      const b=el.getBoundingClientRect(),mx=e.clientX-b.left,my=e.clientY-b.top;
+      tip.style.left=Math.max(0,Math.min(mx+12,W-tip.offsetWidth))+'px';
+      tip.style.top=(my+12+tip.offsetHeight>H?Math.max(0,my-12-tip.offsetHeight):my+12)+'px';
+    });
+    t.addEventListener('mouseleave',()=>{tip.style.display='none';});
+  });
+}
+let tmResize;
+window.addEventListener('resize',()=>{clearTimeout(tmResize);tmResize=setTimeout(drawSpeciesTreemap,120);});
 
 let topSpeciesCache=[];
 const txt=id=>(document.getElementById(id)?.textContent||'').trim();
@@ -1228,10 +1357,40 @@ function renderNotes(){
     : `No hunting-related findings were recorded during patrols ${inP}.`;
 }
 
+function driveImage(url,size){
+  const id=/drive\.google\.com|googleusercontent/i.test(url)&&url.match(/[-\w]{25,}/);
+  return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w${size}`:url;
+}
+const huntLb={el:null,img:null,cap:null,last:null};
+function openHuntPhoto(i,trigger){
+  const r=huntingRecords[i];if(!r||!r.imageUrl)return;
+  if(!huntLb.el){
+    const el=document.createElement('div');
+    el.className='lb';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Hunting record photo');
+    el.innerHTML=`<button type="button" class="lb-btn lb-close" aria-label="Close">&times;</button>
+      <figure class="lb-fig"><img class="lb-img" alt=""><figcaption class="lb-cap"></figcaption></figure>`;
+    document.body.appendChild(el);
+    el.addEventListener('click',e=>{if(e.target===el||e.target.closest('.lb-close'))closeHuntPhoto();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el.classList.contains('open'))closeHuntPhoto();});
+    Object.assign(huntLb,{el,img:el.querySelector('.lb-img'),cap:el.querySelector('.lb-cap')});
+  }
+  huntLb.last=trigger;
+  huntLb.img.src=driveImage(r.imageUrl,1600);
+  huntLb.img.alt=r.description||'Hunting record photo';
+  huntLb.cap.innerHTML=`${FINDING_LABELS[r.finding]||r.finding}<small>${[fmtDateShort(r.dateObj),r.description,r.coordinate].filter(Boolean).join(' · ')}</small>`;
+  huntLb.el.classList.add('open');
+  huntLb.el.querySelector('.lb-close').focus();
+}
+function closeHuntPhoto(){
+  huntLb.el.classList.remove('open');
+  huntLb.img.removeAttribute('src');
+  huntLb.last?.focus();
+}
+
 let huntingExpanded=false;
 const HUNTING_PREVIEW_COUNT=3;
 function huntingRowHtml(r){
-  const photoLink=r.imageUrl?`<a href="${r.imageUrl}" target="_blank" rel="noopener">View photo &#8599;</a>`:'–';
+  const photoLink=r.imageUrl?`<button type="button" class="hunting-photo-btn" onclick="openHuntPhoto(${huntingRecords.indexOf(r)},this)">View photo</button>`:'–';
   return `<tr>
     <td class="hunting-date-cell">${fmtDateShort(r.dateObj)}</td>
     <td class="hunting-finding-cell">${FINDING_LABELS[r.finding]||r.finding}</td>
