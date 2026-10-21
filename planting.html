@@ -21,7 +21,7 @@
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#FFFAF3;
   --c-agro:#1a6b3a;--c-bpo:#0d5c8a;--c-temb:#b84c00;--c-mtl:#7b1fa2;
   --bg:#F1EEE2;--surface:#fff;--border:#DCDACC;--border-lt:#EDE7D8;
-  --text:#1a2332;--text-2:#64748b;--text-3:#a0aec0;
+  --text:#3A342C;--text-2:#6A665B;--text-3:#9C998C;
   --site-nav-h:56px;--hdr-h:54px;--filter-h:48px;--stats-h:162px;--sb-w:300px;--detail-w:268px;
   --shadow-sm:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.2);
 }
@@ -116,7 +116,7 @@ body{display:flex;flex-direction:column}
 .kth-card{padding:10px 11px;margin-bottom:5px;border:1px solid var(--border);border-radius:10px;background:#fafafa}
 .kth-card:last-child{margin-bottom:0}
 .kth-card:hover{border-color:#c8cdd5;background:#fff}
-.kth-card.active{border-color:#94a3b8;background:#fff}
+.kth-card.active{border-color:#9C998C;background:#fff}
 .kth-card.hidden-kth{opacity:.45}
 .kth-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:7px}
 .kth-info{flex:1;min-width:0}
@@ -149,15 +149,15 @@ body{display:flex;flex-direction:column}
 .leg-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-2)}
 .leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0;border:2px solid rgba(0,0,0,.2)}
-.leg-dash{width:16px;border-top:2px dashed #94a3b8;flex-shrink:0}
+.leg-dash{width:16px;border-top:2px dashed #9C998C;flex-shrink:0}
 .map-panel{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);overflow:hidden;position:relative;min-width:0;min-height:0}
 .map-wrap{position:absolute;inset:0;border-radius:14px;overflow:hidden}
 #map{width:100%;height:100%;z-index:1}
 .leaflet-control{z-index:900!important}
 .basemap-panel{position:absolute;bottom:10px;left:12px;z-index:900;background:rgba(255,255,255,.97);padding:4px 8px;border-radius:8px;box-shadow:var(--shadow-md);border:1px solid var(--border);min-width:unset}
 .basemap-toggle-btn{display:flex;align-items:center;gap:4px;background:none;border:none;padding:0;cursor:pointer;font-family:inherit;width:100%}
-.bm-toggle-label{font-size:9px;font-weight:600;color:#374151;flex:1;text-align:left}
-.bm-caret{font-size:8px;color:#6b7280;transition:transform .2s;line-height:1}
+.bm-toggle-label{font-size:9px;font-weight:600;color:#3A342C;flex:1;text-align:left}
+.bm-caret{font-size:8px;color:#6A665B;transition:transform .2s;line-height:1}
 .basemap-pills-wrap{overflow:hidden;max-height:0;transition:max-height .25s ease,margin-top .2s;margin-top:0}
 .basemap-pills-wrap.open{max-height:200px;margin-top:6px}
 .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
@@ -165,7 +165,7 @@ body{display:flex;flex-direction:column}
 .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #618273;opacity:1}
 .bm-thumb-wrap{width:40px;height:32px;border-radius:7px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82}
 .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-.bm-name{font-size:7px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:1px 4px;border-radius:4px;text-align:center;max-width:42px}
+.bm-name{font-size:7px;font-weight:600;color:#3A342C;background:rgba(255,255,255,.88);padding:1px 4px;border-radius:4px;text-align:center;max-width:42px}
 .loading-overlay{position:absolute;inset:0;z-index:998;background:rgba(255,255,255,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-radius:14px}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -259,15 +259,15 @@ body{display:flex;flex-direction:column}
 .row-link-btn:hover{background:#ffedd5;border-color:#fb923c}
 .row-link-btn.no-link{opacity:.3;cursor:not-allowed;pointer-events:none}
 .cp-modal{background:#fff;border-radius:14px;width:min(1100px,97vw);max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden}
-.cp-tbl{width:100%;border-collapse:collapse;font-size:11px;color:#1a2332}
+.cp-tbl{width:100%;border-collapse:collapse;font-size:11px;color:#3A342C}
 .cp-tbl thead{position:sticky;top:0;z-index:2}
 .cp-tbl th{padding:7px 9px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-2);border-bottom:2px solid var(--border);white-space:nowrap;background:#f8fafc}
-.cp-tbl td{padding:6px 9px;border-bottom:1px solid var(--border-lt);vertical-align:middle;color:#1a2332}
-.num{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;color:#1a2332}
-.nil{color:#94a3b8;text-align:right;font-size:10px}
-.mtag{display:inline-block;font-size:10px;font-weight:700;color:#1a2332;white-space:nowrap}
+.cp-tbl td{padding:6px 9px;border-bottom:1px solid var(--border-lt);vertical-align:middle;color:#3A342C}
+.num{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;color:#3A342C}
+.nil{color:#9C998C;text-align:right;font-size:10px}
+.mtag{display:inline-block;font-size:10px;font-weight:700;color:#3A342C;white-space:nowrap}
 .mtag+.mtag::before{content:' · ';font-weight:400;color:var(--text-3)}
-.stag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9.5px;font-weight:600;white-space:nowrap;color:#1a2332}
+.stag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9.5px;font-weight:600;white-space:nowrap;color:#3A342C}
 .grafik-modal{background:#fff;border-radius:14px;width:min(860px,96vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden}
 .grafik-sel{padding:5px 10px;border-radius:7px;border:1px solid var(--border);font-size:11px;font-family:inherit;color:var(--text);background:#f8fafc;outline:none;cursor:pointer}
 .grafik-legend{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
@@ -282,12 +282,12 @@ body{display:flex;flex-direction:column}
 .ins-tbl thead{position:sticky;top:0;z-index:2}
 .ins-tbl th{padding:6px 9px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-2);border-bottom:1px solid var(--border);white-space:nowrap;background:#f8fafc;text-align:left}
 .ins-tbl th.center,.ins-tbl td.cell-center{text-align:center}
-.ins-tbl .th-group{background:#374151;color:#fff;text-align:center;font-size:9px;font-weight:700;border-bottom:1px solid #4b5563}
-.ins-tbl .th-pct{background:#e5e7eb;color:#4b5563;font-size:8.5px;font-weight:600;text-align:center;border-bottom:1px solid #d1d5db}
+.ins-tbl .th-group{background:#3A342C;color:#fff;text-align:center;font-size:9px;font-weight:700;border-bottom:1px solid #6A665B}
+.ins-tbl .th-pct{background:#e5e7eb;color:#6A665B;font-size:8.5px;font-weight:600;text-align:center;border-bottom:1px solid #d1d5db}
 .ins-tbl td{padding:5px 9px;border-bottom:1px solid var(--border-lt);vertical-align:middle;color:var(--text)}
 .ins-paid{display:inline-block;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#166534;font-size:10px;font-weight:600;white-space:nowrap}
-.ins-unpaid{display:inline-block;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#94a3b8;font-size:10px;font-weight:600;white-space:nowrap}
-.ins-early{display:inline-block;padding:2px 8px;border-radius:4px;background:#fff;border:1px solid #d1d5db;color:#9ca3af;font-size:10px;font-weight:600;white-space:nowrap}
+.ins-unpaid{display:inline-block;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#9C998C;font-size:10px;font-weight:600;white-space:nowrap}
+.ins-early{display:inline-block;padding:2px 8px;border-radius:4px;background:#fff;border:1px solid #d1d5db;color:#9C998C;font-size:10px;font-weight:600;white-space:nowrap}
 .ins-legend{display:flex;align-items:center;gap:14px;margin-left:auto;flex-wrap:wrap}
 .ins-leg-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-2)}
 .ins-view-tabs{display:flex;gap:4px;flex-shrink:0}
@@ -496,7 +496,7 @@ body{display:flex;flex-direction:column}
       <div id="map"></div>
       <div class="basemap-panel">
         <button class="basemap-toggle-btn" onclick="toggleBasemapPanel()" id="basemapToggleBtn">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3A342C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
           <span class="bm-toggle-label">Basemap</span>
           <span class="bm-caret" id="basemapCaret">▼</span>
         </button>
@@ -728,7 +728,7 @@ body{display:flex;flex-direction:column}
       <span style="font-size:11px;font-weight:700;color:var(--text-2)">Tahun:</span>
       <select class="grafik-sel" id="tnBulananYear" onchange="renderTnChart()"></select>
       <div class="grafik-legend">
-        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#94a3b8"></div>Luas Terdaftar Program (kumulatif)</div>
+        <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#9C998C"></div>Luas Terdaftar Program (kumulatif)</div>
         <div class="grafik-leg-item"><div class="grafik-leg-dot" style="background:#2d7a55"></div>Luas Sudah Ditanam (kumulatif)</div>
       </div>
     </div>
@@ -1031,7 +1031,7 @@ function renderTnChart(){
   tnChartInst=new Chart(document.getElementById('tnChart'),{
     type:'line',
     data:{labels:data.labels,datasets:[
-      {label:'Luas Terdaftar Program',data:data.regCum,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.15)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
+      {label:'Luas Terdaftar Program',data:data.regCum,borderColor:'#9C998C',backgroundColor:'rgba(148,163,184,.15)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
       {label:'Luas Sudah Ditanam',data:data.tanCum,borderColor:'#2d7a55',backgroundColor:'rgba(45,122,85,.18)',fill:true,tension:.3,pointRadius:3,borderWidth:2},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
@@ -1045,8 +1045,8 @@ function renderTnChart(){
         }}
       },
       scales:{
-        x:{ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v.toLocaleString('id-ID')+' ha'},grid:{color:'#f1f5f9'}}
+        x:{ticks:{font:{size:11},color:'#6A665B'},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{font:{size:11},color:'#6A665B',callback:v=>v.toLocaleString('id-ID')+' ha'},grid:{color:'#f1f5f9'}}
       }
     }
   });
@@ -1390,7 +1390,7 @@ function renderTanamanPanel(){
   setText('sTanamanTembDesc',tanamanDesc(tembHa,tembTotalHa,tembTan));
 }
 
-function renderCMI(gj){L.geoJSON(gj,{style:()=>({color:'#475569',weight:2.5,dashArray:'8 5',fillOpacity:0,opacity:.9})}).addTo(lgCMI);}
+function renderCMI(gj){L.geoJSON(gj,{style:()=>({color:'#6A665B',weight:2.5,dashArray:'8 5',fillOpacity:0,opacity:.9})}).addTo(lgCMI);}
 function renderAgro(gj){
   Object.values(sheetMap).forEach(row=>{
     if(!kthMaster[row.kth]){kthMaster[row.kth]={name:row.kth,desa:row.desa,layers:[]};kthVis[row.kth]=true;}
@@ -1784,11 +1784,11 @@ function renderCPTable(rows,mf){
   document.getElementById('cpNoResults').style.display='none';
   document.getElementById('cpTbody').innerHTML=rows.map((r,i)=>{
     const mh=r.minatKelas.length?r.minatKelas.map(k=>`<span class="mtag">${CP_CLASS[k].short}</span>`).join(''):`<span class="mtag">${esc(r.minat)||'—'}</span>`;
-    return `<tr><td style="color:#94a3b8;font-size:10px">${i+1}</td><td style="font-weight:600;white-space:nowrap">${esc(r.nama)}</td><td>${esc(r.desa)}</td><td>${esc(r.dusun)||'—'}</td><td>${mh}</td>${vk.map(k=>{const d=CP_CLASS[k];return nc(r[d.fEst])+nc(r[d.fUkur])+nc(r[d.fPot]);}).join('')}<td style="color:#64748b;font-size:10px;white-space:nowrap">${esc(r.tgl_update)||'—'}</td><td>${stag(r.status)}</td></tr>`;
+    return `<tr><td style="color:#9C998C;font-size:10px">${i+1}</td><td style="font-weight:600;white-space:nowrap">${esc(r.nama)}</td><td>${esc(r.desa)}</td><td>${esc(r.dusun)||'—'}</td><td>${mh}</td>${vk.map(k=>{const d=CP_CLASS[k];return nc(r[d.fEst])+nc(r[d.fUkur])+nc(r[d.fPot]);}).join('')}<td style="color:#6A665B;font-size:10px;white-space:nowrap">${esc(r.tgl_update)||'—'}</td><td>${stag(r.status)}</td></tr>`;
   }).join('');
 }
 const nc=v=>v===null||v===undefined?`<td class="nil">—</td>`:`<td class="num">${fmtHa(v)}</td>`;
-const stag=s=>{const v=(s||'').toLowerCase();let st='background:#f1f5f9;color:#1a2332';if(v.includes('sudah'))st='background:#dcfce7;color:#166534';else if(v.includes('belum'))st='background:#fef2f2;color:#991b1b';else if(v.includes('proses')||v.includes('dalam'))st='background:#fef9c3;color:#854d0e';return`<span class="stag" style="${st}">${esc(s)||'—'}</span>`;};
+const stag=s=>{const v=(s||'').toLowerCase();let st='background:#f1f5f9;color:#3A342C';if(v.includes('sudah'))st='background:#dcfce7;color:#166534';else if(v.includes('belum'))st='background:#fef2f2;color:#991b1b';else if(v.includes('proses')||v.includes('dalam'))st='background:#fef9c3;color:#854d0e';return`<span class="stag" style="${st}">${esc(s)||'—'}</span>`;};
 
 function getCPData(){
   const vk=cpActiveMinat?[cpActiveMinat]:Object.keys(CP_CLASS);
@@ -1966,10 +1966,10 @@ function renderEnrChart(){
       {label:'ENL (Logged Over Area)',data:dENL.map(v=>+v.toFixed(2)),backgroundColor:'#f59e0b',borderRadius:4,barPercentage:.7},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#1a2332',padding:{bottom:12}},
+      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#3A342C',padding:{bottom:12}},
         tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`,footer:items=>{const t=items.reduce((s,i)=>s+i.parsed.y,0);return t>0?`Total: ${t.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`:'';}}}
       },
-      scales:{x:{ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
+      scales:{x:{ticks:{font:{size:11},color:'#6A665B'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#6A665B',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
     }
   });
 }
@@ -2023,10 +2023,10 @@ function renderGrafik(){
       {label:'Reforestasi',   data:dT.map(v=>+v.toFixed(2)),backgroundColor:'#b84c00',borderRadius:4,barPercentage:.7},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#1a2332',padding:{bottom:12}},
+      plugins:{legend:{display:false},title:{display:true,text:title,font:{size:13,weight:'bold'},color:'#3A342C',padding:{bottom:12}},
         tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`,footer:items=>{const t=items.reduce((s,i)=>s+i.parsed.y,0);return t>0?`Total: ${t.toLocaleString('id-ID',{minimumFractionDigits:2})} ha`:'';}}
       }},
-      scales:{x:{stacked:false,ticks:{font:{size:11},color:'#64748b'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#64748b',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
+      scales:{x:{stacked:false,ticks:{font:{size:11},color:'#6A665B'},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:11},color:'#6A665B',callback:v=>v+' ha'},grid:{color:'#f1f5f9'}}}
     }
   });
 }
@@ -2147,7 +2147,7 @@ function buildInsTbody(rows){
       if(insShowNominal){
         if(st!=='unpaid'){
           const nom=r.nominalStages[s.key]||0;
-          const clr=st==='early'?'color:#9ca3af;background:#1a1a1a;padding:2px 6px;border-radius:3px':'color:var(--c-agro)';
+          const clr=st==='early'?'color:#9C998C;background:#1a1a1a;padding:2px 6px;border-radius:3px':'color:var(--c-agro)';
           return `<td class="cell-center" style="font-weight:600;font-size:10px"><span style="${clr}">${nom>0?'Rp '+fmtInt(nom):(st==='early'?'Selesai':'Sudah')}</span></td>`;
         }
         return `<td class="cell-center" style="color:var(--text-3);font-size:10px">—</td>`;
@@ -2270,7 +2270,7 @@ function updateThnTotRow(vis){
   const elI=document.getElementById('thnTotInsentif');
   if(elC){
     if(tot.cair>0){
-      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">${fmtL(tot.cair)} L</span>`;
+      let html=`<span style="font-size:9px;font-weight:700;color:#3A342C">${fmtL(tot.cair)} L</span>`;
       if(tot.cairPaid>0&&tot.cairPaid<tot.cair)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibagikan ${fmtL(tot.cairPaid)} L</span>`;
       else if(tot.cairPaid>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">semua dibagikan</span>`;
       elC.innerHTML=html;
@@ -2278,7 +2278,7 @@ function updateThnTotRow(vis){
   }
   if(elP){
     if(tot.padat>0){
-      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">${fmtL(tot.padat)} kg</span>`;
+      let html=`<span style="font-size:9px;font-weight:700;color:#3A342C">${fmtL(tot.padat)} kg</span>`;
       if(tot.padatPaid>0&&tot.padatPaid<tot.padat)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibagikan ${fmtL(tot.padatPaid)} kg</span>`;
       else if(tot.padatPaid>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">semua dibagikan</span>`;
       elP.innerHTML=html;
@@ -2286,7 +2286,7 @@ function updateThnTotRow(vis){
   }
   if(elI){
     if(tot.mtlAll>0){
-      let html=`<span style="font-size:9px;font-weight:700;color:#1a2332">Rp ${fmtInt(tot.mtlAll)}</span>`;
+      let html=`<span style="font-size:9px;font-weight:700;color:#3A342C">Rp ${fmtInt(tot.mtlAll)}</span>`;
       if(tot.mtl>0&&tot.mtl<tot.mtlAll)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">dibayar Rp ${fmtInt(tot.mtl)}</span>`;
       else if(tot.mtl>0)html+=`<br><span style="font-size:8px;font-weight:400;color:#166534">lunas</span>`;
       elI.innerHTML=html;

@@ -60,14 +60,14 @@
 
     .ce-scroll{flex:1;min-height:0;overflow-y:auto}
     .ce-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
-    .section-title{font-size:15px;font-weight:700;color:#1f2937;margin:28px 0 14px}
+    .section-title{font-size:15px;font-weight:700;color:#3A342C;margin:28px 0 14px}
 
     .year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
-    .year-filter-label{font-size:12px;font-weight:600;color:#6b7280}
+    .year-filter-label{font-size:12px;font-weight:600;color:#6A665B}
     .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
     .year-chip{
       padding:6px 16px;border-radius:20px;border:1px solid var(--color-sand);
-      background:var(--color-cream);color:#374151;font-size:12px;font-weight:600;
+      background:var(--color-cream);color:#3A342C;font-size:12px;font-weight:600;
       cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
     }
     .year-chip:hover:not(:disabled){background:var(--color-sage)}
@@ -84,15 +84,15 @@
     @media (max-width:760px){
       .stat-card{flex:1 1 100%}
     }
-    .stat-label{font-size:12px;color:#6b7280;font-weight:600;margin-bottom:16px}
+    .stat-label{font-size:12px;color:#6A665B;font-weight:600;margin-bottom:16px}
     .stat-value-row{display:flex;align-items:center;gap:22px}
     .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
-    .stat-value-suffix{font-size:19px;font-weight:600;color:#9ca3af;margin-left:3px}
-    .stat-sub-plain{font-size:11px;color:#6b7280;line-height:1.5;max-width:150px}
+    .stat-value-suffix{font-size:19px;font-weight:600;color:#9C998C;margin-left:3px}
+    .stat-sub-plain{font-size:11px;color:#6A665B;line-height:1.5;max-width:150px}
     .stat-breakdown{display:flex;gap:18px;margin-top:16px;padding-top:16px;border-top:1px solid var(--color-sand)}
     .stat-breakdown-item{display:flex;align-items:center;gap:7px}
     .stat-breakdown-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-    .stat-breakdown-text{font-size:12px;color:#374151}
+    .stat-breakdown-text{font-size:12px;color:#3A342C}
     .stat-breakdown-text b{color:var(--color-pine);font-size:13px}
 
     .illegal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:8px}
@@ -100,15 +100,15 @@
       background:#fff;border:1px solid var(--color-sand);border-radius:12px;padding:14px 14px;
       min-width:0;
     }
-    .illegal-label{font-size:10.5px;color:#6b7280;font-weight:600;margin-bottom:10px;line-height:1.35}
+    .illegal-label{font-size:10.5px;color:#6A665B;font-weight:600;margin-bottom:10px;line-height:1.35}
     .illegal-value{font-size:24px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:6px}
-    .illegal-sub{font-size:10px;color:#6b7280;line-height:1.4}
+    .illegal-sub{font-size:10px;color:#6A665B;line-height:1.4}
     @media (max-width:900px){.illegal-grid{grid-template-columns:repeat(3,1fr)}}
     @media (max-width:560px){.illegal-grid{grid-template-columns:repeat(2,1fr)}}
 
-    .ce-note{font-size:11px;color:#9ca3af;line-height:1.6;margin-top:22px}
+    .ce-note{font-size:11px;color:#9C998C;line-height:1.6;margin-top:22px}
 
-    .loading-msg{padding:60px 32px;text-align:center;color:#9ca3af;font-size:13px}
+    .loading-msg{padding:60px 32px;text-align:center;color:#9C998C;font-size:13px}
   </style>
 </head>
 <body>
@@ -315,12 +315,12 @@ function renderDesaChart(rows){
       responsive:true,
       maintainAspectRatio:false,
       plugins:{
-        legend:{position:'top',align:'end',labels:{font:{family:"'Libre Franklin',sans-serif",size:11},boxWidth:12,color:'#374151'}},
+        legend:{position:'top',align:'end',labels:{font:{family:"'Libre Franklin',sans-serif",size:11},boxWidth:12,color:'#3A342C'}},
         tooltip:{bodyFont:{family:"'Libre Franklin',sans-serif"},titleFont:{family:"'Libre Franklin',sans-serif"}}
       },
       scales:{
-        x:{stacked:true,beginAtZero:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10},color:'#6b7280'},grid:{color:'#f3f4f6'}},
-        y:{stacked:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10.5},color:'#374151'},grid:{display:false}}
+        x:{stacked:true,beginAtZero:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10},color:'#6A665B'},grid:{color:'#f3f4f6'}},
+        y:{stacked:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10.5},color:'#3A342C'},grid:{display:false}}
       }
     }
   });

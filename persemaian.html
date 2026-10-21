@@ -20,8 +20,8 @@
     --color-moss:#8C9F8B;
     --color-fern:#618273;
     --color-pine:#356760;
-    --color-ink:#2b2b28;
-    --color-muted:#8a8a82;
+    --color-ink:#3A342C;
+    --color-muted:#9C998C;
     --color-good:#3f8f5c;
     --color-warn:#d79a1f;
     --color-bad:#c2543f;
@@ -648,14 +648,14 @@ function renderSankey(totals, langsungBST){
     .attr('fill',d=>d.color).attr('rx',2);
   node.append('title').text(d=>`${d.id}: ${fmtInt(d.value)} bibit`);
 
-  svg.append('g').style('font','11px Libre Franklin, sans-serif').style('fill','#2b2b28')
+  svg.append('g').style('font','11px Libre Franklin, sans-serif').style('fill','#3A342C')
     .selectAll('text').data(graph.nodes).join('text')
     .attr('x',d=>d.x1+6).attr('y',d=>(d.y1+d.y0)/2).attr('dy','0.35em')
     .attr('text-anchor','start')
     .each(function(d){
       const t=d3.select(this);
       t.append('tspan').attr('x',d.x1+6).attr('font-weight',700).text(d.id);
-      t.append('tspan').attr('x',d.x1+6).attr('dy','1.2em').style('fill','#8a8a82').text(fmtInt(d.value)+' bibit');
+      t.append('tspan').attr('x',d.x1+6).attr('dy','1.2em').style('fill','#9C998C').text(fmtInt(d.value)+' bibit');
     });
 }
 

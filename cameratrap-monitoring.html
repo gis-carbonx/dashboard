@@ -6,7 +6,7 @@
   <title>Camera Trap Monitoring | Sanggala Corridor Project</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -20,7 +20,7 @@
       --color-pine:#356760;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif;background:#FFFAF3}
+    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;background:#FFFAF3}
     body{display:flex;flex-direction:column}
 
     .site-navbar{
@@ -31,7 +31,7 @@
       padding:12px 32px;
       background-color:var(--color-cream);
       border-bottom:1px solid var(--color-sand);
-      font-family:'Montserrat',sans-serif;
+      font-family:'Libre Franklin',system-ui,sans-serif;
     }
     .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
     .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
@@ -73,14 +73,14 @@
     .sidebar-body::-webkit-scrollbar{width:3px}
     .sidebar-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
     .sidebar-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;cursor:pointer;border-bottom:1px solid #f3f4f6}
-    .sidebar-section-title{font-size:11px;font-weight:700;color:#374151;letter-spacing:.4px;text-transform:uppercase}
-    .sidebar-chevron{color:#9ca3af;font-size:10px;transition:transform .2s}
+    .sidebar-section-title{font-size:11px;font-weight:700;color:#3A342C;letter-spacing:.4px;text-transform:uppercase}
+    .sidebar-chevron{color:#9C998C;font-size:10px;transition:transform .2s}
     .sidebar-chevron.open{transform:rotate(180deg)}
     .layer-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px}
     .layer-item-left{display:flex;align-items:center;gap:10px}
     .layer-icon-sq{width:14px;height:14px;border-radius:3px;flex-shrink:0}
     .layer-icon-bd{width:14px;height:14px;border-radius:3px;flex-shrink:0;background:transparent;border:2px dashed #7c3aed}
-    .layer-label{font-size:11px;font-weight:500;color:#374151}
+    .layer-label{font-size:11px;font-weight:500;color:#3A342C}
     .cb-wrap{position:relative;width:18px;height:18px;cursor:pointer}
     .cb-wrap input{position:absolute;opacity:0;width:0;height:0}
     .cb-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
@@ -93,22 +93,22 @@
     .switch input:checked + .sw-track{background:#618273}
     .switch input:checked + .sw-track:before{transform:translateX(14px)}
     .divider{height:1px;background:#f3f4f6;margin:6px 0}
-    .info-hint{display:flex;align-items:flex-start;gap:8px;background:#FFFAF3;border-radius:8px;margin:10px 12px;padding:9px 11px;font-size:10px;color:#6b7280;line-height:1.5}
-    .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6b7280;margin-top:1px}
-    .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#4b5563}
+    .info-hint{display:flex;align-items:flex-start;gap:8px;background:#FFFAF3;border-radius:8px;margin:10px 12px;padding:9px 11px;font-size:10px;color:#6A665B;line-height:1.5}
+    .info-hint-icon{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6A665B;margin-top:1px}
+    .grid-legend-item{display:flex;align-items:center;gap:8px;padding:3px 16px;font-size:11px;color:#6A665B}
     .grid-legend-swatch{width:18px;height:14px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
     .filter-panel{position:absolute;top:64px;right:16px;z-index:1300;width:320px;background:#fff;border-radius:14px;border:1px solid #e8eaed;box-shadow:0 8px 32px rgba(0,0,0,.16);display:none;flex-direction:column;max-height:calc(100vh - 80px);overflow:hidden}
     .filter-panel.open{display:flex}
     .filter-panel-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
     .filter-panel-title{font-size:13px;font-weight:700;color:#356760;letter-spacing:-.1px}
-    .filter-panel-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:13px;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .filter-panel-close{width:26px;height:26px;border-radius:6px;border:none;background:#f3f4f6;cursor:pointer;font-size:13px;color:#6A665B;display:flex;align-items:center;justify-content:center;transition:background .15s}
     .filter-panel-close:hover{background:#e5e7eb}
     .filter-panel-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .filter-panel-body::-webkit-scrollbar{width:3px}
     .filter-panel-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
     .f-group{}
-    .f-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
-    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Montserrat',sans-serif;color:#374151;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+    .f-label{font-size:9px;font-weight:700;color:#9C998C;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+    .f-input{width:100%;padding:7px 10px;border:1.5px solid #e8eaed;border-radius:8px;font-size:11px;font-family:'Libre Franklin',system-ui,sans-serif;color:#3A342C;background:#fafafa;outline:none;transition:border .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
     .f-input:focus{border-color:#618273;background:#fff}
     .f-active-box{background:#FFFAF3;border:1px solid #DCDACC;border-radius:9px;padding:9px 10px}
     .f-active-label{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
@@ -116,7 +116,7 @@
     .f-pill{display:inline-flex;align-items:center;gap:4px;background:#DCDACC;border:1px solid #B5BBA9;color:#356760;border-radius:20px;padding:3px 9px 3px 10px;font-size:10px;font-weight:600}
     .f-pill-rm{cursor:pointer;font-size:12px;line-height:1;opacity:.65;margin-left:1px;font-weight:400}
     .f-pill-rm:hover{opacity:1}
-    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6b7280;font-size:11px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .15s}
+    .btn-clear-f{width:100%;padding:8px;border:1.5px solid #e8eaed;border-radius:8px;background:#fff;color:#6A665B;font-size:11px;font-weight:600;font-family:'Libre Franklin',system-ui,sans-serif;cursor:pointer;transition:all .15s}
     .btn-clear-f:hover{border-color:#ef4444;color:#ef4444}
     .icon-btn-wrap{position:relative}
     .filter-badge{display:none;position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#ef4444;font-size:8px;font-weight:700;color:#fff;align-items:center;justify-content:center}
@@ -124,7 +124,7 @@
     .grid-detail-panel.open{display:flex}
     .gdp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;flex-shrink:0;background:#0f172a}
     .gdp-title{font-size:12px;font-weight:700;color:#fff}
-    .gdp-close{width:26px;height:26px;border-radius:6px;border:none;background:#1e293b;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;transition:all .15s}
+    .gdp-close{width:26px;height:26px;border-radius:6px;border:none;background:#1e293b;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9C998C;font-size:15px;transition:all .15s}
     .gdp-close:hover{background:#334155;color:#fff}
     .gdp-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .gdp-body::-webkit-scrollbar{width:3px}
@@ -132,43 +132,43 @@
     .gdp-big-count{display:flex;align-items:flex-end;gap:10px;padding:16px 16px 12px;border-bottom:1px solid #f3f4f6}
     .gdp-count-num{font-size:44px;font-weight:800;color:#0ea5e9;line-height:1}
     .gdp-count-right{display:flex;flex-direction:column;gap:3px;padding-bottom:6px}
-    .gdp-count-label{font-size:11px;color:#6b7280;font-weight:500}
+    .gdp-count-label{font-size:11px;color:#6A665B;font-weight:500}
     .gdp-count-badge{display:inline-block;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px}
     .gdp-meta{display:grid;grid-template-columns:1fr 1fr;gap:0}
     .gdp-meta-item{padding:10px 16px;border-right:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6}
     .gdp-meta-item:nth-child(even){border-right:none}
-    .gdp-meta-key{font-size:9px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
-    .gdp-meta-val{font-size:12px;color:#374151;font-weight:600}
-    .gdp-section-title{font-size:10px;font-weight:700;color:#374151;padding:12px 16px 6px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f9fafb}
+    .gdp-meta-key{font-size:9px;color:#9C998C;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+    .gdp-meta-val{font-size:12px;color:#3A342C;font-weight:600}
+    .gdp-section-title{font-size:10px;font-weight:700;color:#3A342C;padding:12px 16px 6px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f9fafb}
     .gdp-class-row{display:flex;align-items:center;gap:8px;padding:7px 16px;border-bottom:1px solid #f9fafb}
-    .gdp-class-icon{width:26px;height:26px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#374151}
-    .gdp-class-name{font-size:11px;color:#374151;font-weight:500;min-width:60px}
+    .gdp-class-icon{width:26px;height:26px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#3A342C}
+    .gdp-class-name{font-size:11px;color:#3A342C;font-weight:500;min-width:60px}
     .gdp-class-bar-wrap{flex:1;background:#f3f4f6;border-radius:4px;height:6px;overflow:hidden}
     .gdp-class-bar{height:100%;border-radius:4px;background:#0ea5e9}
-    .gdp-class-count{font-size:11px;font-weight:700;color:#374151;min-width:24px;text-align:right}
-    .gdp-class-pct{font-size:10px;color:#9ca3af;min-width:34px;text-align:right}
+    .gdp-class-count{font-size:11px;font-weight:700;color:#3A342C;min-width:24px;text-align:right}
+    .gdp-class-pct{font-size:10px;color:#9C998C;min-width:34px;text-align:right}
     .gdp-species-section{padding:0 16px 8px}
     .gdp-sp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f9fafb;font-size:11px}
     .gdp-sp-name{color:#356760;font-style:italic;flex:1;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s}
     .gdp-sp-name:hover{text-decoration-color:#356760}
-    .gdp-sp-local{color:#9ca3af;font-size:10px;flex:1;text-align:center}
+    .gdp-sp-local{color:#9C998C;font-size:10px;flex:1;text-align:center}
     .gdp-sp-count{font-weight:700;color:#0ea5e9;min-width:24px;text-align:right}
     .gdp-sp-iucn{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px}
-    .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#374151}
+    .ct-stat-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;font-size:11px;color:#3A342C}
     .ct-stat-inline-val{font-weight:700;color:#0ea5e9}
     .map-zoom{position:absolute;bottom:16px;right:16px;z-index:900;display:flex;flex-direction:column;gap:2px}
-    .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
+    .zoom-btn{width:32px;height:32px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#3A342C;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:background .15s;font-weight:300;line-height:1}
     .zoom-btn:hover{background:#f9fafb}
     .loading-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 22px;border-radius:10px;font-size:12px;z-index:2000;display:none}
     .basemap-panel{position:absolute;bottom:16px;left:284px;z-index:900;display:flex;flex-direction:column;gap:6px}
-    .basemap-label-row{font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
+    .basemap-label-row{font-size:8px;font-weight:700;color:#6A665B;text-transform:uppercase;letter-spacing:.7px;padding-left:2px}
     .basemap-pills{display:flex;gap:5px;flex-wrap:wrap}
     .bm-pill{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .15s}
     .bm-pill:hover .bm-thumb-wrap{box-shadow:0 0 0 2px #618273}
     .bm-pill.active .bm-thumb-wrap{box-shadow:0 0 0 2.5px #618273;opacity:1}
     .bm-thumb-wrap{width:44px;height:36px;border-radius:8px;overflow:hidden;border:1.5px solid rgba(255,255,255,.7);box-shadow:0 1px 4px rgba(0,0,0,.22);opacity:.82;transition:all .15s}
     .bm-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-    .bm-name{font-size:8px;font-weight:600;color:#374151;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
+    .bm-name{font-size:8px;font-weight:600;color:#3A342C;background:rgba(255,255,255,.88);padding:2px 5px;border-radius:4px;line-height:1.3;text-align:center;max-width:46px;backdrop-filter:blur(4px)}
 
     .sp-modal-overlay{position:fixed;inset:0;z-index:5000;background:transparent;display:none;align-items:center;justify-content:center;padding:24px;pointer-events:none}
     .sp-modal-overlay.open{pointer-events:auto}
@@ -176,32 +176,32 @@
     .sp-modal{width:100%;max-width:480px;max-height:88vh;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)}
     .sp-modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
     .sp-modal-titles{display:flex;flex-direction:column;gap:2px}
-    .sp-modal-latin{font-size:15px;font-weight:700;color:#1f2937;font-style:italic}
-    .sp-modal-local{font-size:11px;color:#6b7280;font-weight:500}
-    .sp-modal-close{width:28px;height:28px;border-radius:7px;border:none;background:#f3f4f6;cursor:pointer;font-size:15px;color:#6b7280;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+    .sp-modal-latin{font-size:15px;font-weight:700;color:#3A342C;font-style:italic}
+    .sp-modal-local{font-size:11px;color:#6A665B;font-weight:500}
+    .sp-modal-close{width:28px;height:28px;border-radius:7px;border:none;background:#f3f4f6;cursor:pointer;font-size:15px;color:#6A665B;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
     .sp-modal-close:hover{background:#e5e7eb}
     .sp-modal-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent}
     .sp-modal-body::-webkit-scrollbar{width:4px}
     .sp-modal-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
     .sp-gallery{display:flex;gap:6px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:thin}
     .sp-gallery img{height:140px;width:auto;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
-    .sp-gallery-empty{padding:14px 18px 4px;font-size:11px;color:#9ca3af;font-style:italic}
+    .sp-gallery-empty{padding:14px 18px 4px;font-size:11px;color:#9C998C;font-style:italic}
     .sp-modal-status{display:flex;align-items:center;gap:8px;padding:14px 18px 0}
     .sp-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
-    .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#374151}
+    .sp-modal-desc{padding:12px 18px 6px;font-size:12px;line-height:1.65;color:#3A342C}
     .sp-desc-block{padding-top:2px}
     .sp-desc-block+.sp-desc-block{border-top:1px solid #f3f4f6;margin-top:4px}
-    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Montserrat',sans-serif}
-    .sp-desc-source-tag:hover{color:#1f2937}
-    .sp-desc-chevron{font-size:9px;color:#9ca3af;transition:transform .2s}
+    .sp-desc-source-tag{font-size:9px;font-weight:700;color:#356760;text-transform:uppercase;letter-spacing:.5px;padding:10px 18px;margin:0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:none;border:none;width:100%;font-family:'Libre Franklin',system-ui,sans-serif}
+    .sp-desc-source-tag:hover{color:#3A342C}
+    .sp-desc-chevron{font-size:9px;color:#9C998C;transition:transform .2s}
     .sp-desc-chevron.open{transform:rotate(180deg)}
     .sp-desc-body{overflow:hidden;max-height:0;transition:max-height .2s ease}
     .sp-desc-body.open{max-height:1000px}
-    .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9ca3af}
+    .sp-modal-loading{padding:30px 18px;text-align:center;font-size:12px;color:#9C998C}
     .sp-modal-links{display:flex;flex-wrap:wrap;gap:8px;padding:10px 18px 18px}
     .sp-modal-link{font-size:10.5px;font-weight:600;color:#356760;background:transparent;border:1px solid #DCDACC;border-radius:20px;padding:5px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
     .sp-modal-link:hover{background:#f3f4f6}
-    .sp-modal-source-note{padding:0 18px 16px;font-size:9px;color:#9ca3af}
+    .sp-modal-source-note{padding:0 18px 16px;font-size:9px;color:#9C998C}
   </style>
 </head>
 <body>
@@ -274,7 +274,7 @@
         <span class="sidebar-chevron open" id="chevCt2">▲</span>
       </div>
       <div id="secGridLeg">
-        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">Independent Events (per grid cell)</div>
+        <div style="padding:6px 16px 4px;font-size:9px;font-weight:700;color:#9C998C;text-transform:uppercase;letter-spacing:.5px">Independent Events (per grid cell)</div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:transparent;border:1px solid #555"></div><span>0 — no detections</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFFF00;opacity:.6"></div><span>1 – 5</span></div>
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#FFA500;opacity:.72"></div><span>6 – 15</span></div>
@@ -283,9 +283,9 @@
         <div class="grid-legend-item"><div class="grid-legend-swatch" style="background:#7B0000;opacity:.9"></div><span>&gt; 60</span></div>
         <div style="display:flex;align-items:center;gap:6px;padding:6px 16px 2px">
           <div style="width:10px;height:10px;border-radius:50%;background:#00BFFF;flex-shrink:0"></div>
-          <span style="font-size:11px;color:#374151">Camera Trap Location</span>
+          <span style="font-size:11px;color:#3A342C">Camera Trap Location</span>
         </div>
-        <div style="padding:2px 16px 8px;font-size:9px;color:#9ca3af">Grid 2 km × 2 km · Click grid to view details</div>
+        <div style="padding:2px 16px 8px;font-size:9px;color:#9C998C">Grid 2 km × 2 km · Click grid to view details</div>
       </div>
       <div class="divider"></div>
       <div class="sidebar-section-header" onclick="toggleSection('secCtSummary','chevCt3')">
@@ -293,7 +293,7 @@
         <span class="sidebar-chevron open" id="chevCt3">▲</span>
       </div>
       <div id="secCtSummary">
-        <div id="ctSummaryBody" style="padding:10px 16px;font-size:11px;color:#9ca3af">Loading…</div>
+        <div id="ctSummaryBody" style="padding:10px 16px;font-size:11px;color:#9C998C">Loading…</div>
       </div>
       <div class="info-hint">
         <div class="info-hint-icon">i</div>
@@ -404,7 +404,7 @@ const GRID_COLORS=['transparent','#FFFF00','#FFA500','#FF4500','#CC0000','#7B000
 const GRID_OPAC=[0,0.45,0.60,0.68,0.75,0.88];
 function gridStyle(n){for(let i=0;i<GRID_BREAKS.length;i++)if(n<=GRID_BREAKS[i])return{color:GRID_COLORS[i],opacity:GRID_OPAC[i]};return{color:GRID_COLORS[GRID_COLORS.length-1],opacity:GRID_OPAC[GRID_OPAC.length-1]};}
 
-const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#94a3b8',NE:'#cbd5e1'};
+const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#9C998C',NE:'#cbd5e1'};
 const IUCN_FULL={LC:'Least Concern',NT:'Near Threatened',VU:'Vulnerable',EN:'Endangered',CR:'Critically Endangered',EW:'Extinct in the Wild',EX:'Extinct',DD:'Data Deficient',NE:'Not Evaluated'};
 function classIcon(k){if(!k)return'?';return k.trim().charAt(0).toUpperCase();}
 function fmtLabel(s){return(s||'').replace(/_/g,' ');}
@@ -638,10 +638,10 @@ function buildCtPoints(){
     const spMap={};
     rows.forEach(r=>{if(r.Species&&r.Indep>0){if(!spMap[r.Species])spMap[r.Species]={local:r.LocalName,iucn:r.IUCN,count:0};spMap[r.Species].count+=r.Indep;}});
     const spRows=Object.entries(spMap).sort((a,b)=>b[1].count-a[1].count)
-      .map(([sp,d])=>`<tr><td style="padding:4px 7px;font-style:italic;font-size:12px;color:#356760;cursor:pointer;text-decoration:underline;text-decoration-color:transparent" onmouseover="this.style.textDecorationColor='#356760'" onmouseout="this.style.textDecorationColor='transparent'" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</td><td style="padding:4px 7px;font-size:11px">${d.local||'-'}</td><td style="padding:4px 7px;text-align:center"><span style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">${d.iucn||'-'}</span></td><td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
+      .map(([sp,d])=>`<tr><td style="padding:4px 7px;font-style:italic;font-size:12px;color:#356760;cursor:pointer;text-decoration:underline;text-decoration-color:transparent" onmouseover="this.style.textDecorationColor='#356760'" onmouseout="this.style.textDecorationColor='transparent'" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</td><td style="padding:4px 7px;font-size:11px">${d.local||'-'}</td><td style="padding:4px 7px;text-align:center"><span style="background:${IUCN_COLORS[d.iucn]||'#9C998C'};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">${d.iucn||'-'}</span></td><td style="padding:4px 7px;text-align:center;font-weight:700;color:#0ea5e9">${d.count}</td></tr>`).join('');
     const uid='ct_'+Math.random().toString(36).slice(2,6);
-    const avgLine=cameras.length>1?`<div><span style="color:#9ca3af">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
-    const popup=`<div style="font-family:Montserrat,Arial;font-size:12px;width:380px;max-width:380px"><b style="font-size:14px">${sites||'Camera Location'}</b><hr style="margin:5px 0;border-color:#e5e7eb"><div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px"><div><span style="color:#9ca3af">Individuals recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div><div><span style="color:#9ca3af">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>${avgLine}</div><b>Species List</b><a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a><div id="${uid}" style="display:none;margin-top:6px;max-height:200px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f3f4f6;position:sticky;top:0"><th style="text-align:left;padding:4px 7px;font-size:11px">Species</th><th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th><th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th><th style="text-align:center;padding:4px 7px;font-size:11px">Indep</th></tr></thead><tbody>${spRows||'<tr><td colspan="4" style="padding:8px;text-align:center;color:#9ca3af">No detections recorded</td></tr>'}</tbody></table></div></div>`;
+    const avgLine=cameras.length>1?`<div><span style="color:#9C998C">Avg / Camera</span><br><b style="color:#0ea5e9;font-size:15px">${Math.round(totalCount/cameras.length)}</b></div>`:'';
+    const popup=`<div style="font-family:'Libre Franklin',system-ui,sans-serif;font-size:12px;width:380px;max-width:380px"><b style="font-size:14px">${sites||'Camera Location'}</b><hr style="margin:5px 0;border-color:#e5e7eb"><div style="display:grid;grid-template-columns:1fr 1fr${cameras.length>1?' 1fr':''};gap:4px;margin-bottom:6px"><div><span style="color:#9C998C">Individuals recorded</span><br><b style="color:#0ea5e9;font-size:15px">${totalCount}</b></div><div><span style="color:#9C998C">Cameras (${cameras.length})</span><br><b>${cameras.slice(0,4).join(', ')}${cameras.length>4?'…':''}</b></div>${avgLine}</div><b>Species List</b><a href="#" onclick="var e=document.getElementById('${uid}');var l=document.getElementById('l${uid}');if(e.style.display==='none'){e.style.display='block';l.textContent='Show less ▲';}else{e.style.display='none';l.textContent='Show more ▼';}return false;" id="l${uid}" style="margin-left:8px;font-size:11px;color:#0ea5e9;text-decoration:none">Show more ▼</a><div id="${uid}" style="display:none;margin-top:6px;max-height:200px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f3f4f6;position:sticky;top:0"><th style="text-align:left;padding:4px 7px;font-size:11px">Species</th><th style="text-align:left;padding:4px 7px;font-size:11px">Local Name</th><th style="text-align:center;padding:4px 7px;font-size:11px">IUCN</th><th style="text-align:center;padding:4px 7px;font-size:11px">Indep</th></tr></thead><tbody>${spRows||'<tr><td colspan="4" style="padding:8px;text-align:center;color:#9C998C">No detections recorded</td></tr>'}</tbody></table></div></div>`;
     L.marker([loc.lat,loc.lon],{icon:L.divIcon({html:`<div style="width:14px;height:14px;border-radius:50%;background:#00BFFF;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>`,className:'',iconSize:[14,14],iconAnchor:[7,7]})})
       .bindPopup(popup,{maxWidth:400}).addTo(ctPointLayer);
   });
@@ -651,12 +651,12 @@ function openGridDetail(fi,totalCount,klassCounts,speciesCounts,camsInCell,dates
   const sorted=datesInCell.sort((a,b)=>a-b);
   const dateRangeStr=sorted.length?`${fmtDate(sorted[0])} – ${fmtDate(sorted[sorted.length-1])}`:'-';
   const level=totalCount>60?'Very High':totalCount>30?'High':totalCount>15?'Medium':totalCount>5?'Low':'Minimal';
-  const levelCol=totalCount>60?'#7B0000':totalCount>30?'#CC0000':totalCount>15?'#FF4500':totalCount>5?'#FFA500':'#94a3b8';
+  const levelCol=totalCount>60?'#7B0000':totalCount>30?'#CC0000':totalCount>15?'#FF4500':totalCount>5?'#FFA500':'#9C998C';
   const totalInCell=Object.values(klassCounts).reduce((s,v)=>s+v,0);
   const numCams=camsInCell.size,avgPerCam=numCams>0?Math.round(totalCount/numCams):0;
   const classRows=Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="gdp-class-row"><div class="gdp-class-icon">${classIcon(k)}</div><span class="gdp-class-name">${k}</span><div class="gdp-class-bar-wrap"><div class="gdp-class-bar" style="width:${totalInCell?Math.round(v/totalInCell*100):0}%"></div></div><span class="gdp-class-count">${v}</span><span class="gdp-class-pct">${totalInCell?Math.round(v/totalInCell*100):0}%</span></div>`).join('');
-  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#94a3b8'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
-  document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total individuals recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6b7280;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Cameras Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
+  const spRows=Object.entries(speciesCounts).sort((a,b)=>b[1].count-a[1].count).slice(0,10).map(([sp,d])=>`<div class="gdp-sp-row"><span class="gdp-sp-name" onclick="openSpeciesInfo('${sp.replace(/'/g,"\\'")}','${(d.local||'').replace(/'/g,"\\'")}','${d.iucn||''}')">${sp}</span><span class="gdp-sp-local">${d.local||'-'}</span><span class="gdp-sp-iucn" style="background:${IUCN_COLORS[d.iucn]||'#9C998C'};color:#fff">${d.iucn||'-'}</span><span class="gdp-sp-count">${d.count}</span></div>`).join('');
+  document.getElementById('gridDetailBody').innerHTML=`<div class="gdp-big-count"><span class="gdp-count-num">${totalCount}</span><div class="gdp-count-right"><span class="gdp-count-label">Total individuals recorded (per grid)</span><span class="gdp-count-badge" style="background:${levelCol}">${level}</span>${numCams>0?`<span style="font-size:10px;color:#6A665B;margin-top:2px">${avgPerCam} avg/camera (${numCams} cam)</span>`:''}</div></div><div class="gdp-meta"><div class="gdp-meta-item"><div class="gdp-meta-key">Grid ID</div><div class="gdp-meta-val">${gridId}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Grid Size</div><div class="gdp-meta-val">2 km × 2 km</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Cameras Deployed</div><div class="gdp-meta-val">${numCams}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Avg / Camera</div><div class="gdp-meta-val" style="color:#0ea5e9">${avgPerCam}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Last Detection</div><div class="gdp-meta-val" style="font-size:10px">${sorted.length?fmtDate(sorted[sorted.length-1]):'-'}</div></div><div class="gdp-meta-item"><div class="gdp-meta-key">Date Range</div><div class="gdp-meta-val" style="font-size:9px">${dateRangeStr}</div></div></div>${classRows?`<div class="gdp-section-title">Detections by Class</div>${classRows}`:''}${spRows?`<div class="gdp-section-title">Top Species</div><div class="gdp-species-section">${spRows}</div>`:''}<div style="height:12px"></div>`;
   document.getElementById('gridDetailPanel').classList.add('open');
 }
 document.getElementById('gridDetailClose').onclick=()=>document.getElementById('gridDetailPanel').classList.remove('open');
@@ -783,12 +783,12 @@ function renderSpeciesInfo(latinName,iucn,info){
     : `<div class="sp-gallery-empty">Belum ada foto referensi (occurrence record dengan foto) yang ditemukan di GBIF untuk spesies ini.</div>`;
 
   const statusHtml=iucn
-    ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#94a3b8'}">${IUCN_FULL[iucn]||iucn}</span></div>`
+    ? `<div class="sp-modal-status"><span class="sp-status-badge" style="background:${IUCN_COLORS[iucn]||'#9C998C'}">${IUCN_FULL[iucn]||iucn}</span></div>`
     : '';
 
   const descHtml=info.descriptions.length
     ? info.descriptions.map((d,i)=>`<div class="sp-desc-block"><button type="button" class="sp-desc-source-tag" onclick="toggleDescBlock(this)"><span>${d.source}</span><span class="sp-desc-chevron${i===0?' open':''}">▼</span></button><div class="sp-desc-body${i===0?' open':''}"><div class="sp-modal-desc">${d.text}</div></div></div>`).join('')
-    : `<div class="sp-modal-desc" style="color:#9ca3af;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
+    : `<div class="sp-modal-desc" style="color:#9C998C;font-style:italic">Belum ada deskripsi yang ditemukan di GBIF maupun Wikipedia untuk spesies ini.</div>`;
 
   const linksHtml=`<div class="sp-modal-source-note">Foto: GBIF.</div>`;
 
@@ -830,7 +830,7 @@ function updateCtStats(){
   const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
   const monitoredGrids=computeMonitoredGrids(filtered);
   const totalLok=monitoredGrids.length;
-  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
+  document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9C998C;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
 }
 function applyCtFilters(){rebuildCtSelects();buildCtGrid();buildCtPoints();updateCtStats();updateCtFilterUI();}
 
