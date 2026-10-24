@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Monitoring Manhours &amp; Insiden HSE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.filter-row.last{margin-bottom:28px}
+.filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
+.filter-select:focus{border-color:var(--primary)}
+
+.grid-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
+@media (max-width:900px){.grid-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.chart-pair{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:stretch;margin-bottom:36px}
+@media (max-width:980px){.chart-pair{grid-template-columns:1fr}}
+.chart-card{padding:20px 22px 16px;min-width:0}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 14px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
+.lg-item i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.chart-wrap{position:relative;height:240px}
+.chart-wrap.sm{height:170px}
+.chart-subhead{font-size:12px;font-weight:700;color:var(--text);margin:18px 0 6px}
+.hb-list{display:flex;flex-direction:column;gap:2px}
+.hb-row{position:relative;display:grid;grid-template-columns:120px 1fr 28px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
+.hb-list.mh .hb-row{grid-template-columns:96px 1fr 64px 44px}
+.hb-row:hover,.hb-row:focus{background:#f3f3f3}
+.hb-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb-bar{display:flex;gap:2px;height:14px}
+.hb-seg{border-radius:2px}
+.hb-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.hb-pct{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.tt-box{display:none;position:absolute;z-index:5;left:130px;top:calc(100% - 2px);min-width:220px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
+.hb-row:hover .tt-box,.hb-row:focus .tt-box{display:block}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+
+.sm-wrap{padding:16px 0 0;margin-bottom:36px}
+.sm-panel{display:grid;grid-template-columns:3fr 5fr 3fr 4fr;padding-bottom:14px}
+.sm-cell{display:flex;flex-direction:column;padding:4px 4px 0;transition:opacity .15s,background .15s}
+.sm-wrap.hl .sm-cell{opacity:.3}
+.sm-wrap.hl .sm-cell.on{opacity:1;background:#f3f3f3}
+.sm-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;padding:6px 0 4px;min-height:18px;border-top:1px solid var(--border)}
+.sm-dots i{width:8px;height:8px;border-radius:50%}
+.sm-legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 16px 12px;border-top:1px solid var(--border-lt)}
+.sm-key{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text);cursor:default;border-radius:6px;padding:2px 4px;outline:none}
+.sm-key i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sm-key small{font-size:10.5px;font-weight:500;color:var(--text-2)}
+.sm-wrap.hl .sm-key{opacity:.4}
+.sm-wrap.hl .sm-key.on{opacity:1;background:#f3f3f3}
+.sm-group{padding:0 16px;border-left:1px solid var(--border-lt);min-width:0}
+.sm-group:first-child{border-left:none}
+.sm-title{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:10px}
+.sm-cells{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:0}
+.sm-val{font-size:22px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.sm-lbl{font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:5px;line-height:1.3;min-height:2.6em;padding-right:6px}
+.sm-cell.zero .sm-val{color:var(--text-3)}
+@media (max-width:980px){.sm-panel{grid-template-columns:1fr 1fr;row-gap:18px}.sm-group:nth-child(3){border-left:none}}
+
+.reg-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.count{font-size:11px;color:var(--text-2);white-space:nowrap}
+
+.list{overflow:auto;border-top:1.5px solid var(--text);border-bottom:1.5px solid var(--text)}
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl thead{position:sticky;top:0;z-index:2;background:#fff}
+.tbl th{padding:7px 10px;font-weight:600;text-align:left;white-space:nowrap;border-bottom:1px solid var(--text)}
+.tbl th.sortable{padding:0}
+.tbl th.sortable button{display:flex;align-items:center;gap:4px;width:100%;padding:7px 10px;border:none;background:none;font:inherit;font-weight:600;color:var(--text);cursor:pointer;text-align:left;white-space:nowrap}
+.tbl th.sortable button:hover{background:#f3f3f3}
+.tbl th .arr{font-size:9px;color:var(--text-3)}
+.tbl th.on .arr{color:var(--primary)}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--border-lt);white-space:nowrap}
+.tbl tbody tr.inc-row{cursor:pointer}
+.tbl tbody tr.inc-row:hover td{background:#f3f3f3}
+.tbl tbody tr.inc-row.active td{background:#ececec}
+.tbl .r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .muted{color:var(--text-2)}
+.tbl .clip{max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.inc-detail{display:none}
+.inc-detail.open{display:table-row}
+.inc-detail td{white-space:normal;background:#f6f6f6;padding:12px 16px 16px}
+.inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media (max-width:760px){.inc-grid{grid-template-columns:1fr}}
+.inc-f{padding:6px 0;border-bottom:1px solid var(--border-lt)}
+.inc-f-lbl{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px}
+.inc-f-val{font-size:11.5px;color:var(--text);line-height:1.55;margin-top:1px;white-space:pre-line}
+.inc-full{grid-column:1/-1}
+.empty{padding:40px 10px;text-align:center;color:var(--text-3);font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Monitoring Manhours &amp; Insiden HSE</div>
+        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data HSE...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SHEET_ID='1ROa7ApqWNewNiI4wtV3pPHMdTDc02XrTypadPrkbM0s';
+const INCIDENT_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const MANHOURS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=530829684`;
+
+const str=v=>(v??'').toString().trim();
+const num=v=>{
+  const n=parseFloat(str(v).replace(/,/g,''));
+  return isNaN(n)?0:n;
+};
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const isoDate=v=>{const m=str(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:'';};
+const toDate=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d);};
+const toIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const todayIso=()=>toIso(new Date());
+const addDays=(iso,n)=>{const d=toDate(iso);d.setDate(d.getDate()+n);return toIso(d);};
+const dayDiff=(a,b)=>Math.round((toDate(b)-toDate(a))/864e5);
+const fmtDate=(iso,month='long')=>iso?toDate(iso).toLocaleDateString('id-ID',{day:'numeric',month,year:'numeric'}):'–';
+const fmtMonth=(k,month='long')=>new Date(+k.slice(0,4),+k.slice(5,7)-1,1).toLocaleDateString('id-ID',{month,year:'numeric'});
+// Jam kejadian ditulis desimal jam.menit (9.45 = 09.45)
+const fmtJam=v=>{const s=str(v);if(!s)return'';const [h,m='0']=s.split(/[.:]/);return h.padStart(2,'0')+'.'+m.padEnd(2,'0').slice(0,2);};
+
+function pickCI(raw,keys,...names){
+  const norm=s=>s.toString().trim().toLowerCase();
+  const wanted=names.map(norm);
+  for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
+  return undefined;
+}
+async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
+
+let incidents=[],mhRows=[],years=[];
+let sortState={key:'date',dir:-1};
+const openInc=new Set();
+
+/* ---------- Filter (sama dengan planting-summary) ---------- */
+let currentYear='all',currentQuarter='all',currentMonth='all';
+const QUARTERS=['1','2','3','4'];
+const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MN_S=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+// 'yq' = Tahun + Quarter/Bulan; 'ytd'/'mtd' mengabaikan ketiganya. Quarter dan bulan saling menggantikan
+let periodMode='yq';
+function fmtD(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
+
+// Rentang tanggal [awal, akhir] periode terpilih; null = semua data
+function periodRanges(){
+  const now=new Date(),cy=now.getFullYear(),today=todayIso();
+  if(periodMode==='ytd')return[[`${cy}-01-01`,today]];
+  if(periodMode==='mtd')return[[`${cy}-${pad(now.getMonth()+1)}-01`,today]];
+  if(currentYear==='all'&&currentQuarter==='all'&&currentMonth==='all')return null;
+  const ys=currentYear==='all'?years:[+currentYear];
+  return ys.map(y=>{
+    if(currentMonth!=='all'){const m=+currentMonth;return[`${y}-${pad(m)}-01`,toIso(new Date(y,m,0))];}
+    if(currentQuarter==='all')return[`${y}-01-01`,`${y}-12-31`];
+    const q=+currentQuarter;
+    return[`${y}-${pad((q-1)*3+1)}-01`,toIso(new Date(y,q*3,0))];
+  });
+}
+const inPeriod=(iso,ranges)=>!ranges||ranges.some(([a,b])=>iso>=a&&iso<=b);
+
+function periodLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 Januari–${fmtD(now)}`;
+  if(periodMode==='mtd')return`1–${fmtD(now)}`;
+  const y=currentYear==='all'?'semua tahun':currentYear;
+  if(currentMonth!=='all')return`${MN[+currentMonth-1]} ${y}`;
+  if(currentQuarter!=='all')return`Q${currentQuarter} ${y}`;
+  return currentYear==='all'?'Semua tahun':`Tahun ${currentYear}`;
+}
+
+function setFilter(y){currentYear=y;periodMode='yq';render();}
+function setQuarter(q){currentQuarter=q;currentMonth='all';periodMode='yq';render();}
+function setMonth(m){currentMonth=m;currentQuarter='all';periodMode='yq';render();}
+function setPeriod(p){periodMode=p;render();}
+
+function filterHTML(){
+  const yq=periodMode==='yq';
+  return`
+    <div class="filter-row">
+      <span class="filter-lbl">Filter</span>
+      <button class="fpill${yq&&currentYear==='all'?' active':''}" onclick="setFilter('all')">All</button>
+      ${years.map(y=>`<button class="fpill${yq&&currentYear===String(y)?' active':''}" onclick="setFilter('${y}')">${y}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Quarter</span>
+      <button class="fpill${yq&&currentQuarter==='all'&&currentMonth==='all'?' active':''}" onclick="setQuarter('all')">All</button>
+      ${QUARTERS.map(q=>`<button class="fpill${yq&&currentQuarter===q?' active':''}" onclick="setQuarter('${q}')">Q${q}</button>`).join('')}
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">Bulan</span>
+      <button class="fpill${yq&&currentMonth==='all'&&currentQuarter==='all'?' active':''}" onclick="setMonth('all')">All</button>
+      ${MN_S.map((m,i)=>`<button class="fpill${yq&&currentMonth===String(i+1)?' active':''}" onclick="setMonth('${i+1}')">${m}</button>`).join('')}
+    </div>
+    <div class="filter-row last">
+      <span class="filter-lbl">Periode</span>
+      <button class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
+      <button class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
+    </div>`;
+}
+
+// Bulan yang ditampilkan grafik: rentang periode, dibatasi sampai bulan berjalan
+function periodMonths(ranges,fallbackFrom,fallbackTo){
+  const cur=todayIso().slice(0,7),out=new Set();
+  (ranges||[[fallbackFrom,fallbackTo]]).forEach(([a,b])=>{
+    if(!a||!b)return;
+    let [y,m]=a.split('-').map(Number);
+    const end=b.slice(0,7)<cur?b.slice(0,7):cur;
+    for(let k=`${y}-${pad(m)}`;k<=end;){out.add(k);m++;if(m>12){m=1;y++;}k=`${y}-${pad(m)}`;}
+  });
+  return[...out].sort();
+}
+const TT_STYLE={displayColors:false,backgroundColor:'#fff',borderColor:'#DCDACC',borderWidth:1,cornerRadius:10,padding:10,
+  titleColor:'#3A342C',titleFont:{family:'Libre Franklin',size:11.5,weight:'700'},
+  bodyColor:'#6A665B',bodyFont:{family:'Libre Franklin',size:11}};
+const AXIS_FONT={family:'Libre Franklin',size:9.5};
+const subLines=(...lines)=>lines.map(([n,t],i)=>`<div class="card-sub-pct"${i?' style="margin-top:2px"':''}>${n===null?'':fmtInt(n)+' '}${t}</div>`).join('');
+const sumKey=(list,k)=>list.reduce((a,i)=>a+i[k],0);
+
+/* ---------- Data ---------- */
+function parseIncidents(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  incidents=[];
+  data.forEach(raw=>{
+    const keys=Object.keys(raw);
+    const g=(...n)=>pickCI(raw,keys,...n);
+    const id=str(g('ID insiden'));
+    const date=isoDate(g('Tanggal kejadian'));
+    if(!id||!date)return;
+    incidents.push({
+      id,date,year:date.slice(0,4),
+      jam:fmtJam(g('Jam kejadian')),
+      lokasi:str(g('Lokasi')),area:str(g('Area / titik kejadian')),
+      dept:str(g('Departemen')),
+      aktivitas:str(g('Aktivitas saat kejadian')),
+      ringkasan:str(g('Ringkasan kejadian')),
+      jenis:str(g('Jenis kejadian'))||'Lainnya',
+      fatality:num(g('Fatality (orang)')),lti:num(g('LTI (orang)')),
+      mtc:num(g('Medical treatment (orang)')),fa:num(g('First aid (orang)')),rwc:num(g('RWC (orang)')),
+      aset:str(g('Aset yang rusak')),
+      properti:/^ya$/i.test(str(g('Properti Damaged'))),
+      kendaraan:/^ya$/i.test(str(g('Vehicle Accidents'))),
+      kebakaran:/^ya$/i.test(str(g('Fire Case'))),
+      kerugian:num(g('Estimasi kerugian (Rp)'))+num(g('Estimasi kerugian kendaraan (Rp)'))+num(g('Estimasi kerugian kebakaran (Rp)')),
+      hariHilang:num(g('Hari kerja hilang')),
+      pic:str(g('PIC investigasi')),
+      mulai:isoDate(g('Mulai investigasi')),target:isoDate(g('Target selesai investigasi')),
+      selesai:isoDate(g('Tanggal selesai investigasi')),
+      status:str(g('Status investigasi'))||'Belum diisi',
+      progres:str(g('Update / progres investigasi')),
+      akar:str(g('Akar penyebab')),tindakan:str(g('Rencana tindakan perbaikan')),
+      bukti:str(g('Referensi laporan / bukti')),verifikator:str(g('Verifikator laporan')),
+      tenggat:str(g('Status tenggat (otomatis)')),terlambat:num(g('Hari terlambat (otomatis)'))
+    });
+  });
+  incidents.sort((a,b)=>b.date.localeCompare(a.date)||b.jam.localeCompare(a.jam));
+}
+
+function parseManhours(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  mhRows=[];
+  data.forEach(raw=>{
+    const keys=Object.keys(raw);
+    const g=(...n)=>pickCI(raw,keys,...n);
+    const month=isoDate(g('Bulan Pelaporan')).slice(0,7);
+    const unit=str(g('Unit Kerja'));
+    const start=isoDate(g('Tanggal Mulai'));
+    if(!month||!unit||!start)return;
+    mhRows.push({
+      month,unit,start,end:isoDate(g('Tanggal Akhir'))||start,
+      lokasi:str(g('Lokasi')),kelompok:str(g('Kelompok Pekerja')),
+      manpower:num(g('Total Manpower')),manhours:num(g('Manhours Periode')),hariKerja:num(g('Hari Kerja Periode')),
+      mpValid:num(g('Data Manpower Valid'))===1,mhValid:num(g('Data Manhours Valid'))===1
+    });
+  });
+}
+
+/* ---------- Manhours ---------- */
+const UNIT_ORDER=['Staff Site','Staff HO','Agronomis','Biodiversity','Fire Patrol'];
+const UNIT_COLOR={'Staff Site':'#356760','Staff HO':'#B5BBA9','Agronomis':'#8B7BB0','Biodiversity':'#4a7fc1','Fire Patrol':'#c2703f'};
+const unitColor=u=>UNIT_COLOR[u]||'#9C998C';
+const unitList=list=>{
+  const s=[...new Set(list.map(r=>r.unit))];
+  return[...UNIT_ORDER.filter(u=>s.includes(u)),...s.filter(u=>!UNIT_ORDER.includes(u)).sort()];
+};
+
+// Hari kerja sebuah baris ditebak dari kolom G (Hari Kerja Periode): ≥ hari kalender → setiap hari,
+// ≤ jumlah Senin–Jumat → Senin–Jumat, selain itu Senin–Sabtu
+const countDays=(a,b,mode)=>{
+  let n=0;
+  for(let d=toDate(a),e=toDate(b);d<=e;d.setDate(d.getDate()+1)){
+    const w=d.getDay();
+    if(mode==='all'||(mode==='wd'&&w>=1&&w<=5)||(mode==='ws'&&w>=1))n++;
+  }
+  return n;
+};
+function workMode(r){
+  if(r._mode)return r._mode;
+  const cal=dayDiff(r.start,r.end)+1,hk=r.hariKerja||cal;
+  r._mode=hk>=cal?'all':hk<=countDays(r.start,r.end,'wd')?'wd':hk<=countDays(r.start,r.end,'ws')?'ws':'all';
+  r._days=countDays(r.start,r.end,r._mode);
+  return r._mode;
+}
+
+// Manhours satu baris yang jatuh di periode: proporsional terhadap hari kerja yang beririsan
+// (baris bulanan penuh = 100%; dipakai untuk batang mingguan, Year/Month to Date, dan batas LTI)
+function mhShare(r,ranges,after){
+  const mode=workMode(r);
+  if(!r._days)return 0;
+  const lo0=after?addDays(after,1):'';
+  let days=0;
+  (ranges||[[r.start,r.end]]).forEach(([a,b])=>{
+    const lo=[r.start,a,lo0].sort().pop(),hi=[r.end,b].sort()[0];
+    if(hi>=lo)days+=countDays(lo,hi,mode);
+  });
+  return r.manhours*days/r._days;
+}
+
+// Manpower bulanan per unit: bulan yang dipecah karena insiden (reset LTI free) berisi pekerja yang sama,
+// jadi diambil nilai terbesar kolom J per unit/kelompok/lokasi, bukan dijumlahkan
+function manpowerByUnit(list){
+  const seg={};
+  list.forEach(r=>{const k=[r.month,r.unit,r.kelompok,r.lokasi].join('|');seg[k]=Math.max(seg[k]||0,r.manpower);});
+  const by={};
+  Object.entries(seg).forEach(([k,v])=>{
+    const [m,u]=k.split('|'),o=by[m]||(by[m]={});
+    o[u]=(o[u]||0)+v;
+  });
+  return by;
+}
+// Manpower suatu rentang = akumulasi manpower bulanan (bulan yang dipecah sudah memakai nilai terbesar)
+function manpowerSum(list){
+  const by=manpowerByUnit(list),unit={};
+  let total=0;
+  Object.values(by).forEach(o=>Object.entries(o).forEach(([u,v])=>{unit[u]=(unit[u]||0)+v;total+=v;}));
+  const n=Object.keys(by).length;
+  return{unit,total,avg:n?total/n:0};
+}
+// Untuk batang mingguan: minggu yang melintasi dua bulan berisi pekerja yang sama, jadi ambil bulan terbesar
+function manpowerMax(list){
+  const by=manpowerByUnit(list),unit={};
+  let total=0;
+  Object.values(by).forEach(o=>{
+    total=Math.max(total,Object.values(o).reduce((a,v)=>a+v,0));
+    Object.entries(o).forEach(([u,v])=>{unit[u]=Math.max(unit[u]||0,v);});
+  });
+  return{unit,total};
+}
+const mpRowsIn=ranges=>mhRows.filter(r=>r.mpValid&&(!ranges||ranges.some(([a,b])=>r.start<=b&&r.end>=a)));
+
+// LTI free manhours = akumulasi manhours sejak LTI/fatality terakhir hingga akhir periode terpilih (maks. hari ini);
+// bulan berjalan dihitung proporsional per hari sehingga bertambah setiap hari
+function ltiFree(ranges){
+  const today=todayIso();
+  const end=ranges&&ranges.length?ranges.map(r=>r[1]).sort().pop():today;
+  const asOf=end<today?end:today;
+  const last=incidents.filter(i=>(i.lti>0||i.fatality>0)&&i.date<=asOf).map(i=>i.date).sort().pop()||'';
+  const first=mhRows.filter(r=>r.mhValid).map(r=>r.start).sort()[0]||asOf;
+  const total=mhRows.filter(r=>r.mhValid).reduce((a,r)=>a+mhShare(r,[[first,asOf]],last),0);
+  return{last,asOf,total,days:Math.max(0,dayDiff(last||first,asOf))};
+}
+
+function manhoursHTML(ranges,periode,inc){
+  const rows=mhRows.filter(r=>r.mhValid).map(r=>({...r,mhP:mhShare(r,ranges)})).filter(r=>r.mhP>0);
+  const total=rows.reduce((a,r)=>a+r.mhP,0);
+  const mpUnit=manpowerByUnit(mpRowsIn(ranges));
+  const avgUnit=u=>{const v=Object.values(mpUnit).filter(o=>o[u]).map(o=>o[u]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};
+  const free=ltiFree(ranges);
+  const units=unitList(rows);
+  const byUnit=units.map(u=>{
+    const list=rows.filter(r=>r.unit===u);
+    return{u,mh:list.reduce((a,r)=>a+r.mhP,0),months:new Set(list.map(r=>r.month)).size,lokasi:[...new Set(list.map(r=>r.lokasi).filter(Boolean))]};
+  }).sort((a,b)=>b.mh-a.mh);
+  const max=Math.max(1,...byUnit.map(o=>o.mh));
+  const unitRows=byUnit.map(o=>`
+    <div class="hb-row" tabindex="0">
+      <div class="hb-lbl">${esc(o.u)}</div>
+      <div class="hb-bar" style="width:${o.mh/max*100}%"><div class="hb-seg" style="flex:1;background:${unitColor(o.u)}"></div></div>
+      <div class="hb-val">${fmtInt(o.mh)}</div>
+      <div class="hb-pct">${total?(o.mh/total*100).toFixed(1).replace('.',','):0}%</div>
+      <div class="tt-box"><div class="tt-head"><strong>${esc(o.u)}</strong> - ${fmtInt(o.mh)} jam</div>
+        <div class="tt-row"><span>Bulan tercatat</span><span>${fmtInt(o.months)}</span></div>
+        <div class="tt-row"><span>Rata-rata manpower</span><span>${avgUnit(o.u).toFixed(1).replace('.',',')} orang/bulan</span></div>
+        <div class="tt-row"><span>Lokasi</span><span>${esc(o.lokasi.join(', ')||'–')}</span></div>
+      </div>
+    </div>`).join('');
+  const legend=units.map(u=>`<span class="lg-item"><i style="background:${unitColor(u)}"></i>${esc(u)}</span>`).join('')
+    +'<span class="lg-item"><b style="font-size:10px;color:var(--text)">123</b>Manpower (orang)</span>';
+  const mpPk=manpowerSum(mpRowsIn(ranges));
+  return`
+    <div class="grid-row">
+      <div class="card">
+        <div class="card-lbl">Total Manpower</div>
+        <div class="card-val-lg">${fmtInt(mpPk.total)}</div>
+        ${subLines([null,`Rata-rata ${fmtInt(mpPk.avg)} orang per bulan`])}
+      </div>
+      <div class="card">
+        <div class="card-lbl">Total Manhours</div>
+        <div class="card-val-lg">${fmtInt(total)}</div>
+        ${subLines([new Set(rows.map(r=>r.month)).size,'bulan tercatat'])}
+      </div>
+      <div class="card">
+        <div class="card-lbl">LTI Free Manhours</div>
+        <div class="card-val-lg">${fmtInt(free.total)}</div>
+        ${subLines([null,free.last?`Sejak LTI ${fmtDate(free.last)}`:'Sejak awal pencatatan'],[null,`Per ${fmtDate(free.asOf)}`])}
+      </div>
+      <div class="card">
+        <div class="card-lbl">Hari Tanpa LTI</div>
+        <div class="card-val-lg">${fmtInt(free.days)} hari</div>
+        ${subLines([null,free.last?`Sejak LTI ${fmtDate(free.last)}`:'Sejak awal pencatatan'],[null,`Per ${fmtDate(free.asOf)}`])}
+      </div>
+    </div>
+    <div class="chart-pair">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div><div class="chart-title">Tren Manhours</div><div class="chart-sub">${periode} - ${periodBuckets(ranges,firstData()).unit}</div></div>
+          <div class="chart-legend">${legend}</div>
+        </div>
+        ${rows.length?`<div class="chart-wrap"><canvas id="mhChart"></canvas></div>
+        <div class="chart-subhead">Manpower (orang)</div>
+        <div class="chart-wrap sm"><canvas id="mpChart"></canvas></div>`:'<div class="empty">Tidak ada data manhours pada periode ini.</div>'}
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div><div class="chart-title">Manhours per Unit Kerja</div><div class="chart-sub">${periode}</div></div>
+        </div>
+        ${byUnit.length?`<div class="hb-list mh">${unitRows}</div>`:'<div class="empty">Tidak ada data manhours pada periode ini.</div>'}
+      </div>
+    </div>`;
+}
+
+let mhChart=null,mpChart=null;
+function drawMhChart(ranges,inc){
+  if(mhChart){mhChart.destroy();mhChart=null;}
+  if(mpChart){mpChart.destroy();mpChart=null;}
+  const canvas=document.getElementById('mhChart');
+  if(!canvas)return;
+  const rows=mhRows.filter(r=>r.mhValid&&mhShare(r,ranges)>0);
+  const units=unitList(rows);
+  const {list:bk}=periodBuckets(ranges,firstData());
+  // Manhours per batang proporsional per hari; manpower = jumlah kolom J baris yang beririsan dengan batang
+  const by=bk.map(b=>{
+    const o={};
+    rows.forEach(r=>{const v=mhShare(r,[[b.from,b.to]]);if(v>0)o[r.unit]=(o[r.unit]||0)+v;});
+    return o;
+  });
+  const mpAgg=periodBuckets(ranges,firstData()).unit==='per minggu'?manpowerMax:manpowerSum;
+  const mpPk=bk.map(b=>mpAgg(mpRowsIn([[b.from,b.to]])));
+  const mpBy=mpPk.map(p=>p.unit);
+  const mhTotal=i=>Object.values(by[i]).reduce((a,v)=>a+v,0);
+  const mpTotal=i=>mpPk[i].total;
+  mhChart=new Chart(canvas,{
+    type:'bar',
+    data:{labels:bk.map(b=>b.title),datasets:units.map(u=>({
+      label:u,data:by.map(o=>o[u]||0),
+      backgroundColor:unitColor(u),borderRadius:2,borderSkipped:'start',borderColor:'#fff',borderWidth:{top:1},
+      barPercentage:.8,categoryPercentage:.9,maxBarThickness:28
+    }))},
+    plugins:[{id:'mpLabel',afterDatasetsDraw(c){
+      const xs=c.scales.x,ys=c.scales.y,ctx=c.ctx,w=xs.width/Math.max(1,bk.length);
+      if(w<14)return;
+      ctx.save();
+      ctx.font='700 9.5px Libre Franklin, sans-serif';ctx.fillStyle='#6A665B';ctx.textAlign='center';ctx.textBaseline='bottom';
+      bk.forEach((b,i)=>{if(mpTotal(i))ctx.fillText(fmtInt(mpTotal(i)),xs.getPixelForValue(i),ys.getPixelForValue(mhTotal(i))-4);});
+      ctx.restore();
+    }}],
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:16}},
+      plugins:{legend:{display:false},tooltip:{...TT_STYLE,
+        filter:it=>it.parsed.y>0,
+        callbacks:{
+          title:items=>{const i=items[0].dataIndex;return`${bk[i].title} - ${fmtInt(mhTotal(i))} jam`;},
+          label:it=>`${it.dataset.label}: ${fmtInt(it.parsed.y)} jam`
+        }}},
+      scales:{
+        x:{stacked:true,grid:{display:false},border:{color:'#DCDACC'},
+          ticks:{color:'#9C998C',font:AXIS_FONT,maxRotation:0,autoSkip:true,autoSkipPadding:8,callback:(v,i)=>bk[i].tick}},
+        y:{stacked:true,beginAtZero:true,grid:{color:'#EDE7D8'},border:{display:false},afterFit:s=>{s.width=48;},
+          ticks:{color:'#9C998C',font:AXIS_FONT,callback:v=>fmtInt(v)}}
+      }}
+  });
+  const mpCanvas=document.getElementById('mpChart');
+  if(!mpCanvas)return;
+  mpChart=new Chart(mpCanvas,{
+    type:'line',
+    data:{labels:bk.map(b=>b.title),datasets:units.map(u=>({
+      label:u,data:mpBy.map(o=>o[u]??null),
+      borderColor:unitColor(u),backgroundColor:unitColor(u),borderWidth:2,tension:.25,
+      pointRadius:2,pointHoverRadius:4,pointBorderWidth:0,spanGaps:false
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TT_STYLE,
+        filter:it=>it.parsed.y>0,
+        callbacks:{
+          title:items=>{const i=items[0].dataIndex;return`${bk[i].title} - ${fmtInt(mpTotal(i))} orang`;},
+          label:it=>`${it.dataset.label}: ${fmtInt(it.parsed.y)} orang`
+        }}},
+      scales:{
+        x:{offset:true,grid:{display:false},border:{color:'#DCDACC'},
+          ticks:{color:'#9C998C',font:AXIS_FONT,maxRotation:0,autoSkip:true,autoSkipPadding:8,callback:(v,i)=>bk[i].tick}},
+        y:{beginAtZero:true,grid:{color:'#EDE7D8'},border:{display:false},afterFit:s=>{s.width=48;},
+          ticks:{color:'#9C998C',font:AXIS_FONT,precision:0,maxTicksLimit:4}}
+      }}
+  });
+}
+
+/* ---------- Insiden ---------- */
+const CLASSES=[
+  {key:'fatality',lbl:'Fatality'},
+  {key:'lti',lbl:'LTI'},
+  {key:'rwc',lbl:'Restricted Work Case'},
+  {key:'mtc',lbl:'Medical Treatment'},
+  {key:'fa',lbl:'First Aid'}
+];
+const classRank=i=>{const k=CLASSES.findIndex(c=>i[c.key]>0);return k<0?CLASSES.length:k;};
+function worstClass(i){
+  const c=CLASSES[classRank(i)];
+  return c?`${c.lbl} (${fmtInt(i[c.key])} orang)`:'Tanpa korban';
+}
+
+// Ringkasan insiden: satu panel berkelompok seperti tabel ringkasan di sheet; korban dalam satuan kasus orang
+// Warna per insiden (urut tanggal); insiden ke-9 dst. memakai abu-abu
+const INC_PALETTE=['#c0611c','#356760','#4a7fc1','#8B7BB0','#d9a21b','#618273','#3A342C','#B5BBA9'];
+function summaryHTML(inc){
+  const ordered=inc.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
+  const color={};
+  ordered.forEach((i,k)=>color[i.id]=INC_PALETTE[k]||'#9C998C');
+  // v = nilai sel; list = insiden penyumbang (titik berwarna)
+  const cell=(lbl,list,v=list.length)=>`
+    <div class="sm-cell${v?'':' zero'}" data-inc="${list.map(i=>esc(i.id)).join(' ')}">
+      <div class="sm-val">${fmtInt(v)}</div>
+      <div class="sm-lbl">${lbl}</div>
+      <div class="sm-dots">${list.map(i=>`<i style="background:${color[i.id]}" title="${esc(i.id)}"></i>`).join('')}</div>
+    </div>`;
+  const f=p=>ordered.filter(p);
+  const selesai=f(i=>/^selesai/i.test(i.status));
+  const groups=[
+    {t:'Kejadian',c:[cell('Total insiden',ordered),...JENIS_ORDER.map(j=>cell(j,f(i=>i.jenis===j)))]},
+    {t:'Korban (kasus orang)',c:CLASSES.map(c=>cell(c.key==='rwc'?'RWC':c.lbl,f(i=>i[c.key]>0),sumKey(inc,c.key)))},
+    {t:'Kerusakan (kejadian)',c:[cell('Properti rusak',f(i=>i.properti)),cell('Kecelakaan kendaraan',f(i=>i.kendaraan)),cell('Kebakaran',f(i=>i.kebakaran))]},
+    {t:'Investigasi',c:[cell('Selesai',selesai),cell('Belum selesai',f(i=>!selesai.includes(i))),cell('Terlambat',f(i=>i.terlambat>0||/terlambat/i.test(i.tenggat))),cell('Belum ada target',f(i=>!i.target))]}
+  ];
+  const legend=ordered.map(i=>`<span class="sm-key" data-id="${esc(i.id)}" tabindex="0"><i style="background:${color[i.id]}"></i>${esc(i.id)} <small>${esc(i.jenis)} - ${fmtDate(i.date,'short')}</small></span>`).join('');
+  return`<div class="card sm-wrap" id="smPanel">
+    <div class="sm-panel">${groups.map(g=>`
+      <div class="sm-group" style="--n:${g.c.length}">
+        <div class="sm-title">${g.t}</div>
+        <div class="sm-cells">${g.c.join('')}</div>
+      </div>`).join('')}</div>
+    ${ordered.length?`<div class="sm-legend">${legend}</div>`:''}
+  </div>`;
+}
+function bindSummary(){
+  const p=document.getElementById('smPanel');
+  if(!p)return;
+  const on=ids=>{
+    p.classList.add('hl');
+    p.querySelectorAll('.sm-cell').forEach(c=>{const own=c.dataset.inc.split(' ');c.classList.toggle('on',ids.some(id=>own.includes(id)));});
+    p.querySelectorAll('.sm-key').forEach(k=>k.classList.toggle('on',ids.includes(k.dataset.id)));
+  };
+  const off=()=>{p.classList.remove('hl');p.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));};
+  p.querySelectorAll('.sm-key').forEach(k=>{
+    k.addEventListener('mouseenter',()=>on([k.dataset.id]));k.addEventListener('focus',()=>on([k.dataset.id]));
+    k.addEventListener('mouseleave',off);k.addEventListener('blur',off);
+  });
+  p.querySelectorAll('.sm-cell').forEach(c=>{
+    if(!c.dataset.inc)return;
+    c.addEventListener('mouseenter',()=>on(c.dataset.inc.split(' ')));
+    c.addEventListener('mouseleave',off);
+  });
+}
+
+const JENIS_ORDER=['Insiden aktual','Near miss'];
+const JENIS_COLOR={'Insiden aktual':'#c0611c','Near miss':'#356760'};
+const jenisColor=j=>JENIS_COLOR[j]||'#9C998C';
+const jenisList=inc=>{
+  const s=[...new Set(inc.map(i=>i.jenis))];
+  return[...JENIS_ORDER.filter(j=>s.includes(j)),...s.filter(j=>!JENIS_ORDER.includes(j)).sort()];
+};
+
+function chartsHTML(inc,periode){
+  const js=jenisList(inc);
+  const byDept={};
+  inc.forEach(i=>{
+    const d=i.dept||'Tidak diisi';
+    const o=byDept[d]||(byDept[d]={dept:d,total:0,j:{},list:[]});
+    o.total++;o.j[i.jenis]=(o.j[i.jenis]||0)+1;o.list.push(i);
+  });
+  const depts=Object.values(byDept).sort((a,b)=>b.total-a.total||a.dept.localeCompare(b.dept));
+  const max=Math.max(1,...depts.map(o=>o.total));
+  const deptRows=depts.map(o=>`
+    <div class="hb-row" tabindex="0">
+      <div class="hb-lbl">${esc(o.dept)}</div>
+      <div class="hb-bar" style="width:${o.total/max*100}%">${js.filter(j=>o.j[j]).map(j=>`<div class="hb-seg" style="flex:${o.j[j]} 0 0;background:${jenisColor(j)}"></div>`).join('')}</div>
+      <div class="hb-val">${fmtInt(o.total)}</div>
+      <div class="tt-box"><div class="tt-head"><strong>${esc(o.dept)}</strong> - ${fmtInt(o.total)} kejadian</div>
+        ${o.list.slice(0,8).map(i=>`<div class="tt-row"><span>${esc(i.id)}</span><span>${esc(i.jenis)}</span></div>`).join('')}
+        ${o.list.length>8?`<div class="tt-row"><span>+${o.list.length-8} lainnya</span></div>`:''}
+      </div>
+    </div>`).join('');
+  return`
+    <div class="chart-pair">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div><div class="chart-title">Tren Kejadian</div><div class="chart-sub">${periode} - ${periodBuckets(periodRanges(),firstData()).unit}</div></div>
+          <div class="chart-legend">${js.map(j=>`<span class="lg-item"><i style="background:${jenisColor(j)}"></i>${esc(j)}</span>`).join('')}</div>
+        </div>
+        <div class="chart-wrap"><canvas id="incChart"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div><div class="chart-title">Kejadian per Departemen</div><div class="chart-sub">${periode}</div></div>
+        </div>
+        ${depts.length?`<div class="hb-list">${deptRows}</div>`:'<div class="empty">Tidak ada insiden pada periode ini.</div>'}
+      </div>
+    </div>`;
+}
+
+// Satuan grafik mengikuti filter: per tahun (quarter/bulan lintas tahun), per minggu Sabtu–Jumat
+// (quarter/bulan dalam satu tahun, Month to Date), selain itu per bulan
+function periodBuckets(ranges,first){
+  const today=todayIso();
+  const yq=periodMode==='yq',sub=currentQuarter!=='all'||currentMonth!=='all';
+  if(yq&&currentYear==='all'&&sub){
+    const lbl=currentMonth!=='all'?MN_S[+currentMonth-1]:`Q${currentQuarter}`;
+    return{unit:'per tahun',list:ranges.filter(([a])=>a<=today).map(([a,b])=>({from:a,to:b,tick:[lbl,a.slice(0,4)],title:`${lbl} ${a.slice(0,4)}`}))};
+  }
+  if(periodMode==='mtd'||(yq&&sub)){
+    const [a,b]=ranges[0],end=b<today?b:today,list=[];
+    let sat=toDate(a);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+    for(;toIso(sat)<=end;sat.setDate(sat.getDate()+7)){
+      const fri=new Date(sat);fri.setDate(fri.getDate()+6);
+      const from=toIso(sat)<a?a:toIso(sat),to=toIso(fri)>b?b:toIso(fri);
+      const f=toDate(from),t=toDate(to);
+      const s=f.getMonth()===t.getMonth()?`${f.getDate()}–${t.getDate()} ${MN_S[t.getMonth()]}`:`${f.getDate()} ${MN_S[f.getMonth()]}–${t.getDate()} ${MN_S[t.getMonth()]}`;
+      list.push({from,to,tick:s,title:`${s} ${t.getFullYear()}`});
+    }
+    return{unit:'per minggu',list};
+  }
+  const months=periodMonths(ranges,first||today,today);
+  return{unit:'per bulan',list:months.map((k,i)=>{
+    const s=MN_S[+k.slice(5)-1];
+    let from=`${k}-01`,to=toIso(new Date(+k.slice(0,4),+k.slice(5),0));
+    const r=(ranges||[]).find(([a,b])=>a<=to&&b>=from);
+    if(r){from=from<r[0]?r[0]:from;to=to>r[1]?r[1]:to;}
+    return{from,to,tick:i===0||k.slice(5)==='01'?[s,k.slice(0,4)]:s,title:fmtMonth(k)};
+  })};
+}
+// Awal sumbu waktu grafik "All": tanggal paling awal dari data manhours atau insiden, sama untuk semua grafik
+const firstData=()=>[...mhRows.filter(r=>r.mhValid).map(r=>r.start),...incidents.map(i=>i.date)].sort()[0];
+
+let incChart=null;
+function drawIncChart(ranges,inc){
+  if(incChart){incChart.destroy();incChart=null;}
+  const canvas=document.getElementById('incChart');
+  if(!canvas)return;
+  const {list:bk}=periodBuckets(ranges,firstData());
+  const js=jenisList(inc);
+  const inB=b=>inc.filter(i=>i.date>=b.from&&i.date<=b.to);
+  incChart=new Chart(canvas,{
+    type:'bar',
+    data:{labels:bk.map(b=>b.title),datasets:js.map(j=>({
+      label:j,data:bk.map(b=>inB(b).filter(i=>i.jenis===j).length),
+      backgroundColor:jenisColor(j),borderRadius:3,borderSkipped:'start',borderColor:'#fff',borderWidth:{top:2},
+      barPercentage:.7,categoryPercentage:.9,maxBarThickness:28
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TT_STYLE,
+        filter:it=>it.parsed.y>0,
+        callbacks:{
+          title:items=>{const b=bk[items[0].dataIndex];return`${b.title} - ${fmtInt(inB(b).length)} kejadian`;},
+          label:()=>null,
+          afterBody:items=>inB(bk[items[0].dataIndex]).map(i=>`${i.id} - ${i.jenis} - ${fmtDate(i.date,'short')}`)
+        }}},
+      scales:{
+        x:{stacked:true,grid:{display:false},border:{color:'#DCDACC'},
+          ticks:{color:'#9C998C',font:AXIS_FONT,maxRotation:0,autoSkip:true,autoSkipPadding:8,callback:(v,i)=>bk[i].tick}},
+        y:{stacked:true,beginAtZero:true,suggestedMax:2,grid:{color:'#EDE7D8'},border:{display:false},
+          ticks:{color:'#9C998C',font:AXIS_FONT,precision:0,stepSize:1}}
+      }}
+  });
+}
+
+const COLS=[
+  {key:'date',label:'Tanggal'},
+  {key:'id',label:'ID Insiden'},
+  {key:'lokasi',label:'Lokasi'},
+  {key:'area',label:'Area'},
+  {key:'dept',label:'Departemen'},
+  {key:'jenis',label:'Jenis'},
+  {key:'aktivitas',label:'Aktivitas'},
+  {key:'klasifikasi',label:'Klasifikasi'},
+  {key:'status',label:'Status Investigasi'}
+];
+const sortVal=(i,k)=>k==='klasifikasi'?classRank(i):k==='date'?i.date+i.jam:str(i[k]).toLowerCase();
+function setSort(k){
+  sortState=sortState.key===k?{key:k,dir:-sortState.dir}:{key:k,dir:k==='date'?-1:1};
+  render();
+}
+
+function registerHTML(inc){
+  const field=(lbl,val,full)=>val?`<div class="inc-f${full?' inc-full':''}"><div class="inc-f-lbl">${lbl}</div><div class="inc-f-val">${esc(val)}</div></div>`:'';
+  const arrow=k=>sortState.key===k?(sortState.dir>0?'▲':'▼'):'↕';
+  const head=`<tr><th class="r">No</th>${COLS.map(c=>{
+    const on=sortState.key===c.key,aria=on?(sortState.dir>0?'ascending':'descending'):'none';
+    return`<th class="sortable${on?' on':''}" aria-sort="${aria}"><button type="button" data-sort="${c.key}">${c.label}<span class="arr">${arrow(c.key)}</span></button></th>`;
+  }).join('')}</tr>`;
+  const sorted=inc.slice().sort((a,b)=>{
+    const x=sortVal(a,sortState.key),y=sortVal(b,sortState.key);
+    return(x<y?-1:x>y?1:0)*sortState.dir;
+  });
+  const rows=sorted.map((i,n)=>{
+    const open=openInc.has(i.id);
+    const korban=CLASSES.filter(c=>i[c.key]>0).map(c=>`${c.lbl}: ${fmtInt(i[c.key])}`).join(', ');
+    const invest=[i.mulai?`mulai ${fmtDate(i.mulai)}`:'',i.target?`target ${fmtDate(i.target)}`:'',i.selesai?`selesai ${fmtDate(i.selesai)}`:''].filter(Boolean).join(' - ');
+    const tenggat=i.tenggat?`${i.tenggat}${i.terlambat>0?` (${fmtInt(i.terlambat)} hari)`:''}`:'';
+    return`
+      <tr class="inc-row${open?' active':''}" data-id="${esc(i.id)}" tabindex="0" aria-expanded="${open}">
+        <td class="r muted">${n+1}</td>
+        <td>${fmtDate(i.date)}</td>
+        <td>${esc(i.id)}</td>
+        <td>${esc(i.lokasi)||'—'}</td>
+        <td>${esc(i.area)||'—'}</td>
+        <td>${esc(i.dept)||'—'}</td>
+        <td>${esc(i.jenis)}</td>
+        <td class="clip" title="${esc(i.aktivitas)}">${esc(i.aktivitas)||'—'}</td>
+        <td>${worstClass(i)}</td>
+        <td>${esc(i.status)}</td>
+      </tr>
+      <tr class="inc-detail${open?' open':''}"><td colspan="${COLS.length+1}"><div class="inc-grid">
+        ${field('Ringkasan kejadian',i.ringkasan,true)}
+        ${field('Jam kejadian',i.jam?i.jam+' WIB':'')}
+        ${field('Korban',korban||'Tidak ada')}
+        ${field('Akar penyebab',i.akar)}
+        ${field('Rencana tindakan perbaikan',i.tindakan)}
+        ${field('Update / progres investigasi',i.progres)}
+        ${field('PIC investigasi',i.pic)}
+        ${field('Periode investigasi',invest)}
+        ${field('Status tenggat',tenggat)}
+        ${field('Hari kerja hilang',fmtInt(i.hariHilang)+' hari')}
+        ${field('Kerugian',i.aset&&i.aset!=='Tidak Ada'?`${i.aset} - Rp ${fmtInt(i.kerugian)}`:(i.kerugian?`Rp ${fmtInt(i.kerugian)}`:'Tidak ada'))}
+        ${field('Bukti laporan',i.bukti)}
+        ${field('Verifikator',i.verifikator)}
+      </div></td></tr>`;
+  }).join('');
+  return`
+    <div class="reg-head">
+      <div class="row-head" style="margin:0">
+        <div class="row-title">Register Insiden</div>
+        <div class="row-desc">Deskripsi insiden kecelakaan kerja yang terjadi.</div>
+      </div>
+      <div class="count">${fmtInt(inc.length)} kejadian</div>
+    </div>
+    <div class="list"><table class="tbl">
+      <thead>${head}</thead>
+      <tbody>${rows}</tbody>
+    </table>${inc.length?'':'<div class="empty">Tidak ada insiden pada periode ini.</div>'}</div>`;
+}
+
+/* ---------- Halaman ---------- */
+function render(){
+  const ranges=periodRanges();
+  const inc=incidents.filter(i=>inPeriod(i.date,ranges));
+  const periode=periodLabel();
+  const page=document.getElementById('pageBody');
+  page.innerHTML=`
+    ${filterHTML()}
+    <div class="row-head">
+      <div class="row-title">Manhours</div>
+      <div class="row-desc">Jam kerja dan jumlah pekerja per bulan dan per unit kerja.</div>
+    </div>
+    ${manhoursHTML(ranges,periode,inc)}
+    <div class="row-head">
+      <div class="row-title">Ringkasan Insiden</div>
+      <div class="row-desc">Ringkasan insiden kerja PT Citra Mulia Inti.</div>
+    </div>
+    ${summaryHTML(inc)}
+    <div class="row-head">
+      <div class="row-title">Tren dan Sebaran Kejadian</div>
+      <div class="row-desc">Jumlah insiden per bulan dan per departemen.</div>
+    </div>
+    ${chartsHTML(inc,periode)}
+    ${registerHTML(inc)}
+  `;
+  bindSummary();
+  drawMhChart(ranges,inc);
+  drawIncChart(ranges,inc);
+  page.querySelectorAll('th button[data-sort]').forEach(b=>b.addEventListener('click',()=>setSort(b.dataset.sort)));
+  page.querySelectorAll('.inc-row').forEach(tr=>{
+    const toggle=()=>{
+      const id=tr.dataset.id;
+      if(openInc.has(id))openInc.delete(id);else openInc.add(id);
+      const open=openInc.has(id);
+      tr.classList.toggle('active',open);
+      tr.nextElementSibling.classList.toggle('open',open);
+      tr.setAttribute('aria-expanded',open);
+    };
+    tr.addEventListener('click',toggle);
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+  });
+}
+
+(async function boot(){
+  try{
+    document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const [incTxt,mhTxt]=await Promise.all([getText(INCIDENT_URL),getText(MANHOURS_URL)]);
+    parseIncidents(incTxt);
+    parseManhours(mhTxt);
+    years=[...new Set([...incidents.map(i=>+i.year),...mhRows.filter(r=>r.mhValid).map(r=>+r.month.slice(0,4))])].sort((a,b)=>a-b);
+    render();
+  }catch(err){
+    console.error('LOAD ERROR:',err);
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

@@ -210,6 +210,7 @@ const COLS=[
   {key:'prog',label:'Program'},
   {key:'luas',label:'Luas (ha)',r:true},
   {key:'tgl',label:'Tgl Partisipasi',full:true},
+  {key:'tglTanam',label:'Tgl Penanaman',full:true},
 ];
 const sortState={key:'petani',dir:1};
 const cmpText=(a,b)=>a.localeCompare(b,'id',{numeric:true,sensitivity:'base'});
@@ -220,6 +221,7 @@ const SORTERS={
   prog:(a,b)=>cmpText(PROG_INFO[a.prog].label,PROG_INFO[b.prog].label),
   luas:(a,b)=>a.luas-b.luas,
   tgl:(a,b)=>parseDate(a.tglPartisipasi)-parseDate(b.tglPartisipasi),
+  tglTanam:(a,b)=>(parseDate(a.tglRealisasi)||0)-(parseDate(b.tglRealisasi)||0),
 };
 function setSort(key){
   sortState.dir=sortState.key===key?-sortState.dir:1;
@@ -232,7 +234,7 @@ function visibleRows(){
   const sorter=SORTERS[sortState.key];
   return rows.filter(r=>(!q||r.petani.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))
     &&(!state.prog||r.prog===state.prog)&&(!state.desa||r.desa===state.desa)&&(!state.kth||r.kth===state.kth)
-    &&(!state.status||!!parseDate(r.tglRealisasi))) // Penanaman = punya Tgl_Realisasi
+    &&(!state.status||(state.status==='tanam')===!!parseDate(r.tglRealisasi))) // Penanaman = punya Tgl_Realisasi
     .sort((a,b)=>sortState.dir*sorter(a,b)||cmpText(a.petani,b.petani)||cmpText(a.id,b.id));
 }
 
@@ -244,7 +246,7 @@ function render(){
     <div class="filters">
       <div>
         <div class="filter-group"><span class="filter-lbl">Program</span>${pills('prog',[['','Semua'],['Agro_Reg','Agroforestri'],['Temb_Reg','Reforestasi'],['Temb_MTL','MTL'],['Agro_BPO','BPO']])}</div>
-        <div class="filter-group"><span class="filter-lbl">Status</span>${pills('status',[['','Semua'],['tanam','Penanaman']])}</div>
+        <div class="filter-group"><span class="filter-lbl">Status</span>${pills('status',[['','Semua'],['tanam','Penanaman'],['belum','Belum Ditanam']])}</div>
         <div class="filter-group"><span class="filter-lbl">Desa</span><select class="sel" onchange="state.desa=this.value;updateTable()">${opts(uniq(r=>r.desa).map(v=>[v,v]),'Semua Desa')}</select></div>
         <div class="filter-group"><span class="filter-lbl">KTH</span><select class="sel" onchange="state.kth=this.value;updateTable()">${opts(uniq(r=>r.kth).map(v=>[v,v]),'Semua KTH')}</select></div>
       </div>
@@ -296,14 +298,15 @@ function updateTable(){
       <td>${PROG_INFO[r.prog].label}</td>
       <td class="r">${fmt(r.luas)}</td>
       <td class="full">${fmtDate(r.tglPartisipasi)}</td>
+      <td class="full">${fmtDate(r.tglRealisasi)}</td>
     </tr>`).join('');
   document.getElementById('empty').style.display=vis.length?'none':'block';
   document.getElementById('count').textContent=`${fmtInt(vis.length)} lahan · ${fmt(vis.reduce((a,r)=>a+r.luas,0))} ha`;
 }
 
-const EXPORT_HDR=['No','Nama Petani','ID Lahan','Desa','KTH','Program','Luas (ha)','Tgl Partisipasi'];
+const EXPORT_HDR=['No','Nama Petani','ID Lahan','Desa','KTH','Program','Luas (ha)','Tgl Partisipasi','Tgl Penanaman'];
 function exportBody(raw){
-  return visibleRows().map((r,i)=>[i+1,r.petani,r.id,r.desa,r.kth,PROG_INFO[r.prog].label,raw?+r.luas.toFixed(2):fmt(r.luas),fmtDate(r.tglPartisipasi)]);
+  return visibleRows().map((r,i)=>[i+1,r.petani,r.id,r.desa,r.kth,PROG_INFO[r.prog].label,raw?+r.luas.toFixed(2):fmt(r.luas),fmtDate(r.tglPartisipasi),fmtDate(r.tglRealisasi)]);
 }
 const exportName=()=>`Daftar_Peserta_Program_${new Date().toISOString().slice(0,10)}`;
 function toggleDl(ev){ev.stopPropagation();document.getElementById('dlWrap').classList.toggle('open');}
@@ -313,7 +316,7 @@ function exportExcel(){
   if(!body.length){alert('Tidak ada data.');return;}
   if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
   const ws=XLSX.utils.aoa_to_sheet([EXPORT_HDR,...body]);
-  ws['!cols']=[{wch:5},{wch:28},{wch:18},{wch:16},{wch:22},{wch:24},{wch:10},{wch:18}];
+  ws['!cols']=[{wch:5},{wch:28},{wch:18},{wch:16},{wch:22},{wch:24},{wch:10},{wch:18},{wch:18}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Peserta');
   XLSX.writeFile(wb,exportName()+'.xlsx');
 }

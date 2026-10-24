@@ -1,269 +1,125 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Sanggala Corridor Project</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard | Sanggala Corridor Project</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
+<link rel="icon" type="image/png" href="assets/icons/favicon.png">
+<link rel="stylesheet" href="assets/css/dashboard.css">
 <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Libre Franklin', sans-serif;
-    }
-    body {
-      background-color: var(--color-cream);
-    }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
 
-    .navbar {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      padding: 14px 32px;
-      background-color: var(--color-cream);
-      border-bottom: 1px solid var(--color-sand);
-    }
-    .navbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-self: start;
-    }
-    .logo {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
-    }
-    .brand-text {
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 0.5px;
-      color: var(--color-pine);
-    }
-    .navbar-menu {
-      display: flex;
-      gap: 32px;
-      justify-self: center;
-    }
-    .navbar-menu a {
-      text-decoration: none;
-      color: var(--color-fern);
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .navbar-menu a:hover,
-    .navbar-menu a.active {
-      color: var(--color-pine);
-    }
-    .navbar-spacer {
-      justify-self: end;
-    }
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-    .page-wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 32px 80px;
-    }
-    .page-title {
-      font-size: 1.5rem;
-      font-weight: 500;
-      color: #6A665B;
-      margin-bottom: 36px;
-    }
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{position:relative;display:flex;flex-direction:column;transition:box-shadow .15s}
+.card:hover{box-shadow:var(--shadow-md)}
+.card.dev{background:transparent;border-style:dashed}
+.card.dev:hover{box-shadow:none}
+.card-title{font-size:14.5px;font-weight:700;color:var(--text);text-decoration:none;line-height:1.3}
+a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
+.card.dev .card-title{color:var(--text-2)}
+.card-desc{font-size:12px;color:var(--text-2);line-height:1.6;margin-top:6px}
+.sub-links{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-lt)}
+.sub-links .fpill{text-decoration:none}
 
-    .dash-section {
-      margin-bottom: 40px;
-    }
-    .dash-section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #3A342C;
-      margin-bottom: 16px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--color-sand);
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-    }
-    .dash-card {
-      background-color: var(--color-sage);
-      border-radius: 6px;
-      padding: 18px 20px;
-      text-decoration: none;
-      display: block;
-      max-width: 320px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-    }
-    .dash-card:hover {
-      background-color: var(--color-moss);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(53, 103, 96, 0.18);
-    }
-    .dash-card h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #3A342C;
-      margin-bottom: 8px;
-    }
-    .dash-card p {
-      font-size: 0.78rem;
-      color: #3A342C;
-      line-height: 1.4;
-      margin-bottom: 14px;
-    }
-    .dash-card .update {
-      font-size: 0.68rem;
-      color: #6A665B;
-      opacity: 0.75;
-    }
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background-color: rgba(255, 255, 255, 0.55);
-    }
-    .status-badge::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: currentColor;
-    }
-    .status-active {
-      color: #1a5c33;
-    }
-    .status-development {
-      color: #8a6300;
-    }
-    .status-inactive {
-      color: #8a1f1f;
-    }
-
-    @media (max-width: 768px) {
-      .navbar {
-        grid-template-columns: auto auto;
-      }
-      .navbar-menu {
-        gap: 16px;
-        justify-self: end;
-      }
-      .navbar-spacer {
-        display: none;
-      }
-      .page-wrap {
-        padding: 32px 20px 60px;
-      }
-    }
-  </style>
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.card-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-brand">
-      <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project" class="logo">
-      <span class="brand-text">SANGGALA CORRIDOR PROJECT</span>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Daftar Dashboard</div>
+        <div class="hero-date" id="pageSub"></div>
+      </div>
     </div>
-    <nav class="navbar-menu">
-      <a href="/dashboard/">Home</a>
-      <a href="activities.html">Activities</a>
-      <a href="list.html" class="active">Dashboard</a>
-    </nav>
-    <div class="navbar-spacer"></div>
-  </header>
+  </div>
 
-  <main class="page-wrap" id="mainContent">
-    <h1 class="page-title">List of dashboard monitoring</h1>
-
-    <section class="dash-section">
-      <h2 class="dash-section-title">Illegal Activities Monitoring</h2>
-      <div class="card-grid">
-        <a class="dash-card" href="https://gis-carbonx.github.io/dashboard/patrol-summary.html" data-dashboard="patrol-data">
-          <h3>Patrol Data</h3>
-          <p>Visualisasi data patroli yang dilakukan tim lapangan.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="land-clearing-alert.html" data-dashboard="land-clearing-alert">
-          <h3>Land clearing alert</h3>
-          <p>Pemantauan titik pembukaan lahan, data dari Integrated Disturbance Alert GFW.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="community-fire-management.html" data-dashboard="community-fire-management">
-          <h3>Community-Based Fire Management</h3>
-          <p>Pengendalian &amp; Mitigasi Karhutla Berbasis Masyarakat — Penggalian Aspirasi.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="satellite-tracker.html" data-dashboard="satellite-tracker">
-          <h3>Satellite Tracker — Kalimantan Barat</h3>
-          <p>Pemantauan titik panas (hotspot) satelit di wilayah Kalimantan Barat.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="monitoring-fire-event.html" data-dashboard="monitoring-fire-event">
-          <h3>Monitoring Fire Event</h3>
-          <p>Informasi sebaran titik api dari NASA FIRMS</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <div class="page-body-inner">
+          <div class="card-grid" id="cards"></div>
+        </div>
       </div>
-    </section>
+    </div>
+  </div>
+</div>
 
-    <section class="dash-section">
-      <h2 class="dash-section-title">Biodiversity Monitoring</h2>
-      <div class="card-grid">
-        <a class="dash-card" href="biodiversity-summary.html" data-dashboard="biodiversity-summary">
-          <h3>Biodiversity Monitoring</h3>
-          <p>Monitoring biodiversity in the project area.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-      </div>
-    </section>
+<script>
+'use strict';
+// Satu entri = satu dashboard; "sub" mengikuti menu samping halaman tersebut
+const SECTIONS=[
+  {title:'Illegal Activities Monitoring',items:[
+    {title:'Fire and Forest Patrol Protection',href:'patrol-summary.html',
+      desc:'Patroli lapangan, titik api, alert pembukaan lahan, dan kondisi cuaca di area proyek.',
+      sub:[['Fire Alert','monitoring-fire-event.html'],['Perbandingan','pantauan-titik-api.html'],['Satellite Tracker','satellite-tracker.html'],['Land Clearing Alert','land-clearing-alert.html'],
+        ['Community Fire Management','community-fire-management.html'],['Weather','weather.html']]}
+  ]},
+  {title:'Biodiversity Monitoring',items:[
+    {title:'Biodiversity Monitoring',href:'biodiversity-summary.html',
+      desc:'Monitoring biodiversity in the project area from camera traps and bioacoustic recorders.',
+      sub:[['Camera Trap','cameratrap-monitoring.html'],['Bioacoustic','bioacoustic-monitoring.html']]}
+  ]},
+  {title:'Project Implementation',items:[
+    {title:'Planting Monitoring',href:'planting.html',
+      desc:'Monitoring perkembangan implementasi program agroforestri.'},
+    {title:'Planting Summary',href:'planting-summary.html',hidden:true,
+      desc:'Luas lahan program, peserta, penanaman, dan stok bibit nursery.',
+      sub:[['ARR','arr.html'],['Nursery','nursery.html'],['Monitoring','penanaman-program.html'],['KTH','kth.html']]},
+    {title:'Daftar Peserta Program',href:'daftar-peserta-program.html',
+      desc:'Daftar lahan peserta agroforestri dan reforestasi beserta peta dan rincian tanamannya.'},
+    {title:'Community Engagement',dev:true,desc:'Kegiatan pelibatan masyarakat di area proyek.'},
+    {title:'Worker Database',dev:true,desc:'Basis data pekerja proyek.'}
+  ]},
+  {title:'Health, Safety & Environment',items:[
+    {title:'Monitoring Manhours & Insiden HSE',href:'hse.html',hidden:true,
+      desc:'Manhours, manpower, LTI free manhours, ringkasan insiden, dan register insiden beserta investigasinya.'}
+  ]}
+];
 
-    <section class="dash-section">
-      <h2 class="dash-section-title">Project Implementation</h2>
-      <div class="card-grid">
-        <a class="dash-card" href="planting.html" data-dashboard="planting-monitoring">
-          <h3>Planting Monitoring</h3>
-          <p>Monitoring perkembangan implementasi program agroforestri.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="daftar-peserta-program.html" data-dashboard="daftar-peserta-program">
-          <h3>Daftar Peserta Program</h3>
-          <p>Daftar lahan peserta agroforestri &amp; reforestasi beserta peta dan rincian tanamannya.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="nursery.html" data-dashboard="nursery-data">
-          <h3>Nursery Data</h3>
-          <p>Stok bibit, alur produksi hingga bibit siap tanam (BST), dan pemanfaatan bibit dari nursery.</p>
-          <span class="status-badge status-active">Active</span>
-        </a>
-        <a class="dash-card" href="#" data-dashboard="community-engagement">
-          <h3>Community Engagement</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut facilisis libero. Mauris ac lectus est.</p>
-          <span class="status-badge status-development">On Development</span>
-        </a>
-        <a class="dash-card" href="#" data-dashboard="worker-database">
-          <h3>Worker Database</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut facilisis libero. Mauris ac lectus est.</p>
-          <span class="status-badge status-development">On Development</span>
-        </a>
-      </div>
-    </section>
-  </main>
+// Entri hidden:true disembunyikan sementara dari daftar
+SECTIONS.forEach(s=>{s.items=s.items.filter(d=>!d.hidden);});
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      console.log("Dashboard - halaman siap.");
-    });
-  </script>
-  <script src="auth-guard.js"></script>
-  </body>
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function cardHTML(d){
+  const sub=(d.sub||[]).map(([t,h])=>`<a class="fpill" href="${h}">${esc(t)}</a>`).join('');
+  return`
+    <div class="card${d.dev?' dev':''}">
+      ${d.dev?`<span class="card-title">${esc(d.title)}</span>`:`<a class="card-title" href="${d.href}">${esc(d.title)}</a>`}
+      <div class="card-desc">${esc(d.desc)}</div>
+      ${d.dev?'<div class="card-note">Dalam pengembangan</div>':''}
+      ${sub?`<div class="sub-links">${sub}</div>`:''}
+    </div>`;
+}
+
+const all=SECTIONS.flatMap(s=>s.items),active=all.filter(d=>!d.dev);
+document.getElementById('pageSub').textContent=`${active.length} dashboard aktif, ${active.reduce((a,d)=>a+(d.sub||[]).length,0)} sub-halaman`;
+document.getElementById('cards').innerHTML=all.map(cardHTML).join('');
+</script>
+<script src="auth-guard.js"></script>
+</body>
 </html>

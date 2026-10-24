@@ -234,7 +234,7 @@ const TIPE_DESC={
 const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
 
 const INTERVENSI=['Agroforestry','Tembawang','Enrichment','Kebun Entres','Kebun Inti','Other'];
-const IV_NONE='Tanpa Tipe Intervensi';
+const IV_NONE='Tanpa Tipe Program';
 function normIntervensi(v){
   const n=normCat(v);
   return INTERVENSI.find(t=>normCat(t)===n)||IV_NONE;
@@ -249,7 +249,7 @@ function parseSheet(csv){
   rows=[];
   data.forEach(raw=>{
     const keys=Object.keys(raw);
-    const category=str(pickCI(raw,keys,'Category')||'');
+    const category=str(pickCI(raw,keys,'Tipe Kegiatan','Category')||'');
     if(!category)return;
     const tanggal=str(pickCI(raw,keys,'Tanggal'));
     const m=tanggal.match(/(\d{4})/);
@@ -260,7 +260,7 @@ function parseSheet(csv){
       date:d?d[0]:'',
       id:str(pickCI(raw,keys,'Unique Seedling Code')),
       jenis:str(pickCI(raw,keys,'Jenis Tanaman')),
-      intervensi:normIntervensi(pickCI(raw,keys,'Tipe Intervensi')),
+      intervensi:normIntervensi(pickCI(raw,keys,'Tipe Program','Tipe Intervensi')),
       category,
       cat:normCat(category),
       jumlah:num(pickCI(raw,keys,'Jumlah'))

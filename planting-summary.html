@@ -255,7 +255,7 @@ function parseNursery(csv){
   nurseryRows=[];
   data.forEach(raw=>{
     const keys=Object.keys(raw);
-    const cat=str(pickCI(raw,keys,'Category')).toLowerCase().replace(/[^a-z]/g,'');
+    const cat=str(pickCI(raw,keys,'Tipe Kegiatan','Category')).toLowerCase().replace(/[^a-z]/g,'');
     const jenis=str(pickCI(raw,keys,'Jenis Tanaman'));
     if(!cat||!jenis||jenis==='#N/A')return;
     const m=str(pickCI(raw,keys,'Tanggal')).match(/^(\d{4})-(\d{2})-(\d{2})/);
