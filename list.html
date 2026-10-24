@@ -22,6 +22,9 @@ body{display:flex;flex-direction:column}
 .card:hover{box-shadow:var(--shadow-md)}
 .card.dev{background:transparent;border-style:dashed}
 .card.dev:hover{box-shadow:none}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.status{flex-shrink:0;font-size:11px;color:var(--text-3);line-height:1.6;white-space:nowrap}
+.status.aktif{color:var(--primary)}
 .card-title{font-size:14.5px;font-weight:700;color:var(--text);text-decoration:none;line-height:1.3}
 a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
 .card.dev .card-title{color:var(--text-2)}
@@ -104,13 +107,18 @@ SECTIONS.forEach(s=>{s.items=s.items.filter(d=>!d.hidden);});
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+const STATUS={aktif:'Aktif',dev:'Dalam pengembangan'};
+
 function cardHTML(d){
   const sub=(d.sub||[]).map(([t,h])=>`<a class="fpill" href="${h}">${esc(t)}</a>`).join('');
+  const st=d.dev?'dev':(d.status||'aktif');
   return`
     <div class="card${d.dev?' dev':''}">
-      ${d.dev?`<span class="card-title">${esc(d.title)}</span>`:`<a class="card-title" href="${d.href}">${esc(d.title)}</a>`}
+      <div class="card-head">
+        ${d.dev?`<span class="card-title">${esc(d.title)}</span>`:`<a class="card-title" href="${d.href}">${esc(d.title)}</a>`}
+        <span class="status ${st}">${esc(STATUS[st]||st)}</span>
+      </div>
       <div class="card-desc">${esc(d.desc)}</div>
-      ${d.dev?'<div class="card-note">Dalam pengembangan</div>':''}
       ${sub?`<div class="sub-links">${sub}</div>`:''}
     </div>`;
 }
