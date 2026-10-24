@@ -52,7 +52,6 @@ a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
     <div class="hero-inner">
       <div>
         <div class="hero-title">Daftar Dashboard</div>
-        <div class="hero-date" id="pageSub"></div>
       </div>
     </div>
   </div>
@@ -74,18 +73,18 @@ a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
 const SECTIONS=[
   {title:'Illegal Activities Monitoring',items:[
     {title:'Fire and Forest Patrol Protection',href:'patrol-summary.html',
-      desc:'Patroli lapangan, titik api, alert pembukaan lahan, dan kondisi cuaca di area proyek.',
+      desc:'Menampilkan kegiatan yang berhubungan dengan perlindungan hutan di area proyek koridor sanggala',
       sub:[['Fire Alert','monitoring-fire-event.html'],['Perbandingan','pantauan-titik-api.html'],['Satellite Tracker','satellite-tracker.html'],['Land Clearing Alert','land-clearing-alert.html'],
         ['Community Fire Management','community-fire-management.html'],['Weather','weather.html']]}
   ]},
   {title:'Biodiversity Monitoring',items:[
     {title:'Biodiversity Monitoring',href:'biodiversity-summary.html',
-      desc:'Monitoring biodiversity in the project area from camera traps and bioacoustic recorders.',
+      desc:'Menampilkan kegiatan monitoring biodiversitas yang ada di proyek koridor sanggala',
       sub:[['Camera Trap','cameratrap-monitoring.html'],['Bioacoustic','bioacoustic-monitoring.html']]}
   ]},
   {title:'Project Implementation',items:[
     {title:'Planting Monitoring',href:'planting.html',
-      desc:'Monitoring perkembangan implementasi program agroforestri.'},
+      desc:'Menampilkan data implementasi kegiatan penanaman ARR dan disekitarnya di area proyek koridor sanggala'},
     {title:'Planting Summary',href:'planting-summary.html',hidden:true,
       desc:'Luas lahan program, peserta, penanaman, dan stok bibit nursery.',
       sub:[['ARR','arr.html'],['Nursery','nursery.html'],['Monitoring','penanaman-program.html'],['KTH','kth.html']]},
@@ -116,8 +115,7 @@ function cardHTML(d){
     </div>`;
 }
 
-const all=SECTIONS.flatMap(s=>s.items),active=all.filter(d=>!d.dev);
-document.getElementById('pageSub').textContent=`${active.length} dashboard aktif, ${active.reduce((a,d)=>a+(d.sub||[]).length,0)} sub-halaman`;
+const all=SECTIONS.flatMap(s=>s.items);
 document.getElementById('cards').innerHTML=all.map(cardHTML).join('');
 </script>
 <script src="auth-guard.js"></script>
