@@ -176,7 +176,6 @@ let incidents=[],mhRows=[],years=[];
 let sortState={key:'date',dir:-1};
 const openInc=new Set();
 
-/* ---------- Filter (sama dengan planting-summary) ---------- */
 let currentYear='all',currentQuarter='all',currentMonth='all';
 const QUARTERS=['1','2','3','4'];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -259,7 +258,6 @@ const AXIS_FONT={family:'Libre Franklin',size:9.5};
 const subLines=(...lines)=>lines.map(([n,t],i)=>`<div class="card-sub-pct"${i?' style="margin-top:2px"':''}>${n===null?'':fmtInt(n)+' '}${t}</div>`).join('');
 const sumKey=(list,k)=>list.reduce((a,i)=>a+i[k],0);
 
-/* ---------- Data ---------- */
 function parseIncidents(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   incidents=[];
@@ -317,7 +315,6 @@ function parseManhours(csv){
   });
 }
 
-/* ---------- Manhours ---------- */
 const UNIT_ORDER=['Staff Site','Staff HO','Agronomis','Biodiversity','Fire Patrol'];
 const UNIT_COLOR={'Staff Site':'#356760','Staff HO':'#B5BBA9','Agronomis':'#8B7BB0','Biodiversity':'#4a7fc1','Fire Patrol':'#c2703f'};
 const unitColor=u=>UNIT_COLOR[u]||'#9C998C';
@@ -546,7 +543,6 @@ function drawMhChart(ranges,inc){
   });
 }
 
-/* ---------- Insiden ---------- */
 const CLASSES=[
   {key:'fatality',lbl:'Fatality'},
   {key:'lti',lbl:'LTI'},
@@ -799,7 +795,6 @@ function registerHTML(inc){
     </table>${inc.length?'':'<div class="empty">Tidak ada insiden pada periode ini.</div>'}</div>`;
 }
 
-/* ---------- Halaman ---------- */
 function render(){
   const ranges=periodRanges();
   const inc=incidents.filter(i=>inPeriod(i.date,ranges));

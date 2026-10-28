@@ -1,36 +1,13 @@
-/**
- * auth-guard.js
- * ------------------------------------------------------------------
- * Proteksi login satu-pintu untuk semua halaman dashboard.
- * Cukup pasang satu baris ini di setiap halaman yang mau dikunci:
- *
- *     <script src="auth-guard.js"></script>
- *
- * Script ini otomatis:
- *  - Mendeteksi navbar situs (.site-navbar atau .navbar) dan MEMBIARKANNYA tetap normal
- *  - Mem-blur & mengunci semua konten LAIN di halaman sampai user login
- *  - Login lewat Google Apps Script + Google Sheet (email/password)
- *  - Fallback kredensial master (username biasa, bukan email)
- *  - Fitur ganti password
- *  - Mengunci scroll (wheel/touch/keyboard) selama belum login
- *
- * PENTING: ini proteksi tampilan (client-side), bukan keamanan sungguhan.
- * Siapa pun yang membuka "View Page Source" bisa melihat kredensial master
- * dan struktur halaman yang di-blur. Cocok untuk mencegah akses orang awam,
- * bukan untuk melindungi data yang benar-benar sensitif.
- * ------------------------------------------------------------------
- */
+// Proteksi tampilan (client-side), bukan keamanan sungguhan: data dan kredensial master tetap terbaca dari source
 (function () {
   "use strict";
 
-  /* ============ KONFIGURASI — edit di sini saja, berlaku di semua halaman ============ */
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxhoWGA_hohFdDA8Coctr8eVdJ3e6NKy_wp9El1MBID1Sqz8eiu-ylK5Fa2BE-pYeTi/exec"; // URL hasil deploy Google Apps Script
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxhoWGA_hohFdDA8Coctr8eVdJ3e6NKy_wp9El1MBID1Sqz8eiu-ylK5Fa2BE-pYeTi/exec";
   const MASTER_USER = "admin";
   const MASTER_PASS = "sanggala25";
   const CONTACT_EMAIL = "gis@carbonxco.com";
   const SESSION_KEY = "dashboardAuthed";
   const SESSION_EMAIL_KEY = "dashboardAuthedEmail";
-  /* ===================================================================================== */
 
   const CSS = `
     .authg-lock { filter: blur(8px); pointer-events: none; user-select: none; }
@@ -110,8 +87,6 @@
     .authg-logout-btn:hover { background: #618273; color: #fff; }
     .authg-logout-btn.authg-show { display: inline-flex; }
 
-    /* fallback: kalau tidak ada spacer khusus di navbar (mis. halaman dengan top-bar gelap),
-       tombol logout ditampilkan mengambang tetap di pojok kanan atas */
     .authg-logout-fixed {
       position: fixed; top: 14px; right: 16px; z-index: 100000;
     }
@@ -189,7 +164,6 @@
   function init() {
     injectCSS();
 
-    // Navbar situs tetap normal, elemen body lain dikunci; cari navbar standar dulu, lalu top-bar internal
     const navbar = document.querySelector(".site-navbar, .navbar, .top-bar");
     const lockables = Array.prototype.filter.call(document.body.children, function (el) {
       return el !== navbar && el.tagName !== "SCRIPT";
@@ -244,7 +218,6 @@
       lock();
     });
 
-    // Jaring pengaman tambahan supaya scroll benar-benar terkunci di semua device
     const SCROLL_KEYS = [" ", "PageDown", "PageUp", "End", "Home", "ArrowDown", "ArrowUp"];
     window.addEventListener("wheel", function (e) { if (isLocked()) e.preventDefault(); }, { passive: false });
     window.addEventListener("touchmove", function (e) { if (isLocked()) e.preventDefault(); }, { passive: false });
@@ -293,7 +266,6 @@
       const password = document.getElementById("authgPass").value;
       loginError.textContent = "";
 
-      // Kredensial master — bypass langsung tanpa cek ke Apps Script/Sheet.
       if (email === MASTER_USER && password === MASTER_PASS) {
         sessionStorage.setItem(SESSION_KEY, "true");
         sessionStorage.setItem(SESSION_EMAIL_KEY, "admin");

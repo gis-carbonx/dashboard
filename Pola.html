@@ -4,7 +4,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300..800&display=swap">
 <style>
-/* Layout: dashboard frame (navbar, dark header band, white cards on cream). Map left, four-step settings right, analysis cards and tables below. Single light look matching the reference dashboard. */
 :root{
   --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#f3f3f3;
   --dark:#3A342C;--bg:#FFFAF3;--surface:#FFFFFF;--border:#DCDACC;--border-lt:#EDE7D8;
@@ -291,7 +290,6 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
           <li><button data-step="3"><span class="n">Langkah 4</span><span class="t">Zona &amp; jenis</span></button></li>
         </ol>
 
-        <!-- 1 Batas -->
         <div class="pane" data-pane="0">
           <div class="pills" id="inSeg">
             <button class="fpill active" data-in="in-draw">Gambar</button>
@@ -323,7 +321,6 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
           <div class="pane-foot"><span class="hint" id="foot0"></span><button class="btn primary" data-next="1">Lanjut ke Medan</button></div>
         </div>
 
-        <!-- 2 Medan -->
         <div class="pane" data-pane="1" hidden>
           <div class="kv-sep">Model elevasi (DEM)</div>
           <div id="demInfo" class="note-box">Belum ada DEM.</div>
@@ -346,7 +343,6 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
           <div class="pane-foot"><button class="btn" data-next="0">Kembali</button><button class="btn primary" data-next="2">Lanjut ke Tapak</button></div>
         </div>
 
-        <!-- 3 Tapak & tujuan -->
         <div class="pane" data-pane="2" hidden>
           <div class="kv-sep">Iklim dan tanah</div>
           <div class="g2">
@@ -375,7 +371,6 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
           <div class="pane-foot"><button class="btn" data-next="1">Kembali</button><button class="btn primary" data-next="3">Lanjut ke Zona</button></div>
         </div>
 
-        <!-- 4 Zona & jenis -->
         <div class="pane" data-pane="3" hidden>
           <div class="fld">Arah baris
             <div class="pills" id="rowSeg">
@@ -516,7 +511,7 @@ const SC=[{max:8,lbl:'0–8%',name:'Datar',col:[227,234,213]},{max:15,lbl:'8–1
 const rgb=c=>`rgb(${c.join(',')})`;
 const slopeClass=s=>SC.findIndex(c=>s<c.max);
 
-/* ===== species database (indicative ranges) =====
+/* species database (indicative ranges):
  code,nama,latin,strata,tajuk m,tinggi m,elev min,elev max,hujan min,hujan max,bulan kering maks,pH min,pH max,
  naungan(0 butuh terik,1 sedang,2 toleran),perlu drainase baik,riparian,penambat N,asli,invasif,panen pertama (thn),
  pendapatan,konservasi,karbon,pangan (1–5),kegunaan */
@@ -570,7 +565,6 @@ const GOALS=[['inc','Pendapatan'],['cons','Konservasi'],['carb','Karbon'],['food
 const GOAL_PRESETS={seimbang:{inc:3,cons:3,carb:3,food:3,fast:3},ekonomi:{inc:5,cons:2,carb:1,food:3,fast:4},karbon:{inc:2,cons:5,carb:5,food:1,fast:1}};
 const PALETTE=['#c0611c','#2d7a55','#7A5A3F','#356760','#8B7BB0','#B8892B','#4C7DB8','#A0465A','#5E8C3A','#2F4F6B','#C77D9B','#6B6B2E','#D08C5B','#3E7C7A'];
 
-/* ===== zones ===== */
 const ZONES=[null,
  {name:'Produksi',col:[222,196,120],desc:'Lereng landai. Pagar kontur dengan pohon lorong; lorong di antaranya untuk tanaman semusim.'},
  {name:'Agroforestri lereng',col:[150,170,140],desc:'Kebun multistrata: emergen, kanopi buah, sub-kanopi perkebunan, pendamping, dan penaung penambat N.'},
@@ -607,14 +601,12 @@ const S={polys:null,utm:null,segs:[],src:'',zone:null,south:true,conv:null,utmDe
   drain:0,w:{...GOAL_PRESETS.seimbang},onlyNative:false,noInvasive:true,
   eval:{},colorOf:{},suitFilter:'ok',year:10,sim:null,mode:'2d',allo:'chave'};
 
-/* ===== projection ===== */
 function setProj(lon,lat){const zone=Math.min(60,Math.max(1,Math.floor((lon+180)/6)+1)),south=lat<0;
   if(S.conv&&zone===S.zone&&south===S.south)return false;S.zone=zone;S.south=south;
   S.utmDef=`+proj=utm +zone=${zone}${south?' +south':''} +datum=WGS84 +units=m +no_defs`;S.conv=proj4('EPSG:4326',S.utmDef);return true;}
 const fwd=p=>S.conv.forward([p[0],p[1]]),inv=p=>S.conv.inverse([p[0],p[1]]);
 const epsg=()=>(S.south?32700:32600)+S.zone,zoneTxt=()=>`${S.zone}${S.south?'S':'N'}`;
 
-/* ===== geometry ===== */
 function ringArea(r){let a=0;for(let i=0,j=r.length-1;i<r.length;j=i++)a+=(r[j][0]+r[i][0])*(r[j][1]-r[i][1]);return Math.abs(a/2);}
 function ringPerim(r){let p=0;for(let i=0,j=r.length-1;i<r.length;j=i++)p+=Math.hypot(r[i][0]-r[j][0],r[i][1]-r[j][1]);return p;}
 function inRing(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
@@ -657,7 +649,6 @@ function validate(){
   $('#checks').innerHTML=c.map(([k,t])=>`<div class="chk"><span class="d ${k}"></span><span>${t}</span></div>`).join('');
 }
 
-/* ===== DEM ===== */
 function sampleDemFor(lon0,lat0){
   const ky=110574,kx=111320*Math.cos(lat0*Math.PI/180);
   const f=(lx,ly)=>{let z=760+0.15*ly+0.05*lx+3*Math.sin(lx/45)*Math.cos(ly/70);
@@ -699,7 +690,6 @@ async function loadDemFile(file){
   }catch(e){m.hidden=false;m.textContent=(e&&e.message)||'DEM tidak dapat dibaca.';}
 }
 
-/* ===== terrain grid ===== */
 function gridExtent(margin){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
   for(const p of S.utm)for(const q of p[0]){x0=Math.min(x0,q[0]);y0=Math.min(y0,q[1]);x1=Math.max(x1,q[0]);y1=Math.max(y1,q[1]);}
   return{x0:x0-margin,y0:y0-margin,x1:x1+margin,y1:y1+margin};}
@@ -780,7 +770,6 @@ function contourLines(L,bb){const G=S.grid,{nx,ny,c,x0,y0,z}=G;const pts=new Map
   return lines.filter(l=>l.length>1).map(l=>l.map(k=>pts.get(k)));
 }
 
-/* ===== suitability & recommendation ===== */
 const val=(id,def)=>{const v=parseFloat($(id).value);return isFinite(v)?v:def;};
 function siteFor(z){const zs=S.grid&&S.grid.zs[z];
   return{el:S.dem&&zs&&isFinite(zs.zmed)?zs.zmed:val('#elev',700),rain:val('#rain',2400),dry:val('#dry',3),ph:val('#ph',5.5),drain:z===4?2:S.drain};}
@@ -817,7 +806,6 @@ function assignColors(){const usedCols=new Set(Object.values(S.colorOf));
     const col=PALETTE.find(p=>!usedCols.has(p))||PALETTE[Object.keys(S.colorOf).length%PALETTE.length];S.colorOf[c]=col;usedCols.add(col);}}}
 const colorOf=c=>S.colorOf[c]||'#6A665B';
 
-/* ===== generation ===== */
 let genTimer=null;function scheduleGen(ms=150){clearTimeout(genTimer);genTimer=setTimeout(generate,ms);}
 function rebuild(){buildTerrain();updateZones();evalAndPick();generate();}
 function rezone(){updateZones();evalAndPick();generate();}
@@ -894,7 +882,6 @@ function nearestStats(){const res={};
     res[code]={n:pts.length,min,close,el:zn?zs/zn:NaN,sl:zn?ss/zn:NaN,zones:[...zones].sort()};}
   return res;}
 
-/* ===== canvas ===== */
 const cv=$('#map'),ctx=cv.getContext('2d'),wrap=$('#mapwrap');let W=0,H=0,DPR=1;
 function resize(){DPR=window.devicePixelRatio||1;W=wrap.clientWidth;H=wrap.clientHeight;cv.width=W*DPR;cv.height=H*DPR;if(!S.userMoved&&S.utm)fit();else draw();if(S.mode==='3d')resize3D();}
 new ResizeObserver(resize).observe(wrap);
@@ -946,7 +933,7 @@ function draw(){
   ctx.font='700 10px "Libre Franklin", sans-serif';ctx.textAlign='center';ctx.fillText('U',nx,ny-17);ctx.textAlign='left';
 }
 
-/* ===== v4: growth, carbon, cash flow =====
+/* growth, carbon, cash flow:
  per species: growth rate k, DBH at 20 yr (cm, 0 = fixed biomass), wood density (g/cm3), mature biomass if fixed (kg),
  income at full yield (Rp/plant/yr), seedling (Rp), upkeep (Rp/plant/yr), timber rotation (yr), timber price (Rp/m3). Indicative. */
 const ECON_RAW={
@@ -1014,7 +1001,6 @@ function simulate(){
       for(const c in o){o[c].h/=o[c].n;o[c].w/=o[c].n;}return o;}};
 }
 
-/* ===== charts ===== */
 function niceStep(v){const e=Math.pow(10,Math.floor(Math.log10(v))),f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;}
 function chart(el,o){
   const n=YEARS+1,Wc=Math.max(240,el.clientWidth||600),Hc=o.h,dlab=o.dlab&&Wc>=480,ml=46,mr=dlab?118:12,mt=10,mb=22,iw=Wc-ml-mr,ih=Hc-mt-mb,ser=o.series;
@@ -1106,7 +1092,6 @@ $('#playYr').addEventListener('click',()=>{if(playT){stopPlay();return;}if(S.yea
 let ecT=null;['#disc','#harvPct','#plantCost'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(ecT);ecT=setTimeout(()=>{simulate();renderAll();},200);}));
 let chT=null;new ResizeObserver(()=>{clearTimeout(chT);chT=setTimeout(renderCharts,120);}).observe($('#simulasi'));
 
-/* ===== 3D view ===== */
 const V3={ok:null,exag:2,tKey:null,col:'natural',sun:null,o:{cx:0,cy:0,zb:0}};let R3=null,SC3,CAM,TG,TRG,LG,GEO3=null;const ORB={th:-0.55,ph:0.95,dist:300,t:[0,0,0]};
 function init3D(){if(V3.ok!==null)return V3.ok;
   try{if(typeof THREE==='undefined')throw new Error('three');
@@ -1147,7 +1132,6 @@ function buildTerrain3D(){
   for(const p of S.utm)p.forEach(r=>line(r,true,0x3A342C,0.6));
   for(const e of S.exclUtm)line(e.pts,e.type==='zone',e.type==='river'?0x2E64B0:0xB23B2E,0.4);
 }
-/* ===== 3D tree replicas: procedural per-species models, built at mature size (m) and scaled per instance ===== */
 const ARCH={
  DU:['broad',{shape:'oval',ht:.3,n:16,lf:'#2f5a2a',tr:'#6b5a45'}],
  PT:['broad',{shape:'umbrella',ht:.55,n:14,lf:'#4f7a32',br:7}],
@@ -1230,7 +1214,7 @@ const BUILD={
   if(o.pods)for(let i=0;i<7;i++){const a=rnd()*6.283;blob(gb,[Math.cos(a)*trR*1.6,ht*(0.35+0.8*rnd()),Math.sin(a)*trR*1.6],[0.07,0.12,0.07],o.pods,0,0.05,0.1);}
   if(o.bigFruit)for(let i=0;i<5;i++){const a=rnd()*6.283;blob(gb,[Math.cos(a)*trR*2.2,ht*(0.4+0.9*rnd()),Math.sin(a)*trR*2.2],[0.17,0.27,0.17],o.bigFruit,0,0.06,0.06);}
  },
- tiered(gb,H,R,o,rnd){/*whorls*/const trR=R*0.04;cyl(gb,[0,0,0],[0,H*0.98,0],trR,trR*0.3,'#7a6a55',7);
+ tiered(gb,H,R,o,rnd){const trR=R*0.04;cyl(gb,[0,0,0],[0,H*0.98,0],trR,trR*0.3,'#7a6a55',7);
   for(let w=0;w<6;w++){const f=w/5,y=H*(0.32+0.64*f),rr=R*(1-f*0.75);for(let k=0;k<5;k++){const a=k*1.2566+w*0.6+rnd()*0.3,x=Math.cos(a)*rr*0.6,z=Math.sin(a)*rr*0.6;
     cyl(gb,[0,y-0.2,0],[x,y,z],trR*0.45,trR*0.2,'#7a6a55',5);blob(gb,[x,y,z],[rr*0.42,rr*0.14+0.25,rr*0.42],o.lf,0,0.22);}}},
  palm(gb,H,R,o,rnd){const K={kelapa:{tr:'#8a7a63',tw:0.32,bend:0.07,nf:18,el:[0.1,0.75],droop:0.5,len:1.5,cr:'#4f7a2e',nuts:'#6f7a2a'},
@@ -1299,7 +1283,6 @@ $$('#viewSeg .fpill').forEach(b=>b.addEventListener('click',()=>setView(b.datase
 $$('[data-col]').forEach(b=>b.addEventListener('click',()=>{V3.col=b.dataset.col;$$('[data-col]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);}));
 $$('[data-ex]').forEach(b=>b.addEventListener('click',()=>{V3.exag=+b.dataset.ex;$$('[data-ex]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);fit3D();}));
 
-/* ===== render ===== */
 const presentZones=()=>S.grid?[1,2,3,4].filter(z=>S.grid.zs[z].cells):[];
 function renderAll(){
   draw();const nn=nearestStats(),sul=Math.max(0,val('#sulam',10))/100,total=S.points.length,G=S.grid;
@@ -1422,7 +1405,6 @@ function renderSuit(){
       ${chips}<td class="r"><b>${best||'–'}</b></td><td class="why">${notes.join(' · ')}</td></tr>`;}).join('')||`<tr><td colspan="${5+pz.length}" class="muted" style="text-align:center;padding:20px">Tidak ada jenis untuk filter ini</td></tr>`;
 }
 
-/* ===== exclusions list ===== */
 function renderExList(){
   const el=$('#exList');const sig=S.excl.map(e=>e.id).join(',');if(el.dataset.sig===sig)return;el.dataset.sig=sig;
   el.innerHTML=S.excl.length?S.excl.map(e=>`<div class="ex-row">
@@ -1435,7 +1417,6 @@ function renderExList(){
   $$('[data-exdel]').forEach(b=>b.addEventListener('click',()=>{S.excl=S.excl.filter(x=>x.id!==+b.dataset.exdel);projectAll();rezone();}));
 }
 
-/* ===== export ===== */
 function ll(p){const q=inv([p.x,p.y]);return[+q[0].toFixed(7),+q[1].toFixed(7)];}
 function closed(r){const m=r.map(q=>[+q[0].toFixed(7),+q[1].toFixed(7)]);return[...m,m[0]];}
 const r1=v=>isFinite(v)?+v.toFixed(1):null;
@@ -1463,7 +1444,6 @@ $('#copy').addEventListener('click',()=>{const txt=buildExport(),lbl=$('#copy sp
   const fb=()=>{const t=$('#expText');t.hidden=false;$('#toggleExp').textContent='Sembunyikan data ekspor';t.value=txt;t.focus();t.select();lbl.textContent='Tekan Ctrl+C';setTimeout(()=>lbl.textContent='Salin titik',2200);};
   try{navigator.clipboard.writeText(txt).then(ok,fb);}catch(e){fb();}});
 
-/* ===== controls ===== */
 function setRowMode(m){S.rowMode=m;$$('#rowSeg .fpill').forEach(b=>b.classList.toggle('active',b.dataset.row===m));$('#azFld').hidden=m!=='straight';}
 $$('#rowSeg .fpill').forEach(b=>b.addEventListener('click',()=>{setRowMode(b.dataset.row);scheduleGen(0);}));
 $('#az').addEventListener('input',()=>scheduleGen());$('#setback').addEventListener('input',()=>scheduleGen());
@@ -1485,7 +1465,6 @@ $$('#steps button').forEach(b=>b.addEventListener('click',()=>goStep(+b.dataset.
 $$('[data-next]').forEach(b=>b.addEventListener('click',()=>goStep(+b.dataset.next)));
 $$('#inSeg .fpill').forEach(b=>b.addEventListener('click',()=>{$$('#inSeg .fpill').forEach(x=>{x.classList.toggle('active',x===b);$('#'+x.dataset.in).hidden=x!==b;});}));
 
-/* ===== drawing ===== */
 const DRAW_TXT={boundary:'Batas lahan',river:'Sungai',zone:'Zona larangan'};
 const minPts=m=>m==='river'?2:3;
 function startDraw(mode){if(!S.conv)return;S.draft={mode,pts:[]};cv.classList.add('drawing');$('#drawbar').hidden=false;updDraw();draw();$('#mapwrap').scrollIntoView({block:'nearest',behavior:'smooth'});}
@@ -1522,7 +1501,6 @@ $('#zfit').addEventListener('click',()=>{if(S.mode==='3d'){fit3D();return;}S.use
 document.addEventListener('keydown',e=>{if(!S.draft)return;const tag=document.activeElement.tagName;if(e.key==='Escape')endDraw();else if(e.key==='Enter')finishDraw();
   else if(e.key==='Backspace'&&tag!=='INPUT'&&tag!=='TEXTAREA'){e.preventDefault();S.draft.pts.pop();updDraw();draw();}});
 
-/* ===== coordinates ===== */
 function parseDMS(s){const re=/(-?\d+(?:\.\d+)?)\s*[°º]\s*(?:(\d+(?:\.\d+)?)\s*['’′]\s*)?(?:(\d+(?:\.\d+)?)\s*(?:["”″]|'')\s*)?\s*(LU|LS|BT|BB|[NSEWnsew])?/g;const out=[];let m;
   while((m=re.exec(s))){let v=Math.abs(+m[1])+(+m[2]||0)/60+(+m[3]||0)/3600;if(+m[1]<0)v=-v;const h=(m[4]||'').toUpperCase();if(['S','LS','W','BB'].includes(h))v=-Math.abs(v);
     out.push({v,axis:['N','S','LU','LS'].includes(h)?'lat':['E','W','BT','BB'].includes(h)?'lon':null});}return out;}
@@ -1535,7 +1513,6 @@ $('#useXY').addEventListener('click',()=>{const m=$('#xyMsg');m.hidden=true;cons
   if(bad.length){m.hidden=false;m.textContent=`Baris ${bad.slice(0,6).join(', ')}${bad.length>6?'…':''} tidak terbaca. Gunakan "lat, lon" desimal atau DMS.`;return;}
   const ps=parts.filter(p=>p.length);try{setGeometry(ps.map(p=>[p]),`Input koordinat · ${ps.reduce((a,p)=>a+p.length,0)} titik`);}catch(e){m.hidden=false;m.textContent=e.message;}});
 
-/* ===== files ===== */
 function polysFromGeoJSON(gj){const fcs=Array.isArray(gj)?gj:[gj],polys=[];let n=0;
   for(const fc of fcs){const feats=fc.type==='FeatureCollection'?fc.features:fc.type==='Feature'?[fc]:[{geometry:fc}];
     for(const f of feats){const g=f&&f.geometry;if(!g)continue;if(g.type==='Polygon'){polys.push(g.coordinates);n++;}else if(g.type==='MultiPolygon'){g.coordinates.forEach(c=>polys.push(c));n++;}}}return{polys,n};}
@@ -1551,7 +1528,6 @@ wireDrop('#dropShp','#fileShp',handleShp);
 wireDrop('#dropDem','#fileDem',loadDemFile);
 $('#useSampleDem').addEventListener('click',()=>{if(!S.utm)return;const e=gridExtent(0),g=inv([(e.x0+e.x1)/2,(e.y0+e.y1)/2]);S.dem=sampleDemFor(g[0],g[1]);$('#demMsg').hidden=true;rebuild();});
 
-/* ===== sample ===== */
 const lat0=-7.2135,lon0=107.902;
 function sample(){const ky=110574,kx=111320*Math.cos(lat0*Math.PI/180),toLL=([x,y])=>[+(lon0+x/kx).toFixed(7),+(lat0+y/ky).toFixed(7)];
   const outer=[[-96,-64],[-10,-88],[32,-92],[120,-48],[140,32],[96,100],[18,108],[-8,96],[-76,78],[-122,8]].map(toLL);
