@@ -37,7 +37,7 @@
 
   .time-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--color-sand)}
   .time-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--color-sand);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-pine);flex-shrink:0}
-  .time-btn:hover{background:var(--color-cream)}
+  .time-btn:hover{background:var(--primary-bg)}
   .time-btn svg{width:14px;height:14px;fill:currentColor}
   .time-btn.play{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
   .time-slider{flex:1;min-width:0;accent-color:var(--color-pine)}
@@ -70,7 +70,7 @@
   .wx-panel{position:relative}
   .wx-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:28px;height:28px;border-radius:50%;border:1px solid var(--border);
     background:rgba(255,255,255,.95);box-shadow:var(--shadow-sm);color:var(--text);font-size:18px;line-height:1;cursor:pointer;font-family:inherit}
-  .wx-nav:hover{background:var(--bg)}
+  .wx-nav:hover{background:var(--primary-bg)}
   .wx-nav.prev{left:-6px}.wx-nav.next{right:-6px}
   .source-note{font-size:10.5px;color:var(--color-muted);line-height:1.6;margin-top:20px;border-top:1px solid #EDE7D8;padding-top:12px}
   .source-note a{color:var(--color-fern);font-weight:600;text-decoration:none}
@@ -608,8 +608,7 @@ function wxDecorPlugin(blocks){
 }
 let rainChart=null;
 function fmtMm(v){return v.toLocaleString('id-ID',{maximumFractionDigits:1});}
-// Hari ini per jam; hari berikutnya per 3 jam (akurasi naik pada akumulasi lebih panjang).
-// Sumbu Y = intensitas rata-rata (mm/jam) agar slot 1 jam dan 3 jam sebanding dengan ambang kategori yang sama
+// Hari ini per jam, berikutnya per 3 jam; sumbu Y = intensitas rata-rata mm/jam agar sebanding dengan ambang kategori
 async function loadPointRain(lat,lon){
   const msg=document.getElementById('rainChartMsg');
   document.getElementById('rainCatLegend').innerHTML=RAIN_CATS.map(c=>`<span><i style="background:${c.color}"></i>${c.lbl} ${c.rng}</span>`).join('');
@@ -853,8 +852,7 @@ if(SHOW_AIR_QUALITY){
   initAirQualityMap();
 }
 
-// Peta prakiraan berpusat di CMI: area data = area peta yang terlihat + 1 langkah grid, dengan jarak grid
-// serapat mungkin tanpa melewati FC_MAX_POINTS (batas Open-Meteo 600 permintaan/menit); diinterpolasi bicubic
+// Grid prakiraan = area peta terlihat + 1 langkah, serapat mungkin dalam FC_MAX_POINTS (batas Open-Meteo 600/menit); interpolasi bicubic
 const FC_LAT_HALF=1.6,FC_MAX_POINTS=560,FC_HOURS=48;
 const FC_CACHE_KEY='weather.fcGrid.v5',FC_CACHE_MS=2*3600e3;
 const FC_ACC_H=6;

@@ -238,14 +238,14 @@ body{display:flex;flex-direction:column}
 .tab-bar{display:flex;gap:0;padding:0 16px;background:#f8fafc;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
 .tab-btn{padding:10px 18px;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;background:none;font-family:inherit;white-space:nowrap}
 .tab-btn.active{color:var(--primary-md);border-bottom:2px solid var(--primary-md)}
-.tab-btn:hover:not(.active){color:var(--text);background:var(--bg)}
+.tab-btn:hover:not(.active){color:var(--text);background:var(--primary-bg)}
 .kth-modal{background:#fff;border-radius:14px;width:min(960px,95vw);height:82vh;max-height:82vh;min-height:82vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden}
 .kth-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .kth-tbl thead{position:sticky;top:0;z-index:1;background:#f8fafc}
 .kth-tbl th{padding:10px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-2);border-bottom:1px solid var(--border);white-space:nowrap}
 .kth-tbl td{padding:9px 12px;border-bottom:1px solid var(--border-lt);color:var(--text);vertical-align:middle}
 .kth-tbl tr:last-child td{border-bottom:none}
-.kth-tbl tr:hover td,.cp-tbl tr:hover td,.ins-tbl tr:hover td{background:#f8fafc}
+.kth-tbl tr:hover td,.cp-tbl tr:hover td,.ins-tbl tr:hover td{background:var(--primary-bg)}
 .kth-tbl tr.hidden-row,.cp-tbl tr.hidden-row,.ins-tbl tr.ins-hidden{display:none}
 .prog-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text);background:none;padding:0}
 .prog-tag::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -300,7 +300,7 @@ body{display:flex;flex-direction:column}
 .thn-tbl th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-2);border-bottom:1px solid var(--border);white-space:nowrap}
 .thn-tbl th.right,.thn-tbl td.right{text-align:right}
 .thn-tbl td{padding:7px 10px;border-bottom:1px solid var(--border-lt);vertical-align:middle;color:var(--text)}
-.thn-tbl tr:hover td{background:#f8fafc}
+.thn-tbl tr:hover td{background:var(--primary-bg)}
 .thn-tbl tr.ins-hidden{display:none}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}

@@ -44,7 +44,7 @@ body{display:flex;flex-direction:column}
 .st-head{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:0 4px 4px}
 .st-head span:nth-child(n+3){text-align:right}
 .st-row{position:relative;padding:4px;border-radius:6px;outline:none}
-.st-row:hover,.st-row:focus{background:var(--bg)}
+.st-row:hover,.st-row:focus{background:var(--primary-bg)}
 .st-lbl{font-size:12px;color:var(--text);text-align:right}
 .st-bar{display:flex;gap:2px;height:14px;border-radius:3px;overflow:hidden;background:var(--c-unpaid)}
 .st-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
@@ -96,7 +96,7 @@ body{display:flex;flex-direction:column}
 
 .kb-list{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .kb-row{position:relative;display:grid;grid-template-columns:140px 1fr 72px;gap:10px;align-items:center;padding:4px;border-radius:6px;outline:none}
-.kb-row:hover,.kb-row:focus{background:var(--bg)}
+.kb-row:hover,.kb-row:focus{background:var(--primary-bg)}
 .kb-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kb-track{height:12px}
 .kb-track.bg{background:var(--border-lt);border-radius:3px;overflow:hidden}
@@ -130,7 +130,7 @@ body{display:flex;flex-direction:column}
 .sp-ghd{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text);padding:0 0 6px;border-bottom:1px solid var(--border-lt);margin-bottom:6px}
 .sp-ghd span:first-child{display:flex;align-items:center;gap:6px}
 .sp-row{position:relative;display:grid;grid-template-columns:150px 1fr 76px 64px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
-.sp-row:hover,.sp-row:focus{background:var(--bg)}
+.sp-row:hover,.sp-row:focus{background:var(--primary-bg)}
 .sp-lbl{font-size:12px;color:var(--text)}
 .sp-track{height:12px}
 .sp-bar{height:100%;border-radius:0 3px 3px 0;min-width:2px}
@@ -163,7 +163,7 @@ body{display:flex;flex-direction:column}
 .bc-area{position:relative;display:grid;gap:6px;padding:0 4px;border-bottom:1px solid var(--border)}
 .bc-grid{position:absolute;left:0;right:0;border-top:1px solid var(--border-lt);pointer-events:none}
 .bc-col{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:2px;outline:none;border-radius:4px 4px 0 0}
-.bc-col:hover,.bc-col:focus{background:rgba(53,103,96,.06)}
+.bc-col:hover,.bc-col:focus{background:var(--primary-bg)}
 .bc-bar{width:42%;max-width:18px;border-radius:4px 4px 0 0;min-height:0}
 .bc-xl{display:grid;gap:6px;padding:6px 4px 0}
 .bc-xl span{font-size:10.5px;color:var(--text-2);text-align:center;white-space:nowrap}
@@ -185,7 +185,7 @@ body{display:flex;flex-direction:column}
 .sl{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .sl-row{display:grid;grid-template-columns:130px 1fr 60px 46px;gap:10px;align-items:center;padding:4px 4px;border-radius:6px}
 .sl-row{outline:none}
-.sl-row:hover,.sl-row:focus{background:var(--bg)}
+.sl-row:hover,.sl-row:focus{background:var(--primary-bg)}
 .sl-row .tt-box{position:fixed;z-index:50}
 .sl-row:hover .tt-box,.sl-row:focus .tt-box{display:block}
 .sl-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -369,7 +369,6 @@ function parseTargetSheet(csv){
   });
 }
 
-// 'yq' = Tahun + Quarter; 'ytd'/'mtd'/'week' mengabaikan keduanya
 const QUARTERS=['1','2','3','4'];
 let currentYear='all',currentQuarter='all',periodMode='yq';
 let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
@@ -445,7 +444,6 @@ function compute(){
   const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new Set();
   const speciesMap={};
   rows.forEach(r=>{
-    // terdaftar: Tgl_Partisipasi
     if(inPeriod(r.tglPartisipasi)){
       lahan++;
       rA+=r.luasAgroAT;rT+=r.luasTembAU;
@@ -460,7 +458,6 @@ function compute(){
         if(r.aReg>0)pAR.add(k);if(r.aBPO>0)pAB.add(k);if(r.tReg>0)pTR.add(k);if(r.tMTL>0)pTM.add(k);
       }
     }
-    // ditanam: Tgl_Realisasi
     if(inPeriod(r.tglRealisasi)){
       if(r.prog.startsWith('Agro')){dA+=r.luasAgro;tanA+=r.jumlahTanaman;}
       else{dT+=r.luasTemb;tanT+=r.jumlahTanaman;}
@@ -750,8 +747,7 @@ function drawLine(){
   const sc=niceScale(Math.max(...lcData.map(d=>Math.max(d.reg,d.tan))));
   const n=lcData.length,step=n>1?iw/(n-1):0;
   const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
-  // Sumbu kanan (petani) diskalakan proporsional dengan luas ditanam:
-  // jumlah petani akhir setinggi luas ditanam akhir (mis. 25 petani = 100 ha)
+  // Sumbu kanan diskalakan agar jumlah petani akhir setinggi luas ditanam akhir
   const last=lcData[n-1],maxPet=Math.max(1,...lcData.map(d=>d.pet));
   const perHa=last.tan>0&&last.pet>0?last.pet/last.tan:maxPet/sc.max;
   const scP={max:sc.max*perHa,ticks:sc.ticks.map(t=>t*perHa)};

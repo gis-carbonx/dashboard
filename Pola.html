@@ -139,7 +139,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
 
 .sp-row{position:relative;display:grid;grid-template-columns:120px 1fr 58px 44px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
 .sp-row.wide{grid-template-columns:150px 1fr 62px 38px}
-.sp-row:hover,.sp-row:focus{background:var(--bg)}
+.sp-row:hover,.sp-row:focus{background:var(--primary-bg)}
 .sp-lbl{font-size:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sp-lbl small{color:var(--text-3);font-size:10.5px}
 .sp-track{height:12px;background:var(--border-lt);border-radius:3px;overflow:hidden}
@@ -217,7 +217,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg>
     <span>Rencana Pola Wanatani</span>
   </div>
-  <div class="nav-note">Versi 4 · simulasi, karbon, arus kas, 3D</div>
+  <div class="nav-note" id="navNote">Versi 4 · simulasi, karbon, arus kas, 3D</div>
 </header>
 
 <div class="dashboard-frame">
@@ -240,7 +240,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
       <div class="card"><div class="card-lbl">Titik tanam</div><div class="card-val-lg" id="kTotal">–</div><div class="card-note" id="kRows">–</div></div>
       <div class="card"><div class="card-lbl">Kebutuhan bibit</div><div class="card-val-lg" id="kSeed">–</div><div class="card-note" id="kSeedNote">–</div></div>
       <div class="card"><div class="card-lbl">Tutupan tajuk <b class="yrLbl">tahun ke-10</b></div><div class="card-val-lg" id="kCover">–</div><div class="card-note" id="kCoverNote">–</div></div>
-      <div class="card"><div class="card-lbl">Stok karbon <b class="yrLbl">tahun ke-10</b></div><div class="card-val-lg" id="kCarb">–</div><div class="card-note" id="kCarbNote">–</div></div>
+      <div class="card" data-carbon><div class="card-lbl">Stok karbon <b class="yrLbl">tahun ke-10</b></div><div class="card-val-lg" id="kCarb">–</div><div class="card-note" id="kCarbNote">–</div></div>
       <div class="card"><div class="card-lbl">NPV 30 tahun</div><div class="card-val-lg" id="kNpv">–</div><div class="card-note" id="kNpvNote">–</div></div>
     </div>
 
@@ -255,6 +255,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
         <div class="layer-row" id="exagRow" hidden><span class="filter-lbl">Relief</span><button class="fpill" data-ex="1">1×</button><button class="fpill active" data-ex="2">2×</button><button class="fpill" data-ex="4">4×</button><span class="filter-lbl" style="margin-left:8px">Warna</span><button class="fpill active" data-col="natural">Alami</button><button class="fpill" data-col="legend">Sesuai legenda</button><span class="hint" style="margin-left:6px">Seret untuk memutar, Shift + seret untuk menggeser, roda untuk zoom</span></div>
         <div class="layer-row">
           <span class="filter-lbl">Lapisan</span>
+          <button class="fpill active" data-layer="aoi">Areal proyek</button>
           <button class="fpill active" data-layer="zone">Zona</button>
           <button class="fpill" data-layer="slope">Kelas lereng</button>
           <button class="fpill active" data-layer="contour">Kontur</button>
@@ -279,7 +280,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
             <button class="go" id="finishDraw">Selesai</button>
           </div>
         </div>
-        <div class="chart-foot" id="mapFoot">Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.</div>
+        <div class="chart-foot" id="mapFoot">Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Garis putus-putus abu-abu adalah batas areal proyek CMI, poligon hijau adalah lahan agro terdaftar; klik poligon untuk memilihnya. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.</div>
       </div>
 
       <div class="card chart-card">
@@ -292,13 +293,19 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
 
         <div class="pane" data-pane="0">
           <div class="pills" id="inSeg">
-            <button class="fpill active" data-in="in-draw">Gambar</button>
+            <button class="fpill active" data-in="in-agro">Lahan agro</button>
+            <button class="fpill" data-in="in-draw">Gambar</button>
             <button class="fpill" data-in="in-shp">Zip SHP / GeoJSON</button>
             <button class="fpill" data-in="in-xy">Koordinat</button>
           </div>
-          <div class="sub" id="in-draw">
+          <div class="sub" id="in-agro">
+            <input class="inp" id="plotSearch" type="text" placeholder="Cari ID lahan atau nama petani">
+            <select class="inp" id="plotSel" size="8"></select>
+            <p class="hint" id="plotMsg">Memuat lahan agro...</p>
+          </div>
+          <div class="sub" id="in-draw" hidden>
             <label class="fld">Pusat peta (lat, lon)
-              <div style="display:flex;gap:6px"><input class="inp" id="center" value="-7.213500, 107.902000"><button class="btn" id="goCenter">Pindah</button></div>
+              <div style="display:flex;gap:6px"><input class="inp" id="center" value=""><button class="btn" id="goCenter">Pindah</button></div>
             </label>
             <div><button class="btn primary" id="startDraw">Gambar batas lahan</button></div>
             <p class="hint">Klik di peta untuk menambah titik sudut. Klik ganda atau Selesai untuk menutup.</p>
@@ -346,10 +353,10 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
         <div class="pane" data-pane="2" hidden>
           <div class="kv-sep">Iklim dan tanah</div>
           <div class="g2">
-            <label class="fld">Curah hujan tahunan <span class="u">mm</span><input class="inp" type="number" id="rain" min="0" step="50" value="2400"></label>
-            <label class="fld">Bulan kering <span class="u">bulan dengan hujan &lt; 60 mm</span><input class="inp" type="number" id="dry" min="0" max="12" step="1" value="3"></label>
-            <label class="fld">pH tanah<input class="inp" type="number" id="ph" min="3" max="9" step="0.1" value="5.5"></label>
-            <label class="fld" id="elevFld">Elevasi rata-rata <span class="u">m dpl, dipakai bila tanpa DEM</span><input class="inp" type="number" id="elev" min="0" step="10" value="700"></label>
+            <label class="fld">Curah hujan tahunan <span class="u">mm</span><input class="inp" type="number" id="rain" min="0" step="50" value="3000"></label>
+            <label class="fld">Bulan kering <span class="u">bulan dengan hujan &lt; 60 mm</span><input class="inp" type="number" id="dry" min="0" max="12" step="1" value="1"></label>
+            <label class="fld">pH tanah<input class="inp" type="number" id="ph" min="3" max="9" step="0.1" value="5"></label>
+            <label class="fld" id="elevFld">Elevasi rata-rata <span class="u">m dpl, dipakai bila tanpa DEM</span><input class="inp" type="number" id="elev" min="0" step="10" value="100"></label>
           </div>
           <div class="fld">Drainase
             <div class="pills" id="drainSeg"><button class="fpill active" data-drain="0">Baik</button><button class="fpill" data-drain="1">Sedang</button><button class="fpill" data-drain="2">Buruk / tergenang</button></div>
@@ -359,7 +366,7 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
           <div class="pills" id="goalPreset">
             <button class="fpill active" data-gp="seimbang">Seimbang</button>
             <button class="fpill" data-gp="ekonomi">Pendapatan</button>
-            <button class="fpill" data-gp="karbon">Konservasi &amp; karbon</button>
+            <button class="fpill" data-gp="karbon" id="gpKarbon">Konservasi &amp; karbon</button>
           </div>
           <div id="goals" style="display:flex;flex-direction:column;gap:8px"></div>
           <div class="kv-sep">Filter jenis</div>
@@ -406,7 +413,8 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
 
     <div class="pair" id="simulasi">
       <div class="card chart-card">
-        <div class="chart-title">Pertumbuhan dan stok karbon</div>
+        <div class="chart-title" id="simTitle">Pertumbuhan dan stok karbon</div>
+        <div data-carbon>
         <div class="chart-sub" id="carbSub">Stok karbon biomassa (atas dan bawah tanah) per strata, tCO₂e</div>
         <div class="fld" style="margin-bottom:10px">Model alometrik pohon
           <div class="pills" id="alloSeg"><button class="fpill active" data-allo="chave">Chave 2014</button><button class="fpill" data-allo="dgh1">Manuri 2017 · DGH1</button><button class="fpill" data-allo="dg1">Manuri 2017 · DG1</button><button class="fpill" data-allo="d2">Manuri 2017 · D2</button></div>
@@ -416,10 +424,11 @@ input[type=range]{width:100%;accent-color:var(--primary);margin:0}
         <div class="chart" id="chCarb"></div>
         <div class="kv-sep" style="margin-top:14px" id="cmpHd">Perbandingan model</div>
         <div id="alloCmp"></div>
+        </div>
         <div class="kv-sep" style="margin-top:16px">Tutupan tajuk, persen luas tanam</div>
         <div class="lg" id="covLg" style="margin-top:6px"></div>
         <div class="chart" id="chCov"></div>
-        <div class="chart-foot">Diameter dan tinggi pohon berasal dari kurva pertumbuhan indikatif, lalu dimasukkan ke model alometrik terpilih. Palem, bambu, perdu, dan tanaman kebun memakai biomassa dewasa tetap. Akar 24% dari biomassa atas, fraksi karbon 0,47. Pohon kayu di zona produksi dan agroforestri ditebang sesuai daur, sehingga stoknya turun saat panen. Klik grafik untuk memilih tahun.</div>
+        <div class="chart-foot" id="simFoot">Diameter dan tinggi pohon berasal dari kurva pertumbuhan indikatif, lalu dimasukkan ke model alometrik terpilih. Palem, bambu, perdu, dan tanaman kebun memakai biomassa dewasa tetap. Akar 24% dari biomassa atas, fraksi karbon 0,47. Pohon kayu di zona produksi dan agroforestri ditebang sesuai daur, sehingga stoknya turun saat panen. Klik grafik untuk memilih tahun.</div>
       </div>
       <div class="card chart-card">
         <div class="chart-title">Arus kas</div>
@@ -516,53 +525,45 @@ const slopeClass=s=>SC.findIndex(c=>s<c.max);
  naungan(0 butuh terik,1 sedang,2 toleran),perlu drainase baik,riparian,penambat N,asli,invasif,panen pertama (thn),
  pendapatan,konservasi,karbon,pangan (1–5),kegunaan */
 const DB_RAW=[
+['KK','Kakao','Theobroma cacao','S',4,6,0,600,1500,2500,3,5.5,7.5,2,1,0,0,0,0,3,4,3,3,1,'kebun'],
+['KO','Kopi','Coffea canephora','S',2.5,3,0,900,1500,3000,3,5,6.5,2,1,0,0,0,0,3,4,3,2,1,'kebun,pagar'],
+['LD','Lada','Piper nigrum','S',1.5,4,0,700,2000,3000,2,5.5,7,1,1,0,0,0,0,3,4,2,1,1,'kebun,merambat,rempah'],
+['AL','Alpukat','Persea americana','K',8,12,0,1500,1200,3000,4,5,7,1,1,0,0,0,0,4,4,3,3,4,'buah'],
 ['DU','Durian','Durio zibethinus','E',10,30,0,800,1500,3500,3,5,6.5,1,1,0,0,1,0,5,5,3,4,4,'buah'],
-['PT','Petai','Parkia speciosa','E',12,25,0,1000,1500,4000,3,4.5,6.5,0,0,0,0,1,0,5,4,4,4,3,'buah'],
-['KR','Kemiri','Aleurites moluccanus','E',12,20,0,1200,1000,3500,6,5,7,0,1,0,0,1,0,4,3,4,4,2,'hhbk'],
-['MT','Matoa','Pometia pinnata','E',12,30,0,1400,1500,4000,3,4.5,7,1,0,1,0,1,0,5,3,4,5,3,'buah,kayu'],
-['AL','Alpukat','Persea americana','K',8,12,200,1500,1200,3000,4,5,7,1,1,0,0,0,0,4,4,3,3,4,'buah'],
+['KB','Kembayau','Dacryodes rostrata','E',10,35,0,700,2000,4000,2,4.5,6.5,1,1,0,0,1,0,7,3,4,4,3,'buah,kayu'],
 ['MG','Mangga','Mangifera indica','K',10,15,0,600,750,2500,7,5.5,7.5,0,1,0,0,0,0,4,4,3,4,4,'buah'],
 ['RB','Rambutan','Nephelium lappaceum','K',8,12,0,600,1500,3500,2,4.5,6.5,1,1,0,0,1,0,4,3,3,3,4,'buah'],
-['MS','Manggis','Garcinia mangostana','K',7,12,0,800,1500,3500,2,5,7,2,1,0,0,1,0,8,5,3,3,3,'buah'],
-['JK','Jengkol','Archidendron pauciflorum','K',10,20,0,1000,1500,4000,3,4.5,6.5,1,0,0,0,1,0,5,3,4,4,3,'buah'],
+['LK','Lengkeng','Dimocarpus longan','K',6,8,0,600,1200,2500,4,5.5,7,0,1,0,0,0,0,3,4,2,2,4,'buah'],
+['LS','Langsat','Lansium parasiticum','S',6,12,0,800,1500,3500,2,5,6.5,2,1,0,0,1,0,7,4,3,3,4,'buah'],
+['CP','Cempedak','Artocarpus integer','K',8,15,0,1000,1250,3500,3,5,7,1,1,0,0,1,0,5,4,3,3,4,'buah,kayu'],
 ['NK','Nangka','Artocarpus heterophyllus','K',9,15,0,1000,1000,3000,4,5,7.5,1,1,0,0,0,0,4,3,3,4,5,'buah,kayu'],
-['SK','Sukun','Artocarpus altilis','K',10,15,0,600,1500,3500,3,5,7.5,1,1,0,0,1,0,4,3,3,4,5,'buah,pangan'],
-['PL','Pala','Myristica fragrans','K',7,15,0,700,2000,3500,2,5.5,7,2,1,0,0,1,0,7,5,3,3,2,'rempah'],
-['CK','Cengkeh','Syzygium aromaticum','K',6,12,0,900,1500,3500,3,5.5,6.5,0,1,0,0,1,0,5,4,3,3,1,'rempah'],
-['KM','Kayu manis','Cinnamomum burmanni','K',6,12,500,1500,2000,3500,3,5,6.5,1,1,0,0,1,0,6,3,3,3,1,'rempah'],
-['AR','Aren','Arenga pinnata','K',6,15,0,1400,1200,3500,3,4.5,7,2,0,1,0,1,0,7,4,4,3,3,'hhbk,pangan'],
-['KL','Kelapa','Cocos nucifera','K',7,20,0,600,1000,3000,3,5,8,0,0,0,0,1,0,5,3,2,3,4,'buah,hhbk'],
-['BB','Bambu','Gigantochloa spp.','K',6,15,0,1500,1200,4000,4,4.5,7,0,0,1,0,1,0,3,3,5,3,2,'hhbk,konservasi'],
-['ML','Melinjo','Gnetum gnemon','S',5,12,0,1200,1500,4000,4,5,7,2,0,0,0,1,0,5,3,4,3,4,'pangan'],
-['DK','Duku','Lansium parasiticum','S',6,12,0,800,1500,3500,2,5,6.5,2,1,0,0,1,0,7,4,3,3,4,'buah'],
-['PN','Pinang','Areca catechu','S',3,15,0,900,1500,5000,3,5,8,1,1,0,0,1,0,5,3,2,2,1,'hhbk'],
-['JR','Jeruk','Citrus spp.','S',4,5,0,1300,1000,2500,4,5.5,7,0,1,0,0,0,0,3,4,2,2,4,'buah'],
-['KO','Kopi robusta','Coffea canephora','S',2.5,3,200,900,1500,3000,3,5,6.5,2,1,0,0,0,0,3,4,3,2,1,'kebun'],
-['KA','Kopi arabika','Coffea arabica','S',2.5,3,1000,2000,1500,2500,3,5,6.5,2,1,0,0,0,0,3,5,3,2,1,'kebun'],
-['KK','Kakao','Theobroma cacao','S',4,6,0,600,1500,2500,3,5.5,7.5,2,1,0,0,0,0,3,4,3,3,1,'kebun'],
-['LD','Lada','Piper nigrum','S',1.5,4,0,700,2000,3000,2,5.5,7,1,1,0,0,0,0,3,4,2,1,1,'kebun,merambat,rempah'],
-['VN','Vanili','Vanilla planifolia','S',1.5,3,0,800,1500,3000,3,6,7,2,1,0,0,0,0,3,5,2,1,1,'kebun,merambat,rempah'],
-['PS','Pisang','Musa spp.','S',3,4,0,1500,1500,3000,3,5,7,1,1,0,0,1,0,1,3,2,1,5,'pangan,buah'],
-['KP','Kapulaga','Amomum compactum','R',1.5,2,200,1000,2500,4000,2,5,6.5,2,0,1,0,1,0,2,3,3,1,1,'rempah'],
-['SG','Sengon','Falcataria falcataria','E',9,30,0,1500,2000,4000,4,4.5,7,0,0,0,1,1,0,6,3,2,4,1,'kayu'],
-['MH','Mahoni','Swietenia macrophylla','E',10,30,0,1000,1500,3500,4,5,7.5,1,1,0,0,0,0,15,4,3,5,1,'kayu'],
-['JT','Jati','Tectona grandis','E',10,30,0,700,1250,2500,6,6,7.5,0,1,0,0,0,0,20,5,3,4,1,'kayu'],
-['SR','Suren','Toona sureni','E',10,35,200,1800,1500,3500,3,5,7,0,1,0,0,1,0,10,4,4,4,1,'kayu'],
-['MN','Manglid','Magnolia montana','E',8,30,500,1500,1500,3500,3,4.5,6.5,1,1,0,0,1,0,10,4,4,4,1,'kayu'],
-['RS','Rasamala','Altingia excelsa','E',12,40,500,1700,2000,4000,2,4.5,6.5,1,1,0,0,1,0,20,3,5,5,1,'kayu,konservasi'],
-['PU','Puspa','Schima wallichii','E',10,30,0,2000,1500,4000,4,4,6.5,1,0,0,0,1,0,15,2,5,4,1,'kayu,konservasi'],
-['JB','Jabon','Neolamarckia cadamba','E',9,30,0,1000,1500,5000,3,4.5,7.5,0,0,1,0,1,0,7,3,3,4,1,'kayu'],
-['GM','Gamal','Gliricidia sepium','B',3,8,0,1300,900,3500,7,4.5,8,0,0,0,1,0,0,1,2,4,2,1,'pagar,pakan'],
-['KD','Kaliandra','Calliandra calothyrsus','B',4,6,250,1800,1000,4000,5,4.5,7,0,1,0,1,0,0,1,2,4,2,1,'pagar,pakan'],
-['LM','Lamtoro','Leucaena leucocephala','B',4,8,0,1000,650,3000,7,5.5,8,0,1,0,1,0,1,1,2,4,2,1,'pagar,pakan'],
-['VT','Akar wangi','Chrysopogon zizanioides','R',1,1.5,0,2000,300,5000,8,3.5,9,0,0,1,0,0,0,1,2,5,1,1,'pagar,konservasi']
-];
-const DB=DB_RAW.map(a=>({code:a[0],name:a[1],latin:a[2],st:a[3],crown:a[4],h:a[5],emin:a[6],emax:a[7],rmin:a[8],rmax:a[9],dry:a[10],phmin:a[11],phmax:a[12],shade:a[13],dg:!!a[14],rip:!!a[15],nfix:!!a[16],native:!!a[17],inv:!!a[18],yr:a[19],inc:a[20],cons:a[21],carb:a[22],food:a[23],uses:a[24].split(','),
+['KU','Kapul','Baccaurea macrocarpa','K',6,15,0,500,2000,4000,2,4.5,6.5,2,1,0,0,1,0,6,3,4,3,3,'buah'],
+['BD','Belimbing Darah','Baccaurea angulata','K',5,15,0,500,2000,4000,2,4.5,6.5,2,0,1,0,1,0,5,2,4,3,3,'buah'],
+['KW','Kluwek','Pangium edule','E',10,25,0,1000,1500,4000,3,5,7,1,0,1,0,1,0,10,2,4,4,3,'hhbk,rempah'],
+['JK','Jengkol','Archidendron pauciflorum','K',10,20,0,1000,1500,4000,3,4.5,6.5,1,0,0,0,1,0,5,3,4,4,3,'buah'],
+['PT','Petai','Parkia speciosa','E',12,25,0,1000,1500,4000,3,4.5,6.5,0,0,0,0,1,0,5,4,4,4,3,'buah'],
+['MT','Matoa','Pometia pinnata','E',12,30,0,1400,1500,4000,3,4.5,7,1,0,1,0,1,0,5,3,4,5,3,'buah,kayu'],
+['MW','Mentawa','Artocarpus anisophyllus','E',10,30,0,1000,2000,4000,2,4.5,6.5,1,1,0,0,1,0,7,2,4,4,3,'buah,kayu'],
+['MR','Meranti','Shorea leprosula','E',10,40,0,700,2000,4000,2,4,6.5,1,1,0,0,1,0,25,4,4,5,1,'kayu'],
+['TK','Tengkawang','Shorea stenoptera','E',10,35,0,600,2000,4000,2,4.5,6.5,1,0,1,0,1,0,9,3,5,5,2,'hhbk,kayu,konservasi'],
+['BK','Bengkirai','Shorea laevis','E',10,45,0,600,1800,4000,3,4,6.5,1,1,0,0,1,0,30,4,4,5,1,'kayu'],
+['UL','Ulin','Eusideroxylon zwageri','E',8,35,0,600,2000,4000,2,4,6.5,1,1,0,0,1,0,40,2,5,5,1,'kayu,konservasi'],
+['AK','Asam Keranji','Dialium indum','E',10,35,0,800,1800,4000,3,4.5,6.5,1,1,0,0,1,0,10,2,4,5,2,'buah,kayu']
+];const DB=DB_RAW.map(a=>({code:a[0],name:a[1],latin:a[2],st:a[3],crown:a[4],h:a[5],emin:a[6],emax:a[7],rmin:a[8],rmax:a[9],dry:a[10],phmin:a[11],phmax:a[12],shade:a[13],dg:!!a[14],rip:!!a[15],nfix:!!a[16],native:!!a[17],inv:!!a[18],yr:a[19],inc:a[20],cons:a[21],carb:a[22],food:a[23],uses:a[24].split(','),
   fast:a[19]<=1?5:a[19]<=3?4:a[19]<=5?3:a[19]<=8?2:1,climb:a[24].includes('merambat')}));
 const SP={};DB.forEach(s=>SP[s.code]=s);
 const STRATA={E:'Emergen',K:'Kanopi',S:'Sub-kanopi',B:'Perdu',R:'Penutup'};
-const GOALS=[['inc','Pendapatan'],['cons','Konservasi'],['carb','Karbon'],['food','Pangan'],['fast','Panen cepat']];
+// Sementara: perhitungan karbon disembunyikan; ubah ke true untuk menampilkan lagi
+const SHOW_CARBON=false;
+const GOALS=[['inc','Pendapatan'],['cons','Konservasi'],['carb','Karbon'],['food','Pangan'],['fast','Panen cepat']].filter(([g])=>SHOW_CARBON||g!=='carb');
 const GOAL_PRESETS={seimbang:{inc:3,cons:3,carb:3,food:3,fast:3},ekonomi:{inc:5,cons:2,carb:1,food:3,fast:4},karbon:{inc:2,cons:5,carb:5,food:1,fast:1}};
+if(!SHOW_CARBON){
+  document.querySelectorAll('[data-carbon]').forEach(el=>el.hidden=true);
+  document.getElementById('simTitle').textContent='Pertumbuhan tajuk';
+  document.getElementById('simFoot').textContent='Lebar tajuk berasal dari kurva pertumbuhan indikatif. Pohon kayu di zona produksi dan agroforestri ditebang sesuai daur. Klik grafik untuk memilih tahun.';
+  document.getElementById('gpKarbon').textContent='Konservasi';
+  document.getElementById('navNote').textContent='Versi 4 · simulasi, arus kas, 3D';
+}
 const PALETTE=['#c0611c','#2d7a55','#7A5A3F','#356760','#8B7BB0','#B8892B','#4C7DB8','#A0465A','#5E8C3A','#2F4F6B','#C77D9B','#6B6B2E','#D08C5B','#3E7C7A'];
 
 const ZONES=[null,
@@ -573,7 +574,7 @@ const ZONES=[null,
 const ZMOD={1:{inc:1.5,food:1.5},3:{cons:2,carb:1.5},4:{cons:2}};
 const SLOTS={
  1:[{k:'T',lbl:'Pohon lorong',hint:'buah atau serbaguna, tahan terik',f:s=>(s.st==='K'||s.st==='S')&&!s.climb&&s.shade<=1},
-    {k:'H',lbl:'Pagar kontur',hint:'penambat N atau rumput penahan erosi',f:s=>s.uses.includes('pagar')}],
+    {k:'H',lbl:'Pagar kontur',hint:'penambat N, rumput, atau kopi searah kontur',f:s=>s.uses.includes('pagar')}],
  2:[{k:'E',lbl:'Emergen',hint:'pohon tertinggi, 25 m ke atas',f:s=>s.st==='E'},
     {k:'K',lbl:'Kanopi buah',hint:'pohon buah 10–25 m',f:s=>s.st==='K'&&s.food>=3},
     {k:'S',lbl:'Sub-kanopi utama',hint:'tanaman perkebunan toleran naungan',f:s=>s.st==='S'&&s.uses.includes('kebun')&&s.shade>=1&&!s.climb},
@@ -596,7 +597,8 @@ const S={polys:null,utm:null,segs:[],src:'',zone:null,south:true,conv:null,utmDe
   dem:null,grid:null,contours:[],slopeImg:null,exclImg:null,zoneImg:null,
   excl:[],exclUtm:[],exclId:1,
   view:{cx:0,cy:0,s:1},userMoved:false,draft:null,hover:null,
-  layers:{zone:true,slope:false,contour:true,excl:true,crown:true},
+  layers:{aoi:true,zone:true,slope:false,contour:true,excl:true,crown:true},
+  aoi:{cmi:[],plots:[],key:''},selPlot:'',
   fmt:'geojson',rowMode:'contour',step:0,vi:{},zSel:2,
   drain:0,w:{...GOAL_PRESETS.seimbang},onlyNative:false,noInvasive:true,
   eval:{},colorOf:{},suitFilter:'ok',year:10,sim:null,mode:'2d',allo:'chave'};
@@ -626,7 +628,7 @@ function setGeometry(polys,src){
   const all=polys.flatMap(p=>p[0]);
   if(all.some(p=>Math.abs(p[0])>180||Math.abs(p[1])>90))throw new Error('Koordinat di luar rentang derajat. Kemungkinan file masih dalam proyeksi meter tanpa .prj.');
   const lon=all.reduce((a,p)=>a+p[0],0)/all.length,lat=all.reduce((a,p)=>a+p[1],0)/all.length;
-  setProj(lon,lat);S.polys=polys;S.src=src;S.userMoved=false;
+  setProj(lon,lat);S.polys=polys;S.src=src;S.userMoved=false;S.selPlot='';
   projectAll();validate();fit();
   $('#center').value=`${lat.toFixed(6)}, ${lon.toFixed(6)}`;
   rebuild();
@@ -635,7 +637,37 @@ function projectAll(){
   if(!S.polys){S.utm=null;S.segs=[];}
   else{S.utm=S.polys.map(p=>p.map(r=>r.map(fwd)));S.segs=[];for(const p of S.utm)for(const r of p)S.segs.push(...toSegs(r,true));}
   S.exclUtm=S.excl.map(e=>{const pts=e.ll.map(fwd);return{...e,pts,segs:toSegs(pts,e.type==='zone')};});
+  projectAOI();
 }
+
+// Areal proyek CMI (CMI.json) dan lahan agro (agro.json), sama dengan peta planting.html
+const AOI_SKIP=/hotspot|fire|deforest|enclave/i;
+function progLabel(p){const t=str(p).toLowerCase();
+  return t.includes('pup')?'Bantuan Pupuk Organik':t.includes('tutupan')?'Insentif Tutupan Lahan':t.includes('tembawang')?'Reforestasi':t.includes('agro')?'Agroforestri':t.includes('enrich')?'Enrichment':t?str(p):'Tanpa program';}
+const str=v=>(v??'').toString().trim();
+async function loadAOI(){
+  const get=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(`${r.status} ${u}`);return r.json();};
+  const [cmi,agro]=await Promise.all([get('assets/json/CMI.json'),get('assets/json/agro.json')]);
+  S.aoi.cmi=cmi.features.map(f=>({name:str(f.properties.Name),polys:polysFromGeoJSON(f).polys}));
+  S.aoi.plots=agro.features.filter(f=>str(f.properties.id_lahan)&&!AOI_SKIP.test(str(f.properties.Program))).map(f=>{const p=f.properties;
+    return{id:str(p.id_lahan),nama:str(p.Nama),prog:progLabel(p.Program),luas:+p.Luas||0,polys:polysFromGeoJSON(f).polys};})
+    .filter(p=>p.polys.length).sort((a,b)=>a.id.localeCompare(b.id));
+  S.aoi.key='';
+}
+function projectAOI(){
+  if(!S.conv||S.aoi.key===S.utmDef)return;S.aoi.key=S.utmDef;
+  const bb=rings=>{let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;for(const r of rings)for(const[x,y]of r){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}return[x0,y0,x1,y1];};
+  for(const a of [...S.aoi.cmi,...S.aoi.plots]){a.utm=a.polys.map(p=>p.map(r=>r.map(fwd)));a.bb=bb(a.utm.flat());}
+}
+function plotAt(x,y){return S.aoi.plots.find(p=>x>=p.bb[0]&&x<=p.bb[2]&&y>=p.bb[1]&&y<=p.bb[3]&&p.utm.some(q=>inRing(x,y,q[0])&&!q.slice(1).some(h=>inRing(x,y,h))));}
+function renderPlotList(){
+  const q=str($('#plotSearch').value).toLowerCase(),list=S.aoi.plots.filter(p=>!q||(p.id+' '+p.nama).toLowerCase().includes(q));
+  $('#plotSel').innerHTML=list.map(p=>`<option value="${esc(p.id)}"${p.id===S.selPlot?' selected':''}>${esc(p.id)} · ${esc(p.nama||'–')} · ${esc(p.prog)} · ${fmt(p.luas,2)} ha</option>`).join('');
+  $('#plotMsg').textContent=`${list.length} dari ${S.aoi.plots.length} lahan. Lahan juga bisa dipilih dengan klik di peta.`;
+}
+function selectPlot(id){const p=S.aoi.plots.find(x=>x.id===id);if(!p||id===S.selPlot)return;
+  setGeometry(p.polys,`${p.id} · ${p.nama||p.prog}`);S.selPlot=id;renderPlotList();
+  $('#xy').value=p.polys[0][0].map(q=>`${q[1].toFixed(6)}, ${q[0].toFixed(6)}`).join('\n');}
 function validate(){
   let area=0,perim=0,nv=0,nh=0,si=false;
   for(const p of S.utm){area+=ringArea(p[0])-p.slice(1).reduce((a,h)=>a+ringArea(h),0);perim+=ringPerim(p[0]);nv+=p.reduce((a,r)=>a+r.length,0);nh+=p.length-1;if(p.some(selfIntersects))si=true;}
@@ -899,6 +931,11 @@ function draw(){
   ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.beginPath();
   for(let x=Math.ceil(mx0/step)*step;x<=mx1;x+=step){const px=Math.round(toPx(x,0)[0])+.5;ctx.moveTo(px,0);ctx.lineTo(px,H);}
   for(let y=Math.ceil(my0/step)*step;y<=my1;y+=step){const py=Math.round(toPx(0,y)[1])+.5;ctx.moveTo(0,py);ctx.lineTo(W,py);}ctx.stroke();
+  if(S.layers.aoi&&S.aoi.key){const vis=a=>a.bb[2]>=mx0&&a.bb[0]<=mx1&&a.bb[3]>=my0&&a.bb[1]<=my1;
+    ctx.beginPath();for(const p of S.aoi.plots)if(p.id!==S.selPlot&&vis(p))for(const q of p.utm)for(const r of q)pathRing(r);
+    ctx.fillStyle='rgba(45,122,85,.10)';ctx.fill('evenodd');ctx.strokeStyle='rgba(45,122,85,.6)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();for(const a of S.aoi.cmi)if(vis(a))for(const q of a.utm)for(const r of q)pathRing(r);
+    ctx.strokeStyle='#6A665B';ctx.lineWidth=2;ctx.setLineDash([8,5]);ctx.stroke();ctx.setLineDash([]);}
   if(S.utm){ctx.beginPath();for(const p of S.utm)for(const r of p)pathRing(r);ctx.fillStyle=C.fill;ctx.fill('evenodd');}
   if(S.grid){if(S.layers.zone&&S.zoneImg)drawGridImg(S.zoneImg);if(S.layers.slope&&S.slopeImg)drawGridImg(S.slopeImg);if(S.layers.excl&&S.exclImg)drawGridImg(S.exclImg);}
   if(S.layers.contour&&S.contours.length){
@@ -937,18 +974,13 @@ function draw(){
  per species: growth rate k, DBH at 20 yr (cm, 0 = fixed biomass), wood density (g/cm3), mature biomass if fixed (kg),
  income at full yield (Rp/plant/yr), seedling (Rp), upkeep (Rp/plant/yr), timber rotation (yr), timber price (Rp/m3). Indicative. */
 const ECON_RAW={
- DU:[.10,35,.55,0,1500000,50000,20000],PT:[.10,40,.55,0,600000,15000,15000],KR:[.14,40,.40,0,300000,10000,10000],MT:[.10,35,.70,0,400000,20000,15000],
- AL:[.10,30,.55,0,750000,35000,20000],MG:[.10,35,.60,0,500000,30000,15000],RB:[.10,28,.70,0,400000,30000,15000],MS:[.07,20,.80,0,1000000,40000,15000],
- JK:[.10,30,.60,0,400000,15000,10000],NK:[.10,35,.60,0,250000,25000,15000],SK:[.10,35,.35,0,300000,25000,10000],PL:[.10,25,.55,0,1200000,30000,20000],
- CK:[.10,25,.80,0,750000,20000,20000],KM:[.10,25,.50,0,200000,10000,10000],AR:[.12,0,0,500,1000000,15000,10000],KL:[.15,0,0,350,300000,30000,10000],
- BB:[.50,0,0,250,150000,15000,5000],ML:[.10,25,.60,0,300000,15000,10000],DK:[.07,20,.70,0,500000,35000,15000],PN:[.25,0,0,50,100000,5000,5000],
- JR:[.35,0,0,60,500000,30000,20000],KO:[.50,0,0,12,60000,3000,8000],KA:[.50,0,0,12,80000,3000,8000],KK:[.45,0,0,25,80000,5000,10000],
- LD:[.50,0,0,3,120000,5000,10000],VN:[.50,0,0,1,100000,5000,10000],PS:[2,0,0,10,60000,5000,5000],KP:[1.5,0,0,1,20000,2000,2000],
- SG:[.18,45,.33,0,0,3000,5000,7,1000000],MH:[.10,35,.60,0,0,5000,5000,20,3000000],JT:[.08,30,.60,0,0,8000,5000,20,3500000],
- SR:[.10,38,.45,0,0,5000,5000,12,2000000],MN:[.10,35,.45,0,0,5000,5000,12,2000000],RS:[.07,30,.70,0,0,8000,5000,25,2000000],
- PU:[.07,30,.65,0,0,5000,5000,20,1500000],JB:[.18,40,.40,0,0,3000,5000,8,1000000],
- GM:[.8,0,0,15,5000,500,2000],KD:[.8,0,0,10,5000,1000,2000],LM:[.8,0,0,15,5000,500,2000],VT:[1.5,0,0,.5,0,300,500]};
-const EC={};for(const c in ECON_RAW){const a=ECON_RAW[c];EC[c]={k:a[0],d20:a[1],rho:a[2],agb:a[3],inc:a[4],seed:a[5],maint:a[6],rot:a[7]||0,tp:a[8]||0};}
+ KK:[.45,0,0,25,80000,5000,10000],KO:[.50,0,0,12,60000,3000,8000],LD:[.50,0,0,3,120000,5000,10000],AL:[.10,30,.55,0,750000,35000,20000],
+ DU:[.10,35,.55,0,1500000,50000,20000],KB:[.10,35,.65,0,300000,20000,10000],MG:[.10,35,.60,0,500000,30000,15000],RB:[.10,28,.70,0,400000,30000,15000],
+ LK:[.15,20,.80,0,400000,35000,20000],LS:[.07,20,.70,0,400000,25000,15000],CP:[.10,30,.55,0,300000,25000,15000],NK:[.10,35,.60,0,250000,25000,15000],
+ KU:[.10,25,.60,0,150000,15000,8000],BD:[.10,25,.60,0,100000,15000,8000],KW:[.10,40,.45,0,150000,10000,5000],JK:[.10,30,.60,0,400000,15000,10000],
+ PT:[.10,40,.55,0,600000,15000,15000],MT:[.10,35,.70,0,400000,20000,15000],MW:[.10,40,.50,0,100000,15000,8000],
+ MR:[.10,30,.45,0,0,8000,5000,30,2500000],TK:[.10,30,.50,0,50000,10000,5000],BK:[.08,20,.85,0,0,10000,5000,40,4000000],
+ UL:[.05,10,1.00,0,0,25000,5000],AK:[.08,25,.90,0,100000,15000,5000]};const EC={};for(const c in ECON_RAW){const a=ECON_RAW[c];EC[c]={k:a[0],d20:a[1],rho:a[2],agb:a[3],inc:a[4],seed:a[5],maint:a[6],rot:a[7]||0,tp:a[8]||0};}
 const YEARS=30,ROOT=1.24,CF=0.47,CO2=44/12;
 const gf=(k,a)=>a<=0?0:Math.pow(1-Math.exp(-k*a),1.5);
 /* Allometry. Manuri et al. 2017, Ann For Sci 74:23, Table 3 (REst-corrected). D cm, H m, G g/cm3, AGB kg. */
@@ -958,11 +990,11 @@ const ALLO={
  dg1:{name:'Manuri dkk. 2017 · DG1',short:'Manuri DG1',eq:'AGB = 0,171 × D^2,564 × G^0,909',f:(g,D)=>0.171*Math.pow(D,2.564)*Math.pow(g,0.909)},
  d2:{name:'Manuri dkk. 2017 · D2',short:'Manuri D2',eq:'AGB = a × D^2,585; a = 0,066 (G < 0,5), 0,099 (0,5–0,6), 0,118 (G > 0,6)',f:(g,D)=>(g>0.6?0.118:g>=0.5?0.099:0.066)*Math.pow(D,2.585)}};
 function alloAGB(g,D,H,m){m=m||S.allo;if(m!=='chave'&&D<5)return ALLO.chave.f(g,D,H);return ALLO[m].f(g,D,H);}
-const MANURI_BIAS={JR:'Rutaceae',KR:'Euphorbiaceae',MT:'Sapindaceae',RB:'Sapindaceae'};
+const MANURI_BIAS={MT:'Sapindaceae',RB:'Sapindaceae',LK:'Sapindaceae'};
 const PRUNE={H:{h:1.5,w:1.5,b:.3},N:{h:5,w:4,b:.6}};
 const STR_IDX={E:0,K:1,S:2,B:3,R:3};
 const STR_SER=[{name:'Emergen',color:'#00805A'},{name:'Kanopi',color:'#4767C9'},{name:'Sub-kanopi',color:'#C9700E'},{name:'Perdu dan penutup',color:'#B8478A'}];
-const PALMS=new Set(['AR','KL','PN']);
+const PALMS=new Set();
 function growth(code,age,slot,m){const sp=SP[code],e=EC[code];
   if(age<=0)return{H:0.4,W:0.3,D:0,agb:0};
   const g=gf(e.k,age);let H=Math.max(0.4,sp.h*g),Wd=Math.max(0.3,sp.crown*Math.pow(g,0.8)),D=0,agb;
@@ -1067,6 +1099,7 @@ function renderSim(){
 $$('#alloSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.allo=b.dataset.allo;$$('#alloSeg .fpill').forEach(x=>x.classList.toggle('active',x===b));if(S.grid)simulate();renderAll();}));
 function co2Total(m,t){let s=0;for(const p of S.points)s+=co2Of(growth(p.c,ageAt(p,t),p.slot,m).agb);return s;}
 function renderAllo(){
+  if(!SHOW_CARBON)return;
   const A=ALLO[S.allo],Y=S.year,used=new Set(S.points.map(p=>p.c));
   let h=`<b>${A.name}</b><br><span style="font-variant-numeric:tabular-nums">${A.eq}</span>`;
   if(S.allo!=='chave'){
@@ -1133,40 +1166,30 @@ function buildTerrain3D(){
   for(const e of S.exclUtm)line(e.pts,e.type==='zone',e.type==='river'?0x2E64B0:0xB23B2E,0.4);
 }
 const ARCH={
- DU:['broad',{shape:'oval',ht:.3,n:16,lf:'#2f5a2a',tr:'#6b5a45'}],
- PT:['broad',{shape:'umbrella',ht:.55,n:14,lf:'#4f7a32',br:7}],
- KR:['broad',{shape:'dome',ht:.35,n:14,lf:'#7f9a62',alt:'#a3b487',altP:.3}],
- MT:['broad',{shape:'dome',ht:.35,n:16,lf:'#3d6b2b',alt:'#7a5a32',altP:.15}],
+ KK:['broad',{shape:'dome',ht:.3,n:9,lf:'#4b6d2c',alt:'#a05a3a',altP:.25,pods:'#c98a2a'}],
+ KO:['coffee',{lf:'#22502a',fruit:'#a8262a'}],
+ LD:['climber',{lf:'#2f5e2a'}],
  AL:['broad',{shape:'dome',ht:.25,n:12,lf:'#3e6b2c'}],
+ DU:['broad',{shape:'oval',ht:.3,n:16,lf:'#2f5a2a',tr:'#6b5a45'}],
+ KB:['broad',{shape:'oval',ht:.35,n:14,lf:'#365f2a',fruit:'#5a3a6a'}],
  MG:['broad',{shape:'dome',ht:.22,n:14,lf:'#2e5524',alt:'#7a4a3a',altP:.12}],
  RB:['broad',{shape:'dome',ht:.25,n:12,lf:'#3f6a2c',fruit:'#b8322a'}],
- MS:['broad',{shape:'cone',ht:.15,n:14,lf:'#2b4f25'}],
- JK:['broad',{shape:'dome',ht:.35,n:13,lf:'#456f30'}],
+ LK:['broad',{shape:'dome',ht:.2,n:12,lf:'#3a6a2c',fruit:'#b08a4a'}],
+ LS:['broad',{shape:'oval',ht:.25,n:12,lf:'#3c6a2e'}],
+ CP:['broad',{shape:'dome',ht:.25,n:13,lf:'#3a6328',bigFruit:'#9a8a3a'}],
  NK:['broad',{shape:'dome',ht:.25,n:14,lf:'#335c27',bigFruit:'#8f9a3e'}],
- SK:['broad',{shape:'dome',ht:.3,n:12,lf:'#4a7a35',big:1}],
- PL:['broad',{shape:'cone',ht:.15,n:13,lf:'#3a6a2e'}],
- CK:['broad',{shape:'cone',ht:.18,n:12,lf:'#4b7a33',alt:'#b06a5a',altP:.15}],
- KM:['broad',{shape:'oval',ht:.2,n:11,lf:'#557a36',alt:'#a3503a',altP:.25}],
- AR:['palm',{kind:'aren'}],KL:['palm',{kind:'kelapa'}],PN:['palm',{kind:'pinang'}],
- BB:['bamboo',{lf:'#7a9e3a'}],
- ML:['broad',{shape:'cone',ht:.15,n:11,lf:'#3c6a2e'}],
- DK:['broad',{shape:'oval',ht:.25,n:12,lf:'#3c6a2e'}],
- JR:['broad',{shape:'dome',ht:.2,n:9,lf:'#3f7030',fruit:'#e08a1e',tr:'#6b5a45'}],
- KO:['coffee',{lf:'#22502a',fruit:'#a8262a'}],KA:['coffee',{lf:'#2a5a2c',fruit:'#b0302a'}],
- KK:['broad',{shape:'dome',ht:.3,n:9,lf:'#4b6d2c',alt:'#a05a3a',altP:.25,pods:'#c98a2a'}],
- LD:['climber',{lf:'#2f5e2a'}],VN:['climber',{lf:'#5a8a3a'}],
- PS:['banana',{lf:'#5f9a3a'}],KP:['herb',{lf:'#4f8a35'}],
- SG:['broad',{shape:'umbrella',ht:.6,n:12,lf:'#7fa54a',tr:'#cfc6b2',br:7,thin:1}],
- MH:['broad',{shape:'dome',ht:.4,n:16,lf:'#2f5a27'}],
- JT:['broad',{shape:'oval',ht:.4,n:12,lf:'#6a8a3a',big:1}],
- SR:['broad',{shape:'oval',ht:.4,n:14,lf:'#4f7a33'}],
- MN:['broad',{shape:'oval',ht:.35,n:14,lf:'#3d6a2d'}],
- RS:['broad',{shape:'column',ht:.4,n:16,lf:'#3a6530',alt:'#7a4a32',altP:.12}],
- PU:['broad',{shape:'oval',ht:.35,n:15,lf:'#3d6b2a',alt:'#7a4a32',altP:.1}],
- JB:['tiered',{lf:'#4a7a2f'}],
- GM:['hedge',{lf:'#5d8a3a',fl:'#d58ab0'}],KD:['hedge',{lf:'#4f7d35',fl:'#c8283a'}],LM:['hedge',{lf:'#6a9040'}],
- VT:['grass',{lf:'#7f9a4b'}]};
-const UV_SOLID=[0.0625,0.9375];
+ KU:['broad',{shape:'dome',ht:.3,n:11,lf:'#3f6a2e'}],
+ BD:['broad',{shape:'oval',ht:.3,n:10,lf:'#476f31',fruit:'#8a1e2a'}],
+ KW:['broad',{shape:'dome',ht:.35,n:15,lf:'#2f5a28'}],
+ JK:['broad',{shape:'dome',ht:.35,n:13,lf:'#456f30'}],
+ PT:['broad',{shape:'umbrella',ht:.55,n:14,lf:'#4f7a32',br:7}],
+ MT:['broad',{shape:'dome',ht:.35,n:16,lf:'#3d6b2b',alt:'#7a5a32',altP:.15}],
+ MW:['broad',{shape:'oval',ht:.4,n:15,lf:'#355f29'}],
+ MR:['broad',{shape:'column',ht:.5,n:16,lf:'#3d6a2c',alt:'#8a6a3a',altP:.1}],
+ TK:['broad',{shape:'dome',ht:.45,n:16,lf:'#3a6530'}],
+ BK:['broad',{shape:'column',ht:.5,n:16,lf:'#35602a'}],
+ UL:['broad',{shape:'oval',ht:.4,n:15,lf:'#2b5226'}],
+ AK:['broad',{shape:'umbrella',ht:.5,n:14,lf:'#3f6b2c',br:7}]};const UV_SOLID=[0.0625,0.9375];
 let ATLAS=null,TREE_MAT=null,TREE_DEPTH=null;const TREE_GEO={};
 function makeAtlas(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
   x.fillStyle='#fff';x.fillRect(0,0,64,64);
@@ -1278,7 +1301,7 @@ function setView(v){S.mode=v;$$('#viewSeg .fpill').forEach(x=>x.classList.toggle
   $('#map').hidden=is3;$('#exagRow').hidden=!is3;$$('[data-layer]').forEach(b=>b.disabled=is3);
   if(is3){const ok=init3D();$('#map3d').hidden=!ok;$('#msg3d').hidden=ok;if(ok){resize3D();update3D(true);fit3D();}}
   else{$('#map3d').hidden=true;$('#msg3d').hidden=true;draw();}
-  $('#mapFoot').textContent=is3?'Setiap jenis punya model sendiri (bentuk tajuk, batang, daun, buah) yang diskalakan ke tinggi dan lebar tajuk pada tahun terpilih. Bayangan mengikuti matahari pagi dari timur laut. Warna Sesuai legenda mewarnai tajuk dan zona seperti peta 2D.':'Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.';}
+  $('#mapFoot').textContent=is3?'Setiap jenis punya model sendiri (bentuk tajuk, batang, daun, buah) yang diskalakan ke tinggi dan lebar tajuk pada tahun terpilih. Bayangan mengikuti matahari pagi dari timur laut. Warna Sesuai legenda mewarnai tajuk dan zona seperti peta 2D.':'Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Garis putus-putus abu-abu adalah batas areal proyek CMI, poligon hijau adalah lahan agro terdaftar; klik poligon untuk memilihnya. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.';}
 $$('#viewSeg .fpill').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $$('[data-col]').forEach(b=>b.addEventListener('click',()=>{V3.col=b.dataset.col;$$('[data-col]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);}));
 $$('[data-ex]').forEach(b=>b.addEventListener('click',()=>{V3.exag=+b.dataset.ex;$$('[data-ex]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);fit3D();}));
@@ -1348,16 +1371,16 @@ function renderAll(){
   $('#foot0').textContent=S.utm?`${fmt(S.areaHa,2)} ha siap dipakai`:'';
   const zr=$('#zoneRes');if(zr){const z=S.zSel,zs=G&&G.zs[z];zr.textContent=zs&&zs.cells?`${fmt(zCount[z]||0)} titik · ${fmt((zCount[z]||0)/zs.area)}/ha`:'';}
   const Y=S.year,spY=S.sim?S.sim.spAt(Y):{};
-  $('#tallyHead').innerHTML=`<tr><th>Jenis</th><th>Zona</th><th>Strata</th><th class="r">Titik</th><th class="r">Bibit</th><th class="r">Tinggi th-${Y}</th><th class="r">Tajuk th-${Y}</th><th class="r">tCO₂e th-${Y}</th><th class="r">Pendapatan th-${Y}</th><th class="r">Jarak sejenis</th><th>Ruang tajuk</th></tr>`;
+  $('#tallyHead').innerHTML=`<tr><th>Jenis</th><th>Zona</th><th>Strata</th><th class="r">Titik</th><th class="r">Bibit</th><th class="r">Tinggi th-${Y}</th><th class="r">Tajuk th-${Y}</th>${SHOW_CARBON?`<th class="r">tCO₂e th-${Y}</th>`:''}<th class="r">Pendapatan th-${Y}</th><th class="r">Jarak sejenis</th><th>Ruang tajuk</th></tr>`;
   $('#tally').innerHTML=codes.map(c=>{const d=nn[c],sp=SP[c],y=spY[c]||{};return `<tr>
     <td><span class="sw" style="background:${colorOf(c)};margin-right:8px;vertical-align:-1px"></span>${esc(sp.name)}</td>
     <td class="muted">${d.zones.map(z=>ZONES[z].name).join(', ')}</td><td class="muted">${STRATA[sp.st]}</td>
     <td class="r">${fmt(d.n)}</td><td class="r">${fmt(Math.ceil(d.n*(1+sul)))}</td>
     <td class="r">${y.h!=null?fmt(y.h,1)+' m':'–'}</td><td class="r">${y.w!=null?fmt(y.w,1)+' m':'–'}</td>
-    <td class="r">${y.co2!=null?fmt(y.co2,1):'–'}</td><td class="r">${y.rev!=null?rpShort(y.rev):'–'}</td>
+    ${SHOW_CARBON?`<td class="r">${y.co2!=null?fmt(y.co2,1):'–'}</td>`:''}<td class="r">${y.rev!=null?rpShort(y.rev):'–'}</td>
     <td class="r">${isFinite(d.min)?fmt(d.min,1)+' m':'–'}</td><td>${d.close?'<span class="tag warn">Tajuk menyatu</span>':'<span class="tag ok">Cukup ruang</span>'}</td></tr>`;}).join('')||`<tr><td colspan="11" class="muted" style="text-align:center;padding:20px">Belum ada titik tanam</td></tr>`;
   const tY=codes.reduce((a,c)=>{const y=spY[c]||{};a.co2+=y.co2||0;a.rev+=y.rev||0;return a;},{co2:0,rev:0});
-  $('#tallyFoot').innerHTML=total?`<tr><td>Total</td><td></td><td></td><td class="r">${fmt(total)}</td><td class="r">${fmt(seedTot)}</td><td></td><td></td><td class="r">${fmt(tY.co2,1)}</td><td class="r">${rpShort(tY.rev)}</td><td></td><td></td></tr>`:'';
+  $('#tallyFoot').innerHTML=total?`<tr><td>Total</td><td></td><td></td><td class="r">${fmt(total)}</td><td class="r">${fmt(seedTot)}</td><td></td><td></td>${SHOW_CARBON?`<td class="r">${fmt(tY.co2,1)}</td>`:''}<td class="r">${rpShort(tY.rev)}</td><td></td><td></td></tr>`:'';
   renderSim();
   renderExList();
   if(!$('#expText').hidden)$('#expText').value=buildExport();
@@ -1491,7 +1514,9 @@ cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();S.hover
   if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>4)drag.moved=true;if(drag.moved){S.userMoved=true;S.view.cx=drag.cx-dx/S.view.s;S.view.cy=drag.cy+dy/S.view.s;}}
   if(drag||S.draft)draw();});
 cv.addEventListener('pointerup',e=>{if(drag&&!drag.moved&&S.draft){const r=cv.getBoundingClientRect(),m=toM(e.clientX-r.left,e.clientY-r.top),l=S.draft.pts[S.draft.pts.length-1];
-  if(!l||Math.hypot(l[0]-m[0],l[1]-m[1])*S.view.s>3){S.draft.pts.push(m);updDraw();}draw();}drag=null;});
+  if(!l||Math.hypot(l[0]-m[0],l[1]-m[1])*S.view.s>3){S.draft.pts.push(m);updDraw();}draw();}
+  else if(drag&&!drag.moved&&S.layers.aoi&&S.aoi.key){const r=cv.getBoundingClientRect(),m=toM(e.clientX-r.left,e.clientY-r.top),p=plotAt(m[0],m[1]);if(p)selectPlot(p.id);}
+  drag=null;});
 cv.addEventListener('dblclick',e=>{if(S.draft){e.preventDefault();finishDraw();}});
 cv.addEventListener('pointerleave',()=>{$('#cursor').textContent='Arahkan kursor ke peta';});
 function zoomAt(f,px,py){S.userMoved=true;const m=toM(px,py);S.view.s=Math.min(400,Math.max(0.002,S.view.s*f));const n=toM(px,py);S.view.cx+=m[0]-n[0];S.view.cy+=m[1]-n[1];draw();}
@@ -1528,19 +1553,18 @@ wireDrop('#dropShp','#fileShp',handleShp);
 wireDrop('#dropDem','#fileDem',loadDemFile);
 $('#useSampleDem').addEventListener('click',()=>{if(!S.utm)return;const e=gridExtent(0),g=inv([(e.x0+e.x1)/2,(e.y0+e.y1)/2]);S.dem=sampleDemFor(g[0],g[1]);$('#demMsg').hidden=true;rebuild();});
 
-const lat0=-7.2135,lon0=107.902;
-function sample(){const ky=110574,kx=111320*Math.cos(lat0*Math.PI/180),toLL=([x,y])=>[+(lon0+x/kx).toFixed(7),+(lat0+y/ky).toFixed(7)];
-  const outer=[[-96,-64],[-10,-88],[32,-92],[120,-48],[140,32],[96,100],[18,108],[-8,96],[-76,78],[-122,8]].map(toLL);
-  const pond=[];for(let i=0;i<10;i++){const a=i/10*Math.PI*2;pond.push(toLL([24+16*Math.cos(a),8+11*Math.sin(a)]));}return[[outer,pond]];}
-const smp=sample();
-$('#xy').value=smp[0][0].map(p=>`${p[1].toFixed(6)}, ${p[0].toFixed(6)}`).join('\n');
-$('#heroDate').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · data contoh kebun lereng, Garut';
+const lat0=0.8,lon0=110.3,DEFAULT_PLOT='A143BB-AGR-1';
+$('#plotSearch').addEventListener('input',renderPlotList);
+$('#plotSel').addEventListener('change',e=>selectPlot(e.target.value));
+$('#heroDate').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · areal proyek Sanggau–Landak';
 renderGoals();setRowMode('contour');goStep(0);
-requestAnimationFrame(()=>{
-  setProj(lon0,lat0);
-  S.dem=sampleDemFor(lon0,lat0);
-  S.excl.push({id:S.exclId++,type:'river',name:'Sungai kecil',buf:15,ll:S.dem.streamLL()});
-  resize();setGeometry(smp,'Data contoh');
+requestAnimationFrame(async()=>{
+  setProj(lon0,lat0);resize();
+  const m=fwd([lon0,lat0]);S.view.cx=m[0];S.view.cy=m[1];S.view.s=0.02;draw();
+  try{await loadAOI();projectAOI();renderPlotList();
+    const p=S.aoi.plots.find(x=>x.id===DEFAULT_PLOT)||S.aoi.plots.find(x=>x.prog==='Agroforestri')||S.aoi.plots[0];
+    if(p)selectPlot(p.id);else draw();}
+  catch(e){$('#plotMsg').textContent=`Gagal memuat lahan agro: ${e.message}`;}
 });
 })();
 </script>

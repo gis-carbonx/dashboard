@@ -37,7 +37,7 @@ body{display:flex;flex-direction:column}
 .donut-c2{font-size:10px;fill:var(--text-2)}
 .dn-legend{display:flex;flex-direction:column;gap:2px}
 .dn-row{display:grid;grid-template-columns:10px 1fr auto 46px;gap:8px;align-items:center;padding:5px 6px;border-radius:6px;cursor:default;outline:none}
-.dn-row:hover,.dn-row:focus,.dn-row.on{background:var(--bg)}
+.dn-row:hover,.dn-row:focus,.dn-row.on{background:var(--primary-bg)}
 .dn-row i{width:10px;height:10px;border-radius:2px}
 .dn-name{font-size:12px;color:var(--text)}
 .dn-name small{display:block;font-size:10px;color:var(--text-3);margin-top:1px}
@@ -61,7 +61,7 @@ body{display:flex;flex-direction:column}
 .cmp-grid{position:absolute;top:0;bottom:0;left:122px;right:68px;pointer-events:none}
 .cmp-grid span{position:absolute;top:0;bottom:0;border-left:1px solid var(--border-lt)}
 .cmp-row{position:relative;padding:4px 0;border-radius:6px;outline:none}
-.cmp-row:hover,.cmp-row:focus{background:rgba(255,250,243,.7)}
+.cmp-row:hover,.cmp-row:focus{background:var(--primary-bg)}
 .cmp-lbl{font-size:12px;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cmp-bar{position:relative;display:flex;gap:2px;height:16px;border-radius:3px;overflow:hidden}
 .cmp-seg{min-width:2px}
@@ -81,7 +81,7 @@ body{display:flex;flex-direction:column}
 .age-area{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:0 6px;border-bottom:1px solid var(--border)}
 .age-grid{position:absolute;left:0;right:0;border-top:1px solid var(--border-lt);pointer-events:none}
 .age-col{position:relative;display:flex;align-items:flex-end;justify-content:center;outline:none;cursor:default}
-.age-col:hover,.age-col:focus{background:rgba(255,250,243,.6)}
+.age-col:hover,.age-col:focus{background:var(--primary-bg)}
 .age-bar{position:relative;width:100%;max-width:44px;background:var(--primary);border-radius:4px 4px 0 0}
 .age-col:hover .age-bar{opacity:.85}.age-val{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding-bottom:4px;font-size:11.5px;font-weight:700;color:var(--text);text-align:center;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
 .age-val small{display:block;font-size:9.5px;font-weight:600;color:var(--text-3)}
@@ -95,7 +95,7 @@ body{display:flex;flex-direction:column}
 .tt-row small{color:var(--text-3);font-size:10px}
 .sv-plot{position:relative;display:flex;flex-direction:column;gap:1px;--lbl:110px;--pct:52px;--gap:10px}
 .sv-row{position:relative;display:grid;grid-template-columns:var(--lbl) 1fr var(--pct);gap:var(--gap);align-items:center;padding:3px 0;border-radius:6px;outline:none}
-.sv-row:hover,.sv-row:focus{background:var(--bg)}
+.sv-row:hover,.sv-row:focus{background:var(--primary-bg)}
 .sv-lbl{font-size:12px;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sv-track{height:12px;background:var(--border-lt);border-radius:3px;overflow:hidden}
 .sv-bar{height:100%;background:var(--primary);border-radius:3px 0 0 3px}
@@ -117,7 +117,7 @@ body{display:flex;flex-direction:column}
 .tm-meta{font-size:10.5px;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums;opacity:.9}
 .tm-tt{display:none;position:absolute;z-index:6;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
 .iv-row{width:100%;padding:7px 6px;border:none;background:none;font-family:inherit;text-align:left;border-radius:6px;cursor:pointer;outline:none}
-.iv-row:hover,.iv-row:focus-visible,.iv-group.open .iv-row{background:var(--bg)}
+.iv-row:hover,.iv-row:focus-visible,.iv-group.open .iv-row{background:var(--primary-bg)}
 .iv-row:disabled{cursor:default}
 .iv-row:disabled .iv-chev{visibility:hidden}
 .iv-lbl{font-size:12px;color:var(--text);text-align:left;line-height:1.25}
@@ -209,8 +209,7 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Kategori Log sesuai Panduan Rumus Nursery Stock
-// Grafting, Pembesaran - Grafting & Rootstock Return hanya catatan: sambungan tetap dihitung di BST - Regular
+// Kategori Log sesuai Panduan Rumus Nursery Stock; Grafting, Pembesaran - Grafting & Rootstock Return hanya catatan (sambungan dihitung di BST - Regular)
 const normCat=s=>str(s).toLowerCase().replace(/[^a-z]/g,'');
 const CAT={
   semai:'semaibiji',
@@ -537,8 +536,7 @@ function ageChartHTML(year,periode){
     </div>`;
 }
 
-// SR = 1 − semua mati (Category "*Mati*") ÷ Semai - Biji per batch; untuk batch yang sudah sampai BST
-// hasilnya sama dengan TOTAL SR Referral List, (BST − Mati BST) ÷ Semai
+// SR = 1 − mati ("*Mati*") ÷ Semai - Biji per batch; untuk batch yang sudah BST sama dengan TOTAL SR Referral List
 function survivalChartHTML(year,periode){
   const by={};
   rows.forEach(r=>{
