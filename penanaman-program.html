@@ -87,6 +87,22 @@ body{display:flex;flex-direction:column}
 .detail-row:last-child{border-bottom:none}
 .detail-row-lbl{color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
 .detail-row-val{font-weight:400;color:var(--text)}
+.mon-log{border-bottom:1px solid var(--border-lt)}
+.mon-log:last-child{border-bottom:none}
+.mon-log>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;font-size:11.5px;color:var(--text)}
+.mon-log>summary::-webkit-details-marker{display:none}
+.mon-log>summary:hover{background:var(--primary-bg)}
+.mon-log[open]>summary{background:var(--primary-bg)}
+.mon-log-chev{width:10px;color:var(--text-3);font-size:9px;transition:transform .15s;flex-shrink:0}
+.mon-log[open] .mon-log-chev{transform:rotate(90deg)}
+.mon-log-date{color:var(--text-2);white-space:nowrap;min-width:78px;font-size:10.5px}
+.mon-log-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.mon-log-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mon-log-qty{color:var(--text-2);white-space:nowrap;font-size:10.5px}
+.mon-log-body{padding:4px 16px 12px 42px}
+.mon-item-meta{font-size:10.5px;color:var(--text-2);margin-bottom:4px}
+.mon-item-note{font-size:11px;color:var(--text-2);font-style:italic;margin-top:6px}
+.mon-tag{font-size:9.5px;font-weight:600;color:var(--primary);background:var(--primary-bg);border-radius:8px;padding:1px 6px;margin-left:6px}
 </style>
 </head>
 <body>
@@ -133,6 +149,13 @@ const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SU
 const CACHE_BUST='?v='+Date.now();
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const AGRO_JSON_URL='assets/json/agro.json'+CACHE_BUST;
+const MON_SHEET_ID='1DRYnz-86Gx7mIzGaeNzUUd9xz_HoxwCgF4W-lLsOYjk',MON_SHEET_NAME='Sheet1';
+const MON_CSV_URL=`https://docs.google.com/spreadsheets/d/${MON_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MON_SHEET_NAME)}`;
+const MON_CAT={
+  Planting:{label:'Penanaman',color:'#1a6b3a'},
+  Calculation:{label:'Permintaan Bibit',color:'#0d5c8a'},
+  Pemupukan:{label:'Pemupukan',color:'#b84c00'},
+};
 
 const PROG={
   Agro_Reg:{label:'Agro Reguler',group:'agro',dot:'#1a6b3a'},
@@ -228,6 +251,37 @@ function parseSheet(csv){
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
     sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,tglRealisasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,jumlahTanaman,existingPlants,plantedPlants};
   });
+}
+
+let monMap={};
+const monKey=s=>str(s).toUpperCase();
+const monVal=v=>{const s=str(v);return s==='#N/A'?'':s;};
+function parseMonDate(s){
+  const m=str(s).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m?new Date(+m[1],+m[2]-1,+m[3]):parseDate(s);
+}
+
+// Baris dengan Kode Petak + Tanggal + Kategori + Intervensi yang sama digabung jadi satu kegiatan
+function parseMonitoring(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  monMap={};
+  data.forEach(raw=>{
+    const kode=monKey(monVal(raw['Kode Petak']));if(!kode)return;
+    const date=parseMonDate(raw['Tanggal']);
+    const cat=monVal(raw['Activities Category']),interv=monVal(raw['Tipe Intervensi']);
+    const list=monMap[kode]||(monMap[kode]=[]);
+    const gk=[date?date.getTime():'',cat,interv].join('|');
+    let ev=list.find(e=>e.gk===gk);
+    if(!ev){ev={gk,date,cat,interv,program:monVal(raw['Tipe Program']),plants:[],pupuk:new Set(),notes:new Set()};list.push(ev);}
+    const jenis=monVal(raw['Jenis Tanaman']);
+    if(jenis){
+      const name=jenis.charAt(0).toUpperCase()+jenis.slice(1);
+      ev.plants.push({name,count:num(raw['Jumlah']),grafted:str(raw['Grafted']).toUpperCase()==='YES'});
+    }
+    const pupuk=monVal(raw['Jenis Pupuk']);if(pupuk)ev.pupuk.add(pupuk);
+    const note=monVal(raw['Remarks']);if(note)ev.notes.add(note);
+  });
+  Object.values(monMap).forEach(list=>list.sort((a,b)=>(b.date||0)-(a.date||0)));
 }
 
 function setupFilterOptions(){
@@ -447,6 +501,7 @@ function openDetail(id){
   if(r.jumlahTanaman>0)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${fmtInt(r.jumlahTanaman)} tanaman</span></div>`);
   document.getElementById('detailTabInfo').innerHTML=rows.join('');
   renderKomposisi(r);
+  renderMonitoring(r);
   switchDetailTab('info');
   const panel=document.getElementById('detailPanel');
   const wasOpen=panel.classList.contains('open');
@@ -472,6 +527,33 @@ function komposisiSectionHTML(title,list){
 function renderKomposisi(r){
   const el=document.getElementById('detailTabKomposisi');if(!el)return;
   el.innerHTML=komposisiSectionHTML('Tanaman Eksisting',r.existingPlants)+komposisiSectionHTML('Tanaman Ditanam Project',r.plantedPlants);
+}
+
+function renderMonitoring(r){
+  const el=document.getElementById('detailTabMonitoring');if(!el)return;
+  const list=monMap[monKey(r.id)]||[];
+  if(!list.length){el.innerHTML='<div class="detail-tab-empty-inner">Belum ada data monitoring.</div>';return;}
+  el.innerHTML=list.map(e=>{
+    const c=MON_CAT[e.cat]||{label:e.cat||'Kegiatan',color:'var(--text-2)'};
+    const tgl=e.date?e.date.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'—';
+    const total=e.plants.reduce((s,p)=>s+p.count,0);
+    const meta=[`Kategori ${esc(c.label)}`,e.program&&`Program ${esc(e.program)}`,e.pupuk.size&&`Pupuk: ${esc([...e.pupuk].join(', '))}`].filter(Boolean).join(' · ');
+    const plants=e.plants.map(p=>`<div class="komposisi-row"><span>${esc(p.name)}${p.grafted?'<span class="mon-tag">Grafted</span>':''}</span><span>${fmtInt(p.count)} tanaman</span></div>`).join('');
+    const notes=[...e.notes].map(n=>`<div class="mon-item-note">${esc(n)}</div>`).join('');
+    return`<details class="mon-log">
+      <summary>
+        <span class="mon-log-chev">▶</span>
+        <span class="mon-log-date">${tgl}</span>
+        <span class="mon-log-dot" style="background:${c.color}"></span>
+        <span class="mon-log-title">${esc(e.interv||c.label)}</span>
+        ${e.plants.length?`<span class="mon-log-qty">${fmtInt(total)} bibit</span>`:''}
+      </summary>
+      <div class="mon-log-body">
+        <div class="mon-item-meta">${meta}</div>
+        ${plants}${notes}
+      </div>
+    </details>`;
+  }).join('');
 }
 
 function renderMiniMap(id,st){
@@ -630,8 +712,10 @@ function fitExploreRow(){
 (async function boot(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    const [csvTxt]=await Promise.all([getText(CSV_URL),loadGeoJSON()]);
+    const monTxt=getText(MON_CSV_URL).catch(e=>{console.warn('Gagal memuat data monitoring:',e);return'';});
+    const [csvTxt,monCsv]=await Promise.all([getText(CSV_URL),monTxt,loadGeoJSON()]);
     parseSheet(csvTxt);
+    if(monCsv)parseMonitoring(monCsv);
     setupFilterOptions();
     renderPage();
   }catch(err){

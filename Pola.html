@@ -1,0 +1,1572 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rencana Pola Wanatani</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300..800&display=swap">
+<style>
+/* Layout: dashboard frame (navbar, dark header band, white cards on cream). Map left, four-step settings right, analysis cards and tables below. Single light look matching the reference dashboard. */
+:root{
+  --primary:#356760;--primary-md:#618273;--primary-lt:#B5BBA9;--primary-bg:#f3f3f3;
+  --dark:#3A342C;--bg:#FFFAF3;--surface:#FFFFFF;--border:#DCDACC;--border-lt:#EDE7D8;
+  --text:#3A342C;--text-2:#6A665B;--text-3:#9C998C;--on-dark:#FFFFFF;--on-dark-2:rgba(255,255,255,.6);
+  --ok:#2d7a55;--warn:#c0611c;--bad:#b23b2e;--water:#4C7DB8;
+  --shadow-md:0 4px 14px rgba(0,0,0,.08);
+  --font:'Libre Franklin',system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);margin:0;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+[hidden]{display:none!important}
+
+.site-navbar{height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--border);background:var(--bg)}
+@media (min-width:769px){.site-navbar{padding-left:32px;padding-right:32px}}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:24px;height:24px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--primary);text-transform:uppercase}
+.nav-note{font-size:12px;color:var(--primary-md);font-weight:500}
+
+.dashboard-frame{margin:0 28px 28px;border:1px solid var(--border);box-shadow:0 6px 22px rgba(0,0,0,.10);background:var(--surface);overflow:hidden}
+@media (max-width:768px){.dashboard-frame{margin:0 0 16px;border-left:0;border-right:0}}
+.hero{background:var(--dark);color:var(--on-dark);padding:14px 0}
+.hero-inner{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.hero-title{font-size:20px;font-weight:600;letter-spacing:-.2px}
+.hero-date{font-size:12px;color:var(--on-dark-2);margin-top:4px}
+.update-chip{text-align:right}
+.update-chip-label{font-size:9.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.update-chip-value{font-size:12px;font-weight:700;margin-top:2px;max-width:380px}
+.content{max-width:1280px;margin:0 auto;padding:24px 32px 44px}
+@media (max-width:768px){.hero-inner{padding:0 16px}.content{padding:18px 16px 32px}.update-chip{text-align:left}}
+
+.chart-title{font-size:14.5px;font-weight:700;margin:0}
+.chart-sub{font-size:11.5px;color:var(--text-2);margin:4px 0 14px;line-height:1.5}
+.chart-foot{font-size:10.5px;color:var(--text-3);margin-top:12px;line-height:1.5}
+
+.fpill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;transition:background .15s,color .15s;display:inline-flex;align-items:center;gap:6px}
+.fpill.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.fpill:hover:not(.active):not(:disabled){background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-md)}
+.fpill:disabled{opacity:.4;cursor:not-allowed}
+.fpill .sw{width:8px;height:8px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;min-width:0}
+.grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px}
+@media (max-width:640px){.grid-row{grid-template-columns:1fr 1fr;gap:10px}.nav-note{display:none}}
+.card-lbl{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:10px}
+.card-val-lg{font-size:22px;font-weight:800;color:var(--primary);line-height:1;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.card-val-lg{font-size:19px}}
+.card-val-lg small{font-size:12px;font-weight:600;color:var(--text-2);margin-left:3px}
+.card-note{font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:6px;line-height:1.45}
+.main-pair{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr);gap:16px;align-items:stretch;margin-bottom:16px}
+@media (max-width:1000px){.main-pair{grid-template-columns:minmax(0,1fr)}}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:16px}
+.chart-card{padding:18px 20px 16px;display:flex;flex-direction:column}
+
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 10px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sw.dot{border-radius:50%}
+.sw.ln{height:2px;width:14px;border-radius:1px;background:var(--text)}
+.sw.water{height:3px;width:14px;border-radius:2px;background:var(--water)}
+.sw.excl{background:repeating-linear-gradient(45deg,rgba(178,59,46,.55) 0 2px,rgba(178,59,46,.12) 2px 5px)}
+.layer-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-right:4px}
+
+.map-box{position:relative;flex:1;min-height:480px;border:1px solid var(--border-lt);border-radius:10px;overflow:hidden;background:#FCF8F0}
+#map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;display:block}
+#map.drawing{cursor:crosshair}
+.map-ctl{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.zbtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--text-2);cursor:pointer;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.zbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.zbtn:hover{color:var(--primary);border-color:var(--primary-md)}
+.map-cursor{position:absolute;bottom:8px;right:10px;z-index:2;font-size:10.5px;color:var(--text-2);background:rgba(255,255,255,.9);padding:2px 8px;border-radius:20px;font-variant-numeric:tabular-nums;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawbar{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:3;background:var(--dark);color:#fff;border-radius:20px;padding:5px 6px 5px 14px;font-size:11.5px;display:flex;gap:6px;align-items:center;box-shadow:var(--shadow-md);white-space:nowrap;max-width:calc(100% - 60px);overflow-x:auto}
+.drawbar button{border:1px solid rgba(255,255,255,.3);background:none;color:#fff;border-radius:20px;padding:3px 10px;font-size:10.5px;font-weight:600;cursor:pointer}
+.drawbar button.go{background:#fff;color:var(--dark);border-color:#fff}
+.drawbar button:disabled{opacity:.4;cursor:not-allowed}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:0 0 16px;padding:0;list-style:none}
+.steps button{width:100%;border:0;background:none;padding:0 0 8px;cursor:pointer;text-align:left;border-bottom:2px solid var(--border-lt);display:flex;flex-direction:column;gap:2px}
+.steps .n{font-size:9.5px;font-weight:700;letter-spacing:.5px;color:var(--text-3);text-transform:uppercase}
+.steps .t{font-size:12px;font-weight:600;color:var(--text-3)}
+.steps button.done{border-bottom-color:var(--primary-lt)}
+.steps button.done .t{color:var(--text-2)}
+.steps button.active{border-bottom-color:var(--primary)}
+.steps button.active .t{color:var(--text)}
+.steps button.active .n{color:var(--primary)}
+.pane{display:flex;flex-direction:column;gap:12px;flex:1}
+.sub{display:flex;flex-direction:column;gap:12px}
+.pane-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--border-lt);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--text-2);min-width:0}
+.fld .u{font-weight:400;color:var(--text-3)}
+.inp{width:100%;min-width:0;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;font-weight:500;color:var(--text);outline:none}
+.inp:focus{border-color:var(--primary)}
+textarea.inp{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;resize:vertical;line-height:1.5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--primary-bg);color:var(--primary-md)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.hint{font-size:11px;color:var(--text-2);line-height:1.55;margin:0}
+.err{font-size:11px;color:var(--bad);font-weight:600;margin:0}
+.drop{display:block;border:1.5px dashed var(--border);border-radius:10px;padding:14px 12px;text-align:center;cursor:pointer;background:var(--bg)}
+.drop:hover,.drop.over{border-color:var(--primary-md)}
+.drop b{display:block;font-size:12px;color:var(--text)}
+.drop span{font-size:10.5px;color:var(--text-2)}
+.drop input{display:none}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;padding:3px 2px}
+.kv span{color:var(--text-2)}
+.kv b{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.kv-sep{border-top:1px solid var(--border-lt);margin:4px 0 2px;padding-top:8px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.kv-sep:first-child{border-top:0;padding-top:0;margin-top:0}
+.chk{display:grid;grid-template-columns:10px 1fr;gap:8px;align-items:baseline;font-size:11.5px;color:var(--text-2);padding:2px;line-height:1.5}
+.d{width:8px;height:8px;border-radius:50%;display:inline-block}
+.d.ok{background:var(--ok)}.d.warn{background:var(--warn)}.d.bad{background:var(--bad)}
+.ex-row{display:grid;grid-template-columns:14px minmax(0,1fr) 62px 18px;gap:8px;align-items:center}
+.ex-row .ic{width:12px;height:12px;border-radius:2px}
+.xbtn{border:0;background:none;color:var(--text-3);cursor:pointer;font-size:15px;line-height:1;padding:0}
+.xbtn:hover{color:var(--bad)}
+.note-box{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--text-2);line-height:1.5}
+.note-box b{color:var(--text)}
+.goal{display:grid;grid-template-columns:92px minmax(0,1fr) 16px;gap:10px;align-items:center;font-size:12px}
+.goal b{font-variant-numeric:tabular-nums;text-align:right}
+input[type=range]{width:100%;accent-color:var(--primary);margin:0}
+.slot{display:flex;flex-direction:column;gap:4px}
+.slot-hd{display:flex;justify-content:space-between;gap:8px;font-size:11px;font-weight:600;color:var(--text);align-items:baseline}
+.slot-hd span{font-weight:400;color:var(--text-3);text-align:right;font-size:10.5px}
+.slot-hd i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+
+.sp-row{position:relative;display:grid;grid-template-columns:120px 1fr 58px 44px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
+.sp-row.wide{grid-template-columns:150px 1fr 62px 38px}
+.sp-row:hover,.sp-row:focus{background:var(--bg)}
+.sp-lbl{font-size:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sp-lbl small{color:var(--text-3);font-size:10.5px}
+.sp-track{height:12px;background:var(--border-lt);border-radius:3px;overflow:hidden}
+.sp-bar{height:100%;border-radius:0 3px 3px 0;min-width:2px}
+.sp-val{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sp-n{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+.tt-box{display:none;position:absolute;z-index:6;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:220px;left:120px;top:calc(100% - 2px)}
+.sp-row.wide .tt-box{left:150px}
+.sp-row:hover .tt-box,.sp-row:focus .tt-box{display:block}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text)}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row b{color:var(--text);text-align:right}
+@media (max-width:640px){.sp-row,.sp-row.wide{grid-template-columns:96px 1fr 54px 40px;gap:8px}.tt-box,.sp-row.wide .tt-box{left:8px;right:8px;min-width:0}}
+.empty{padding:30px 10px;text-align:center;color:var(--text-3);font-size:12px}
+
+.zn-list{display:flex;flex-direction:column;gap:14px}
+.zn-row{padding-bottom:12px;border-bottom:1px solid var(--border-lt)}
+.zn-row:last-child{border-bottom:0;padding-bottom:0}
+.zn-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.zn-name{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.zn-val{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zn-val small{font-size:11px;font-weight:600;color:var(--text-2);margin-left:4px}
+.tg-track{height:10px;background:var(--border-lt);border-radius:3px;overflow:hidden}
+.tg-bar{height:100%;border-radius:3px}
+.zn-meta{font-size:11px;color:var(--text-2);margin-top:5px;line-height:1.5}
+.zn-meta b{color:var(--text);font-weight:600}
+
+.ins-card{padding:18px 20px 14px;margin-bottom:16px}
+.ins-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ins-hd-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ins-scroll{overflow:auto;border-top:1.5px solid var(--text);border-bottom:1.5px solid var(--text)}
+.ins-scroll.clipped{max-height:420px}
+.ins-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.ins-tbl thead th{position:sticky;top:0;background:#fff;z-index:1}
+.ins-tbl th{padding:6px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
+.ins-tbl td{padding:6px 10px;border-bottom:1px solid var(--border-lt);white-space:nowrap}
+.ins-tbl .r{text-align:right;font-variant-numeric:tabular-nums}
+.ins-tbl .c{text-align:center}
+.ins-tbl .muted{color:var(--text-2)}
+.ins-tbl .why{white-space:normal;min-width:220px;color:var(--text-2);font-size:11px}
+.ins-tbl .nm small{display:block;color:var(--text-3);font-style:italic;font-size:10.5px}
+.ins-tbl tfoot td{font-weight:700;border-top:1px solid var(--text);border-bottom:none}
+.ins-tbl tr.used td{background:#FBF8F1}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block}
+.tag.ok{background:#E6F0EA;color:var(--ok)}.tag.warn{background:#F8E7DA;color:var(--warn)}.tag.no{background:var(--border-lt);color:var(--text-3)}
+.more-btn{display:block;margin:10px auto 0;padding:5px 16px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--primary);cursor:pointer}
+.more-btn:hover{background:var(--primary-bg);border-color:var(--primary-md)}
+#expText{margin-top:10px;height:160px;white-space:pre;overflow:auto}
+.sim-row{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-bottom:10px}
+.yr{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:var(--text-2);flex:1;min-width:220px}
+.yr input{flex:1;min-width:80px}
+.yr b{font-size:13px;color:var(--text);min-width:22px;text-align:right;font-variant-numeric:tabular-nums}
+.playbtn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--primary);cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+.playbtn svg{width:11px;height:11px;fill:currentColor}
+#map3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.msg3d{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-size:12px;color:var(--text-2)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .ax{fill:var(--text-3);font-size:10px;font-family:var(--font)}
+.chart .gl{stroke:var(--border-lt);stroke-width:1}
+.chart .base{stroke:var(--border);stroke-width:1}
+.chart .dl{fill:var(--text-2);font-size:10.5px;font-weight:600;font-family:var(--font)}
+.chart .mk{stroke:var(--text);stroke-width:1;stroke-dasharray:3 3}
+.chart .xh{stroke:var(--text-3);stroke-width:1}
+.ch-tt{position:absolute;top:0;z-index:5;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:8px 10px;pointer-events:none;min-width:170px;font-size:11px}
+.ch-tt .tt-head{margin-bottom:4px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:6px}
+@media (max-width:520px){.g3{grid-template-columns:1fr 1fr}}
+.card-lbl b{color:var(--primary-md);font-weight:600}
+</style>
+
+<header class="site-navbar">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 6.5 10.5h2.8L5 16.5h14l-4.3-6h2.8Z"/><path d="M12 16.5V21"/></svg>
+    <span>Rencana Pola Wanatani</span>
+  </div>
+  <div class="nav-note">Versi 4 · simulasi, karbon, arus kas, 3D</div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Perencana Pola Agroforestri</div>
+        <div class="hero-date" id="heroDate">–</div>
+      </div>
+      <div class="update-chip">
+        <div class="update-chip-label">Sumber batas · DEM</div>
+        <div class="update-chip-value" id="srcLabel">–</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="grid-row">
+      <div class="card"><div class="card-lbl">Luas tanam efektif</div><div class="card-val-lg" id="kArea">–</div><div class="card-note" id="kAreaNote">–</div></div>
+      <div class="card"><div class="card-lbl">Titik tanam</div><div class="card-val-lg" id="kTotal">–</div><div class="card-note" id="kRows">–</div></div>
+      <div class="card"><div class="card-lbl">Kebutuhan bibit</div><div class="card-val-lg" id="kSeed">–</div><div class="card-note" id="kSeedNote">–</div></div>
+      <div class="card"><div class="card-lbl">Tutupan tajuk <b class="yrLbl">tahun ke-10</b></div><div class="card-val-lg" id="kCover">–</div><div class="card-note" id="kCoverNote">–</div></div>
+      <div class="card"><div class="card-lbl">Stok karbon <b class="yrLbl">tahun ke-10</b></div><div class="card-val-lg" id="kCarb">–</div><div class="card-note" id="kCarbNote">–</div></div>
+      <div class="card"><div class="card-lbl">NPV 30 tahun</div><div class="card-val-lg" id="kNpv">–</div><div class="card-note" id="kNpvNote">–</div></div>
+    </div>
+
+    <div class="main-pair">
+      <div class="card chart-card">
+        <div class="chart-title">Peta rencana tanam</div>
+        <div class="chart-sub" id="mapSub">–</div>
+        <div class="sim-row">
+          <div class="pills" id="viewSeg"><button class="fpill active" data-view="2d">Peta 2D</button><button class="fpill" data-view="3d">Tampilan 3D</button></div>
+          <label class="yr"><button class="playbtn" id="playYr" type="button" aria-label="Putar pertumbuhan"><svg viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z"/></svg></button><span>Tahun ke-</span><input type="range" id="year" min="0" max="30" step="1" value="10"><b id="yearV">10</b></label>
+        </div>
+        <div class="layer-row" id="exagRow" hidden><span class="filter-lbl">Relief</span><button class="fpill" data-ex="1">1×</button><button class="fpill active" data-ex="2">2×</button><button class="fpill" data-ex="4">4×</button><span class="filter-lbl" style="margin-left:8px">Warna</span><button class="fpill active" data-col="natural">Alami</button><button class="fpill" data-col="legend">Sesuai legenda</button><span class="hint" style="margin-left:6px">Seret untuk memutar, Shift + seret untuk menggeser, roda untuk zoom</span></div>
+        <div class="layer-row">
+          <span class="filter-lbl">Lapisan</span>
+          <button class="fpill active" data-layer="zone">Zona</button>
+          <button class="fpill" data-layer="slope">Kelas lereng</button>
+          <button class="fpill active" data-layer="contour">Kontur</button>
+          <button class="fpill active" data-layer="excl">Larangan</button>
+          <button class="fpill active" data-layer="crown">Tajuk</button>
+        </div>
+        <div class="lg" id="legend"></div>
+        <div class="map-box" id="mapwrap">
+          <canvas id="map" aria-label="Peta rencana tanam"></canvas>
+          <canvas id="map3d" aria-label="Tampilan 3D rencana tanam" hidden></canvas>
+          <div class="msg3d" id="msg3d" hidden>Tampilan 3D membutuhkan WebGL, yang tidak tersedia di peramban ini.</div>
+          <div class="map-ctl">
+            <button class="zbtn" id="zin" aria-label="Perbesar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+            <button class="zbtn" id="zout" aria-label="Perkecil"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+            <button class="zbtn" id="zfit" aria-label="Tampilkan seluruh lahan" title="Tampilkan seluruh lahan"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          </div>
+          <div class="map-cursor" id="cursor">Arahkan kursor ke peta</div>
+          <div class="drawbar" id="drawbar" hidden>
+            <span id="drawInfo">–</span>
+            <button id="undoPt">Urungkan</button>
+            <button id="cancelDraw">Batal</button>
+            <button class="go" id="finishDraw">Selesai</button>
+          </div>
+        </div>
+        <div class="chart-foot" id="mapFoot">Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.</div>
+      </div>
+
+      <div class="card chart-card">
+        <ol class="steps" id="steps">
+          <li><button data-step="0"><span class="n">Langkah 1</span><span class="t">Batas</span></button></li>
+          <li><button data-step="1"><span class="n">Langkah 2</span><span class="t">Medan</span></button></li>
+          <li><button data-step="2"><span class="n">Langkah 3</span><span class="t">Tapak &amp; tujuan</span></button></li>
+          <li><button data-step="3"><span class="n">Langkah 4</span><span class="t">Zona &amp; jenis</span></button></li>
+        </ol>
+
+        <!-- 1 Batas -->
+        <div class="pane" data-pane="0">
+          <div class="pills" id="inSeg">
+            <button class="fpill active" data-in="in-draw">Gambar</button>
+            <button class="fpill" data-in="in-shp">Zip SHP / GeoJSON</button>
+            <button class="fpill" data-in="in-xy">Koordinat</button>
+          </div>
+          <div class="sub" id="in-draw">
+            <label class="fld">Pusat peta (lat, lon)
+              <div style="display:flex;gap:6px"><input class="inp" id="center" value="-7.213500, 107.902000"><button class="btn" id="goCenter">Pindah</button></div>
+            </label>
+            <div><button class="btn primary" id="startDraw">Gambar batas lahan</button></div>
+            <p class="hint">Klik di peta untuk menambah titik sudut. Klik ganda atau Selesai untuk menutup.</p>
+          </div>
+          <div class="sub" id="in-shp" hidden>
+            <label class="drop" id="dropShp"><input type="file" id="fileShp" accept=".zip,.geojson,.json"><b>Pilih atau seret file</b><span>.zip berisi .shp, .shx, .dbf, .prj · atau .geojson</span></label>
+            <p class="err" id="shpMsg" hidden></p>
+          </div>
+          <div class="sub" id="in-xy" hidden>
+            <label class="fld">Satu titik per baris · desimal atau DMS · baris kosong memisahkan bagian
+              <textarea class="inp" id="xy" rows="6" spellcheck="false"></textarea>
+            </label>
+            <div class="g2">
+              <label class="fld">Urutan nilai<select class="inp" id="xyOrder"><option value="auto">Otomatis</option><option value="latlon">Lat, Lon</option><option value="lonlat">Lon, Lat</option></select></label>
+              <div style="display:flex;align-items:flex-end"><button class="btn primary" id="useXY" style="width:100%">Pakai koordinat</button></div>
+            </div>
+            <p class="err" id="xyMsg" hidden></p>
+          </div>
+          <div><div class="kv-sep">Pemeriksaan batas</div><div id="checks"></div></div>
+          <div class="pane-foot"><span class="hint" id="foot0"></span><button class="btn primary" data-next="1">Lanjut ke Medan</button></div>
+        </div>
+
+        <!-- 2 Medan -->
+        <div class="pane" data-pane="1" hidden>
+          <div class="kv-sep">Model elevasi (DEM)</div>
+          <div id="demInfo" class="note-box">Belum ada DEM.</div>
+          <label class="drop" id="dropDem"><input type="file" id="fileDem" accept=".tif,.tiff"><b>Unggah DEM GeoTIFF</b><span>WGS84 (EPSG:4326) atau UTM WGS84 · misalnya DEMNAS 8 m atau Copernicus GLO-30</span></label>
+          <div class="pills"><button class="fpill" id="useSampleDem">Pakai DEM contoh (sintetis)</button></div>
+          <p class="err" id="demMsg" hidden></p>
+          <div class="kv-sep">Ambang zona lereng</div>
+          <div class="g2">
+            <label class="fld">Produksi di bawah <span class="u">persen</span><input class="inp" type="number" id="t1" min="1" max="100" step="1" value="15"></label>
+            <label class="fld">Konservasi di atas <span class="u">persen</span><input class="inp" type="number" id="t2" min="2" max="200" step="1" value="40"></label>
+          </div>
+          <label class="fld">Tidak ditanami di lereng lebih dari <span class="u">persen · 100% = 45°</span><input class="inp" type="number" id="maxSlope" min="0" max="300" step="5" value="100" style="max-width:120px"></label>
+          <div class="kv-sep">Sungai dan zona larangan</div>
+          <div id="exList" style="display:flex;flex-direction:column;gap:6px"></div>
+          <div class="pills">
+            <button class="btn" id="drawRiver"><svg viewBox="0 0 24 24"><path d="M3 15c3-4 5 2 9-2s6 2 9-2"/></svg>Gambar sungai</button>
+            <button class="btn" id="drawZone"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M5 19 19 5"/></svg>Gambar zona larangan</button>
+          </div>
+          <p class="hint">Sempadan sungai menjadi zona riparian yang ditanami jenis tepi sungai; 2 m dari alur dibiarkan kosong. Untuk sungai kecil tak bertanggul di luar kawasan perkotaan, PP 38/2011 menetapkan sempadan paling sedikit 50 m. Zona larangan untuk mata air, makam, atau bangunan.</p>
+          <div class="pane-foot"><button class="btn" data-next="0">Kembali</button><button class="btn primary" data-next="2">Lanjut ke Tapak</button></div>
+        </div>
+
+        <!-- 3 Tapak & tujuan -->
+        <div class="pane" data-pane="2" hidden>
+          <div class="kv-sep">Iklim dan tanah</div>
+          <div class="g2">
+            <label class="fld">Curah hujan tahunan <span class="u">mm</span><input class="inp" type="number" id="rain" min="0" step="50" value="2400"></label>
+            <label class="fld">Bulan kering <span class="u">bulan dengan hujan &lt; 60 mm</span><input class="inp" type="number" id="dry" min="0" max="12" step="1" value="3"></label>
+            <label class="fld">pH tanah<input class="inp" type="number" id="ph" min="3" max="9" step="0.1" value="5.5"></label>
+            <label class="fld" id="elevFld">Elevasi rata-rata <span class="u">m dpl, dipakai bila tanpa DEM</span><input class="inp" type="number" id="elev" min="0" step="10" value="700"></label>
+          </div>
+          <div class="fld">Drainase
+            <div class="pills" id="drainSeg"><button class="fpill active" data-drain="0">Baik</button><button class="fpill" data-drain="1">Sedang</button><button class="fpill" data-drain="2">Buruk / tergenang</button></div>
+          </div>
+          <p class="hint">Isi dari data stasiun BMKG, CHIRPS, atau hasil uji tanah. Versi produksi akan menarik data ini otomatis per lahan.</p>
+          <div class="kv-sep">Tujuan pengelolaan</div>
+          <div class="pills" id="goalPreset">
+            <button class="fpill active" data-gp="seimbang">Seimbang</button>
+            <button class="fpill" data-gp="ekonomi">Pendapatan</button>
+            <button class="fpill" data-gp="karbon">Konservasi &amp; karbon</button>
+          </div>
+          <div id="goals" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div class="kv-sep">Filter jenis</div>
+          <div class="pills">
+            <button class="fpill" id="fNative">Hanya jenis asli</button>
+            <button class="fpill active" id="fInvasive">Kecualikan jenis invasif</button>
+          </div>
+          <p class="hint">Jenis asli penting untuk proyek karbon ARR. Zona konservasi dan riparian memberi bobot ganda pada konservasi.</p>
+          <div class="pane-foot"><button class="btn" data-next="1">Kembali</button><button class="btn primary" data-next="3">Lanjut ke Zona</button></div>
+        </div>
+
+        <!-- 4 Zona & jenis -->
+        <div class="pane" data-pane="3" hidden>
+          <div class="fld">Arah baris
+            <div class="pills" id="rowSeg">
+              <button class="fpill" data-row="contour">Ikuti kontur</button>
+              <button class="fpill" data-row="straight">Lurus</button>
+            </div>
+          </div>
+          <div class="g2">
+            <label class="fld" id="azFld">Azimut baris <span class="u">derajat dari utara</span><input class="inp" type="number" id="az" min="0" max="179" step="1" value="90"></label>
+            <label class="fld">Sempadan batas <span class="u">meter</span><input class="inp" type="number" id="setback" min="0" step="0.5" value="2"></label>
+            <label class="fld">Cadangan sulaman <span class="u">persen</span><input class="inp" type="number" id="sulam" min="0" max="100" step="5" value="10"></label>
+          </div>
+          <div class="kv-sep">Zona</div>
+          <div class="pills" id="zoneSeg"></div>
+          <div id="zonePanel" class="sub"></div>
+          <div class="pane-foot"><button class="btn" data-next="2">Kembali</button><a class="btn primary" href="#kesesuaian">Lihat kesesuaian</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="card chart-card">
+        <div class="chart-title">Zona pengelolaan</div>
+        <div class="chart-sub" id="zoneSub">Luas, jenis terpilih, dan kerapatan per zona</div>
+        <div id="zoneCards" class="zn-list"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">Komposisi jenis</div>
+        <div class="chart-sub">Jumlah titik tanam dan proporsinya. Arahkan kursor untuk rincian.</div>
+        <div id="bars"></div>
+      </div>
+    </div>
+
+    <div class="pair" id="simulasi">
+      <div class="card chart-card">
+        <div class="chart-title">Pertumbuhan dan stok karbon</div>
+        <div class="chart-sub" id="carbSub">Stok karbon biomassa (atas dan bawah tanah) per strata, tCO₂e</div>
+        <div class="fld" style="margin-bottom:10px">Model alometrik pohon
+          <div class="pills" id="alloSeg"><button class="fpill active" data-allo="chave">Chave 2014</button><button class="fpill" data-allo="dgh1">Manuri 2017 · DGH1</button><button class="fpill" data-allo="dg1">Manuri 2017 · DG1</button><button class="fpill" data-allo="d2">Manuri 2017 · D2</button></div>
+        </div>
+        <div class="note-box" id="alloNote" style="margin-bottom:12px"></div>
+        <div class="lg" id="carbLg"></div>
+        <div class="chart" id="chCarb"></div>
+        <div class="kv-sep" style="margin-top:14px" id="cmpHd">Perbandingan model</div>
+        <div id="alloCmp"></div>
+        <div class="kv-sep" style="margin-top:16px">Tutupan tajuk, persen luas tanam</div>
+        <div class="lg" id="covLg" style="margin-top:6px"></div>
+        <div class="chart" id="chCov"></div>
+        <div class="chart-foot">Diameter dan tinggi pohon berasal dari kurva pertumbuhan indikatif, lalu dimasukkan ke model alometrik terpilih. Palem, bambu, perdu, dan tanaman kebun memakai biomassa dewasa tetap. Akar 24% dari biomassa atas, fraksi karbon 0,47. Pohon kayu di zona produksi dan agroforestri ditebang sesuai daur, sehingga stoknya turun saat panen. Klik grafik untuk memilih tahun.</div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">Arus kas</div>
+        <div class="chart-sub">Pendapatan dikurangi biaya bibit, tanam, pemeliharaan, dan panen</div>
+        <div class="g3">
+          <label class="fld">Suku diskonto <span class="u">% per tahun</span><input class="inp" type="number" id="disc" min="0" max="50" step="1" value="10"></label>
+          <label class="fld">Biaya panen <span class="u">% pendapatan</span><input class="inp" type="number" id="harvPct" min="0" max="90" step="5" value="30"></label>
+          <label class="fld">Biaya tanam <span class="u">Rp per lubang</span><input class="inp" type="number" id="plantCost" min="0" step="1000" value="10000"></label>
+        </div>
+        <div class="kv-sep" style="margin-top:8px">Arus kas kumulatif, juta Rp</div>
+        <div class="chart" id="chCum"></div>
+        <div class="kv-sep" style="margin-top:16px">Arus kas bersih per tahun, juta Rp</div>
+        <div class="lg" id="netLg" style="margin-top:6px"></div>
+        <div class="chart" id="chNet"></div>
+        <div id="cashKv" style="margin-top:10px"></div>
+        <div class="chart-foot">Hasil per tanaman, harga, dan biaya bersifat indikatif (harga petani, 2025–2026). Belum memperhitungkan penurunan hasil karena naungan, gagal panen, dan fluktuasi harga. Pohon kayu di zona konservasi dan riparian tidak ditebang.</div>
+      </div>
+    </div>
+
+    <div class="card ins-card" id="kesesuaian">
+      <div class="ins-hd">
+        <div>
+          <div class="chart-title">Kesesuaian jenis</div>
+          <div class="chart-sub" style="margin-bottom:0" id="suitSub">40 jenis umum Indonesia dinilai per zona</div>
+        </div>
+        <div class="ins-hd-r">
+          <div class="pills" id="suitSeg"><button class="fpill active" data-sf="ok">Sesuai</button><button class="fpill" data-sf="used">Dipakai</button><button class="fpill" data-sf="all">Semua 40</button></div>
+        </div>
+      </div>
+      <div class="ins-scroll clipped" id="suitScroll">
+        <table class="ins-tbl">
+          <thead id="suitHead"></thead>
+          <tbody id="suitBody"></tbody>
+        </table>
+      </div>
+      <div class="chart-foot"><span class="tag ok">S</span> sesuai · <span class="tag warn">M</span> marginal · <span class="tag no">–</span> tidak sesuai. Skor 0–100 menggabungkan kesesuaian dan bobot tujuan. Rentang syarat tumbuh bersifat indikatif, disusun dari pustaka umum seperti ICRAF Agroforestree Database; verifikasi dengan penyuluh atau data lokal sebelum dipakai di lapangan.</div>
+    </div>
+
+    <div class="pair">
+      <div class="card chart-card">
+        <div class="chart-title">Kelas lereng</div>
+        <div class="chart-sub" id="slopeSub">Luas per kelas di dalam batas lahan</div>
+        <div id="slopeBars"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">Ringkasan lahan</div>
+        <div class="chart-sub">Dihitung pada proyeksi UTM</div>
+        <div id="summary"></div>
+      </div>
+    </div>
+
+    <div class="card ins-card" id="tabel">
+      <div class="ins-hd">
+        <div>
+          <div class="chart-title">Rincian per jenis</div>
+          <div class="chart-sub" style="margin-bottom:0">Bibit sudah termasuk cadangan sulaman</div>
+        </div>
+        <div class="ins-hd-r">
+          <div class="pills" id="fmtSeg"><button class="fpill active" data-fmt="geojson">GeoJSON</button><button class="fpill" data-fmt="kml">KML</button><button class="fpill" data-fmt="csv">CSV</button></div>
+          <button class="btn primary" id="copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg><span>Salin titik</span></button>
+        </div>
+      </div>
+      <div class="ins-scroll">
+        <table class="ins-tbl">
+          <thead id="tallyHead"></thead>
+          <tbody id="tally"></tbody>
+          <tfoot id="tallyFoot"></tfoot>
+        </table>
+      </div>
+      <button class="more-btn" id="toggleExp">Tampilkan data ekspor</button>
+      <textarea class="inp" id="expText" readonly spellcheck="false" hidden></textarea>
+      <div class="chart-foot">Ekspor memuat zona, posisi strata, elevasi, dan lereng tiap titik. "Tajuk menyatu" berarti jarak ke pohon sejenis terdekat lebih kecil dari lebar tajuk dewasa; wajar untuk pagar hidup dan kopi, perlu dicek untuk pohon buah besar.</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/proj4@2.9.0/dist/proj4.js"></script>
+<script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const fmt=(n,d=0)=>Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MAX_POINTS=60000, RIVER_CH=2;
+const C={bg:'#FCF8F0',grid:'#EDE7D8',fill:'rgba(53,103,96,.04)',stroke:'#3A342C',accent:'#356760',white:'#FFFFFF',text:'#3A342C',contour:'rgba(106,90,66,.4)',contourIdx:'rgba(106,90,66,.8)',water:'#4C7DB8',bad:'#b23b2e'};
+const SC=[{max:8,lbl:'0–8%',name:'Datar',col:[227,234,213]},{max:15,lbl:'8–15%',name:'Landai',col:[195,207,166]},{max:25,lbl:'15–25%',name:'Agak curam',col:[229,197,138]},{max:40,lbl:'25–40%',name:'Curam',col:[212,145,89]},{max:Infinity,lbl:'>40%',name:'Sangat curam',col:[169,83,59]}];
+const rgb=c=>`rgb(${c.join(',')})`;
+const slopeClass=s=>SC.findIndex(c=>s<c.max);
+
+/* ===== species database (indicative ranges) =====
+ code,nama,latin,strata,tajuk m,tinggi m,elev min,elev max,hujan min,hujan max,bulan kering maks,pH min,pH max,
+ naungan(0 butuh terik,1 sedang,2 toleran),perlu drainase baik,riparian,penambat N,asli,invasif,panen pertama (thn),
+ pendapatan,konservasi,karbon,pangan (1–5),kegunaan */
+const DB_RAW=[
+['DU','Durian','Durio zibethinus','E',10,30,0,800,1500,3500,3,5,6.5,1,1,0,0,1,0,5,5,3,4,4,'buah'],
+['PT','Petai','Parkia speciosa','E',12,25,0,1000,1500,4000,3,4.5,6.5,0,0,0,0,1,0,5,4,4,4,3,'buah'],
+['KR','Kemiri','Aleurites moluccanus','E',12,20,0,1200,1000,3500,6,5,7,0,1,0,0,1,0,4,3,4,4,2,'hhbk'],
+['MT','Matoa','Pometia pinnata','E',12,30,0,1400,1500,4000,3,4.5,7,1,0,1,0,1,0,5,3,4,5,3,'buah,kayu'],
+['AL','Alpukat','Persea americana','K',8,12,200,1500,1200,3000,4,5,7,1,1,0,0,0,0,4,4,3,3,4,'buah'],
+['MG','Mangga','Mangifera indica','K',10,15,0,600,750,2500,7,5.5,7.5,0,1,0,0,0,0,4,4,3,4,4,'buah'],
+['RB','Rambutan','Nephelium lappaceum','K',8,12,0,600,1500,3500,2,4.5,6.5,1,1,0,0,1,0,4,3,3,3,4,'buah'],
+['MS','Manggis','Garcinia mangostana','K',7,12,0,800,1500,3500,2,5,7,2,1,0,0,1,0,8,5,3,3,3,'buah'],
+['JK','Jengkol','Archidendron pauciflorum','K',10,20,0,1000,1500,4000,3,4.5,6.5,1,0,0,0,1,0,5,3,4,4,3,'buah'],
+['NK','Nangka','Artocarpus heterophyllus','K',9,15,0,1000,1000,3000,4,5,7.5,1,1,0,0,0,0,4,3,3,4,5,'buah,kayu'],
+['SK','Sukun','Artocarpus altilis','K',10,15,0,600,1500,3500,3,5,7.5,1,1,0,0,1,0,4,3,3,4,5,'buah,pangan'],
+['PL','Pala','Myristica fragrans','K',7,15,0,700,2000,3500,2,5.5,7,2,1,0,0,1,0,7,5,3,3,2,'rempah'],
+['CK','Cengkeh','Syzygium aromaticum','K',6,12,0,900,1500,3500,3,5.5,6.5,0,1,0,0,1,0,5,4,3,3,1,'rempah'],
+['KM','Kayu manis','Cinnamomum burmanni','K',6,12,500,1500,2000,3500,3,5,6.5,1,1,0,0,1,0,6,3,3,3,1,'rempah'],
+['AR','Aren','Arenga pinnata','K',6,15,0,1400,1200,3500,3,4.5,7,2,0,1,0,1,0,7,4,4,3,3,'hhbk,pangan'],
+['KL','Kelapa','Cocos nucifera','K',7,20,0,600,1000,3000,3,5,8,0,0,0,0,1,0,5,3,2,3,4,'buah,hhbk'],
+['BB','Bambu','Gigantochloa spp.','K',6,15,0,1500,1200,4000,4,4.5,7,0,0,1,0,1,0,3,3,5,3,2,'hhbk,konservasi'],
+['ML','Melinjo','Gnetum gnemon','S',5,12,0,1200,1500,4000,4,5,7,2,0,0,0,1,0,5,3,4,3,4,'pangan'],
+['DK','Duku','Lansium parasiticum','S',6,12,0,800,1500,3500,2,5,6.5,2,1,0,0,1,0,7,4,3,3,4,'buah'],
+['PN','Pinang','Areca catechu','S',3,15,0,900,1500,5000,3,5,8,1,1,0,0,1,0,5,3,2,2,1,'hhbk'],
+['JR','Jeruk','Citrus spp.','S',4,5,0,1300,1000,2500,4,5.5,7,0,1,0,0,0,0,3,4,2,2,4,'buah'],
+['KO','Kopi robusta','Coffea canephora','S',2.5,3,200,900,1500,3000,3,5,6.5,2,1,0,0,0,0,3,4,3,2,1,'kebun'],
+['KA','Kopi arabika','Coffea arabica','S',2.5,3,1000,2000,1500,2500,3,5,6.5,2,1,0,0,0,0,3,5,3,2,1,'kebun'],
+['KK','Kakao','Theobroma cacao','S',4,6,0,600,1500,2500,3,5.5,7.5,2,1,0,0,0,0,3,4,3,3,1,'kebun'],
+['LD','Lada','Piper nigrum','S',1.5,4,0,700,2000,3000,2,5.5,7,1,1,0,0,0,0,3,4,2,1,1,'kebun,merambat,rempah'],
+['VN','Vanili','Vanilla planifolia','S',1.5,3,0,800,1500,3000,3,6,7,2,1,0,0,0,0,3,5,2,1,1,'kebun,merambat,rempah'],
+['PS','Pisang','Musa spp.','S',3,4,0,1500,1500,3000,3,5,7,1,1,0,0,1,0,1,3,2,1,5,'pangan,buah'],
+['KP','Kapulaga','Amomum compactum','R',1.5,2,200,1000,2500,4000,2,5,6.5,2,0,1,0,1,0,2,3,3,1,1,'rempah'],
+['SG','Sengon','Falcataria falcataria','E',9,30,0,1500,2000,4000,4,4.5,7,0,0,0,1,1,0,6,3,2,4,1,'kayu'],
+['MH','Mahoni','Swietenia macrophylla','E',10,30,0,1000,1500,3500,4,5,7.5,1,1,0,0,0,0,15,4,3,5,1,'kayu'],
+['JT','Jati','Tectona grandis','E',10,30,0,700,1250,2500,6,6,7.5,0,1,0,0,0,0,20,5,3,4,1,'kayu'],
+['SR','Suren','Toona sureni','E',10,35,200,1800,1500,3500,3,5,7,0,1,0,0,1,0,10,4,4,4,1,'kayu'],
+['MN','Manglid','Magnolia montana','E',8,30,500,1500,1500,3500,3,4.5,6.5,1,1,0,0,1,0,10,4,4,4,1,'kayu'],
+['RS','Rasamala','Altingia excelsa','E',12,40,500,1700,2000,4000,2,4.5,6.5,1,1,0,0,1,0,20,3,5,5,1,'kayu,konservasi'],
+['PU','Puspa','Schima wallichii','E',10,30,0,2000,1500,4000,4,4,6.5,1,0,0,0,1,0,15,2,5,4,1,'kayu,konservasi'],
+['JB','Jabon','Neolamarckia cadamba','E',9,30,0,1000,1500,5000,3,4.5,7.5,0,0,1,0,1,0,7,3,3,4,1,'kayu'],
+['GM','Gamal','Gliricidia sepium','B',3,8,0,1300,900,3500,7,4.5,8,0,0,0,1,0,0,1,2,4,2,1,'pagar,pakan'],
+['KD','Kaliandra','Calliandra calothyrsus','B',4,6,250,1800,1000,4000,5,4.5,7,0,1,0,1,0,0,1,2,4,2,1,'pagar,pakan'],
+['LM','Lamtoro','Leucaena leucocephala','B',4,8,0,1000,650,3000,7,5.5,8,0,1,0,1,0,1,1,2,4,2,1,'pagar,pakan'],
+['VT','Akar wangi','Chrysopogon zizanioides','R',1,1.5,0,2000,300,5000,8,3.5,9,0,0,1,0,0,0,1,2,5,1,1,'pagar,konservasi']
+];
+const DB=DB_RAW.map(a=>({code:a[0],name:a[1],latin:a[2],st:a[3],crown:a[4],h:a[5],emin:a[6],emax:a[7],rmin:a[8],rmax:a[9],dry:a[10],phmin:a[11],phmax:a[12],shade:a[13],dg:!!a[14],rip:!!a[15],nfix:!!a[16],native:!!a[17],inv:!!a[18],yr:a[19],inc:a[20],cons:a[21],carb:a[22],food:a[23],uses:a[24].split(','),
+  fast:a[19]<=1?5:a[19]<=3?4:a[19]<=5?3:a[19]<=8?2:1,climb:a[24].includes('merambat')}));
+const SP={};DB.forEach(s=>SP[s.code]=s);
+const STRATA={E:'Emergen',K:'Kanopi',S:'Sub-kanopi',B:'Perdu',R:'Penutup'};
+const GOALS=[['inc','Pendapatan'],['cons','Konservasi'],['carb','Karbon'],['food','Pangan'],['fast','Panen cepat']];
+const GOAL_PRESETS={seimbang:{inc:3,cons:3,carb:3,food:3,fast:3},ekonomi:{inc:5,cons:2,carb:1,food:3,fast:4},karbon:{inc:2,cons:5,carb:5,food:1,fast:1}};
+const PALETTE=['#c0611c','#2d7a55','#7A5A3F','#356760','#8B7BB0','#B8892B','#4C7DB8','#A0465A','#5E8C3A','#2F4F6B','#C77D9B','#6B6B2E','#D08C5B','#3E7C7A'];
+
+/* ===== zones ===== */
+const ZONES=[null,
+ {name:'Produksi',col:[222,196,120],desc:'Lereng landai. Pagar kontur dengan pohon lorong; lorong di antaranya untuk tanaman semusim.'},
+ {name:'Agroforestri lereng',col:[150,170,140],desc:'Kebun multistrata: emergen, kanopi buah, sub-kanopi perkebunan, pendamping, dan penaung penambat N.'},
+ {name:'Konservasi',col:[160,118,82],desc:'Lereng curam. Pohon berakar dalam dan jenis serbaguna, tanpa olah tanah.'},
+ {name:'Riparian',col:[120,160,200],desc:'Sempadan sungai. Penguat tebing dan pohon tepi sungai, tanpa pupuk kimia.'}];
+const ZMOD={1:{inc:1.5,food:1.5},3:{cons:2,carb:1.5},4:{cons:2}};
+const SLOTS={
+ 1:[{k:'T',lbl:'Pohon lorong',hint:'buah atau serbaguna, tahan terik',f:s=>(s.st==='K'||s.st==='S')&&!s.climb&&s.shade<=1},
+    {k:'H',lbl:'Pagar kontur',hint:'penambat N atau rumput penahan erosi',f:s=>s.uses.includes('pagar')}],
+ 2:[{k:'E',lbl:'Emergen',hint:'pohon tertinggi, 25 m ke atas',f:s=>s.st==='E'},
+    {k:'K',lbl:'Kanopi buah',hint:'pohon buah 10–25 m',f:s=>s.st==='K'&&s.food>=3},
+    {k:'S',lbl:'Sub-kanopi utama',hint:'tanaman perkebunan toleran naungan',f:s=>s.st==='S'&&s.uses.includes('kebun')&&s.shade>=1&&!s.climb},
+    {k:'S2',lbl:'Sub-kanopi pendamping',hint:'pangan atau panen cepat',f:s=>(s.st==='S'||s.st==='R')&&s.shade>=1&&!s.climb&&!s.uses.includes('kebun')},
+    {k:'N',lbl:'Penaung penambat N',hint:'dipangkas untuk mulsa dan pakan',f:s=>s.nfix}],
+ 3:[{k:'P1',lbl:'Pohon konservasi',hint:'akar dalam, konservasi tinggi',f:s=>(s.st==='E'||s.st==='K')&&s.cons>=4},
+    {k:'P2',lbl:'Pohon serbaguna',hint:'buah atau hasil hutan bukan kayu',f:s=>(s.st==='E'||s.st==='K')&&s.food>=3},
+    {k:'P3',lbl:'Penambat N',hint:'memperbaiki tanah',f:s=>s.nfix&&s.st!=='R'}],
+ 4:[{k:'R1',lbl:'Penguat tebing',hint:'rumpun atau palem tahan genangan',f:s=>s.rip&&s.st==='K'},
+    {k:'R2',lbl:'Pohon tepi sungai',hint:'pohon besar tahan genangan',f:s=>s.rip&&s.st==='E'}]};
+const ZS={
+ 1:{pattern:'alley',dx:1,alley:6,nrows:2,rs:0.5,tpl:[['T','H','H','H','H','H','H','H'],['H']],pick:{},manual:{}},
+ 2:{pattern:'square',dx:3,dy:3,tpl:[['E','S','S','K','S','S'],['S','S2','S','S','S2','S'],['S','S','N','S','S','S'],['K','S','S','S','S','S'],['S','S2','S','S','S2','S'],['S','S','S','S','N','S']],pick:{},manual:{}},
+ 3:{pattern:'square',dx:4,dy:4,tpl:[['P1','P2'],['P2','P3']],pick:{},manual:{}},
+ 4:{pattern:'square',dx:5,dy:5,tpl:[['R1','R2'],['R2','R1']],pick:{},manual:{}}};
+const PAT_LABEL={square:'persegi',tri:'segitiga',alley:'lorong'};
+
+const S={polys:null,utm:null,segs:[],src:'',zone:null,south:true,conv:null,utmDef:'',
+  points:[],nRows:0,areaHa:0,perim:0,geomInfo:{},checks:[],
+  dem:null,grid:null,contours:[],slopeImg:null,exclImg:null,zoneImg:null,
+  excl:[],exclUtm:[],exclId:1,
+  view:{cx:0,cy:0,s:1},userMoved:false,draft:null,hover:null,
+  layers:{zone:true,slope:false,contour:true,excl:true,crown:true},
+  fmt:'geojson',rowMode:'contour',step:0,vi:{},zSel:2,
+  drain:0,w:{...GOAL_PRESETS.seimbang},onlyNative:false,noInvasive:true,
+  eval:{},colorOf:{},suitFilter:'ok',year:10,sim:null,mode:'2d',allo:'chave'};
+
+/* ===== projection ===== */
+function setProj(lon,lat){const zone=Math.min(60,Math.max(1,Math.floor((lon+180)/6)+1)),south=lat<0;
+  if(S.conv&&zone===S.zone&&south===S.south)return false;S.zone=zone;S.south=south;
+  S.utmDef=`+proj=utm +zone=${zone}${south?' +south':''} +datum=WGS84 +units=m +no_defs`;S.conv=proj4('EPSG:4326',S.utmDef);return true;}
+const fwd=p=>S.conv.forward([p[0],p[1]]),inv=p=>S.conv.inverse([p[0],p[1]]);
+const epsg=()=>(S.south?32700:32600)+S.zone,zoneTxt=()=>`${S.zone}${S.south?'S':'N'}`;
+
+/* ===== geometry ===== */
+function ringArea(r){let a=0;for(let i=0,j=r.length-1;i<r.length;j=i++)a+=(r[j][0]+r[i][0])*(r[j][1]-r[i][1]);return Math.abs(a/2);}
+function ringPerim(r){let p=0;for(let i=0,j=r.length-1;i<r.length;j=i++)p+=Math.hypot(r[i][0]-r[j][0],r[i][1]-r[j][1]);return p;}
+function inRing(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
+function inside(x,y){for(const p of S.utm){if(inRing(x,y,p[0])&&!p.slice(1).some(h=>inRing(x,y,h)))return true;}return false;}
+function segDist(px,py,s){const dx=s[2]-s[0],dy=s[3]-s[1],L=dx*dx+dy*dy;let t=L?((px-s[0])*dx+(py-s[1])*dy)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(s[0]+t*dx),py-(s[1]+t*dy));}
+function minSegDist(x,y,segs){let m=Infinity;for(const s of segs){const d=segDist(x,y,s);if(d<m)m=d;}return m;}
+function toSegs(line,closedRing){const out=[];const n=line.length;for(let i=0;i<(closedRing?n:n-1);i++){const a=line[i],b=line[(i+1)%n];out.push([a[0],a[1],b[0],b[1]]);}return out;}
+function cr(ax,ay,bx,by,cx,cy){return (bx-ax)*(cy-ay)-(by-ay)*(cx-ax);}
+function segsCross(a,b,c,d){const d1=cr(c[0],c[1],d[0],d[1],a[0],a[1]),d2=cr(c[0],c[1],d[0],d[1],b[0],b[1]),d3=cr(a[0],a[1],b[0],b[1],c[0],c[1]),d4=cr(a[0],a[1],b[0],b[1],d[0],d[1]);return((d1>0)!==(d2>0))&&((d3>0)!==(d4>0))&&d1&&d2&&d3&&d4;}
+function selfIntersects(r){const n=r.length;for(let i=0;i<n;i++){const a=r[i],b=r[(i+1)%n];for(let j=i+2;j<n;j++){if(i===0&&j===n-1)continue;if(segsCross(a,b,r[j],r[(j+1)%n]))return true;}}return false;}
+function cleanRing(r){const out=[];for(const p of r){const q=[+p[0],+p[1]];if(!isFinite(q[0])||!isFinite(q[1]))continue;const l=out[out.length-1];if(l&&Math.abs(l[0]-q[0])<1e-9&&Math.abs(l[1]-q[1])<1e-9)continue;out.push(q);}
+  if(out.length>1){const a=out[0],b=out[out.length-1];if(Math.abs(a[0]-b[0])<1e-9&&Math.abs(a[1]-b[1])<1e-9)out.pop();}return out;}
+
+function setGeometry(polys,src){
+  polys=polys.map(p=>p.map(cleanRing).filter(r=>r.length>=3)).filter(p=>p.length);
+  if(!polys.length)throw new Error('Tidak ada poligon dengan minimal 3 titik sudut.');
+  const all=polys.flatMap(p=>p[0]);
+  if(all.some(p=>Math.abs(p[0])>180||Math.abs(p[1])>90))throw new Error('Koordinat di luar rentang derajat. Kemungkinan file masih dalam proyeksi meter tanpa .prj.');
+  const lon=all.reduce((a,p)=>a+p[0],0)/all.length,lat=all.reduce((a,p)=>a+p[1],0)/all.length;
+  setProj(lon,lat);S.polys=polys;S.src=src;S.userMoved=false;
+  projectAll();validate();fit();
+  $('#center').value=`${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+  rebuild();
+}
+function projectAll(){
+  if(!S.polys){S.utm=null;S.segs=[];}
+  else{S.utm=S.polys.map(p=>p.map(r=>r.map(fwd)));S.segs=[];for(const p of S.utm)for(const r of p)S.segs.push(...toSegs(r,true));}
+  S.exclUtm=S.excl.map(e=>{const pts=e.ll.map(fwd);return{...e,pts,segs:toSegs(pts,e.type==='zone')};});
+}
+function validate(){
+  let area=0,perim=0,nv=0,nh=0,si=false;
+  for(const p of S.utm){area+=ringArea(p[0])-p.slice(1).reduce((a,h)=>a+ringArea(h),0);perim+=ringPerim(p[0]);nv+=p.reduce((a,r)=>a+r.length,0);nh+=p.length-1;if(p.some(selfIntersects))si=true;}
+  S.areaHa=area/10000;S.perim=perim;S.geomInfo={parts:S.utm.length,nv,nh};
+  const c=[];
+  c.push(si?['bad','Ada sisi yang saling memotong. Periksa urutan titik sudut.']:['ok','Geometri valid, tidak ada sisi yang saling memotong.']);
+  c.push(['ok',`${fmt(S.areaHa,2)} ha, ${S.utm.length} bagian, ${nv} titik sudut${nh?`, ${nh} enklave`:''}.`]);
+  c.push(['ok',`Dihitung di UTM zona ${zoneTxt()} (EPSG:${epsg()}).`]);
+  if(S.areaHa<0.01)c.push(['warn','Luas di bawah 0,01 ha. Periksa satuan dan urutan koordinat.']);
+  S.checks=c;
+  $('#checks').innerHTML=c.map(([k,t])=>`<div class="chk"><span class="d ${k}"></span><span>${t}</span></div>`).join('');
+}
+
+/* ===== DEM ===== */
+function sampleDemFor(lon0,lat0){
+  const ky=110574,kx=111320*Math.cos(lat0*Math.PI/180);
+  const f=(lx,ly)=>{let z=760+0.15*ly+0.05*lx+3*Math.sin(lx/45)*Math.cos(ly/70);
+    const t=Math.max(0,ly-62);z+=0.34*t*t/(t+15);
+    const ys=-45+14*Math.sin(lx/70),d=ly-ys;z-=6*Math.exp(-(d*d)/(2*18*18));return z;};
+  return{name:'DEM contoh (sintetis)',kind:'sample',resM:3,
+    sampler:(x,y)=>{const g=inv([x,y]);return f((g[0]-lon0)*kx,(g[1]-lat0)*ky);},
+    streamLL:()=>{const out=[];for(let lx=-180;lx<=200;lx+=20){const ly=-45+14*Math.sin(lx/70);out.push([lon0+lx/kx,lat0+ly/ky]);}return out;}};
+}
+async function loadDemFile(file){
+  const m=$('#demMsg');m.hidden=true;
+  try{
+    if(!S.utm)throw new Error('Tetapkan batas lahan terlebih dahulu.');
+    if(typeof GeoTIFF==='undefined')throw new Error('Pustaka GeoTIFF gagal dimuat.');
+    const tiff=await GeoTIFF.fromArrayBuffer(await file.arrayBuffer());const img=await tiff.getImage();
+    const gk=img.getGeoKeys()||{};const code=gk.ProjectedCSTypeGeoKey||gk.GeographicTypeGeoKey;let def;
+    if(code===4326)def='EPSG:4326';
+    else if(code>=32601&&code<=32660)def=`+proj=utm +zone=${code-32600} +datum=WGS84 +units=m +no_defs`;
+    else if(code>=32701&&code<=32760)def=`+proj=utm +zone=${code-32700} +south +datum=WGS84 +units=m +no_defs`;
+    else throw new Error(code?`CRS EPSG:${code} belum didukung. Ekspor ulang DEM ke WGS84 (EPSG:4326) atau UTM WGS84.`:'CRS DEM tidak terbaca. Pastikan file adalah GeoTIFF bergeoreferensi.');
+    const geo=def==='EPSG:4326';
+    const toDem=p=>geo?inv(p):proj4(S.utmDef,def,[p[0],p[1]]);
+    const [bx0,by0,bx1,by1]=img.getBoundingBox(),W=img.getWidth(),H=img.getHeight(),rx=(bx1-bx0)/W,ry=(by1-by0)/H;
+    const ext=gridExtent(150);const cs=[[ext.x0,ext.y0],[ext.x1,ext.y0],[ext.x0,ext.y1],[ext.x1,ext.y1]].map(toDem);
+    let px0=Math.floor((Math.min(...cs.map(q=>q[0]))-bx0)/rx)-2,px1=Math.ceil((Math.max(...cs.map(q=>q[0]))-bx0)/rx)+2;
+    let py0=Math.floor((by1-Math.max(...cs.map(q=>q[1])))/ry)-2,py1=Math.ceil((by1-Math.min(...cs.map(q=>q[1])))/ry)+2;
+    px0=Math.max(0,px0);py0=Math.max(0,py0);px1=Math.min(W,px1);py1=Math.min(H,py1);
+    if(px1-px0<2||py1-py0<2)throw new Error('DEM tidak mencakup batas lahan. Periksa lokasi dan CRS file.');
+    const r=await img.readRasters({window:[px0,py0,px1,py1],samples:[0]});const data=r[0],ww=px1-px0,wh=py1-py0;
+    const nod=img.getGDALNoData();
+    const ll=inv([(ext.x0+ext.x1)/2,(ext.y0+ext.y1)/2]);
+    const resM=geo?rx*111320*Math.cos(ll[1]*Math.PI/180):rx;
+    const at=(i,j)=>{const v=data[j*ww+i];return(v===nod||v<-1000||!isFinite(v))?NaN:v;};
+    S.dem={name:file.name,kind:'file',resM,crs:geo?'EPSG:4326':`EPSG:${code}`,
+      sampler:(x,y)=>{const q=toDem([x,y]);const fx=(q[0]-bx0)/rx-0.5-px0,fy=(by1-q[1])/ry-0.5-py0;const i=Math.floor(fx),j=Math.floor(fy);
+        if(i<0||j<0||i>=ww-1||j>=wh-1)return NaN;const tx=fx-i,ty=fy-j;
+        const a=at(i,j),b=at(i+1,j),c=at(i,j+1),d=at(i+1,j+1);return a*(1-tx)*(1-ty)+b*tx*(1-ty)+c*(1-tx)*ty+d*tx*ty;}};
+    rebuild();
+  }catch(e){m.hidden=false;m.textContent=(e&&e.message)||'DEM tidak dapat dibaca.';}
+}
+
+/* ===== terrain grid ===== */
+function gridExtent(margin){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(const p of S.utm)for(const q of p[0]){x0=Math.min(x0,q[0]);y0=Math.min(y0,q[1]);x1=Math.max(x1,q[0]);y1=Math.max(y1,q[1]);}
+  return{x0:x0-margin,y0:y0-margin,x1:x1+margin,y1:y1+margin};}
+function buildTerrain(){
+  S.grid=null;S.contours=[];S.slopeImg=null;S.exclImg=null;S.zoneImg=null;if(!S.utm)return;
+  const e=gridExtent(20),w=e.x1-e.x0,h=e.y1-e.y0;
+  let c=Math.max(S.dem?S.dem.resM:2,Math.sqrt(w*h/150000));c=Math.max(1,Math.round(c*2)/2);
+  const nx=Math.ceil(w/c)+1,ny=Math.ceil(h/c)+1,N=nx*ny;
+  const G={x0:e.x0,y0:e.y0,c,nx,ny,z:new Float32Array(N).fill(NaN),sl:new Float32Array(N).fill(NaN),inP:new Uint8Array(N),ex:new Uint8Array(N),zn:new Uint8Array(N)};
+  for(let i=0;i<ny;i++)for(let j=0;j<nx;j++){const x=G.x0+j*c,y=G.y0+i*c,k=i*nx+j;G.inP[k]=inside(x,y)?1:0;if(S.dem)G.z[k]=S.dem.sampler(x,y);}
+  if(S.dem){const Z=(i,j)=>G.z[Math.min(ny-1,Math.max(0,i))*nx+Math.min(nx-1,Math.max(0,j))];
+    for(let i=0;i<ny;i++)for(let j=0;j<nx;j++){const jl=Math.max(0,j-1),jr=Math.min(nx-1,j+1),ib=Math.max(0,i-1),it=Math.min(ny-1,i+1);
+      const gx=(Z(i,jr)-Z(i,jl))/((jr-jl)*c),gy=(Z(it,j)-Z(ib,j))/((it-ib)*c);G.sl[i*nx+j]=Math.hypot(gx,gy)*100;}}
+  S.grid=G;
+  const zs=[],ss=[];const cls=new Array(SC.length).fill(0);let inCells=0;
+  for(let k=0;k<N;k++){if(!G.inP[k])continue;inCells++;if(isFinite(G.z[k])){zs.push(G.z[k]);ss.push(G.sl[k]);cls[slopeClass(G.sl[k])]++;}}
+  ss.sort((a,b)=>a-b);
+  let zmin=Infinity,zmax=-Infinity;for(const v of zs){if(v<zmin)zmin=v;if(v>zmax)zmax=v;}
+  G.stats={inCells,cov:inCells?zs.length/inCells:0,zmin:zs.length?zmin:NaN,zmax:zs.length?zmax:NaN,
+    smed:ss.length?ss[Math.floor(ss.length/2)]:NaN,smean:ss.length?ss.reduce((a,b)=>a+b,0)/ss.length:NaN,cls:cls.map(n=>n*c*c/10000)};
+  if(S.dem&&zs.length){const range=G.stats.zmax-G.stats.zmin;const di=[0.5,1,2,5,10,20,25,50,100].find(v=>range/v<=40)||100;
+    for(let L=Math.ceil((G.stats.zmin-10)/di)*di;L<=G.stats.zmax+10;L+=di){const lines=contourLines(L);if(lines.length)S.contours.push({z:L,idx:Math.round(L/di)%5===0,lines});}}
+  makeSlopeImg();
+}
+function inRiparian(x,y){for(const e of S.exclUtm)if(e.type==='river'&&minSegDist(x,y,e.segs)<e.buf)return true;return false;}
+function exclReason(x,y,sl,ms){
+  for(const e of S.exclUtm){if(e.type==='zone'){if(inRing(x,y,e.pts)||(e.buf>0&&minSegDist(x,y,e.segs)<e.buf))return 3;}else if(minSegDist(x,y,e.segs)<RIVER_CH)return 2;}
+  if(isFinite(sl)&&sl>ms)return 1;return 0;}
+function updateZones(){
+  const G=S.grid;if(!G)return;const ms=val('#maxSlope',100),t1=val('#t1',15),t2=Math.max(t1+1,val('#t2',40));
+  const ex={slope:0,river:0,zone:0,any:0};
+  for(let i=0;i<G.ny;i++)for(let j=0;j<G.nx;j++){const k=i*G.nx+j;G.ex[k]=0;G.zn[k]=0;if(!G.inP[k])continue;
+    const x=G.x0+j*G.c,y=G.y0+i*G.c,sl=G.sl[k];
+    const r=exclReason(x,y,sl,ms);if(r){G.ex[k]=r;ex.any++;ex[['','slope','river','zone'][r]]++;continue;}
+    if(inRiparian(x,y))G.zn[k]=4;else if(!S.dem||!isFinite(sl))G.zn[k]=2;else G.zn[k]=sl<t1?1:sl<t2?2:3;}
+  if(S.dem){const src=G.zn.slice(),R=2;
+    for(let i=0;i<G.ny;i++)for(let j=0;j<G.nx;j++){const k=i*G.nx+j,v=src[k];if(v<1||v>3)continue;const cnt=[0,0,0,0];
+      for(let a=-R;a<=R;a++){const ii=i+a;if(ii<0||ii>=G.ny)continue;for(let b=-R;b<=R;b++){const jj=j+b;if(jj<0||jj>=G.nx)continue;const u=src[ii*G.nx+jj];if(u>=1&&u<=3)cnt[u]++;}}
+      let best=v;for(let u=1;u<=3;u++)if(cnt[u]>cnt[best])best=u;G.zn[k]=best;}}
+  const a=G.c*G.c/10000;G.exHa={slope:ex.slope*a,river:ex.river*a,zone:ex.zone*a,any:ex.any*a};
+  G.zs={};
+  for(let z=1;z<=4;z++){const els=[],sls=[];let i0=Infinity,i1=-1,j0=Infinity,j1=-1,n=0;
+    for(let i=0;i<G.ny;i++)for(let j=0;j<G.nx;j++){const k=i*G.nx+j;if(G.zn[k]!==z)continue;n++;if(i<i0)i0=i;if(i>i1)i1=i;if(j<j0)j0=j;if(j>j1)j1=j;if(isFinite(G.z[k])){els.push(G.z[k]);sls.push(G.sl[k]);}}
+    els.sort((p,q)=>p-q);sls.sort((p,q)=>p-q);
+    G.zs[z]={cells:n,area:n*a,i0,i1,j0,j1,zmin:els.length?els[0]:NaN,zmax:els.length?els[els.length-1]:NaN,zmed:els.length?els[els.length>>1]:NaN,slmed:sls.length?sls[sls.length>>1]:NaN};}
+  makeExclImg();makeZoneImg();
+  const present=[1,2,3,4].filter(z=>G.zs[z].cells);if(!present.includes(S.zSel))S.zSel=present[0]||2;
+}
+function cellAt(x,y){const G=S.grid;if(!G)return -1;const j=Math.round((x-G.x0)/G.c),i=Math.round((y-G.y0)/G.c);if(i<0||j<0||i>=G.ny||j>=G.nx)return -1;return i*G.nx+j;}
+function terrainAt(x,y){const k=cellAt(x,y);if(k<0)return{z:NaN,sl:NaN};return{z:S.grid.z[k],sl:S.grid.sl[k]};}
+function zoneAt(x,y){const k=cellAt(x,y);return k<0?0:S.grid.zn[k];}
+function gridImg(fn){const G=S.grid;const cv=document.createElement('canvas');cv.width=G.nx;cv.height=G.ny;const cx=cv.getContext('2d'),im=cx.createImageData(G.nx,G.ny);
+  for(let i=0;i<G.ny;i++)for(let j=0;j<G.nx;j++){const c=fn(i*G.nx+j,i,j);if(!c)continue;const o=((G.ny-1-i)*G.nx+j)*4;im.data[o]=c[0];im.data[o+1]=c[1];im.data[o+2]=c[2];im.data[o+3]=c[3];}
+  cx.putImageData(im,0,0);return cv;}
+function makeSlopeImg(){const G=S.grid;S.slopeImg=(G&&S.dem)?gridImg(k=>G.inP[k]&&isFinite(G.sl[k])?[...SC[slopeClass(G.sl[k])].col,170]:null):null;}
+function makeExclImg(){const G=S.grid;S.exclImg=G?gridImg((k,i,j)=>G.ex[k]?[178,59,46,(i+j)%3===0?110:40]:null):null;}
+function makeZoneImg(){const G=S.grid;S.zoneImg=G?gridImg(k=>G.zn[k]?[...ZONES[G.zn[k]].col,95]:null):null;}
+
+function contourLines(L,bb){const G=S.grid,{nx,ny,c,x0,y0,z}=G;const pts=new Map(),adj=new Map();
+  const ia=bb?Math.max(0,bb.i0):0,ib=bb?Math.min(ny-2,bb.i1):ny-2,ja=bb?Math.max(0,bb.j0):0,jb=bb?Math.min(nx-2,bb.j1):nx-2;
+  const node=(i,j)=>z[i*nx+j];
+  const hp=(i,j)=>{const k='h'+i+'_'+j;if(!pts.has(k)){const a=node(i,j),b=node(i,j+1),t=(L-a)/(b-a);pts.set(k,[x0+(j+t)*c,y0+i*c]);}return k;};
+  const vp=(i,j)=>{const k='v'+i+'_'+j;if(!pts.has(k)){const a=node(i,j),b=node(i+1,j),t=(L-a)/(b-a);pts.set(k,[x0+j*c,y0+(i+t)*c]);}return k;};
+  const link=(a,b)=>{(adj.get(a)||adj.set(a,[]).get(a)).push(b);(adj.get(b)||adj.set(b,[]).get(b)).push(a);};
+  for(let i=ia;i<=ib;i++)for(let j=ja;j<=jb;j++){
+    const za=node(i,j),zb=node(i,j+1),zc=node(i+1,j+1),zd=node(i+1,j);
+    if(!(isFinite(za)&&isFinite(zb)&&isFinite(zc)&&isFinite(zd)))continue;
+    const A=za>=L,B=zb>=L,Cc=zc>=L,D=zd>=L;if(A===B&&B===Cc&&Cc===D)continue;
+    const e=[];if(A!==B)e.push(0);if(B!==Cc)e.push(1);if(Cc!==D)e.push(2);if(D!==A)e.push(3);
+    const key=n=>n===0?hp(i,j):n===1?vp(i,j+1):n===2?hp(i+1,j):vp(i,j);
+    if(e.length===2)link(key(e[0]),key(e[1]));
+    else if(e.length===4){const ctr=(za+zb+zc+zd)/4>=L;if(ctr===A){link(key(0),key(1));link(key(2),key(3));}else{link(key(0),key(3));link(key(1),key(2));}}
+  }
+  const used=new Set(),ek=(a,b)=>a<b?a+'|'+b:b+'|'+a,lines=[];
+  const walk=s=>{const line=[s];let cur=s;for(;;){const nb=(adj.get(cur)||[]).find(n=>!used.has(ek(cur,n)));if(nb===undefined)break;used.add(ek(cur,nb));line.push(nb);cur=nb;}return line;};
+  for(const[k,nb]of adj)if(nb.length===1&&!used.has(ek(k,nb[0])))lines.push(walk(k));
+  for(const[k,nb]of adj)for(const n of nb)if(!used.has(ek(k,n)))lines.push(walk(k));
+  return lines.filter(l=>l.length>1).map(l=>l.map(k=>pts.get(k)));
+}
+
+/* ===== suitability & recommendation ===== */
+const val=(id,def)=>{const v=parseFloat($(id).value);return isFinite(v)?v:def;};
+function siteFor(z){const zs=S.grid&&S.grid.zs[z];
+  return{el:S.dem&&zs&&isFinite(zs.zmed)?zs.zmed:val('#elev',700),rain:val('#rain',2400),dry:val('#dry',3),ph:val('#ph',5.5),drain:z===4?2:S.drain};}
+function suit(sp,site){
+  const r=[];let lvl=0;const chk=(l,t)=>{r.push(t);lvl=Math.max(lvl,l);};
+  if(S.onlyNative&&!sp.native)chk(2,'bukan jenis asli');
+  if(S.noInvasive&&sp.inv)chk(2,'berpotensi invasif');
+  if(isFinite(site.el)){if(site.el<sp.emin)chk(site.el>=sp.emin-150?1:2,`elevasi ${fmt(site.el)} m di bawah ${fmt(sp.emin)} m`);
+    else if(site.el>sp.emax)chk(site.el<=sp.emax+150?1:2,`elevasi ${fmt(site.el)} m di atas ${fmt(sp.emax)} m`);}
+  if(site.rain<sp.rmin)chk(site.rain>=sp.rmin*0.8?1:2,`hujan ${fmt(site.rain)} mm di bawah ${fmt(sp.rmin)} mm`);
+  else if(site.rain>sp.rmax)chk(site.rain<=sp.rmax*1.2?1:2,`hujan ${fmt(site.rain)} mm di atas ${fmt(sp.rmax)} mm`);
+  if(site.dry>sp.dry)chk(site.dry<=sp.dry+1?1:2,`${fmt(site.dry)} bulan kering, toleransi ${sp.dry}`);
+  if(site.ph<sp.phmin)chk(site.ph>=sp.phmin-0.5?1:2,`pH ${fmt(site.ph,1)} di bawah ${fmt(sp.phmin,1)}`);
+  else if(site.ph>sp.phmax)chk(site.ph<=sp.phmax+0.5?1:2,`pH ${fmt(site.ph,1)} di atas ${fmt(sp.phmax,1)}`);
+  if(site.drain===2&&!sp.rip)chk(sp.dg?2:1,'tidak tahan genangan');
+  else if(site.drain===1&&sp.dg)chk(1,'perlu drainase baik');
+  return{lvl,r};}
+function score(sp,z,lvl){if(lvl>=2)return 0;const mod=ZMOD[z]||{};let num=0,den=0;
+  for(const[g]of GOALS){const w=S.w[g]*(mod[g]||1);num+=w*sp[g];den+=w;}
+  return Math.round(100*(den?num/(5*den):0.5)*(lvl?0.6:1));}
+function evalAndPick(){
+  S.eval={};const G=S.grid;
+  if(G)for(let z=1;z<=4;z++){if(!G.zs[z]||!G.zs[z].cells)continue;const site=siteFor(z),e={};
+    for(const sp of DB){const s=suit(sp,site);e[sp.code]={lvl:s.lvl,r:s.r,score:score(sp,z,s.lvl)};}
+    S.eval[z]=e;autoPick(z);}
+  assignColors();renderZoneSeg();renderZonePanel();renderSuit();
+}
+function candidates(z,slot){const e=S.eval[z];return DB.filter(sp=>slot.f(sp)&&e[sp.code].lvl<2).sort((a,b)=>e[b.code].score-e[a.code].score);}
+function autoPick(z){const set=ZS[z],e=S.eval[z];if(!e)return;const used=new Set();
+  for(const sl of SLOTS[z])if(set.manual[sl.k]){const c=set.pick[sl.k];if(c&&e[c]&&e[c].lvl>=2){set.manual[sl.k]=false;}else if(c)used.add(c);}
+  for(const sl of SLOTS[z]){if(set.manual[sl.k])continue;const c=candidates(z,sl).find(sp=>!used.has(sp.code));set.pick[sl.k]=c?c.code:'';if(c)used.add(c.code);}}
+function assignColors(){const usedCols=new Set(Object.values(S.colorOf));
+  for(const z of [2,1,3,4]){if(!S.eval[z])continue;for(const sl of SLOTS[z]){const c=ZS[z].pick[sl.k];if(!c||S.colorOf[c])continue;
+    const col=PALETTE.find(p=>!usedCols.has(p))||PALETTE[Object.keys(S.colorOf).length%PALETTE.length];S.colorOf[c]=col;usedCols.add(col);}}}
+const colorOf=c=>S.colorOf[c]||'#6A665B';
+
+/* ===== generation ===== */
+let genTimer=null;function scheduleGen(ms=150){clearTimeout(genTimer);genTimer=setTimeout(generate,ms);}
+function rebuild(){buildTerrain();updateZones();evalAndPick();generate();}
+function rezone(){updateZones();evalAndPick();generate();}
+function rowOffsets(set,span){const o=[];
+  if(set.pattern==='alley'){const nr=Math.max(1,+set.nrows||1),rs=Math.max(0.1,+set.rs||0.5),al=Math.max(0.5,+set.alley||5),band=al+(nr-1)*rs;for(let b=al/2;b<=span;b+=band)for(let j=0;j<nr;j++)o.push({o:b+j*rs,j});}
+  else{const dy=Math.max(0.3,+set.dy||3);let r=0;for(let v=dy/2;v<=span;v+=dy)o.push({o:v,j:r++});}
+  return o;}
+function generate(){
+  S.points=[];S.nRows=0;S.capped=false;S.vi={};
+  if(!S.utm||!S.grid){S.sim=null;renderAll();return;}
+  const hash=new Map(),key=(ix,iy)=>ix*100003+iy;
+  const P={setback:Math.max(0,val('#setback',0)),ms:val('#maxSlope',100),cnt:{},row0:0,
+    near:(x,y,thr)=>{const ix=Math.floor(x),iy=Math.floor(y),n=Math.ceil(thr);for(let a=-n;a<=n;a++)for(let b=-n;b<=n;b++){const arr=hash.get(key(ix+a,iy+b));if(!arr)continue;for(const q of arr)if(Math.hypot(q[0]-x,q[1]-y)<thr)return true;}return false;},
+    put:(x,y)=>{const k=key(Math.floor(x),Math.floor(y));(hash.get(k)||hash.set(k,[]).get(k)).push([x,y]);},
+    sh:{},
+    spNear:(code,x,y,thr)=>{const m=P.sh[code];if(!m)return false;const ix=Math.floor(x/2),iy=Math.floor(y/2),n=Math.ceil(thr/2);for(let a=-n;a<=n;a++)for(let b=-n;b<=n;b++){const arr=m.get(key(ix+a,iy+b));if(!arr)continue;for(const q of arr)if(Math.hypot(q[0]-x,q[1]-y)<thr)return true;}return false;},
+    spPut:(code,x,y)=>{const m=P.sh[code]||(P.sh[code]=new Map());const k=key(Math.floor(x/2),Math.floor(y/2));(m.get(k)||m.set(k,[]).get(k)).push([x,y]);}};
+  for(const z of [4,3,2,1]){if(!S.grid.zs[z].cells||!S.eval[z])continue;P.row0=S.nRows;S.nRows+=genZone(z,P);if(S.capped)break;}
+  simulate();
+  renderAll();
+}
+function genZone(z,P){
+  const set=ZS[z],zs=S.grid.zs[z],G=S.grid,pick=set.pick,tpl=set.tpl,dx=Math.max(0.3,+set.dx||1);
+  const lineFor=(r,o)=>tpl[(set.pattern==='alley'?o.j:r)%tpl.length];
+  let rows=0;
+  const place=(x,y,slot,k,thr)=>{
+    if(S.capped||!slot||slot==='.')return false;const code=pick[slot];if(!code)return false;
+    if(zoneAt(x,y)!==z||!inside(x,y))return false;
+    if(P.setback>0&&minSegDist(x,y,S.segs)<P.setback)return false;
+    const t=terrainAt(x,y);if(exclReason(x,y,t.sl,P.ms))return false;
+    if(P.near(x,y,thr))return false;
+    const sp=SP[code],tree=sp.st==='E'||sp.st==='K'||(sp.st==='S'&&sp.crown>=4);
+    if(tree&&P.spNear(code,x,y,0.6*sp.crown))return false;
+    if(tree)P.spPut(code,x,y);
+    P.cnt[code]=(P.cnt[code]||0)+1;
+    S.points.push({x,y,c:code,zn:z,slot,r:P.row0+rows+1,k:k+1,el:t.z,sl:t.sl,id:`${code}-${String(P.cnt[code]).padStart(4,'0')}`});
+    P.put(x,y);if(S.points.length>=MAX_POINTS)S.capped=true;return true;};
+  const bx0=G.x0+(zs.j0-1)*G.c,bx1=G.x0+(zs.j1+1)*G.c,by0=G.y0+(zs.i0-1)*G.c,by1=G.y0+(zs.i1+1)*G.c;
+  if(S.rowMode==='contour'&&S.dem&&isFinite(zs.slmed)&&isFinite(zs.zmin)){
+    const g0=Math.max(0.02,zs.slmed/100),offs=rowOffsets(set,Math.hypot(bx1-bx0,by1-by0)*4);
+    const bb={i0:zs.i0-2,i1:zs.i1+2,j0:zs.j0-2,j1:zs.j1+2},vis=[];
+    let L=zs.zmin+offs[0].o*g0,gapPrev=Infinity;
+    for(let r=0;r<offs.length&&!S.capped&&L<=zs.zmax;r++){
+      const ls=contourLines(L,bb),line=lineFor(r,offs[r]),shift=(set.pattern==='tri'&&r%2)?dx/2:0;
+      const thr=0.7*Math.min(dx,gapPrev);let any=false;const sls=[];
+      let k=0;for(const pl of ls){let next=dx/2+shift,acc=0;
+        for(let i=1;i<pl.length&&!S.capped;i++){const a=pl[i-1],b=pl[i],sl=Math.hypot(b[0]-a[0],b[1]-a[1]);
+          if(zoneAt(a[0],a[1])===z){const t=terrainAt(a[0],a[1]);if(isFinite(t.sl))sls.push(t.sl);}
+          while(next<=acc+sl){const t=(next-acc)/sl,x=a[0]+t*(b[0]-a[0]),y=a[1]+t*(b[1]-a[1]);if(place(x,y,line[k%line.length],k,thr))any=true;k++;next+=dx;}
+          acc+=sl;}}
+      if(any)rows++;
+      sls.sort((p,q)=>p-q);const gl=sls.length?Math.max(0.02,sls[sls.length>>1]/100):g0;
+      const gap=r+1<offs.length?offs[r+1].o-offs[r].o:dx,dz=gap*gl;if(sls.length)vis.push(dz);L+=dz;gapPrev=gap;}
+    vis.sort((p,q)=>p-q);S.vi[z]=vis.length?[vis[Math.floor(vis.length*.1)],vis[Math.floor(vis.length*.9)]]:null;
+  }else{
+    const az=val('#az',90)*Math.PI/180,U=[Math.sin(az),Math.cos(az)],V=[Math.cos(az),-Math.sin(az)];
+    const c=[(bx0+bx1)/2,(by0+by1)/2];let umin=Infinity,umax=-Infinity,vmin=Infinity,vmax=-Infinity;
+    for(const p of [[bx0,by0],[bx1,by0],[bx0,by1],[bx1,by1]]){const x=p[0]-c[0],y=p[1]-c[1],u=x*U[0]+y*U[1],v=x*V[0]+y*V[1];umin=Math.min(umin,u);umax=Math.max(umax,u);vmin=Math.min(vmin,v);vmax=Math.max(vmax,v);}
+    const offs=rowOffsets(set,vmax-vmin);
+    for(let r=0;r<offs.length&&!S.capped;r++){const v=vmin+offs[r].o,shift=(set.pattern==='tri'&&r%2)?dx/2:0,line=lineFor(r,offs[r]);
+      const thr=0.7*Math.min(dx,r?offs[r].o-offs[r-1].o:Infinity);let any=false;
+      for(let u=umin+shift+dx/2,k=0;u<=umax&&!S.capped;u+=dx,k++){if(place(c[0]+u*U[0]+v*V[0],c[1]+u*U[1]+v*V[1],line[k%line.length],k,thr))any=true;}
+      if(any)rows++;}
+  }
+  return rows;
+}
+function nearestStats(){const res={};
+  for(const code of new Set(S.points.map(p=>p.c))){const sp=SP[code],pts=S.points.filter(p=>p.c===code);
+    const cell=Math.max(sp.crown,1),g=new Map();for(const p of pts){const k=Math.floor(p.x/cell)+','+Math.floor(p.y/cell);(g.get(k)||g.set(k,[]).get(k)).push(p);}
+    let min=Infinity,close=0,zs=0,zn=0,ss=0;const zones=new Set();
+    for(const p of pts){zones.add(p.zn);const ix=Math.floor(p.x/cell),iy=Math.floor(p.y/cell);let nd=Infinity;
+      for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const arr=g.get((ix+a)+','+(iy+b));if(!arr)continue;for(const q of arr){if(q===p)continue;const d=Math.hypot(p.x-q.x,p.y-q.y);if(d<nd)nd=d;}}
+      if(nd<sp.crown)close++;if(nd<min)min=nd;if(isFinite(p.el)){zs+=p.el;ss+=p.sl;zn++;}}
+    res[code]={n:pts.length,min,close,el:zn?zs/zn:NaN,sl:zn?ss/zn:NaN,zones:[...zones].sort()};}
+  return res;}
+
+/* ===== canvas ===== */
+const cv=$('#map'),ctx=cv.getContext('2d'),wrap=$('#mapwrap');let W=0,H=0,DPR=1;
+function resize(){DPR=window.devicePixelRatio||1;W=wrap.clientWidth;H=wrap.clientHeight;cv.width=W*DPR;cv.height=H*DPR;if(!S.userMoved&&S.utm)fit();else draw();if(S.mode==='3d')resize3D();}
+new ResizeObserver(resize).observe(wrap);
+const toPx=(x,y)=>[W/2+(x-S.view.cx)*S.view.s,H/2-(y-S.view.cy)*S.view.s];
+const toM=(px,py)=>[S.view.cx+(px-W/2)/S.view.s,S.view.cy-(py-H/2)/S.view.s];
+function fit(){if(!S.utm||!W)return;const e=gridExtent(0);S.view.cx=(e.x0+e.x1)/2;S.view.cy=(e.y0+e.y1)/2;
+  S.view.s=Math.min(W/(Math.max(e.x1-e.x0,10)*1.15),H/(Math.max(e.y1-e.y0,10)*1.15));draw();}
+const NICE=[0.5,1,2,5,10,20,25,50,100,200,250,500,1000,2000,5000,10000,20000,50000];
+function pathRing(r,close=true){r.forEach((q,i)=>{const[px,py]=toPx(q[0],q[1]);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});if(close)ctx.closePath();}
+function drawGridImg(img){const G=S.grid;const[px,py]=toPx(G.x0-G.c/2,G.y0+(G.ny-0.5)*G.c);ctx.imageSmoothingEnabled=false;ctx.drawImage(img,px,py,G.nx*G.c*S.view.s,G.ny*G.c*S.view.s);}
+function draw(){
+  if(!W||!S.conv)return;const s=S.view.s;
+  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);
+  const step=NICE.find(n=>n*s>=90)||NICE[NICE.length-1];const[mx0,my1]=toM(0,0),[mx1,my0]=toM(W,H);
+  ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.beginPath();
+  for(let x=Math.ceil(mx0/step)*step;x<=mx1;x+=step){const px=Math.round(toPx(x,0)[0])+.5;ctx.moveTo(px,0);ctx.lineTo(px,H);}
+  for(let y=Math.ceil(my0/step)*step;y<=my1;y+=step){const py=Math.round(toPx(0,y)[1])+.5;ctx.moveTo(0,py);ctx.lineTo(W,py);}ctx.stroke();
+  if(S.utm){ctx.beginPath();for(const p of S.utm)for(const r of p)pathRing(r);ctx.fillStyle=C.fill;ctx.fill('evenodd');}
+  if(S.grid){if(S.layers.zone&&S.zoneImg)drawGridImg(S.zoneImg);if(S.layers.slope&&S.slopeImg)drawGridImg(S.slopeImg);if(S.layers.excl&&S.exclImg)drawGridImg(S.exclImg);}
+  if(S.layers.contour&&S.contours.length){
+    for(const cl of S.contours){ctx.strokeStyle=cl.idx?C.contourIdx:C.contour;ctx.lineWidth=cl.idx?1.2:0.7;ctx.beginPath();for(const l of cl.lines)pathRing(l,false);ctx.stroke();}
+    ctx.font='600 9.5px "Libre Franklin", sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    for(const cl of S.contours){if(!cl.idx)continue;const l=cl.lines.reduce((a,b)=>b.length>a.length?b:a);const q=l[Math.floor(l.length/2)];const[px,py]=toPx(q[0],q[1]);
+      if(px<20||py<20||px>W-20||py>H-20)continue;const t=`${fmt(cl.z)} m`;const tw=ctx.measureText(t).width;ctx.fillStyle='rgba(252,248,240,.9)';ctx.fillRect(px-tw/2-3,py-6,tw+6,12);ctx.fillStyle='#6A5A42';ctx.fillText(t,px,py);}
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';}
+  for(const e of S.exclUtm){
+    if(e.type==='river'){ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=C.water;ctx.lineWidth=2.4;ctx.beginPath();pathRing(e.pts,false);ctx.stroke();ctx.lineCap='butt';}
+    else{ctx.strokeStyle=C.bad;ctx.lineWidth=1.4;ctx.setLineDash([4,3]);ctx.beginPath();pathRing(e.pts);ctx.stroke();ctx.setLineDash([]);}}
+  if(S.utm){ctx.strokeStyle=C.stroke;for(const p of S.utm)p.forEach((r,i)=>{ctx.beginPath();pathRing(r);ctx.lineWidth=i?1.2:2;ctx.setLineDash(i?[5,4]:[]);ctx.stroke();});ctx.setLineDash([]);}
+  if(S.points.length){
+    const codes=[...new Set(S.points.map(p=>p.c))].sort((a,b)=>SP[b].crown-SP[a].crown);
+    for(const code of codes){const sp=SP[code],col=colorOf(code),pts=S.points.filter(p=>p.c===code);
+      if(S.layers.crown){ctx.globalAlpha=.16;ctx.fillStyle=col;ctx.beginPath();
+        for(const p of pts){const rad=growth(code,ageAt(p,S.year),p.slot).W/2*s;const[px,py]=toPx(p.x,p.y);if(px<-rad||py<-rad||px>W+rad||py>H+rad)continue;ctx.moveTo(px+rad,py);ctx.arc(px,py,rad,0,Math.PI*2);}
+        ctx.fill();ctx.globalAlpha=.45;ctx.strokeStyle=col;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;}
+      const big=sp.crown>=6,base=sp.st==='B'||sp.st==='R'?0.45:Math.min(3,sp.crown/2);
+      const r=Math.max(1.3,Math.min(big?5.5:3.5,(big?0.5:0.35)*base*s*(big?0.6:1)));
+      ctx.fillStyle=col;ctx.beginPath();for(const p of pts){const[px,py]=toPx(p.x,p.y);if(px<-6||py<-6||px>W+6||py>H+6)continue;ctx.moveTo(px+r,py);ctx.arc(px,py,r,0,Math.PI*2);}
+      ctx.fill();if(r>=2.5){ctx.strokeStyle=C.white;ctx.lineWidth=0.8;ctx.stroke();}}}
+  if(S.draft){const col=S.draft.mode==='river'?C.water:S.draft.mode==='zone'?C.bad:C.accent;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2;ctx.beginPath();
+    S.draft.pts.forEach((q,i)=>{const[px,py]=toPx(q[0],q[1]);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+    if(S.hover&&S.draft.pts.length){const[px,py]=toPx(S.hover[0],S.hover[1]);ctx.lineTo(px,py);ctx.setLineDash([4,4]);}
+    ctx.stroke();ctx.setLineDash([]);S.draft.pts.forEach(q=>{const[px,py]=toPx(q[0],q[1]);ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();});}
+  const sb=NICE.find(n=>n*s>=80)||NICE[0],len=sb*s,bx=14,by=H-14;
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(bx-6,by-20,len+56,28);
+  ctx.strokeStyle=C.text;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(bx,by-6);ctx.lineTo(bx,by);ctx.lineTo(bx+len,by);ctx.lineTo(bx+len,by-6);ctx.stroke();
+  ctx.fillStyle=C.text;ctx.font='600 10.5px "Libre Franklin", sans-serif';ctx.fillText(sb>=1000?`${sb/1000} km`:`${sb} m`,bx+len+6,by);
+  const nx=W-24,ny=34;ctx.beginPath();ctx.moveTo(nx,ny-14);ctx.lineTo(nx+6,ny+4);ctx.lineTo(nx,ny);ctx.lineTo(nx-6,ny+4);ctx.closePath();ctx.fill();
+  ctx.font='700 10px "Libre Franklin", sans-serif';ctx.textAlign='center';ctx.fillText('U',nx,ny-17);ctx.textAlign='left';
+}
+
+/* ===== v4: growth, carbon, cash flow =====
+ per species: growth rate k, DBH at 20 yr (cm, 0 = fixed biomass), wood density (g/cm3), mature biomass if fixed (kg),
+ income at full yield (Rp/plant/yr), seedling (Rp), upkeep (Rp/plant/yr), timber rotation (yr), timber price (Rp/m3). Indicative. */
+const ECON_RAW={
+ DU:[.10,35,.55,0,1500000,50000,20000],PT:[.10,40,.55,0,600000,15000,15000],KR:[.14,40,.40,0,300000,10000,10000],MT:[.10,35,.70,0,400000,20000,15000],
+ AL:[.10,30,.55,0,750000,35000,20000],MG:[.10,35,.60,0,500000,30000,15000],RB:[.10,28,.70,0,400000,30000,15000],MS:[.07,20,.80,0,1000000,40000,15000],
+ JK:[.10,30,.60,0,400000,15000,10000],NK:[.10,35,.60,0,250000,25000,15000],SK:[.10,35,.35,0,300000,25000,10000],PL:[.10,25,.55,0,1200000,30000,20000],
+ CK:[.10,25,.80,0,750000,20000,20000],KM:[.10,25,.50,0,200000,10000,10000],AR:[.12,0,0,500,1000000,15000,10000],KL:[.15,0,0,350,300000,30000,10000],
+ BB:[.50,0,0,250,150000,15000,5000],ML:[.10,25,.60,0,300000,15000,10000],DK:[.07,20,.70,0,500000,35000,15000],PN:[.25,0,0,50,100000,5000,5000],
+ JR:[.35,0,0,60,500000,30000,20000],KO:[.50,0,0,12,60000,3000,8000],KA:[.50,0,0,12,80000,3000,8000],KK:[.45,0,0,25,80000,5000,10000],
+ LD:[.50,0,0,3,120000,5000,10000],VN:[.50,0,0,1,100000,5000,10000],PS:[2,0,0,10,60000,5000,5000],KP:[1.5,0,0,1,20000,2000,2000],
+ SG:[.18,45,.33,0,0,3000,5000,7,1000000],MH:[.10,35,.60,0,0,5000,5000,20,3000000],JT:[.08,30,.60,0,0,8000,5000,20,3500000],
+ SR:[.10,38,.45,0,0,5000,5000,12,2000000],MN:[.10,35,.45,0,0,5000,5000,12,2000000],RS:[.07,30,.70,0,0,8000,5000,25,2000000],
+ PU:[.07,30,.65,0,0,5000,5000,20,1500000],JB:[.18,40,.40,0,0,3000,5000,8,1000000],
+ GM:[.8,0,0,15,5000,500,2000],KD:[.8,0,0,10,5000,1000,2000],LM:[.8,0,0,15,5000,500,2000],VT:[1.5,0,0,.5,0,300,500]};
+const EC={};for(const c in ECON_RAW){const a=ECON_RAW[c];EC[c]={k:a[0],d20:a[1],rho:a[2],agb:a[3],inc:a[4],seed:a[5],maint:a[6],rot:a[7]||0,tp:a[8]||0};}
+const YEARS=30,ROOT=1.24,CF=0.47,CO2=44/12;
+const gf=(k,a)=>a<=0?0:Math.pow(1-Math.exp(-k*a),1.5);
+/* Allometry. Manuri et al. 2017, Ann For Sci 74:23, Table 3 (REst-corrected). D cm, H m, G g/cm3, AGB kg. */
+const ALLO={
+ chave:{name:'Chave dkk. 2014',short:'Chave 2014',eq:'AGB = 0,0673 × (ρ·D²·H)^0,976',f:(g,D,H)=>0.0673*Math.pow(g*D*D*H,0.976)},
+ dgh1:{name:'Manuri dkk. 2017 · DGH1',short:'Manuri DGH1',eq:'AGB = 0,088 × (D²·G·H)^0,954',f:(g,D,H)=>0.088*Math.pow(D*D*g*H,0.954)},
+ dg1:{name:'Manuri dkk. 2017 · DG1',short:'Manuri DG1',eq:'AGB = 0,171 × D^2,564 × G^0,909',f:(g,D)=>0.171*Math.pow(D,2.564)*Math.pow(g,0.909)},
+ d2:{name:'Manuri dkk. 2017 · D2',short:'Manuri D2',eq:'AGB = a × D^2,585; a = 0,066 (G < 0,5), 0,099 (0,5–0,6), 0,118 (G > 0,6)',f:(g,D)=>(g>0.6?0.118:g>=0.5?0.099:0.066)*Math.pow(D,2.585)}};
+function alloAGB(g,D,H,m){m=m||S.allo;if(m!=='chave'&&D<5)return ALLO.chave.f(g,D,H);return ALLO[m].f(g,D,H);}
+const MANURI_BIAS={JR:'Rutaceae',KR:'Euphorbiaceae',MT:'Sapindaceae',RB:'Sapindaceae'};
+const PRUNE={H:{h:1.5,w:1.5,b:.3},N:{h:5,w:4,b:.6}};
+const STR_IDX={E:0,K:1,S:2,B:3,R:3};
+const STR_SER=[{name:'Emergen',color:'#00805A'},{name:'Kanopi',color:'#4767C9'},{name:'Sub-kanopi',color:'#C9700E'},{name:'Perdu dan penutup',color:'#B8478A'}];
+const PALMS=new Set(['AR','KL','PN']);
+function growth(code,age,slot,m){const sp=SP[code],e=EC[code];
+  if(age<=0)return{H:0.4,W:0.3,D:0,agb:0};
+  const g=gf(e.k,age);let H=Math.max(0.4,sp.h*g),Wd=Math.max(0.3,sp.crown*Math.pow(g,0.8)),D=0,agb;
+  if(e.d20){D=e.d20*g/gf(e.k,20);agb=alloAGB(e.rho,D,H,m);}else agb=e.agb*g;
+  const pr=(sp.st==='B'||sp.st==='R')?PRUNE[slot]:null;if(pr){H=Math.min(H,pr.h);Wd=Math.min(Wd,pr.w);agb*=pr.b;}
+  return{H,W:Wd,D,agb};}
+const harvestable=p=>EC[p.c].rot>0&&(p.zn===1||p.zn===2);
+function ageAt(p,t){return harvestable(p)?t%EC[p.c].rot:t;}
+const co2Of=agb=>agb*ROOT*CF*CO2/1000;
+const timberVol=g=>0.5*Math.PI*Math.pow(g.D/200,2)*g.H*0.6;
+const rpShort=v=>{const a=Math.abs(v),s=v<0?'−':'';return a>=1e9?`${s}Rp ${fmt(a/1e9,2)} M`:a>=1e6?`${s}Rp ${fmt(a/1e6,1)} jt`:`${s}Rp ${fmt(a/1e3)} rb`;};
+
+function simulate(){
+  const G=S.grid;if(!G){S.sim=null;return;}
+  const T=YEARS,n=T+1,sul=Math.max(0,val('#sulam',10))/100,pc=Math.max(0,val('#plantCost',10000)),hp=Math.max(0,val('#harvPct',30))/100,dr=Math.max(0,val('#disc',10))/100;
+  const carb=STR_SER.map(()=>new Float64Array(n)),rev=new Float64Array(n),cost=new Float64Array(n);
+  for(const p of S.points){const e=EC[p.c],sp=SP[p.c],si=STR_IDX[sp.st],hv=harvestable(p);
+    cost[0]+=e.seed*(1+sul)+pc;
+    const vol=hv?timberVol(growth(p.c,e.rot,p.slot)):0;
+    for(let t=0;t<=T;t++){const age=hv?t%e.rot:t;carb[si][t]+=co2Of(growth(p.c,age,p.slot).agb);
+      if(!t)continue;cost[t]+=e.maint;
+      if(e.inc&&age>=sp.yr)rev[t]+=e.inc*Math.min(1,(age-sp.yr+1)/5);
+      if(hv&&t%e.rot===0){rev[t]+=vol*e.tp;cost[t]+=e.seed+pc;}}}
+  const net=new Float64Array(n),cum=new Float64Array(n);let npv=0,bep=null;
+  for(let t=0;t<=T;t++){cost[t]+=rev[t]*hp;net[t]=rev[t]-cost[t];cum[t]=(t?cum[t-1]:0)+net[t];npv+=net[t]/Math.pow(1+dr,t);if(bep===null&&t>0&&cum[t]>=0&&cum[t-1]<0)bep=t;}
+  const N=G.nx*G.ny,mark=new Uint8Array(N);let land=0;for(let k=0;k<N;k++)if(G.inP[k]&&!G.ex[k])land++;
+  const covAll=new Float64Array(n),covUp=new Float64Array(n);
+  const isUp=p=>SP[p.c].st==='E'||SP[p.c].st==='K',ups=S.points.filter(isUp),lows=S.points.filter(p=>!isUp(p));
+  const stamp=(p,t)=>{const r=growth(p.c,ageAt(p,t),p.slot).W/2/G.c;if(r<0.56)return Math.PI*r*r;const ci=Math.round((p.y-G.y0)/G.c),cj=Math.round((p.x-G.x0)/G.c),R=Math.ceil(r);let c=0;
+    for(let a=-R;a<=R;a++){const i=ci+a;if(i<0||i>=G.ny)continue;for(let b=-R;b<=R;b++){if(a*a+b*b>r*r)continue;const j=cj+b;if(j<0||j>=G.nx)continue;const k=i*G.nx+j;if(!mark[k]&&G.inP[k]&&!G.ex[k]){mark[k]=1;c++;}}}return c;};
+  for(let t=0;t<=T;t++){mark.fill(0);let up=0;for(const p of ups)up+=stamp(p,t);let all=up;for(const p of lows)all+=stamp(p,t);covUp[t]=land?Math.min(100,up/land*100):0;covAll[t]=land?Math.min(100,all/land*100):0;}
+  S.sim={carb,rev,cost,net,cum,npv,bep,covAll,covUp,dr,
+    spAt:t=>{const o={};for(const p of S.points){const e=EC[p.c],sp=SP[p.c],age=ageAt(p,t),g=growth(p.c,age,p.slot),r=o[p.c]||(o[p.c]={h:0,w:0,co2:0,rev:0,n:0});
+        r.n++;r.h+=g.H;r.w+=g.W;r.co2+=co2Of(g.agb);
+        if(t>0){if(e.inc&&age>=sp.yr)r.rev+=e.inc*Math.min(1,(age-sp.yr+1)/5);if(harvestable(p)&&t%e.rot===0)r.rev+=timberVol(growth(p.c,e.rot,p.slot))*e.tp;}}
+      for(const c in o){o[c].h/=o[c].n;o[c].w/=o[c].n;}return o;}};
+}
+
+/* ===== charts ===== */
+function niceStep(v){const e=Math.pow(10,Math.floor(Math.log10(v))),f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;}
+function chart(el,o){
+  const n=YEARS+1,Wc=Math.max(240,el.clientWidth||600),Hc=o.h,dlab=o.dlab&&Wc>=480,ml=46,mr=dlab?118:12,mt=10,mb=22,iw=Wc-ml-mr,ih=Hc-mt-mb,ser=o.series;
+  let tops=ser.map(s=>Array.from(s.v));if(o.stack)for(let i=1;i<tops.length;i++)tops[i]=tops[i].map((v,t)=>v+tops[i-1][t]);
+  const flat=tops.flat();let mx=Math.max(0,...flat),mn=Math.min(0,...flat);if(o.max!=null)mx=Math.max(mx,o.max);
+  const step=niceStep(((mx-mn)||1)/4),top=Math.ceil(mx/step)*step||step,bot=Math.floor(mn/step)*step;
+  const X=o.bars?t=>ml+(t+0.5)*iw/n:t=>ml+t*iw/(n-1),Yv=v=>mt+(top-v)/(top-bot)*ih,P=(t,v)=>`${X(t).toFixed(1)},${Yv(v).toFixed(1)}`;
+  let g='';
+  for(let v=bot;v<=top+step/2;v+=step){const y=Yv(v).toFixed(1);g+=`<line class="${Math.abs(v)<step/1e6?'base':'gl'}" x1="${ml}" x2="${ml+iw}" y1="${y}" y2="${y}"/><text class="ax" x="${ml-6}" y="${(+y+3).toFixed(1)}" text-anchor="end">${o.fy(v)}</text>`;}
+  for(let t=0;t<=YEARS;t+=5)g+=`<text class="ax" x="${X(t).toFixed(1)}" y="${Hc-6}" text-anchor="middle">${t}</text>`;
+  let m='';
+  if(o.stack){for(let i=ser.length-1;i>=0;i--){const up=tops[i],lo=i?tops[i-1]:null;
+      let d='M'+up.map((v,t)=>P(t,v)).join('L')+'L'+(lo?lo.map((v,t)=>P(t,v)).reverse().join('L'):`${P(YEARS,0)}L${P(0,0)}`)+'Z';
+      m+=`<path d="${d}" fill="${ser[i].color}" fill-opacity=".88" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>`;}}
+  else if(o.bars){const bw=Math.max(2,iw/n*0.62);ser[0].v.forEach((v,t)=>{const y0=Yv(0),y1=Yv(v),h=Math.abs(y1-y0);if(h<0.5)return;
+      m+=`<rect x="${(X(t)-bw/2).toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${v>=0?o.pos:o.neg}"/>`;});}
+  else ser.forEach(s=>{m+=`<path d="M${Array.from(s.v).map((v,t)=>P(t,v)).join('L')}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;});
+  const xm=X(S.year).toFixed(1);m+=`<line class="mk" x1="${xm}" x2="${xm}" y1="${mt}" y2="${mt+ih}"/>`;
+  if(o.dot!=null)m+=`<circle cx="${X(o.dot).toFixed(1)}" cy="${Yv(ser[0].v[o.dot]).toFixed(1)}" r="4.5" fill="${ser[0].color}" stroke="#fff" stroke-width="2"/><text class="dl" x="${(X(o.dot)+8).toFixed(1)}" y="${(Yv(ser[0].v[o.dot])-8).toFixed(1)}">Balik modal tahun ke-${o.dot}</text>`;
+  let dl='';if(dlab){const L=ser.map((s,i)=>{const hi=tops[i][YEARS],lo=o.stack&&i?tops[i-1][YEARS]:0;return{name:s.name,y:Yv(o.stack?(hi+lo)/2:s.v[YEARS]),show:!o.stack||hi-lo>0};}).filter(l=>l.show).sort((a,b)=>a.y-b.y);
+    for(let i=1;i<L.length;i++)if(L[i].y-L[i-1].y<12)L[i].y=L[i-1].y+12;
+    L.forEach(l=>dl+=`<text class="dl" x="${ml+iw+6}" y="${(l.y+3.5).toFixed(1)}">${esc(l.name)}</text>`);}
+  el.innerHTML=`<svg viewBox="0 0 ${Wc} ${Hc}" height="${Hc}" role="img" aria-label="${esc(o.label)}">${g}${m}${dl}<line class="xh" x1="0" x2="0" y1="${mt}" y2="${mt+ih}" visibility="hidden"/><rect x="${ml}" y="${mt}" width="${iw}" height="${ih}" fill="transparent" style="cursor:pointer"/></svg><div class="ch-tt" hidden></div>`;
+  const svg=el.querySelector('svg'),tt=el.querySelector('.ch-tt'),xh=el.querySelector('.xh');
+  const tAt=e=>{const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)*Wc/r.width;const t=o.bars?Math.floor((px-ml)/(iw/n)):Math.round((px-ml)/(iw/(n-1)));return Math.max(0,Math.min(YEARS,t));};
+  svg.onmousemove=e=>{const t=tAt(e),x=X(t);xh.setAttribute('x1',x);xh.setAttribute('x2',x);xh.setAttribute('visibility','visible');
+    tt.innerHTML=`<div class="tt-head"><strong>Tahun ke-${t}</strong></div>`+o.tip(t);tt.hidden=false;
+    const r=svg.getBoundingClientRect(),sx=r.width/Wc;let left=x*sx+12;if(left+tt.offsetWidth>r.width)left=x*sx-tt.offsetWidth-12;tt.style.left=Math.max(0,left)+'px';tt.style.top='4px';};
+  svg.onmouseleave=()=>{tt.hidden=true;xh.setAttribute('visibility','hidden');};
+  svg.onclick=e=>setYear(tAt(e));
+}
+const ttRow=(c,name,v)=>`<div class="tt-row"><span>${c?`<i class="sw" style="background:${c};margin-right:6px"></i>`:''}${name}</span><b>${v}</b></div>`;
+const lgHtml=ser=>ser.map(s=>`<span class="lg-item"><i class="sw" style="background:${s.color}"></i>${s.name}</span>`).join('');
+function renderCharts(){
+  const sm=S.sim;
+  if(!sm||!S.points.length){['#chCarb','#chCov','#chCum','#chNet'].forEach(id=>$(id).innerHTML='<div class="empty">Belum ada titik tanam.</div>');['#carbLg','#covLg','#netLg'].forEach(id=>$(id).innerHTML='');return;}
+  const cs=STR_SER.map((s,i)=>({...s,v:sm.carb[i]})).filter(s=>s.v.some(v=>v>0.01));
+  $('#carbLg').innerHTML=lgHtml(cs);
+  chart($('#chCarb'),{h:210,stack:true,dlab:true,series:cs,fy:v=>fmt(v),label:'Stok karbon per strata, tCO2e',
+    tip:t=>{let tot=0;const rows=cs.map(s=>{tot+=s.v[t];return ttRow(s.color,s.name,fmt(s.v[t],1));}).reverse().join('');return rows+ttRow('','Total',`${fmt(tot,1)} tCO₂e`)+ttRow('','Per ha efektif',S.effHa?fmt(tot/S.effHa,1):'–');}});
+  const cv2=[{name:'Semua strata',color:'#00805A',v:sm.covAll},{name:'Emergen dan kanopi',color:'#4767C9',v:sm.covUp}];
+  $('#covLg').innerHTML=lgHtml(cv2);
+  chart($('#chCov'),{h:140,dlab:true,max:100,series:cv2,fy:v=>fmt(v)+'%',label:'Tutupan tajuk, persen',tip:t=>cv2.map(s=>ttRow(s.color,s.name,fmt(s.v[t])+'%')).join('')});
+  chart($('#chCum'),{h:170,series:[{name:'Kumulatif',color:'#356760',v:Array.from(sm.cum,v=>v/1e6)}],dot:sm.bep,fy:v=>fmt(v),label:'Arus kas kumulatif, juta Rp',
+    tip:t=>ttRow('','Kumulatif',rpShort(sm.cum[t]))});
+  $('#netLg').innerHTML=lgHtml([{name:'Surplus',color:'#00805A'},{name:'Defisit',color:'#C9700E'}]);
+  chart($('#chNet'),{h:140,bars:true,pos:'#00805A',neg:'#C9700E',series:[{name:'Bersih',v:Array.from(sm.net,v=>v/1e6)}],fy:v=>fmt(v),label:'Arus kas bersih per tahun, juta Rp',
+    tip:t=>ttRow('','Pendapatan',rpShort(sm.rev[t]))+ttRow('','Biaya',rpShort(sm.cost[t]))+ttRow('','Bersih',rpShort(sm.net[t]))});
+}
+function renderSim(){
+  const sm=S.sim,Y=S.year;$$('.yrLbl').forEach(e=>e.textContent=`tahun ke-${Y}`);$('#yearV').textContent=Y;
+  if(!sm||!S.points.length){['#kCover','#kCarb','#kNpv','#kCoverNote','#kCarbNote','#kNpvNote'].forEach(id=>$(id).textContent='–');$('#cashKv').innerHTML='';renderCharts();renderAllo();update3D();return;}
+  const tot=sm.carb.reduce((a,s)=>a+s[Y],0);
+  $('#kCover').innerHTML=`${fmt(sm.covAll[Y])}<small>%</small>`;$('#kCoverNote').textContent=`Emergen dan kanopi ${fmt(sm.covUp[Y])}%`;
+  $('#kCarb').innerHTML=`${fmt(tot)}<small>tCO₂e</small>`;$('#kCarbNote').textContent=`${S.effHa?fmt(tot/S.effHa,1):'–'} tCO₂e/ha · ${fmt(tot*12/44,1)} tC`;
+  $('#kNpv').innerHTML=`${fmt(sm.npv/1e6)}<small>juta Rp</small>`;$('#kNpvNote').textContent=`${sm.bep!=null?`Balik modal tahun ke-${sm.bep}`:'Belum balik modal dalam 30 tahun'} · diskonto ${fmt(sm.dr*100)}%`;
+  $('#cashKv').innerHTML=`<div class="kv"><span>Biaya awal (bibit, sulaman, tanam)</span><b>${rpShort(sm.cost[0])}</b></div>
+    <div class="kv"><span>Pendapatan tahun ke-${Y}</span><b>${rpShort(sm.rev[Y])}</b></div>
+    <div class="kv"><span>Biaya tahun ke-${Y}</span><b>${rpShort(sm.cost[Y])}</b></div>
+    <div class="kv"><span>Kumulatif sampai tahun ke-${Y}</span><b>${rpShort(sm.cum[Y])}</b></div>
+    <div class="kv"><span>NPV 30 tahun</span><b>${rpShort(sm.npv)}</b></div>`;
+  renderCharts();renderAllo();update3D();
+}
+$$('#alloSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.allo=b.dataset.allo;$$('#alloSeg .fpill').forEach(x=>x.classList.toggle('active',x===b));if(S.grid)simulate();renderAll();}));
+function co2Total(m,t){let s=0;for(const p of S.points)s+=co2Of(growth(p.c,ageAt(p,t),p.slot,m).agb);return s;}
+function renderAllo(){
+  const A=ALLO[S.allo],Y=S.year,used=new Set(S.points.map(p=>p.c));
+  let h=`<b>${A.name}</b><br><span style="font-variant-numeric:tabular-nums">${A.eq}</span>`;
+  if(S.allo!=='chave'){
+    const warn=['Dikembangkan dari 1.201 pohon hutan alam dataran rendah (D 5–172 cm, 16–1.000 m dpl). Penulis mencatat model kurang akurat untuk data agroforestri, hutan sekunder, serta pohon dari Jawa dan Sulawesi.','Pohon dengan D di bawah 5 cm tetap dihitung dengan Chave 2014.'];
+    const G=S.grid;if(G&&isFinite(G.stats.zmax)&&G.stats.zmax>1000)warn.push('Sebagian lahan di atas 1.000 m dpl, di luar rentang data model.');
+    const fam=[...used].filter(c=>MANURI_BIAS[c]&&EC[c].d20).map(c=>`${SP[c].name} (${MANURI_BIAS[c]})`);
+    if(fam.length)warn.push(`Famili dengan bias tinggi di studi ini: ${fam.join(', ')}.`);
+    h+=warn.map(w=>`<br>· ${w}`).join('');
+  }else h+='<br>· Persamaan pantropis dari data hutan tropis berbagai benua; berguna sebagai pembanding.';
+  $('#alloNote').innerHTML=h;
+  if(!S.points.length){$('#alloCmp').innerHTML='';return;}
+  $('#cmpHd').textContent=`Perbandingan model, tahun ke-${Y}`;
+  const base=co2Total('chave',Y);
+  $('#alloCmp').innerHTML=Object.keys(ALLO).map(k=>{const v=co2Total(k,Y),d=base?(v-base)/base*100:0;
+    return `<div class="kv"><span>${k===S.allo?'<b style="color:var(--text)">':''}${ALLO[k].short}${k===S.allo?' · dipakai</b>':''}</span><b>${fmt(v)} tCO₂e${k!=='chave'?` <small style="color:var(--text-2);font-weight:600">${d>=0?'+':'−'}${fmt(Math.abs(d))}% dari Chave</small>`:''}</b></div>`;}).join('');
+}
+function setYear(t){S.year=Math.max(0,Math.min(YEARS,t|0));$('#year').value=S.year;renderAll();}
+let yrRaf=0;$('#year').addEventListener('input',e=>{S.year=+e.target.value;if(yrRaf)return;yrRaf=requestAnimationFrame(()=>{yrRaf=0;renderAll();});});
+let playT=null;const PLAY='<svg viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z"/></svg>',PAUSE='<svg viewBox="0 0 10 10"><path d="M2 1h2v8H2zM6 1h2v8H6z"/></svg>';
+function stopPlay(){clearInterval(playT);playT=null;$('#playYr').innerHTML=PLAY;$('#playYr').setAttribute('aria-label','Putar pertumbuhan');}
+$('#playYr').addEventListener('click',()=>{if(playT){stopPlay();return;}if(S.year>=YEARS)setYear(0);$('#playYr').innerHTML=PAUSE;$('#playYr').setAttribute('aria-label','Jeda');
+  playT=setInterval(()=>{if(S.year>=YEARS){stopPlay();return;}setYear(S.year+1);},450);});
+let ecT=null;['#disc','#harvPct','#plantCost'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(ecT);ecT=setTimeout(()=>{simulate();renderAll();},200);}));
+let chT=null;new ResizeObserver(()=>{clearTimeout(chT);chT=setTimeout(renderCharts,120);}).observe($('#simulasi'));
+
+/* ===== 3D view ===== */
+const V3={ok:null,exag:2,tKey:null,col:'natural',sun:null,o:{cx:0,cy:0,zb:0}};let R3=null,SC3,CAM,TG,TRG,LG,GEO3=null;const ORB={th:-0.55,ph:0.95,dist:300,t:[0,0,0]};
+function init3D(){if(V3.ok!==null)return V3.ok;
+  try{if(typeof THREE==='undefined')throw new Error('three');
+    R3=new THREE.WebGLRenderer({canvas:$('#map3d'),antialias:true});R3.setPixelRatio(Math.min(1.5,window.devicePixelRatio||1));
+    R3.shadowMap.enabled=true;R3.shadowMap.type=THREE.PCFSoftShadowMap;
+    SC3=new THREE.Scene();SC3.background=new THREE.Color(0xE4EAE8);
+    CAM=new THREE.PerspectiveCamera(40,1,0.5,100000);
+    SC3.add(new THREE.HemisphereLight(0xf2f6ff,0x6e6248,0.72));const dl=V3.sun=new THREE.DirectionalLight(0xfff1dc,0.85);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);dl.shadow.bias=-0.0004;SC3.add(dl,dl.target);
+    ATLAS=makeAtlas();TREE_MAT=new THREE.MeshLambertMaterial({vertexColors:true,map:ATLAS,alphaTest:0.5,side:THREE.DoubleSide});
+    TREE_DEPTH=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:ATLAS,alphaTest:0.5});
+    TG=new THREE.Group();TRG=new THREE.Group();LG=new THREE.Group();SC3.add(TG,TRG,LG);wire3D();V3.ok=true;}
+  catch(e){V3.ok=false;}
+  return V3.ok;}
+function clearGroup(g){for(const o of [...g.children]){g.remove(o);if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();}}
+function h3(x,y){const t=terrainAt(x,y);return isFinite(t.z)?(t.z-V3.o.zb)*V3.exag:0;}
+function buildTerrain3D(){
+  clearGroup(TG);clearGroup(LG);const G=S.grid;
+  const o=V3.o={cx:G.x0+(G.nx-1)*G.c/2,cy:G.y0+(G.ny-1)*G.c/2,zb:isFinite(G.stats.zmin)?G.stats.zmin:0};
+  const st=Math.max(1,Math.ceil(Math.max(G.nx,G.ny)/240)),cols=Math.floor((G.nx-1)/st)+1,rows=Math.floor((G.ny-1)/st)+1;
+  const pos=new Float32Array(cols*rows*3),col=new Float32Array(cols*rows*3),mix=(c,w)=>c.map(v=>(v*(1-w)+255*w)/255);
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){const i=r*st,j=q*st,k=i*G.nx+j,v=(r*cols+q)*3,z=G.z[k];
+    pos[v]=G.x0+j*G.c-o.cx;pos[v+1]=isFinite(z)?(z-o.zb)*V3.exag:0;pos[v+2]=-(G.y0+i*G.c-o.cy);
+    let c;if(V3.col==='legend')c=G.zn[k]?mix(ZONES[G.zn[k]].col,0.2):G.inP[k]?mix([190,120,105],0.3):mix([214,204,180],0.4);
+    else{const sl=isFinite(G.sl[k])?Math.min(1,G.sl[k]/70):0.2,n=(Math.sin(j*0.7)*Math.cos(i*0.53)+Math.sin(i*0.21+j*0.17))*0.04;
+      c=G.inP[k]&&!G.ex[k]?[(128+28*sl)/255+n,(140-12*sl)/255+n,(78+6*sl)/255+n]:G.ex[k]?[0.62,0.5,0.4]:[0.74+n,0.73+n,0.6+n];
+      if(G.zn[k]===4)c=[c[0]*0.9,c[1]*1.02,c[2]*1.05];}
+    col[v]=c[0];col[v+1]=c[1];col[v+2]=c[2];}
+  const idx=[];for(let r=0;r<rows-1;r++)for(let q=0;q<cols-1;q++){const a=r*cols+q,b=a+1,c=a+cols,d=c+1;idx.push(a,b,c,b,d,c);}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.setIndex(idx);geo.computeVertexNormals();
+  const tm=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}));tm.receiveShadow=true;TG.add(tm);
+  const ext=Math.max(G.nx,G.ny)*G.c/2,sun=V3.sun,sc=sun.shadow.camera;sun.position.set(ext*0.9,ext*1.7,-ext*0.6);sun.target.position.set(0,0,0);
+  sc.left=-ext*1.15;sc.right=ext*1.15;sc.top=ext*1.15;sc.bottom=-ext*1.15;sc.near=1;sc.far=ext*6;sc.updateProjectionMatrix();
+  const line=(pts,closed,color,lift)=>{const arr=[],seq=closed?[...pts,pts[0]]:pts;
+    for(let i=0;i<seq.length-1;i++){const a=seq[i],b=seq[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));
+      for(let k=0;k<n;k++){const x=a[0]+(b[0]-a[0])*k/n,y=a[1]+(b[1]-a[1])*k/n;arr.push(x-o.cx,h3(x,y)+lift,-(y-o.cy));}}
+    const l=seq[seq.length-1];arr.push(l[0]-o.cx,h3(l[0],l[1])+lift,-(l[1]-o.cy));
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));LG.add(new THREE.Line(g,new THREE.LineBasicMaterial({color})));};
+  for(const p of S.utm)p.forEach(r=>line(r,true,0x3A342C,0.6));
+  for(const e of S.exclUtm)line(e.pts,e.type==='zone',e.type==='river'?0x2E64B0:0xB23B2E,0.4);
+}
+/* ===== 3D tree replicas: procedural per-species models, built at mature size (m) and scaled per instance ===== */
+const ARCH={
+ DU:['broad',{shape:'oval',ht:.3,n:16,lf:'#2f5a2a',tr:'#6b5a45'}],
+ PT:['broad',{shape:'umbrella',ht:.55,n:14,lf:'#4f7a32',br:7}],
+ KR:['broad',{shape:'dome',ht:.35,n:14,lf:'#7f9a62',alt:'#a3b487',altP:.3}],
+ MT:['broad',{shape:'dome',ht:.35,n:16,lf:'#3d6b2b',alt:'#7a5a32',altP:.15}],
+ AL:['broad',{shape:'dome',ht:.25,n:12,lf:'#3e6b2c'}],
+ MG:['broad',{shape:'dome',ht:.22,n:14,lf:'#2e5524',alt:'#7a4a3a',altP:.12}],
+ RB:['broad',{shape:'dome',ht:.25,n:12,lf:'#3f6a2c',fruit:'#b8322a'}],
+ MS:['broad',{shape:'cone',ht:.15,n:14,lf:'#2b4f25'}],
+ JK:['broad',{shape:'dome',ht:.35,n:13,lf:'#456f30'}],
+ NK:['broad',{shape:'dome',ht:.25,n:14,lf:'#335c27',bigFruit:'#8f9a3e'}],
+ SK:['broad',{shape:'dome',ht:.3,n:12,lf:'#4a7a35',big:1}],
+ PL:['broad',{shape:'cone',ht:.15,n:13,lf:'#3a6a2e'}],
+ CK:['broad',{shape:'cone',ht:.18,n:12,lf:'#4b7a33',alt:'#b06a5a',altP:.15}],
+ KM:['broad',{shape:'oval',ht:.2,n:11,lf:'#557a36',alt:'#a3503a',altP:.25}],
+ AR:['palm',{kind:'aren'}],KL:['palm',{kind:'kelapa'}],PN:['palm',{kind:'pinang'}],
+ BB:['bamboo',{lf:'#7a9e3a'}],
+ ML:['broad',{shape:'cone',ht:.15,n:11,lf:'#3c6a2e'}],
+ DK:['broad',{shape:'oval',ht:.25,n:12,lf:'#3c6a2e'}],
+ JR:['broad',{shape:'dome',ht:.2,n:9,lf:'#3f7030',fruit:'#e08a1e',tr:'#6b5a45'}],
+ KO:['coffee',{lf:'#22502a',fruit:'#a8262a'}],KA:['coffee',{lf:'#2a5a2c',fruit:'#b0302a'}],
+ KK:['broad',{shape:'dome',ht:.3,n:9,lf:'#4b6d2c',alt:'#a05a3a',altP:.25,pods:'#c98a2a'}],
+ LD:['climber',{lf:'#2f5e2a'}],VN:['climber',{lf:'#5a8a3a'}],
+ PS:['banana',{lf:'#5f9a3a'}],KP:['herb',{lf:'#4f8a35'}],
+ SG:['broad',{shape:'umbrella',ht:.6,n:12,lf:'#7fa54a',tr:'#cfc6b2',br:7,thin:1}],
+ MH:['broad',{shape:'dome',ht:.4,n:16,lf:'#2f5a27'}],
+ JT:['broad',{shape:'oval',ht:.4,n:12,lf:'#6a8a3a',big:1}],
+ SR:['broad',{shape:'oval',ht:.4,n:14,lf:'#4f7a33'}],
+ MN:['broad',{shape:'oval',ht:.35,n:14,lf:'#3d6a2d'}],
+ RS:['broad',{shape:'column',ht:.4,n:16,lf:'#3a6530',alt:'#7a4a32',altP:.12}],
+ PU:['broad',{shape:'oval',ht:.35,n:15,lf:'#3d6b2a',alt:'#7a4a32',altP:.1}],
+ JB:['tiered',{lf:'#4a7a2f'}],
+ GM:['hedge',{lf:'#5d8a3a',fl:'#d58ab0'}],KD:['hedge',{lf:'#4f7d35',fl:'#c8283a'}],LM:['hedge',{lf:'#6a9040'}],
+ VT:['grass',{lf:'#7f9a4b'}]};
+const UV_SOLID=[0.0625,0.9375];
+let ATLAS=null,TREE_MAT=null,TREE_DEPTH=null;const TREE_GEO={};
+function makeAtlas(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  x.fillStyle='#fff';x.fillRect(0,0,64,64);
+  x.strokeStyle='#fff';x.lineCap='round';x.lineWidth=3;x.beginPath();x.moveTo(64,64);x.lineTo(252,64);x.stroke();
+  x.lineWidth=2.6;for(let px=68;px<246;px+=4){const s=(px-64)/192,half=56*Math.pow(1-s,0.55)*Math.min(1,s*5);x.beginPath();x.moveTo(px,64);x.lineTo(px+16,64-half);x.moveTo(px,64);x.lineTo(px+16,64+half);x.stroke();}
+  x.fillStyle='#fff';x.beginPath();x.moveTo(2,192);x.bezierCurveTo(40,134,200,132,254,192);x.bezierCurveTo(200,252,40,250,2,192);x.fill();
+  x.globalCompositeOperation='destination-out';x.lineWidth=2;[[60,140],[110,250],[150,136],[190,246],[215,148]].forEach(([a,b])=>{x.beginPath();x.moveTo(a,b);x.lineTo(a+(b<192?14:14),b<192?178:206);x.stroke();});
+  x.globalCompositeOperation='source-over';
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+class GB{constructor(rnd){this.r=rnd;this.p=[];this.n=[];this.u=[];this.c=[];this.tc=new THREE.Color();}
+  col(col,jit){this.tc.set(col);if(jit)this.tc.offsetHSL(0,0,(this.r()-0.5)*jit);return[this.tc.r,this.tc.g,this.tc.b];}
+  add(geo,col,jit){const g=geo.index?geo.toNonIndexed():geo;g.computeVertexNormals();const P=g.attributes.position,N=g.attributes.normal;
+    for(let i=0;i<P.count;i+=3){const c=this.col(col,jit);for(let k=0;k<3;k++){const v=i+k;this.p.push(P.getX(v),P.getY(v),P.getZ(v));this.n.push(N.getX(v),N.getY(v),N.getZ(v));this.u.push(UV_SOLID[0],UV_SOLID[1]);this.c.push(c[0],c[1],c[2]);}}
+    g.dispose();if(g!==geo)geo.dispose();}
+  tri(a,b,c,ua,ub,uc,col){const e1=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],e2=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];let nx=e1[1]*e2[2]-e1[2]*e2[1],ny=e1[2]*e2[0]-e1[0]*e2[2],nz=e1[0]*e2[1]-e1[1]*e2[0];const l=Math.hypot(nx,ny,nz)||1;nx/=l;ny/=l;nz/=l;if(ny<0){nx=-nx;ny=-ny;nz=-nz;}
+    for(const [p,u] of [[a,ua],[b,ub],[c,uc]]){this.p.push(p[0],p[1],p[2]);this.n.push(nx,ny,nz);this.u.push(u[0],u[1]);this.c.push(col[0],col[1],col[2]);}}
+  geo(){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(this.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(this.n,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(this.u,2));g.setAttribute('color',new THREE.Float32BufferAttribute(this.c,3));g.computeBoundingSphere();return g;}}
+const UP3=()=>new THREE.Vector3(0,1,0);
+function cyl(gb,a,b,r0,r1,col,seg=6){const d=new THREE.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]),L=d.length();if(L<1e-4)return;const g=new THREE.CylinderGeometry(r1,r0,L,seg,1,true);g.translate(0,L/2,0);g.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(UP3(),d.normalize())));g.translate(a[0],a[1],a[2]);gb.add(g,col,0.05);}
+function blob(gb,c,r,col,det,amp=0.2,jit=0.09){const g=new THREE.IcosahedronGeometry(1,det),P=g.attributes.position;
+  for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),d=1+amp*Math.sin(x*5.3+y*2.1+c[0]*3.1)*Math.sin(y*4.7+z*3.9+c[2]*2.3)*Math.sin(z*4.1+x*3.3+c[1]*1.7);P.setXYZ(i,x*d*r[0]+c[0],y*d*r[1]+c[1],z*d*r[2]+c[2]);}
+  gb.add(g,col,jit);}
+/* strip along a path; reg: 'frond' | 'leaf' | null (solid) */
+function strip(gb,pts,side,w,col,reg){const c=gb.col(col,0.1),n=pts.length;
+  const uvAt=(s,left)=>reg==='frond'?[(64+s*192)/256,left?1:0.5]:reg==='leaf'?[s,left?0.5:0.0]:UV_SOLID;
+  const L=[],R=[];for(let i=0;i<n;i++){const p=pts[i],sd=Array.isArray(side[0])?side[i]:side,ww=typeof w==='function'?w(i/(n-1)):w;L.push([p[0]-sd[0]*ww/2,p[1]-sd[1]*ww/2,p[2]-sd[2]*ww/2]);R.push([p[0]+sd[0]*ww/2,p[1]+sd[1]*ww/2,p[2]+sd[2]*ww/2]);}
+  for(let i=0;i<n-1;i++){const s0=i/(n-1),s1=(i+1)/(n-1);gb.tri(L[i],R[i],R[i+1],uvAt(s0,1),uvAt(s0,0),uvAt(s1,0),c);gb.tri(L[i],R[i+1],L[i+1],uvAt(s0,1),uvAt(s1,0),uvAt(s1,1),c);}}
+/* arching leaf/frond from base point: azimuth a, elevation el (rad), length len, droop fraction */
+function arch(base,a,el,len,droop,segs=8){const dx=Math.cos(a),dz=Math.sin(a),pts=[];for(let i=0;i<=segs;i++){const s=i/segs,d=len*s;pts.push([base[0]+dx*d*Math.cos(el),base[1]+d*Math.sin(el)-droop*len*s*s,base[2]+dz*d*Math.cos(el)]);}return{pts,side:[-dz,0,dx]};}
+const BUILD={
+ broad(gb,H,R,o,rnd,small){const det=small?0:1,ht=o.ht*H,trR=Math.max(0.03,R*(o.thin?0.035:0.045)),cy=ht+(H-ht)/2,ay=(H-ht)/2,ax=R,trc=o.tr||'#5b4632';
+  const top=o.shape==='umbrella'?ht+(H-ht)*0.35:ht+(H-ht)*0.45;cyl(gb,[0,0,0],[0,top,0],trR,trR*0.55,trc,7);
+  const pts=[];for(let i=0;i<o.n;i++){let x,y,z,r;const a=rnd()*6.283;
+    if(o.shape==='cone'){const f=Math.pow(rnd(),0.85);y=ht+(H-ht)*(0.08+f*0.84);const rad=ax*(1-f)*0.95+ax*0.12,rr=rad*(0.5+0.5*rnd());x=Math.cos(a)*rr;z=Math.sin(a)*rr;r=ax*(0.24+0.1*rnd())*(1-f*0.45);}
+    else if(o.shape==='umbrella'){const rr=ax*Math.sqrt(0.12+0.88*rnd())*0.82;x=Math.cos(a)*rr;z=Math.sin(a)*rr;y=cy+ay*(rnd()-0.25)*0.45;r=ax*(0.2+0.08*rnd());}
+    else{const ph=Math.acos(2*rnd()-1),rr=0.55+0.4*rnd(),sx=o.shape==='column'?0.82:1;x=ax*sx*rr*Math.sin(ph)*Math.cos(a);z=ax*sx*rr*Math.sin(ph)*Math.sin(a);y=cy+ay*rr*Math.cos(ph)*0.82;r=ax*(o.big?0.32:0.26)*(0.8+0.4*rnd());}
+    pts.push([x,y,z,r]);}
+  const fy=o.shape==='umbrella'?0.42:Math.min(1.6,Math.max(0.75,ay/ax*0.9));
+  for(let k=0;k<(o.br||4);k++){const p=pts[k%pts.length];cyl(gb,[0,top*0.88,0],[p[0]*0.85,p[1]-p[3]*fy*0.3,p[2]*0.85],trR*0.55,trR*0.22,trc,5);}
+  if(o.shape!=='umbrella')blob(gb,[0,cy,0],[ax*0.7,ay*0.76,ax*0.7],o.lf,det,0.15,0.04);
+  for(const p of pts)blob(gb,[p[0],p[1],p[2]],[p[3],p[3]*fy,p[3]],o.alt&&rnd()<o.altP?o.alt:o.lf,0,0.24);
+  if(o.fruit)for(let i=0;i<8;i++){const p=pts[Math.floor(rnd()*pts.length)],a=rnd()*6.283;blob(gb,[p[0]+Math.cos(a)*p[3]*0.85,p[1]-p[3]*fy*0.3,p[2]+Math.sin(a)*p[3]*0.85],[0.09,0.09,0.09],o.fruit,0,0.05,0.05);}
+  if(o.pods)for(let i=0;i<7;i++){const a=rnd()*6.283;blob(gb,[Math.cos(a)*trR*1.6,ht*(0.35+0.8*rnd()),Math.sin(a)*trR*1.6],[0.07,0.12,0.07],o.pods,0,0.05,0.1);}
+  if(o.bigFruit)for(let i=0;i<5;i++){const a=rnd()*6.283;blob(gb,[Math.cos(a)*trR*2.2,ht*(0.4+0.9*rnd()),Math.sin(a)*trR*2.2],[0.17,0.27,0.17],o.bigFruit,0,0.06,0.06);}
+ },
+ tiered(gb,H,R,o,rnd){/*whorls*/const trR=R*0.04;cyl(gb,[0,0,0],[0,H*0.98,0],trR,trR*0.3,'#7a6a55',7);
+  for(let w=0;w<6;w++){const f=w/5,y=H*(0.32+0.64*f),rr=R*(1-f*0.75);for(let k=0;k<5;k++){const a=k*1.2566+w*0.6+rnd()*0.3,x=Math.cos(a)*rr*0.6,z=Math.sin(a)*rr*0.6;
+    cyl(gb,[0,y-0.2,0],[x,y,z],trR*0.45,trR*0.2,'#7a6a55',5);blob(gb,[x,y,z],[rr*0.42,rr*0.14+0.25,rr*0.42],o.lf,0,0.22);}}},
+ palm(gb,H,R,o,rnd){const K={kelapa:{tr:'#8a7a63',tw:0.32,bend:0.07,nf:18,el:[0.1,0.75],droop:0.5,len:1.5,cr:'#4f7a2e',nuts:'#6f7a2a'},
+    aren:{tr:'#3b3128',tw:0.5,bend:0,nf:14,el:[0.55,1.15],droop:0.35,len:1.4,cr:'#2f5a2a',dead:4},
+    pinang:{tr:'#a3a290',tw:0.16,bend:0.01,nf:10,el:[0.35,0.95],droop:0.4,len:1.3,cr:'#5a8a3a',shaft:'#7a9a4a'}}[o.kind];
+  const cr=o.lf||K.cr,topY=H-R*0.3,seg=9;let prev=[0,0,0];
+  for(let i=1;i<=seg;i++){const s=i/seg,p=[K.bend*H*s*s,topY*s,0];cyl(gb,prev,p,K.tw/2*(1-0.25*(s-1/seg)),K.tw/2*(1-0.25*s),i%2?K.tr:'#'+new THREE.Color(K.tr).offsetHSL(0,0,0.05).getHexString(),8);prev=p;}
+  const top=prev;if(K.shaft)cyl(gb,top,[top[0],top[1]+R*0.35,top[2]],K.tw*0.42,K.tw*0.36,K.shaft,8);
+  const base=K.shaft?[top[0],top[1]+R*0.35,top[2]]:top;
+  if(K.nuts)for(let i=0;i<9;i++){const a=rnd()*6.283;blob(gb,[top[0]+Math.cos(a)*0.28,top[1]-0.15-rnd()*0.3,top[2]+Math.sin(a)*0.28],[0.13,0.15,0.13],K.nuts,0,0.04,0.08);}
+  if(K.dead)for(let i=0;i<K.dead;i++){const f=arch(top,rnd()*6.283,-1.2,R*0.8,0.1,6);strip(gb,f.pts,f.side,R*0.25,'#7a6440','frond');}
+  for(let i=0;i<K.nf;i++){const a=i*6.283/K.nf+rnd()*0.3,el=K.el[0]+(K.el[1]-K.el[0])*rnd(),f=arch(base,a,el,R*K.len,K.droop,9);strip(gb,f.pts,f.side,R*0.6,cr,'frond');}},
+ bamboo(gb,H,R,o,rnd){for(let c=0;c<12;c++){const a=rnd()*6.283,r0=R*0.16*Math.sqrt(rnd()),lean=0.08+0.32*rnd(),h=H*(0.72+0.28*rnd());const b0=[Math.cos(a)*r0,0,Math.sin(a)*r0];let prev=b0;
+    const pt=s=>[b0[0]+Math.cos(a)*lean*h*Math.pow(s,1.8),h*s*(1-0.08*s),b0[2]+Math.sin(a)*lean*h*Math.pow(s,1.8)];
+    for(let i=1;i<=6;i++){const p=pt(i/6);cyl(gb,prev,p,0.05*(1-i/9),0.05*(1-(i+1)/9),'#9aa842',5);prev=p;}
+    for(let s=0.45;s<=1.0;s+=0.11){const p=pt(s);for(let k=0;k<2;k++){const f=arch(p,rnd()*6.283,-0.2-0.5*rnd(),R*0.34,0.15,3);strip(gb,f.pts,f.side,R*0.13,o.lf,'leaf');}}}},
+ banana(gb,H,R,o,rnd){const top=[0,H*0.55,0];cyl(gb,[0,0,0],top,0.13,0.1,'#7d8f4a',8);
+  for(let i=0;i<9;i++){const f=arch([0,top[1]-0.1*rnd(),0],i*0.7+rnd()*0.3,0.45+0.7*rnd(),R*1.35,0.45,8);strip(gb,f.pts,f.side,R*0.6,o.lf,'leaf');}
+  const a=rnd()*6.283,st=[Math.cos(a)*R*0.25,H*0.5,Math.sin(a)*R*0.25];cyl(gb,top,st,0.03,0.03,'#6f7d3a',4);blob(gb,[st[0],st[1]-0.25,st[2]],[0.2,0.32,0.2],'#8a9a3a',1,0.25,0.05);blob(gb,[st[0],st[1]-0.7,st[2]],[0.08,0.14,0.08],'#6a2a3a',0,0.1,0.05);},
+ coffee(gb,H,R,o,rnd){for(let s=0;s<3;s++){const a=s*2.1;cyl(gb,[Math.cos(a)*0.05,0,Math.sin(a)*0.05],[Math.cos(a)*0.1,H*0.95,Math.sin(a)*0.1],0.035,0.015,'#6b5a45',5);}
+  for(let t=0;t<5;t++){const f=t/4,y=H*(0.2+0.75*f),rr=R*(1-f*0.6);for(let k=0;k<4;k++){const a=k*1.5708+t*0.7+rnd()*0.3;blob(gb,[Math.cos(a)*rr*0.62,y,Math.sin(a)*rr*0.62],[rr*0.45,rr*0.2,rr*0.45],o.lf,0,0.18,0.08);}
+    if(o.fruit&&t%2===0){const a=rnd()*6.283;blob(gb,[Math.cos(a)*0.14,y-0.08,Math.sin(a)*0.14],[0.05,0.05,0.05],o.fruit,0,0.05,0.05);}}},
+ hedge(gb,H,R,o,rnd){for(let s=0;s<3;s++){const a=s*2.1;cyl(gb,[0,0,0],[Math.cos(a)*R*0.25,H*0.5,Math.sin(a)*R*0.25],0.05,0.025,'#7a6a55',4);}
+  for(let i=0;i<6;i++){const a=rnd()*6.283,rr=R*0.45*Math.sqrt(rnd());blob(gb,[Math.cos(a)*rr,H*(0.5+0.4*rnd()),Math.sin(a)*rr],[R*0.42,H*0.2,R*0.42],o.lf,0,0.2,0.1);}
+  if(o.fl)for(let i=0;i<6;i++){const a=rnd()*6.283,rr=R*0.75;blob(gb,[Math.cos(a)*rr,H*(0.6+0.35*rnd()),Math.sin(a)*rr],[0.08,0.06,0.08],o.fl,0,0.05,0.08);}},
+ grass(gb,H,R,o,rnd){for(let i=0;i<28;i++){const a=rnd()*6.283,b=[Math.cos(a)*R*0.15*rnd(),0,Math.sin(a)*R*0.15*rnd()],el=1.1+0.4*rnd(),f=arch(b,a,el,H*(0.85+0.3*rnd()),0.25,5);strip(gb,f.pts,f.side,s=>0.03*(1-s*0.8),o.lf,null);}},
+ herb(gb,H,R,o,rnd){for(let s=0;s<7;s++){const a=rnd()*6.283,b=[Math.cos(a)*R*0.35*rnd(),0,Math.sin(a)*R*0.35*rnd()],h=H*(0.7+0.3*rnd());cyl(gb,b,[b[0],h,b[2]],0.015,0.012,'#6a8a3a',4);
+    for(let l=0;l<6;l++){const f=arch([b[0],h*(0.3+0.11*l),b[2]],a+l*Math.PI,0.2,R*0.5,0.25,5);strip(gb,f.pts,f.side,R*0.16,o.lf,'leaf');}}},
+ climber(gb,H,R,o,rnd){cyl(gb,[0,0,0],[0,H,0],0.06,0.05,'#8a8378',6);for(let i=0;i<8;i++){const a=rnd()*6.283;blob(gb,[Math.cos(a)*0.08,H*(0.1+0.85*i/7),Math.sin(a)*0.08],[R*0.55,H*0.09,R*0.55],o.lf,0,0.25,0.1);}}};
+function treeGeo(code,legendCol){const key=code+'|'+(legendCol||'n');if(TREE_GEO[key])return TREE_GEO[key];
+  const sp=SP[code],[type,o0]=ARCH[code]||['broad',{shape:'dome',ht:.3,n:12,lf:'#3d6b2b'}],o={...o0};if(legendCol){o.lf=legendCol;o.alt=null;}
+  const gb=new GB(mulberry(hashStr(code)));BUILD[type](gb,sp.h,sp.crown/2,o,gb.r,sp.crown<=4);return TREE_GEO[key]=gb.geo();}
+function hash01(x,y,k){const v=Math.sin(x*12.9898+y*78.233+k*37.719)*43758.5453;return v-Math.floor(v);}
+
+function buildTrees3D(){
+  for(const o of [...TRG.children])TRG.remove(o);
+  const by={};for(const p of S.points)(by[p.c]=by[p.c]||[]).push(p);
+  const m=new THREE.Object3D(),o=V3.o,Y=S.year;
+  for(const code in by){const pts=by[code],sp=SP[code],geo=treeGeo(code,V3.col==='legend'?colorOf(code):null);
+    const im=new THREE.InstancedMesh(geo,TREE_MAT,pts.length);im.castShadow=true;im.receiveShadow=true;im.customDepthMaterial=TREE_DEPTH;
+    pts.forEach((p,i)=>{const g=growth(code,ageAt(p,Y),p.slot),v=0.9+0.2*hash01(p.x,p.y,1),sx=g.W/sp.crown*v,sy=g.H/sp.h*v;
+      m.position.set(p.x-o.cx,h3(p.x,p.y),-(p.y-o.cy));m.rotation.set(0,hash01(p.x,p.y,2)*6.283,0);m.scale.set(sx,sy,sx);m.updateMatrix();im.setMatrixAt(i,m.matrix);});
+    im.instanceMatrix.needsUpdate=true;TRG.add(im);}
+}
+function updCam(){const t=ORB.t,s=Math.sin(ORB.ph);CAM.position.set(t[0]+ORB.dist*s*Math.sin(ORB.th),t[1]+ORB.dist*Math.cos(ORB.ph),t[2]+ORB.dist*s*Math.cos(ORB.th));CAM.lookAt(t[0],t[1],t[2]);}
+function render3D(){if(S.mode!=='3d'||!V3.ok)return;updCam();R3.render(SC3,CAM);}
+function fit3D(){const G=S.grid;if(!G||!V3.ok)return;ORB.dist=Math.max(G.nx,G.ny)*G.c*1.4;ORB.th=-0.55;ORB.ph=0.95;
+  const zr=isFinite(G.stats.zmax)?(G.stats.zmax-V3.o.zb)*V3.exag:0;ORB.t=[0,zr*0.4,0];render3D();}
+function zoom3D(f){ORB.dist=Math.min(50000,Math.max(5,ORB.dist*f));render3D();}
+function resize3D(){if(!V3.ok)return;const w=wrap.clientWidth,h=wrap.clientHeight;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix();render3D();}
+function update3D(full){if(S.mode!=='3d'||!S.grid||!init3D())return;if(full||V3.tKey!==S.zoneImg){buildTerrain3D();V3.tKey=S.zoneImg;}buildTrees3D();render3D();}
+function wire3D(){const c=$('#map3d');let d=null;
+  c.addEventListener('contextmenu',e=>e.preventDefault());
+  c.addEventListener('pointerdown',e=>{d={x:e.clientX,y:e.clientY,pan:e.shiftKey||e.button===2};c.setPointerCapture(e.pointerId);});
+  c.addEventListener('pointermove',e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;
+    if(d.pan){const k=ORB.dist*0.0016,ct=Math.cos(ORB.th),st=Math.sin(ORB.th);ORB.t[0]+=(-ct*dx-st*dy)*k;ORB.t[2]+=(st*dx-ct*dy)*k;}
+    else{ORB.th-=dx*0.006;ORB.ph=Math.max(0.12,Math.min(1.45,ORB.ph-dy*0.005));}render3D();});
+  c.addEventListener('pointerup',()=>{d=null;});
+  c.addEventListener('wheel',e=>{e.preventDefault();zoom3D(Math.exp(e.deltaY*0.0012));},{passive:false});}
+function setView(v){S.mode=v;$$('#viewSeg .fpill').forEach(x=>x.classList.toggle('active',x.dataset.view===v));const is3=v==='3d';
+  $('#map').hidden=is3;$('#exagRow').hidden=!is3;$$('[data-layer]').forEach(b=>b.disabled=is3);
+  if(is3){const ok=init3D();$('#map3d').hidden=!ok;$('#msg3d').hidden=ok;if(ok){resize3D();update3D(true);fit3D();}}
+  else{$('#map3d').hidden=true;$('#msg3d').hidden=true;draw();}
+  $('#mapFoot').textContent=is3?'Setiap jenis punya model sendiri (bentuk tajuk, batang, daun, buah) yang diskalakan ke tinggi dan lebar tajuk pada tahun terpilih. Bayangan mengikuti matahari pagi dari timur laut. Warna Sesuai legenda mewarnai tajuk dan zona seperti peta 2D.':'Seret untuk menggeser, roda tetikus untuk memperbesar. Lingkaran menunjukkan lebar tajuk pada tahun terpilih. Latar berupa grid UTM; citra satelit belum tersedia di prototipe ini.';}
+$$('#viewSeg .fpill').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+$$('[data-col]').forEach(b=>b.addEventListener('click',()=>{V3.col=b.dataset.col;$$('[data-col]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);}));
+$$('[data-ex]').forEach(b=>b.addEventListener('click',()=>{V3.exag=+b.dataset.ex;$$('[data-ex]').forEach(x=>x.classList.toggle('active',x===b));update3D(true);fit3D();}));
+
+/* ===== render ===== */
+const presentZones=()=>S.grid?[1,2,3,4].filter(z=>S.grid.zs[z].cells):[];
+function renderAll(){
+  draw();const nn=nearestStats(),sul=Math.max(0,val('#sulam',10))/100,total=S.points.length,G=S.grid;
+  const codes=Object.keys(nn).sort((a,b)=>nn[b].n-nn[a].n);let seedTot=0;codes.forEach(c=>seedTot+=Math.ceil(nn[c].n*(1+sul)));
+  const exHa=G&&G.exHa?G.exHa.any:0,eff=Math.max(0,S.areaHa-exHa),pz=presentZones();S.effHa=eff;
+  const contourOn=S.rowMode==='contour'&&S.dem;
+  $('#kArea').innerHTML=S.utm?`${fmt(eff,eff<10?2:1)}<small>ha</small>`:'–';
+  $('#kAreaNote').textContent=S.utm?`dari ${fmt(S.areaHa,2)} ha · ${fmt(exHa,2)} ha tidak ditanami`:'–';
+  $('#kTotal').textContent=fmt(total);
+  $('#kRows').textContent=`${eff?fmt(total/eff):'–'}/ha · ${codes.length} jenis · ${pz.length} zona${S.capped?' · dibatasi':''}`;
+  $('#kSeed').textContent=fmt(seedTot);$('#kSeedNote').textContent=`Termasuk sulaman ${fmt(sul*100)}%`;
+  $('#mapSub').textContent=S.utm?`${pz.length} zona · ${contourOn?'baris mengikuti kontur':'baris lurus'} · sempadan batas ${fmt(val('#setback',0),1)} m`:'Tetapkan batas lahan untuk memulai';
+  $('#srcLabel').textContent=`${S.src||'–'} · ${S.dem?S.dem.name:'tanpa DEM'}`;
+  let lg=codes.map(c=>`<span class="lg-item"><i class="sw dot" style="background:${colorOf(c)}"></i>${esc(SP[c].name)}</span>`).join('');
+  lg+=`<span class="lg-item"><i class="sw ln"></i>Batas</span>`;
+  if(S.exclUtm.some(e=>e.type==='river'))lg+=`<span class="lg-item"><i class="sw water"></i>Sungai</span>`;
+  if(S.layers.zone)lg+=pz.map(z=>`<span class="lg-item"><i class="sw" style="background:${rgb(ZONES[z].col)};opacity:.7"></i>${ZONES[z].name}</span>`).join('');
+  if(S.layers.excl&&exHa)lg+=`<span class="lg-item"><i class="sw excl"></i>Tidak ditanami</span>`;
+  if(S.layers.slope&&S.slopeImg)lg+=SC.map(c=>`<span class="lg-item"><i class="sw" style="background:${rgb(c.col)}"></i>${c.lbl}</span>`).join('');
+  $('#legend').innerHTML=lg;
+  const zCount={};S.points.forEach(p=>zCount[p.zn]=(zCount[p.zn]||0)+1);
+  const plantA=pz.reduce((a,z)=>a+G.zs[z].area,0)||1;
+  $('#zoneCards').innerHTML=pz.length?pz.map(z=>{const zs=G.zs[z],set=ZS[z];const picks=SLOTS[z].map(sl=>set.pick[sl.k]).filter(Boolean);const uniq=[...new Set(picks)];
+    return `<div class="zn-row"><div class="zn-top"><span class="zn-name"><i class="sw" style="background:${rgb(ZONES[z].col)}"></i>${ZONES[z].name}</span><span class="zn-val">${fmt(zs.area,2)} ha<small>${fmt(zs.area/plantA*100)}%</small></span></div>
+      <div class="tg-track"><div class="tg-bar" style="width:${zs.area/plantA*100}%;background:${rgb(ZONES[z].col)}"></div></div>
+      <div class="zn-meta">${uniq.map(c=>`<b>${esc(SP[c].name)}</b>`).join(' · ')||'Belum ada jenis yang sesuai'}</div>
+      <div class="zn-meta">${fmt(zCount[z]||0)} titik · ${zs.area?fmt((zCount[z]||0)/zs.area):'–'}/ha · pola ${PAT_LABEL[set.pattern]}${isFinite(zs.slmed)?` · lereng median ${fmt(zs.slmed)}%`:''}${S.vi[z]&&contourOn?` · interval vertikal ${fmt(S.vi[z][0],2)}–${fmt(S.vi[z][1],2)} m`:''}</div></div>`;}).join(''):'<div class="empty">Belum ada zona.</div>';
+  $('#zoneSub').textContent=S.dem?`Lereng < ${fmt(val('#t1',15))}% produksi · ${fmt(val('#t1',15))}–${fmt(val('#t2',40))}% agroforestri · > ${fmt(val('#t2',40))}% konservasi · sempadan sungai riparian`:'Tanpa DEM, lahan di luar sempadan sungai dianggap satu zona agroforestri';
+  const max=Math.max(1,...codes.map(c=>nn[c].n));
+  $('#bars').innerHTML=codes.length?codes.map(c=>{const d=nn[c],sp=SP[c];return `<div class="sp-row" tabindex="0">
+    <div class="sp-lbl"><span class="sw" style="background:${colorOf(c)}"></span>${esc(sp.name)}</div>
+    <div class="sp-track"><div class="sp-bar" style="width:${d.n/max*100}%;background:${colorOf(c)}"></div></div>
+    <div class="sp-val">${fmt(d.n)}</div><div class="sp-n">${fmt(d.n/total*100,1)}%</div>
+    <div class="tt-box"><div class="tt-head"><strong>${esc(sp.name)}</strong> · ${STRATA[sp.st]}</div>
+      <div class="tt-row"><span>Zona</span><b>${d.zones.map(z=>ZONES[z].name).join(', ')}</b></div>
+      <div class="tt-row"><span>Per ha efektif</span><b>${eff?fmt(d.n/eff):'–'}</b></div>
+      <div class="tt-row"><span>Bibit + sulaman</span><b>${fmt(Math.ceil(d.n*(1+sul)))}</b></div>
+      <div class="tt-row"><span>Panen pertama</span><b>± ${sp.yr} tahun</b></div></div></div>`;}).join(''):`<div class="empty">Belum ada titik tanam.</div>`;
+  if(G&&S.dem&&G.stats.cov>0){const cls=G.stats.cls,tot=cls.reduce((a,b)=>a+b,0)||1,mx=Math.max(...cls,0.0001);
+    $('#slopeSub').textContent=`Median ${fmt(G.stats.smed,1)}% · rata-rata ${fmt(G.stats.smean,1)}%`;
+    $('#slopeBars').innerHTML=SC.map((c,i)=>`<div class="sp-row wide" tabindex="0">
+      <div class="sp-lbl"><span class="sw" style="background:${rgb(c.col)}"></span>${c.lbl} <small>${c.name}</small></div>
+      <div class="sp-track"><div class="sp-bar" style="width:${cls[i]/mx*100}%;background:${rgb(c.col)}"></div></div>
+      <div class="sp-val">${fmt(cls[i],2)} ha</div><div class="sp-n">${fmt(cls[i]/tot*100,0)}%</div></div>`).join('');}
+  else{$('#slopeSub').textContent='Luas per kelas di dalam batas lahan';$('#slopeBars').innerHTML=`<div class="empty">Unggah DEM atau pakai DEM contoh di langkah Medan.</div>`;}
+  if(S.utm){const st=G&&G.stats,hasZ=S.dem&&st&&isFinite(st.zmin);
+    $('#summary').innerHTML=`
+      <div class="kv-sep">Lahan</div>
+      <div class="kv"><span>Luas</span><b>${fmt(S.areaHa,2)} ha</b></div>
+      <div class="kv"><span>Keliling</span><b>${fmt(S.perim)} m</b></div>
+      <div class="kv"><span>Proyeksi</span><b>UTM ${zoneTxt()} · EPSG:${epsg()}</b></div>
+      <div class="kv-sep">Medan dan tapak</div>
+      <div class="kv"><span>Elevasi</span><b>${hasZ?`${fmt(st.zmin)}–${fmt(st.zmax)} m dpl`:`${fmt(val('#elev',700))} m dpl (isian)`}</b></div>
+      <div class="kv"><span>Curah hujan</span><b>${fmt(val('#rain',2400))} mm/tahun · ${fmt(val('#dry',3))} bulan kering</b></div>
+      <div class="kv"><span>Tanah</span><b>pH ${fmt(val('#ph',5.5),1)} · drainase ${['baik','sedang','buruk'][S.drain]}</b></div>
+      <div class="kv-sep">Tidak ditanami</div>
+      <div class="kv"><span>Lereng &gt; ${fmt(val('#maxSlope',100))}%</span><b>${G?fmt(G.exHa.slope,2):'0'} ha</b></div>
+      <div class="kv"><span>Alur sungai (${RIVER_CH} m)</span><b>${G?fmt(G.exHa.river,2):'0'} ha</b></div>
+      <div class="kv"><span>Zona larangan</span><b>${G?fmt(G.exHa.zone,2):'0'} ha</b></div>`;}
+  else $('#summary').innerHTML='<div class="empty">Belum ada batas lahan.</div>';
+  $('#demInfo').innerHTML=S.dem?`<b>${esc(S.dem.name)}</b><br>Resolusi sekitar ${fmt(S.dem.resM,1)} m${S.dem.crs?` · ${S.dem.crs}`:''}${G&&isFinite(G.stats.zmin)?` · elevasi ${fmt(G.stats.zmin)}–${fmt(G.stats.zmax)} m · lereng median ${fmt(G.stats.smed,1)}%`:''}${G&&G.stats.cov<0.9?`<br><span style="color:var(--warn)">DEM hanya mencakup ${fmt(G.stats.cov*100)}% lahan.</span>`:''}`:'Belum ada DEM. Tanpa DEM, baris dibuat lurus dan zona lereng tidak dihitung.';
+  $('#elevFld').hidden=!!S.dem;
+  $('#foot0').textContent=S.utm?`${fmt(S.areaHa,2)} ha siap dipakai`:'';
+  const zr=$('#zoneRes');if(zr){const z=S.zSel,zs=G&&G.zs[z];zr.textContent=zs&&zs.cells?`${fmt(zCount[z]||0)} titik · ${fmt((zCount[z]||0)/zs.area)}/ha`:'';}
+  const Y=S.year,spY=S.sim?S.sim.spAt(Y):{};
+  $('#tallyHead').innerHTML=`<tr><th>Jenis</th><th>Zona</th><th>Strata</th><th class="r">Titik</th><th class="r">Bibit</th><th class="r">Tinggi th-${Y}</th><th class="r">Tajuk th-${Y}</th><th class="r">tCO₂e th-${Y}</th><th class="r">Pendapatan th-${Y}</th><th class="r">Jarak sejenis</th><th>Ruang tajuk</th></tr>`;
+  $('#tally').innerHTML=codes.map(c=>{const d=nn[c],sp=SP[c],y=spY[c]||{};return `<tr>
+    <td><span class="sw" style="background:${colorOf(c)};margin-right:8px;vertical-align:-1px"></span>${esc(sp.name)}</td>
+    <td class="muted">${d.zones.map(z=>ZONES[z].name).join(', ')}</td><td class="muted">${STRATA[sp.st]}</td>
+    <td class="r">${fmt(d.n)}</td><td class="r">${fmt(Math.ceil(d.n*(1+sul)))}</td>
+    <td class="r">${y.h!=null?fmt(y.h,1)+' m':'–'}</td><td class="r">${y.w!=null?fmt(y.w,1)+' m':'–'}</td>
+    <td class="r">${y.co2!=null?fmt(y.co2,1):'–'}</td><td class="r">${y.rev!=null?rpShort(y.rev):'–'}</td>
+    <td class="r">${isFinite(d.min)?fmt(d.min,1)+' m':'–'}</td><td>${d.close?'<span class="tag warn">Tajuk menyatu</span>':'<span class="tag ok">Cukup ruang</span>'}</td></tr>`;}).join('')||`<tr><td colspan="11" class="muted" style="text-align:center;padding:20px">Belum ada titik tanam</td></tr>`;
+  const tY=codes.reduce((a,c)=>{const y=spY[c]||{};a.co2+=y.co2||0;a.rev+=y.rev||0;return a;},{co2:0,rev:0});
+  $('#tallyFoot').innerHTML=total?`<tr><td>Total</td><td></td><td></td><td class="r">${fmt(total)}</td><td class="r">${fmt(seedTot)}</td><td></td><td></td><td class="r">${fmt(tY.co2,1)}</td><td class="r">${rpShort(tY.rev)}</td><td></td><td></td></tr>`:'';
+  renderSim();
+  renderExList();
+  if(!$('#expText').hidden)$('#expText').value=buildExport();
+}
+function renderZoneSeg(){const G=S.grid;
+  $('#zoneSeg').innerHTML=[1,2,3,4].map(z=>{const a=G&&G.zs[z]?G.zs[z].area:0;return `<button class="fpill${z===S.zSel?' active':''}" data-z="${z}"${a?'':' disabled'}><i class="sw" style="background:${rgb(ZONES[z].col)}"></i>${ZONES[z].name} ${a?fmt(a,2)+' ha':''}</button>`;}).join('');
+  $$('#zoneSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.zSel=+b.dataset.z;renderZoneSeg();renderZonePanel();renderAll();}));}
+function renderZonePanel(){
+  const z=S.zSel,G=S.grid,el=$('#zonePanel');
+  if(!G||!G.zs[z]||!G.zs[z].cells||!S.eval[z]){el.innerHTML='<p class="hint">Tetapkan batas lahan untuk melihat zona.</p>';return;}
+  const zs=G.zs[z],set=ZS[z],e=S.eval[z],site=siteFor(z);
+  const fld=(id,lbl,v,step)=>`<label class="fld">${lbl} <span class="u">meter</span><input class="inp" type="number" id="zf_${id}" min="0.2" step="${step}" value="${v}"></label>`;
+  let h=`<div class="note-box"><b>${ZONES[z].name}</b> · ${fmt(zs.area,2)} ha · elevasi ${fmt(site.el)} m${isFinite(zs.slmed)?` · lereng median ${fmt(zs.slmed)}%`:''}<br>${ZONES[z].desc}</div>`;
+  if(z===2)h+=`<div class="fld">Pola<div class="pills" id="zPat"><button class="fpill${set.pattern==='square'?' active':''}" data-p="square">Persegi</button><button class="fpill${set.pattern==='tri'?' active':''}" data-p="tri">Segitiga</button></div></div>`;
+  h+=`<div class="g2">`+(set.pattern==='alley'?fld('dx','Jarak dalam pagar',set.dx,0.1)+fld('alley','Lebar lorong',set.alley,0.5)+`<label class="fld">Baris per pagar<select class="inp" id="zf_nrows">${[1,2,3].map(n=>`<option${n==set.nrows?' selected':''}>${n}</option>`).join('')}</select></label>`+fld('rs','Jarak baris dalam pagar',set.rs,0.1)
+    :fld('dx','Jarak dalam baris',set.dx,0.1)+fld('dy','Jarak antar baris',set.dy,0.1))+`</div>`;
+  h+=`<div class="kv-sep">Susunan jenis</div>`;
+  for(const sl of SLOTS[z]){const cands=candidates(z,sl),cur=set.pick[sl.k];
+    h+=`<div class="slot"><div class="slot-hd"><b>${cur?`<i style="background:${colorOf(cur)}"></i>`:''}${sl.lbl}</b><span>${sl.hint}</span></div>
+      <select class="inp" id="slot_${sl.k}" data-k="${sl.k}"><option value="">Kosongkan posisi ini</option>${cands.map(sp=>`<option value="${sp.code}"${sp.code===cur?' selected':''}>${esc(sp.name)} · skor ${e[sp.code].score}${e[sp.code].lvl?' · marginal':''}${set.manual[sl.k]&&sp.code===cur?' · pilihan Anda':''}</option>`).join('')}</select></div>`;}
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><button class="btn" id="zoneAuto">Pakai rekomendasi</button><span class="hint" id="zoneRes"></span></div>`;
+  el.innerHTML=h;
+  $$('#zPat .fpill').forEach(b=>b.addEventListener('click',()=>{set.pattern=b.dataset.p;renderZonePanel();scheduleGen(0);}));
+  ['dx','dy','alley','rs','nrows'].forEach(k=>{const i=$('#zf_'+k);if(i)i.addEventListener('input',()=>{const v=parseFloat(i.value);if(isFinite(v)&&v>0){set[k]=v;scheduleGen();}});});
+  $$('#zonePanel select[data-k]').forEach(s=>s.addEventListener('change',()=>{set.pick[s.dataset.k]=s.value;set.manual[s.dataset.k]=true;autoPick(z);assignColors();renderZonePanel();renderSuit();scheduleGen(0);}));
+  $('#zoneAuto').addEventListener('click',()=>{set.manual={};autoPick(z);assignColors();renderZonePanel();renderSuit();scheduleGen(0);});
+}
+function renderSuit(){
+  const pz=Object.keys(S.eval).map(Number);
+  const usedBy={};for(const z of pz)for(const sl of SLOTS[z]){const c=ZS[z].pick[sl.k];if(c)(usedBy[c]=usedBy[c]||new Set()).add(z);}
+  $('#suitHead').innerHTML=`<tr><th>Jenis</th><th>Strata</th><th>Syarat tumbuh</th>${pz.map(z=>`<th class="c">${ZONES[z].name.split(' ')[0]}</th>`).join('')}<th class="r">Skor</th><th>Catatan</th></tr>`;
+  let rows=DB.map(sp=>{const best=Math.max(0,...pz.map(z=>S.eval[z][sp.code].score));const ok=pz.some(z=>S.eval[z][sp.code].lvl<2);return{sp,best,ok,used:!!usedBy[sp.code]};});
+  if(S.suitFilter==='ok')rows=rows.filter(r=>r.ok);else if(S.suitFilter==='used')rows=rows.filter(r=>r.used);
+  rows.sort((a,b)=>(b.used-a.used)||(b.best-a.best)||a.sp.name.localeCompare(b.sp.name));
+  const okN=DB.filter(sp=>pz.some(z=>S.eval[z][sp.code].lvl<2)).length;
+  $('#suitSub').textContent=pz.length?`${okN} dari 40 jenis sesuai atau marginal di minimal satu zona · ${Object.keys(usedBy).length} jenis dipakai`:'40 jenis umum Indonesia dinilai per zona';
+  $('#suitBody').innerHTML=rows.map(({sp,best,used})=>{
+    const chips=pz.map(z=>{const e=S.eval[z][sp.code];const t=e.lvl===0?'<span class="tag ok">S</span>':e.lvl===1?'<span class="tag warn">M</span>':'<span class="tag no">–</span>';return `<td class="c" title="${esc(e.r.join('; ')||'sesuai')}">${t}</td>`;}).join('');
+    const notes=[];if(usedBy[sp.code])notes.push(`<b style="color:var(--text)">Dipakai: ${[...usedBy[sp.code]].map(z=>ZONES[z].name).join(', ')}</b>`);
+    const rs=[...new Set(pz.flatMap(z=>S.eval[z][sp.code].r))];if(rs.length)notes.push(esc(rs.slice(0,3).join('; ')));
+    if(sp.nfix)notes.push('penambat N');if(sp.climb)notes.push('butuh tiang panjat');if(!sp.native)notes.push('jenis introduksi');
+    return `<tr class="${used?'used':''}"><td class="nm">${used?`<span class="sw dot" style="background:${colorOf(sp.code)};margin-right:6px"></span>`:''}${esc(sp.name)}<small>${esc(sp.latin)}</small></td>
+      <td class="muted">${STRATA[sp.st]}</td>
+      <td class="muted">${fmt(sp.emin)}–${fmt(sp.emax)} m · ${fmt(sp.rmin)}–${fmt(sp.rmax)} mm · ≤${sp.dry} bln kering · pH ${fmt(sp.phmin,1)}–${fmt(sp.phmax,1)}</td>
+      ${chips}<td class="r"><b>${best||'–'}</b></td><td class="why">${notes.join(' · ')}</td></tr>`;}).join('')||`<tr><td colspan="${5+pz.length}" class="muted" style="text-align:center;padding:20px">Tidak ada jenis untuk filter ini</td></tr>`;
+}
+
+/* ===== exclusions list ===== */
+function renderExList(){
+  const el=$('#exList');const sig=S.excl.map(e=>e.id).join(',');if(el.dataset.sig===sig)return;el.dataset.sig=sig;
+  el.innerHTML=S.excl.length?S.excl.map(e=>`<div class="ex-row">
+    <span class="ic" style="background:${e.type==='river'?'var(--water)':'var(--bad)'}"></span>
+    <input class="inp" id="exn${e.id}" value="${esc(e.name)}" aria-label="Nama">
+    <input class="inp" type="number" id="exb${e.id}" min="0" step="1" value="${e.buf}" aria-label="Sempadan (m)" title="Sempadan (m)">
+    <button class="xbtn" data-exdel="${e.id}" aria-label="Hapus ${esc(e.name)}">×</button></div>`).join('')+`<p class="hint" style="text-align:right">kolom angka = sempadan (m)</p>`:'<p class="hint">Belum ada sungai atau zona larangan.</p>';
+  S.excl.forEach(e=>{$('#exn'+e.id).addEventListener('input',ev=>{e.name=ev.target.value;});
+    $('#exb'+e.id).addEventListener('input',ev=>{e.buf=Math.max(0,+ev.target.value||0);projectAll();clearTimeout(e._t);e._t=setTimeout(rezone,250);});});
+  $$('[data-exdel]').forEach(b=>b.addEventListener('click',()=>{S.excl=S.excl.filter(x=>x.id!==+b.dataset.exdel);projectAll();rezone();}));
+}
+
+/* ===== export ===== */
+function ll(p){const q=inv([p.x,p.y]);return[+q[0].toFixed(7),+q[1].toFixed(7)];}
+function closed(r){const m=r.map(q=>[+q[0].toFixed(7),+q[1].toFixed(7)]);return[...m,m[0]];}
+const r1=v=>isFinite(v)?+v.toFixed(1):null;
+function slotLbl(z,k){const s=SLOTS[z].find(x=>x.k===k);return s?s.lbl:k;}
+function buildExport(){
+  if(!S.points.length||!S.polys)return'';
+  if(S.fmt==='geojson'){const f=[{type:'Feature',properties:{jenis:'batas_lahan',luas_ha:+S.areaHa.toFixed(4),sumber:S.src},geometry:{type:'MultiPolygon',coordinates:S.polys.map(p=>p.map(closed))}}];
+    for(const e of S.excl)f.push({type:'Feature',properties:{jenis:e.type==='river'?'sungai':'zona_larangan',nama:e.name,sempadan_m:e.buf},geometry:e.type==='river'?{type:'LineString',coordinates:e.ll.map(q=>[+q[0].toFixed(7),+q[1].toFixed(7)])}:{type:'Polygon',coordinates:[closed(e.ll)]}});
+    for(const p of S.points){const sp=SP[p.c];f.push({type:'Feature',properties:{id:p.id,kode:p.c,jenis:sp.name,latin:sp.latin,zona:ZONES[p.zn].name,posisi:slotLbl(p.zn,p.slot),strata:STRATA[sp.st],baris:p.r,kolom:p.k,tajuk_m:sp.crown,elevasi_m:r1(p.el),lereng_pct:r1(p.sl)},geometry:{type:'Point',coordinates:ll(p)}});}
+    return JSON.stringify({type:'FeatureCollection',features:f});}
+  if(S.fmt==='kml'){const kc=h=>{h=h.replace('#','');return'ff'+h.slice(4,6)+h.slice(2,4)+h.slice(0,2);};
+    const codes=[...new Set(S.points.map(p=>p.c))];
+    const st=codes.map(c=>`<Style id="s${c}"><IconStyle><color>${kc(colorOf(c))}</color><scale>0.6</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon></IconStyle></Style>`).join('');
+    const ring=r=>closed(r).map(q=>q.join(',')).join(' ');
+    const b=S.polys.map(p=>`<Placemark><name>Batas lahan</name><Style><LineStyle><color>ff2c343a</color><width>2</width></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style><Polygon><outerBoundaryIs><LinearRing><coordinates>${ring(p[0])}</coordinates></LinearRing></outerBoundaryIs>${p.slice(1).map(h=>`<innerBoundaryIs><LinearRing><coordinates>${ring(h)}</coordinates></LinearRing></innerBoundaryIs>`).join('')}</Polygon></Placemark>`).join('\n');
+    const ex=S.excl.map(e=>e.type==='river'?`<Placemark><name>${esc(e.name)}</name><Style><LineStyle><color>ffb87d4c</color><width>3</width></LineStyle></Style><LineString><coordinates>${e.ll.map(q=>q.join(',')).join(' ')}</coordinates></LineString></Placemark>`:`<Placemark><name>${esc(e.name)}</name><Style><LineStyle><color>ff2e3bb2</color><width>2</width></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style><Polygon><outerBoundaryIs><LinearRing><coordinates>${ring(e.ll)}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`).join('\n');
+    const fo=codes.map(c=>{const pts=S.points.filter(p=>p.c===c);return`<Folder><name>${esc(SP[c].name)} (${pts.length})</name>\n${pts.map(p=>`<Placemark><name>${p.id}</name><description>${esc(ZONES[p.zn].name)} · ${esc(slotLbl(p.zn,p.slot))}</description><styleUrl>#s${c}</styleUrl><Point><coordinates>${ll(p).join(',')}</coordinates></Point></Placemark>`).join('\n')}\n</Folder>`;}).join('\n');
+    return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Rencana Pola Wanatani</name>${st}\n${b}\n${ex}\n${fo}\n</Document></kml>`;}
+  const z=zoneTxt();return'id,kode,jenis,zona,posisi,strata,baris,kolom,lat,lon,utm_x,utm_y,zona_utm,elevasi_m,lereng_pct\n'+S.points.map(p=>{const q=ll(p),sp=SP[p.c];return`${p.id},${p.c},"${sp.name}","${ZONES[p.zn].name}","${slotLbl(p.zn,p.slot)}",${STRATA[sp.st]},${p.r},${p.k},${q[1]},${q[0]},${p.x.toFixed(2)},${p.y.toFixed(2)},${z},${r1(p.el)??''},${r1(p.sl)??''}`;}).join('\n');
+}
+$$('#fmtSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.fmt=b.dataset.fmt;$$('#fmtSeg .fpill').forEach(x=>x.classList.toggle('active',x===b));if(!$('#expText').hidden)$('#expText').value=buildExport();}));
+$('#toggleExp').addEventListener('click',()=>{const t=$('#expText');t.hidden=!t.hidden;$('#toggleExp').textContent=t.hidden?'Tampilkan data ekspor':'Sembunyikan data ekspor';if(!t.hidden)t.value=buildExport();});
+$('#copy').addEventListener('click',()=>{const txt=buildExport(),lbl=$('#copy span');
+  const ok=()=>{lbl.textContent=`Tersalin (${S.fmt.toUpperCase()})`;setTimeout(()=>lbl.textContent='Salin titik',1600);};
+  const fb=()=>{const t=$('#expText');t.hidden=false;$('#toggleExp').textContent='Sembunyikan data ekspor';t.value=txt;t.focus();t.select();lbl.textContent='Tekan Ctrl+C';setTimeout(()=>lbl.textContent='Salin titik',2200);};
+  try{navigator.clipboard.writeText(txt).then(ok,fb);}catch(e){fb();}});
+
+/* ===== controls ===== */
+function setRowMode(m){S.rowMode=m;$$('#rowSeg .fpill').forEach(b=>b.classList.toggle('active',b.dataset.row===m));$('#azFld').hidden=m!=='straight';}
+$$('#rowSeg .fpill').forEach(b=>b.addEventListener('click',()=>{setRowMode(b.dataset.row);scheduleGen(0);}));
+$('#az').addEventListener('input',()=>scheduleGen());$('#setback').addEventListener('input',()=>scheduleGen());
+$('#sulam').addEventListener('input',()=>{simulate();renderAll();});
+let rzT=null;['#t1','#t2','#maxSlope'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(rzT);rzT=setTimeout(rezone,250);}));
+let evT=null;const reEval=()=>{clearTimeout(evT);evT=setTimeout(()=>{evalAndPick();generate();},200);};
+['#rain','#dry','#ph','#elev'].forEach(id=>$(id).addEventListener('input',reEval));
+$$('#drainSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.drain=+b.dataset.drain;$$('#drainSeg .fpill').forEach(x=>x.classList.toggle('active',x===b));reEval();}));
+$('#fNative').addEventListener('click',e=>{S.onlyNative=!S.onlyNative;e.currentTarget.classList.toggle('active',S.onlyNative);reEval();});
+$('#fInvasive').addEventListener('click',e=>{S.noInvasive=!S.noInvasive;e.currentTarget.classList.toggle('active',S.noInvasive);reEval();});
+function renderGoals(){$('#goals').innerHTML=GOALS.map(([g,l])=>`<label class="goal"><span>${l}</span><input type="range" id="w_${g}" min="0" max="5" step="1" value="${S.w[g]}"><b id="wv_${g}">${S.w[g]}</b></label>`).join('');
+  GOALS.forEach(([g])=>$('#w_'+g).addEventListener('input',e=>{S.w[g]=+e.target.value;$('#wv_'+g).textContent=S.w[g];$$('#goalPreset .fpill').forEach(x=>x.classList.remove('active'));reEval();}));}
+$$('#goalPreset .fpill').forEach(b=>b.addEventListener('click',()=>{S.w={...GOAL_PRESETS[b.dataset.gp]};$$('#goalPreset .fpill').forEach(x=>x.classList.toggle('active',x===b));renderGoals();reEval();}));
+$$('[data-layer]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.layer;S.layers[k]=!S.layers[k];b.classList.toggle('active',S.layers[k]);renderAll();}));
+$$('#suitSeg .fpill').forEach(b=>b.addEventListener('click',()=>{S.suitFilter=b.dataset.sf;$$('#suitSeg .fpill').forEach(x=>x.classList.toggle('active',x===b));renderSuit();}));
+
+function goStep(n){S.step=n;$$('#steps button').forEach(b=>{const i=+b.dataset.step;b.classList.toggle('active',i===n);b.classList.toggle('done',i<n);});$$('[data-pane]').forEach(p=>p.hidden=+p.dataset.pane!==n);}
+$$('#steps button').forEach(b=>b.addEventListener('click',()=>goStep(+b.dataset.step)));
+$$('[data-next]').forEach(b=>b.addEventListener('click',()=>goStep(+b.dataset.next)));
+$$('#inSeg .fpill').forEach(b=>b.addEventListener('click',()=>{$$('#inSeg .fpill').forEach(x=>{x.classList.toggle('active',x===b);$('#'+x.dataset.in).hidden=x!==b;});}));
+
+/* ===== drawing ===== */
+const DRAW_TXT={boundary:'Batas lahan',river:'Sungai',zone:'Zona larangan'};
+const minPts=m=>m==='river'?2:3;
+function startDraw(mode){if(!S.conv)return;S.draft={mode,pts:[]};cv.classList.add('drawing');$('#drawbar').hidden=false;updDraw();draw();$('#mapwrap').scrollIntoView({block:'nearest',behavior:'smooth'});}
+function endDraw(){S.draft=null;cv.classList.remove('drawing');$('#drawbar').hidden=true;draw();}
+function updDraw(){const d=S.draft,n=minPts(d.mode);$('#drawInfo').textContent=`${DRAW_TXT[d.mode]}: ${d.pts.length} titik${d.pts.length<n?` · minimal ${n}`:''}`;$('#finishDraw').disabled=d.pts.length<n;}
+function finishDraw(){const d=S.draft;if(!d||d.pts.length<minPts(d.mode))return;const llPts=d.pts.map(inv);endDraw();
+  if(d.mode==='boundary'){try{setGeometry([[llPts]],'Digambar di peta');}catch(e){}}
+  else{const n=S.excl.filter(e=>e.type===d.mode).length+1;S.excl.push({id:S.exclId++,type:d.mode,name:d.mode==='river'?`Sungai ${n}`:`Zona larangan ${n}`,buf:d.mode==='river'?15:0,ll:llPts});projectAll();rezone();}}
+$('#startDraw').addEventListener('click',()=>startDraw('boundary'));
+$('#drawRiver').addEventListener('click',()=>startDraw('river'));
+$('#drawZone').addEventListener('click',()=>startDraw('zone'));
+$('#cancelDraw').addEventListener('click',endDraw);
+$('#undoPt').addEventListener('click',()=>{if(S.draft){S.draft.pts.pop();updDraw();draw();}});
+$('#finishDraw').addEventListener('click',finishDraw);
+$('#goCenter').addEventListener('click',()=>{const v=parseLine($('#center').value,'latlon'),el=$('#center');
+  if(!v){el.setCustomValidity('Format: lat, lon');el.reportValidity();return;}el.setCustomValidity('');
+  if(setProj(v[0],v[1])&&S.utm){projectAll();validate();rebuild();}const m=fwd(v);S.view.cx=m[0];S.view.cy=m[1];if(!S.utm)S.view.s=1;S.userMoved=true;draw();});
+
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:S.view.cx,cy:S.view.cy,moved:false};cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();S.hover=toM(e.clientX-r.left,e.clientY-r.top);
+  if(S.conv){const g=inv(S.hover),t=terrainAt(S.hover[0],S.hover[1]),zn=S.grid?zoneAt(S.hover[0],S.hover[1]):0;
+    $('#cursor').textContent=`${g[1].toFixed(6)}, ${g[0].toFixed(6)}${isFinite(t.z)?` · ${fmt(t.z)} m · ${fmt(t.sl,0)}%`:''}${zn?` · ${ZONES[zn].name}`:''}`;}
+  if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>4)drag.moved=true;if(drag.moved){S.userMoved=true;S.view.cx=drag.cx-dx/S.view.s;S.view.cy=drag.cy+dy/S.view.s;}}
+  if(drag||S.draft)draw();});
+cv.addEventListener('pointerup',e=>{if(drag&&!drag.moved&&S.draft){const r=cv.getBoundingClientRect(),m=toM(e.clientX-r.left,e.clientY-r.top),l=S.draft.pts[S.draft.pts.length-1];
+  if(!l||Math.hypot(l[0]-m[0],l[1]-m[1])*S.view.s>3){S.draft.pts.push(m);updDraw();}draw();}drag=null;});
+cv.addEventListener('dblclick',e=>{if(S.draft){e.preventDefault();finishDraw();}});
+cv.addEventListener('pointerleave',()=>{$('#cursor').textContent='Arahkan kursor ke peta';});
+function zoomAt(f,px,py){S.userMoved=true;const m=toM(px,py);S.view.s=Math.min(400,Math.max(0.002,S.view.s*f));const n=toM(px,py);S.view.cx+=m[0]-n[0];S.view.cy+=m[1]-n[1];draw();}
+cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*0.0015),e.clientX-r.left,e.clientY-r.top);},{passive:false});
+$('#zin').addEventListener('click',()=>S.mode==='3d'?zoom3D(1/1.3):zoomAt(1.4,W/2,H/2));$('#zout').addEventListener('click',()=>S.mode==='3d'?zoom3D(1.3):zoomAt(1/1.4,W/2,H/2));
+$('#zfit').addEventListener('click',()=>{if(S.mode==='3d'){fit3D();return;}S.userMoved=false;fit();});
+document.addEventListener('keydown',e=>{if(!S.draft)return;const tag=document.activeElement.tagName;if(e.key==='Escape')endDraw();else if(e.key==='Enter')finishDraw();
+  else if(e.key==='Backspace'&&tag!=='INPUT'&&tag!=='TEXTAREA'){e.preventDefault();S.draft.pts.pop();updDraw();draw();}});
+
+/* ===== coordinates ===== */
+function parseDMS(s){const re=/(-?\d+(?:\.\d+)?)\s*[°º]\s*(?:(\d+(?:\.\d+)?)\s*['’′]\s*)?(?:(\d+(?:\.\d+)?)\s*(?:["”″]|'')\s*)?\s*(LU|LS|BT|BB|[NSEWnsew])?/g;const out=[];let m;
+  while((m=re.exec(s))){let v=Math.abs(+m[1])+(+m[2]||0)/60+(+m[3]||0)/3600;if(+m[1]<0)v=-v;const h=(m[4]||'').toUpperCase();if(['S','LS','W','BB'].includes(h))v=-Math.abs(v);
+    out.push({v,axis:['N','S','LU','LS'].includes(h)?'lat':['E','W','BT','BB'].includes(h)?'lon':null});}return out;}
+function parseLine(line,order){line=line.trim();if(!line)return null;let a,b;
+  if(/[°º]/.test(line)){const d=parseDMS(line);if(d.length<2)return null;if(d[0].axis==='lon'||d[1].axis==='lat')return[d[0].v,d[1].v];if(d[0].axis==='lat'||d[1].axis==='lon')return[d[1].v,d[0].v];a=d[0].v;b=d[1].v;}
+  else{const n=line.split(/[\s,;]+/).filter(Boolean).map(Number);if(n.length<2||n.some(isNaN))return null;a=n[0];b=n[1];}
+  if(order==='latlon')return[b,a];if(order==='lonlat')return[a,b];return Math.abs(a)>90?[a,b]:[b,a];}
+$('#useXY').addEventListener('click',()=>{const m=$('#xyMsg');m.hidden=true;const order=$('#xyOrder').value,parts=[[]],bad=[];
+  $('#xy').value.split('\n').forEach((l,i)=>{if(!l.trim()){if(parts[parts.length-1].length)parts.push([]);return;}const p=parseLine(l,order);p?parts[parts.length-1].push(p):bad.push(i+1);});
+  if(bad.length){m.hidden=false;m.textContent=`Baris ${bad.slice(0,6).join(', ')}${bad.length>6?'…':''} tidak terbaca. Gunakan "lat, lon" desimal atau DMS.`;return;}
+  const ps=parts.filter(p=>p.length);try{setGeometry(ps.map(p=>[p]),`Input koordinat · ${ps.reduce((a,p)=>a+p.length,0)} titik`);}catch(e){m.hidden=false;m.textContent=e.message;}});
+
+/* ===== files ===== */
+function polysFromGeoJSON(gj){const fcs=Array.isArray(gj)?gj:[gj],polys=[];let n=0;
+  for(const fc of fcs){const feats=fc.type==='FeatureCollection'?fc.features:fc.type==='Feature'?[fc]:[{geometry:fc}];
+    for(const f of feats){const g=f&&f.geometry;if(!g)continue;if(g.type==='Polygon'){polys.push(g.coordinates);n++;}else if(g.type==='MultiPolygon'){g.coordinates.forEach(c=>polys.push(c));n++;}}}return{polys,n};}
+async function handleShp(file){const m=$('#shpMsg');m.hidden=true;
+  try{let gj;if(/\.zip$/i.test(file.name))gj=await shp(await file.arrayBuffer());else if(/\.(geo)?json$/i.test(file.name))gj=JSON.parse(await file.text());else throw new Error('Format belum didukung. Gunakan .zip shapefile atau .geojson.');
+    const{polys,n}=polysFromGeoJSON(gj);if(!polys.length)throw new Error('Tidak ditemukan fitur poligon. File berisi titik atau garis?');setGeometry(polys,`${file.name} · ${n} fitur`);}
+  catch(e){m.hidden=false;m.textContent=(e&&e.message)||'File tidak dapat dibaca. Pastikan zip berisi .shp, .shx, dan .dbf.';}}
+function wireDrop(dropId,inputId,handler){const d=$(dropId);$(inputId).addEventListener('change',e=>{if(e.target.files[0])handler(e.target.files[0]);e.target.value='';});
+  ['dragenter','dragover'].forEach(t=>d.addEventListener(t,e=>{e.preventDefault();d.classList.add('over');}));
+  ['dragleave','drop'].forEach(t=>d.addEventListener(t,e=>{e.preventDefault();d.classList.remove('over');}));
+  d.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)handler(f);});}
+wireDrop('#dropShp','#fileShp',handleShp);
+wireDrop('#dropDem','#fileDem',loadDemFile);
+$('#useSampleDem').addEventListener('click',()=>{if(!S.utm)return;const e=gridExtent(0),g=inv([(e.x0+e.x1)/2,(e.y0+e.y1)/2]);S.dem=sampleDemFor(g[0],g[1]);$('#demMsg').hidden=true;rebuild();});
+
+/* ===== sample ===== */
+const lat0=-7.2135,lon0=107.902;
+function sample(){const ky=110574,kx=111320*Math.cos(lat0*Math.PI/180),toLL=([x,y])=>[+(lon0+x/kx).toFixed(7),+(lat0+y/ky).toFixed(7)];
+  const outer=[[-96,-64],[-10,-88],[32,-92],[120,-48],[140,32],[96,100],[18,108],[-8,96],[-76,78],[-122,8]].map(toLL);
+  const pond=[];for(let i=0;i<10;i++){const a=i/10*Math.PI*2;pond.push(toLL([24+16*Math.cos(a),8+11*Math.sin(a)]));}return[[outer,pond]];}
+const smp=sample();
+$('#xy').value=smp[0][0].map(p=>`${p[1].toFixed(6)}, ${p[0].toFixed(6)}`).join('\n');
+$('#heroDate').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · data contoh kebun lereng, Garut';
+renderGoals();setRowMode('contour');goStep(0);
+requestAnimationFrame(()=>{
+  setProj(lon0,lat0);
+  S.dem=sampleDemFor(lon0,lat0);
+  S.excl.push({id:S.exclId++,type:'river',name:'Sungai kecil',buf:15,ll:S.dem.streamLL()});
+  resize();setGeometry(smp,'Data contoh');
+});
+})();
+</script>
+
+</body></html>
