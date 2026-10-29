@@ -1,4 +1,3 @@
-// Proteksi tampilan (client-side), bukan keamanan sungguhan: data dan kredensial master tetap terbaca dari source
 (function () {
   "use strict";
 

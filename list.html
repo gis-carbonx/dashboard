@@ -72,7 +72,6 @@ a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
 
 <script>
 'use strict';
-// Satu entri = satu dashboard; "sub" mengikuti menu samping halaman tersebut
 const SECTIONS=[
   {title:'Illegal Activities Monitoring',items:[
     {title:'Fire and Forest Patrol Protection',href:'patrol-summary.html',
@@ -103,7 +102,6 @@ const SECTIONS=[
   ]}
 ];
 
-// Entri hidden:true disembunyikan sementara dari daftar
 SECTIONS.forEach(s=>{s.items=s.items.filter(d=>!d.hidden);});
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

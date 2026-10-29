@@ -328,7 +328,6 @@ function parseDateFlexible(v){
 }
 function fmtInt(n){return Math.round(n).toLocaleString('id-ID');}
 function fmtPct(n){return (n*100).toFixed(1).replace('.',',')+'%';}
-const MN_ID=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
 function extractTable(rows, requiredCols, keyCol){
   let headerIdx=-1;
@@ -358,9 +357,9 @@ function fetchCsvRows(url){
   });
 }
 
-let dib=[];      // Data Induk Bibit (per batch)
-let dist=[];     // Log Distribusi (per transaksi)
-let desaKth=[];  // Master Desa & KTH
+let dib=[];
+let dist=[];
+let desaKth=[];
 let detailPage=1;
 const DETAIL_PAGE_SIZE=8;
 
@@ -420,7 +419,6 @@ Promise.all([
 });
 
 function renderAll(){
-  const maxDate=dib.reduce((m,r)=>(r.tglSemai&&(!m||r.tglSemai>m))?r.tglSemai:m,null);
   document.getElementById('lastDataDate').textContent = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 
   renderKpiRingkasan();

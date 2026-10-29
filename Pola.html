@@ -53,11 +53,11 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;min-width:0}
 .grid-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px}
 @media (max-width:640px){.grid-row{grid-template-columns:1fr 1fr;gap:10px}.nav-note{display:none}}
-.card-lbl{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:10px}
-.card-val-lg{font-size:22px;font-weight:800;color:var(--primary);line-height:1;font-variant-numeric:tabular-nums}
-@media (max-width:640px){.card-val-lg{font-size:19px}}
+.card-lbl{font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px}
+.card-val-lg{font-size:28px;font-weight:800;color:var(--primary);line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.card-val-lg{font-size:24px}}
 .card-val-lg small{font-size:12px;font-weight:600;color:var(--text-2);margin-left:3px}
-.card-note{font-size:10.5px;font-weight:600;color:var(--text-2);margin-top:6px;line-height:1.45}
+.card-note{font-size:10.5px;font-weight:500;color:var(--text-2);margin-top:8px;line-height:1.45}
 .main-pair{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr);gap:16px;align-items:stretch;margin-bottom:16px}
 @media (max-width:1000px){.main-pair{grid-template-columns:minmax(0,1fr)}}
 .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:16px}
@@ -520,10 +520,6 @@ const SC=[{max:8,lbl:'0–8%',name:'Datar',col:[227,234,213]},{max:15,lbl:'8–1
 const rgb=c=>`rgb(${c.join(',')})`;
 const slopeClass=s=>SC.findIndex(c=>s<c.max);
 
-/* species database (indicative ranges):
- code,nama,latin,strata,tajuk m,tinggi m,elev min,elev max,hujan min,hujan max,bulan kering maks,pH min,pH max,
- naungan(0 butuh terik,1 sedang,2 toleran),perlu drainase baik,riparian,penambat N,asli,invasif,panen pertama (thn),
- pendapatan,konservasi,karbon,pangan (1–5),kegunaan */
 const DB_RAW=[
 ['KK','Kakao','Theobroma cacao','S',4,6,0,600,1500,2500,3,5.5,7.5,2,1,0,0,0,0,3,4,3,3,1,'kebun'],
 ['KO','Kopi','Coffea canephora','S',2.5,3,0,900,1500,3000,3,5,6.5,2,1,0,0,0,0,3,4,3,2,1,'kebun,pagar'],
@@ -553,7 +549,6 @@ const DB_RAW=[
   fast:a[19]<=1?5:a[19]<=3?4:a[19]<=5?3:a[19]<=8?2:1,climb:a[24].includes('merambat')}));
 const SP={};DB.forEach(s=>SP[s.code]=s);
 const STRATA={E:'Emergen',K:'Kanopi',S:'Sub-kanopi',B:'Perdu',R:'Penutup'};
-// Sementara: perhitungan karbon disembunyikan; ubah ke true untuk menampilkan lagi
 const SHOW_CARBON=false;
 const GOALS=[['inc','Pendapatan'],['cons','Konservasi'],['carb','Karbon'],['food','Pangan'],['fast','Panen cepat']].filter(([g])=>SHOW_CARBON||g!=='carb');
 const GOAL_PRESETS={seimbang:{inc:3,cons:3,carb:3,food:3,fast:3},ekonomi:{inc:5,cons:2,carb:1,food:3,fast:4},karbon:{inc:2,cons:5,carb:5,food:1,fast:1}};
@@ -640,7 +635,6 @@ function projectAll(){
   projectAOI();
 }
 
-// Areal proyek CMI (CMI.json) dan lahan agro (agro.json), sama dengan peta planting.html
 const AOI_SKIP=/hotspot|fire|deforest|enclave/i;
 function progLabel(p){const t=str(p).toLowerCase();
   return t.includes('pup')?'Bantuan Pupuk Organik':t.includes('tutupan')?'Insentif Tutupan Lahan':t.includes('tembawang')?'Reforestasi':t.includes('agro')?'Agroforestri':t.includes('enrich')?'Enrichment':t?str(p):'Tanpa program';}
@@ -970,9 +964,6 @@ function draw(){
   ctx.font='700 10px "Libre Franklin", sans-serif';ctx.textAlign='center';ctx.fillText('U',nx,ny-17);ctx.textAlign='left';
 }
 
-/* growth, carbon, cash flow:
- per species: growth rate k, DBH at 20 yr (cm, 0 = fixed biomass), wood density (g/cm3), mature biomass if fixed (kg),
- income at full yield (Rp/plant/yr), seedling (Rp), upkeep (Rp/plant/yr), timber rotation (yr), timber price (Rp/m3). Indicative. */
 const ECON_RAW={
  KK:[.45,0,0,25,80000,5000,10000],KO:[.50,0,0,12,60000,3000,8000],LD:[.50,0,0,3,120000,5000,10000],AL:[.10,30,.55,0,750000,35000,20000],
  DU:[.10,35,.55,0,1500000,50000,20000],KB:[.10,35,.65,0,300000,20000,10000],MG:[.10,35,.60,0,500000,30000,15000],RB:[.10,28,.70,0,400000,30000,15000],
@@ -983,7 +974,6 @@ const ECON_RAW={
  UL:[.05,10,1.00,0,0,25000,5000],AK:[.08,25,.90,0,100000,15000,5000]};const EC={};for(const c in ECON_RAW){const a=ECON_RAW[c];EC[c]={k:a[0],d20:a[1],rho:a[2],agb:a[3],inc:a[4],seed:a[5],maint:a[6],rot:a[7]||0,tp:a[8]||0};}
 const YEARS=30,ROOT=1.24,CF=0.47,CO2=44/12;
 const gf=(k,a)=>a<=0?0:Math.pow(1-Math.exp(-k*a),1.5);
-/* Allometry. Manuri et al. 2017, Ann For Sci 74:23, Table 3 (REst-corrected). D cm, H m, G g/cm3, AGB kg. */
 const ALLO={
  chave:{name:'Chave dkk. 2014',short:'Chave 2014',eq:'AGB = 0,0673 × (ρ·D²·H)^0,976',f:(g,D,H)=>0.0673*Math.pow(g*D*D*H,0.976)},
  dgh1:{name:'Manuri dkk. 2017 · DGH1',short:'Manuri DGH1',eq:'AGB = 0,088 × (D²·G·H)^0,954',f:(g,D,H)=>0.088*Math.pow(D*D*g*H,0.954)},
@@ -994,7 +984,6 @@ const MANURI_BIAS={MT:'Sapindaceae',RB:'Sapindaceae',LK:'Sapindaceae'};
 const PRUNE={H:{h:1.5,w:1.5,b:.3},N:{h:5,w:4,b:.6}};
 const STR_IDX={E:0,K:1,S:2,B:3,R:3};
 const STR_SER=[{name:'Emergen',color:'#00805A'},{name:'Kanopi',color:'#4767C9'},{name:'Sub-kanopi',color:'#C9700E'},{name:'Perdu dan penutup',color:'#B8478A'}];
-const PALMS=new Set();
 function growth(code,age,slot,m){const sp=SP[code],e=EC[code];
   if(age<=0)return{H:0.4,W:0.3,D:0,agb:0};
   const g=gf(e.k,age);let H=Math.max(0.4,sp.h*g),Wd=Math.max(0.3,sp.crown*Math.pow(g,0.8)),D=0,agb;
@@ -1125,7 +1114,7 @@ $('#playYr').addEventListener('click',()=>{if(playT){stopPlay();return;}if(S.yea
 let ecT=null;['#disc','#harvPct','#plantCost'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(ecT);ecT=setTimeout(()=>{simulate();renderAll();},200);}));
 let chT=null;new ResizeObserver(()=>{clearTimeout(chT);chT=setTimeout(renderCharts,120);}).observe($('#simulasi'));
 
-const V3={ok:null,exag:2,tKey:null,col:'natural',sun:null,o:{cx:0,cy:0,zb:0}};let R3=null,SC3,CAM,TG,TRG,LG,GEO3=null;const ORB={th:-0.55,ph:0.95,dist:300,t:[0,0,0]};
+const V3={ok:null,exag:2,tKey:null,col:'natural',sun:null,o:{cx:0,cy:0,zb:0}};let R3=null,SC3,CAM,TG,TRG,LG;const ORB={th:-0.55,ph:0.95,dist:300,t:[0,0,0]};
 function init3D(){if(V3.ok!==null)return V3.ok;
   try{if(typeof THREE==='undefined')throw new Error('three');
     R3=new THREE.WebGLRenderer({canvas:$('#map3d'),antialias:true});R3.setPixelRatio(Math.min(1.5,window.devicePixelRatio||1));
@@ -1214,12 +1203,10 @@ function cyl(gb,a,b,r0,r1,col,seg=6){const d=new THREE.Vector3(b[0]-a[0],b[1]-a[
 function blob(gb,c,r,col,det,amp=0.2,jit=0.09){const g=new THREE.IcosahedronGeometry(1,det),P=g.attributes.position;
   for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),d=1+amp*Math.sin(x*5.3+y*2.1+c[0]*3.1)*Math.sin(y*4.7+z*3.9+c[2]*2.3)*Math.sin(z*4.1+x*3.3+c[1]*1.7);P.setXYZ(i,x*d*r[0]+c[0],y*d*r[1]+c[1],z*d*r[2]+c[2]);}
   gb.add(g,col,jit);}
-/* strip along a path; reg: 'frond' | 'leaf' | null (solid) */
 function strip(gb,pts,side,w,col,reg){const c=gb.col(col,0.1),n=pts.length;
   const uvAt=(s,left)=>reg==='frond'?[(64+s*192)/256,left?1:0.5]:reg==='leaf'?[s,left?0.5:0.0]:UV_SOLID;
   const L=[],R=[];for(let i=0;i<n;i++){const p=pts[i],sd=Array.isArray(side[0])?side[i]:side,ww=typeof w==='function'?w(i/(n-1)):w;L.push([p[0]-sd[0]*ww/2,p[1]-sd[1]*ww/2,p[2]-sd[2]*ww/2]);R.push([p[0]+sd[0]*ww/2,p[1]+sd[1]*ww/2,p[2]+sd[2]*ww/2]);}
   for(let i=0;i<n-1;i++){const s0=i/(n-1),s1=(i+1)/(n-1);gb.tri(L[i],R[i],R[i+1],uvAt(s0,1),uvAt(s0,0),uvAt(s1,0),c);gb.tri(L[i],R[i+1],L[i+1],uvAt(s0,1),uvAt(s1,0),uvAt(s1,1),c);}}
-/* arching leaf/frond from base point: azimuth a, elevation el (rad), length len, droop fraction */
 function arch(base,a,el,len,droop,segs=8){const dx=Math.cos(a),dz=Math.sin(a),pts=[];for(let i=0;i<=segs;i++){const s=i/segs,d=len*s;pts.push([base[0]+dx*d*Math.cos(el),base[1]+d*Math.sin(el)-droop*len*s*s,base[2]+dz*d*Math.cos(el)]);}return{pts,side:[-dz,0,dx]};}
 const BUILD={
  broad(gb,H,R,o,rnd,small){const det=small?0:1,ht=o.ht*H,trR=Math.max(0.03,R*(o.thin?0.035:0.045)),cy=ht+(H-ht)/2,ay=(H-ht)/2,ax=R,trc=o.tr||'#5b4632';

@@ -18,8 +18,6 @@ body{display:flex;flex-direction:column}
 .page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
 .content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
 
-.grid-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:28px}
-@media (max-width:900px){.grid-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .year-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:28px}
 .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
@@ -209,7 +207,6 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Kategori Log sesuai Panduan Rumus Nursery Stock; Grafting, Pembesaran - Grafting & Rootstock Return hanya catatan (sambungan dihitung di BST - Regular)
 const normCat=s=>str(s).toLowerCase().replace(/[^a-z]/g,'');
 const CAT={
   semai:'semaibiji',
@@ -217,20 +214,20 @@ const CAT={
   pemb:'pembesaranregular',
   matiPemb:'matipembesaran',
   bst:'bstregular',
-  matiBst:'matibstregular',   // termasuk sambungan/rootstock yang mati
+  matiBst:'matibstregular',
   tanam:'penanaman',sulam:'penyulaman',support:'support'
 };
 const PEMANFAATAN=new Set([CAT.tanam,CAT.sulam,CAT.support]);
-// Total Mati = Category berisi "Mati" (setara SUMIFS "*Mati*")
 const isMati=cat=>cat.includes('mati');
 
+const SHOW_MATI_SEMAI=false;
 const TIPE_ORDER=['Semai','Proses','BST','Pemanfaatan','Mati'];
 const TIPE_DESC={
   Semai:'Masih di tahap semai',
   Proses:'Pembesaran',
   BST:'Stok bibit siap tanam',
   Pemanfaatan:'Penanaman, penyulaman & support',
-  Mati:'Mati di semua tahap'
+  Mati:SHOW_MATI_SEMAI?'Mati di semua tahap':'Mati di pembesaran & BST'
 };
 const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
 
@@ -271,18 +268,17 @@ function parseSheet(csv){
 
 function computeStats(year){
   const list=year==='all'?rows:rows.filter(r=>r.year===year);
-  let semai=0,bst=0,pemanfaatan=0;
+  let semai=0,pemb=0,pemanfaatan=0;
   const jenisSet=new Set();
   list.forEach(r=>{
     if(r.cat===CAT.semai)semai+=r.jumlah;
-    if(r.cat===CAT.bst)bst+=r.jumlah;
+    if(r.cat.startsWith('pembesaran'))pemb+=r.jumlah;
     if(PEMANFAATAN.has(r.cat))pemanfaatan+=r.jumlah;
     if(r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
   });
-  return{semai,bst,pemanfaatan,jenis:jenisSet.size};
+  return{semai,pemb,pemanfaatan,jenis:jenisSet.size};
 }
 
-// cumulative: transaksi s/d akhir periode (stok); selain itu hanya di periode
 function flowByJenis(year,cumulative=false){
   const list=cumulative?stockRows(year):year==='all'?rows:rows.filter(r=>r.year===year);
   const by={};
@@ -294,31 +290,17 @@ function flowByJenis(year,cumulative=false){
   });
   return Object.values(by).map(o=>{
     const c=k=>o.c[k]||0;
-    const masuk=c(CAT.semai);                                                   // B  Semai - Biji
-    const dist=c(CAT.tanam)+c(CAT.sulam)+c(CAT.support);                        // U  Total pemanfaatan
-    const proses=Math.max(0,c(CAT.pemb)-c(CAT.matiPemb)-c(CAT.bst));            // E  Pembesaran - Regular
-    const stok=Math.max(0,c(CAT.bst)-c(CAT.matiBst)-dist);                      // H  BST - Regular
-    const mati=Object.keys(o.c).filter(isMati).reduce((a,k)=>a+o.c[k],0);      // N  Total Mati ("*Mati*")
-    // Sisa semai; 0 bila neraca sheet seimbang (W = 0)
+    const masuk=c(CAT.semai);
+    const dist=c(CAT.tanam)+c(CAT.sulam)+c(CAT.support);
+    const proses=Math.max(0,c(CAT.pemb)-c(CAT.matiPemb)-c(CAT.bst));
+    const stok=Math.max(0,c(CAT.bst)-c(CAT.matiBst)-dist);
+    const mati=Object.keys(o.c).filter(isMati).reduce((a,k)=>a+o.c[k],0);
     const semai=Math.max(0,masuk-c(CAT.pemb)-c(CAT.matiSemai));
     return{jenis:o.jenis,c:o.c,masuk,semai,proses,stok,dist,mati,total:semai+proses+stok+dist+mati};
   }).filter(o=>o.total>0);
 }
 
-// Stok BST aktual = akumulasi s/d akhir periode (rumus kolom H)
 const stockRows=year=>year==='all'?rows:rows.filter(r=>r.year&&r.year<=year);
-function bstStockActual(year){
-  const by={};
-  stockRows(year).forEach(r=>{
-    if(!r.jenis||r.jenis==='#N/A')return;
-    const o=by[r.jenis.toLowerCase()]||(by[r.jenis.toLowerCase()]={});
-    o[r.cat]=(o[r.cat]||0)+r.jumlah;
-  });
-  return Object.values(by).reduce((sum,c)=>{
-    const g=k=>c[k]||0;
-    return sum+Math.max(0,g(CAT.bst)-g(CAT.matiBst)-g(CAT.tanam)-g(CAT.sulam)-g(CAT.support));
-  },0);
-}
 
 function stockAsOf(year){
   const fmt=(y,mo,dd)=>new Date(y,mo-1,dd).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
@@ -336,12 +318,12 @@ function flowTotals(year){
     tipe.Proses.total+=o.proses;
     tipe.BST.total+=o.stok;
     tipe.Pemanfaatan.total+=o.dist;
-    tipe.Mati.total+=o.mati;
+    tipe.Mati.total+=o.mati-(SHOW_MATI_SEMAI?0:o.c[CAT.matiSemai]||0);
     Object.entries(o.c).forEach(([k,v])=>{cat[k]=(cat[k]||0)+v;});
   });
   const g=k=>cat[k]||0;
   tipe.Pemanfaatan.parts=[['Penanaman',g(CAT.tanam)],['Penyulaman',g(CAT.sulam)],['Support',g(CAT.support)]];
-  tipe.Mati.parts=Object.keys(cat).filter(isMati).sort().map(k=>[CAT_LABEL[k]||k,cat[k]]);
+  tipe.Mati.parts=Object.keys(cat).filter(k=>isMati(k)&&(SHOW_MATI_SEMAI||k!==CAT.matiSemai)).sort().map(k=>[CAT_LABEL[k]||k,cat[k]]);
   return tipe;
 }
 
@@ -536,21 +518,20 @@ function ageChartHTML(year,periode){
     </div>`;
 }
 
-// SR = 1 − mati ("*Mati*") ÷ Semai - Biji per batch; untuk batch yang sudah BST sama dengan TOTAL SR Referral List
 function survivalChartHTML(year,periode){
   const by={};
   rows.forEach(r=>{
     if(!validId(r.id)||!inCohort(r,year)||!r.jenis||r.jenis==='#N/A')return;
     const k=r.jenis.toLowerCase();
-    const o=by[k]||(by[k]={jenis:r.jenis,semai:0,mati:{},batch:new Set()});
-    if(r.cat===CAT.semai){o.semai+=r.jumlah;o.batch.add(r.id);}
-    if(isMati(r.cat))o.mati[r.cat]=(o.mati[r.cat]||0)+r.jumlah;
+    const o=by[k]||(by[k]={jenis:r.jenis,pemb:0,mati:{},batch:new Set()});
+    if(r.cat.startsWith('pembesaran')){o.pemb+=r.jumlah;o.batch.add(r.id);}
+    if(isMati(r.cat)&&r.cat!==CAT.matiSemai)o.mati[r.cat]=(o.mati[r.cat]||0)+r.jumlah;
   });
-  const data=Object.values(by).filter(o=>o.semai>0).map(o=>{
+  const data=Object.values(by).filter(o=>o.pemb>0).map(o=>{
     const mati=Object.values(o.mati).reduce((a,v)=>a+v,0);
-    return{...o,totalMati:mati,rate:Math.min(100,Math.max(0,1-mati/o.semai)*100)};
+    return{...o,totalMati:mati,rate:Math.min(100,Math.max(0,1-mati/o.pemb)*100)};
   }).sort((a,b)=>b.rate-a.rate);
-  const sumS=data.reduce((a,o)=>a+o.semai,0),sumM=data.reduce((a,o)=>a+o.totalMati,0);
+  const sumS=data.reduce((a,o)=>a+o.pemb,0),sumM=data.reduce((a,o)=>a+o.totalMati,0);
   const avg=sumS?Math.min(100,Math.max(0,1-sumM/sumS)*100):0;
   const rowsHtml=data.map(o=>`
     <div class="sv-row" tabindex="0">
@@ -558,7 +539,7 @@ function survivalChartHTML(year,periode){
       <div class="sv-track"><div class="sv-bar" style="width:${o.rate}%"></div></div>
       <div class="sv-pct">${fmtPct(o.rate)}</div>
       <div class="tt-box sv-tt"><div class="tt-head"><strong>${esc(o.jenis)}</strong> &middot; ${o.batch.size} batch</div>
-        <div class="tt-row"><span>Bibit semai</span><span>${fmtInt(o.semai)}</span></div>
+        <div class="tt-row"><span>Bibit pembesaran</span><span>${fmtInt(o.pemb)}</span></div>
         ${Object.entries(o.mati).sort().map(([k,v])=>`<div class="tt-row"><span>${esc(CAT_LABEL[k]||k)}</span><span>${fmtInt(v)}</span></div>`).join('')}
         <div class="tt-row"><span>Total mati</span><span>${fmtInt(o.totalMati)}</span></div>
         <div class="tt-row"><span>Survival rate</span><span><b>${fmtPct(o.rate)}</b></span></div>
@@ -740,9 +721,10 @@ window.addEventListener('resize',()=>{clearTimeout(tmResizeTimer);tmResizeTimer=
 function render(){
   const s=computeStats(selectedYear);
   const flow=flowTotals(selectedYear);
+  const stokBibit=compositionByJenis(selectedYear).reduce((a,o)=>({proses:a.proses+o.proses,stok:a.stok+o.stok}),{proses:0,stok:0});
   const jenisAll=computeStats('all').jenis;
   const jenisNote=selectedYear==='all'
-    ?'Jenis tanaman unik (Sepanjang Waktu)'
+    ?'Jenis tanaman unik'
     :`${fmtInt(jenisAll)} jenis sepanjang waktu`;
   const periode=selectedYear==='all'?'Sepanjang Waktu':`Tahun ${selectedYear}`;
   const cohort=selectedYear==='all'?'Semua batch':`Batch semai ${selectedYear}`;
@@ -753,26 +735,31 @@ function render(){
       <div class="year-filter-chips">${chips}</div>
     </div>
     <div class="sec-title">Nursery</div>
-    <div class="grid-row">
+    <div class="kpi-grid">
       <div class="card">
-        <div class="card-lbl">Jumlah Jenis Tanaman di Nursery</div>
+        <div class="card-lbl">Jumlah Jenis Tanaman</div>
         <div class="card-val-lg">${fmtInt(s.jenis)}</div>
         <div class="card-note">${jenisNote}</div>
       </div>
-      <div class="card">
-        <div class="card-lbl">Stok BST Aktual</div>
-        <div class="card-val-lg">${fmtInt(bstStockActual(selectedYear))}</div>
-        <div class="card-note">${stockAsOf(selectedYear)?`Per ${stockAsOf(selectedYear)}`:'Bibit siap tanam yang ada saat ini'}</div>
+      <div class="card split-card">
+        <div class="card-lbl">Stok Bibit</div>
+        <div class="card-val-lg">${fmtInt(stokBibit.proses+stokBibit.stok)}</div>
+        <div class="card-note">Tersedia di nursery${stockAsOf(selectedYear)?` per ${stockAsOf(selectedYear)}`:''}</div>
+        <div class="ss-div"></div>
+        <div class="ss-parts">
+          <div class="ss-part"><div class="ss-lbl">Stok Pembesaran</div><div class="ss-val">${fmtInt(stokBibit.proses)}</div></div>
+          <div class="ss-part"><div class="ss-lbl">Stok BST</div><div class="ss-val">${fmtInt(stokBibit.stok)}</div></div>
+        </div>
       </div>
       <div class="card">
-        <div class="card-lbl">Produksi BST</div>
-        <div class="card-val-lg">${fmtInt(s.bst)}</div>
-        <div class="card-note">Total produksi BST ${selectedYear==='all'?'sepanjang waktu':`tahun ${selectedYear}`}</div>
+        <div class="card-lbl">Produksi Bibit</div>
+        <div class="card-val-lg">${fmtInt(s.pemb)}</div>
+        <div class="card-note">Total benih yang berhasil tumbuh menjadi bibit</div>
       </div>
       <div class="card">
-        <div class="card-lbl">Pemanfaatan</div>
+        <div class="card-lbl">Distribusi Bibit</div>
         <div class="card-val-lg">${fmtInt(s.pemanfaatan)}</div>
-        <div class="card-note">Tanaman yang sudah dimanfaatkan</div>
+        <div class="card-note">Bibit yang sudah didistribusikan</div>
       </div>
     </div>
     <div class="row-head">
@@ -785,7 +772,7 @@ function render(){
     </div>
     <div class="row-head">
       <div class="row-title">Kondisi Bibit</div>
-      <div class="row-desc">Menampilkan bibit yang masih hidup di nursery berdasarkan usianya, serta tingkat keberhasilan (survival rate) setiap jenis tanaman dari semai hingga menjadi bibit siap tanam (BST).</div>
+      <div class="row-desc">Menampilkan bibit yang masih hidup di nursery berdasarkan usianya, serta tingkat keberhasilan (survival rate) setiap jenis tanaman sejak masuk pembesaran hingga menjadi bibit siap tanam (BST).</div>
     </div>
     <div class="chart-pair even">
       ${ageChartHTML(selectedYear,stockAsOf(selectedYear)?`Per ${stockAsOf(selectedYear)}`:periode)}

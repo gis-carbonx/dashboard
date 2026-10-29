@@ -157,7 +157,6 @@ function pickCI(raw,keys,...names){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Stok nursery = snapshot tahap tertentu; Semai Biji, Grafting mentah, Mati & output tidak dihitung
 function classifyCategory(raw){
   const n=str(raw).toLowerCase().replace(/[^a-z]/g,'');
   if(!n)return'none';

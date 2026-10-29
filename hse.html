@@ -160,7 +160,6 @@ const addDays=(iso,n)=>{const d=toDate(iso);d.setDate(d.getDate()+n);return toIs
 const dayDiff=(a,b)=>Math.round((toDate(b)-toDate(a))/864e5);
 const fmtDate=(iso,month='long')=>iso?toDate(iso).toLocaleDateString('id-ID',{day:'numeric',month,year:'numeric'}):'–';
 const fmtMonth=(k,month='long')=>new Date(+k.slice(0,4),+k.slice(5,7)-1,1).toLocaleDateString('id-ID',{month,year:'numeric'});
-// Jam desimal jam.menit: 9.45 = 09.45
 const fmtJam=v=>{const s=str(v);if(!s)return'';const [h,m='0']=s.split(/[.:]/);return h.padStart(2,'0')+'.'+m.padEnd(2,'0').slice(0,2);};
 
 function pickCI(raw,keys,...names){
@@ -314,7 +313,6 @@ function parseManhours(csv){
 const MH_COLOR='#356760';
 const LTI_COLOR='#c0611c',LTI_FILL='rgba(192,97,28,.15)';
 
-// Pola hari kerja dari kolom G: setiap hari / Sen–Jum / Sen–Sab
 const countDays=(a,b,mode)=>{
   let n=0;
   for(let d=toDate(a),e=toDate(b);d<=e;d.setDate(d.getDate()+1)){
@@ -331,7 +329,6 @@ function workMode(r){
   return r._mode;
 }
 
-// Manhours proporsional hari kerja dalam periode
 function mhShare(r,ranges,after){
   const mode=workMode(r);
   if(!r._days)return 0;
@@ -344,7 +341,6 @@ function mhShare(r,ranges,after){
   return r.manhours*days/r._days;
 }
 
-// Bulan terpecah: ambil maks. manpower per unit/kelompok/lokasi, bukan dijumlah
 function manpowerByUnit(list){
   const seg={};
   list.forEach(r=>{const k=[r.month,r.unit,r.kelompok,r.lokasi].join('|');seg[k]=Math.max(seg[k]||0,r.manpower);});
@@ -362,7 +358,6 @@ function manpowerSum(list){
   const n=Object.keys(by).length;
   return{unit,total,avg:n?total/n:0};
 }
-// Minggu lintas bulan: ambil bulan terbesar
 function manpowerMax(list){
   const by=manpowerByUnit(list),unit={};
   let total=0;
@@ -374,7 +369,6 @@ function manpowerMax(list){
 }
 const mpRowsIn=ranges=>mhRows.filter(r=>r.mpValid&&(!ranges||ranges.some(([a,b])=>r.start<=b&&r.end>=a)));
 
-// LTI free = manhours sejak LTI/fatality terakhir s/d akhir periode (maks. hari ini)
 function ltiFree(ranges){
   const today=todayIso();
   const end=ranges&&ranges.length?ranges.map(r=>r[1]).sort().pop():today;
@@ -473,7 +467,6 @@ function drawMhChart(ranges,inc){
   }));
   const mpCanvas=document.getElementById('mpChart');
   if(!mpCanvas)return;
-  // Label sistematis: interval tetap ~8 label, dihitung mundur dari titik terakhir
   const step=Math.max(1,Math.ceil(bk.length/8));
   const lastMp=mpBk.reduce((m,v,i)=>v?i:m,-1);
   const mpShow=mpBk.map((v,i)=>v&&(lastMp-i)%step===0?i:-1).filter(i=>i>=0);
@@ -626,7 +619,6 @@ function chartsHTML(inc,periode){
     </div>`;
 }
 
-// Satuan grafik: tahunan / mingguan Sab–Jum / bulanan
 function periodBuckets(ranges,first){
   const today=todayIso();
   const yq=periodMode==='yq',sub=currentQuarter!=='all'||currentMonth!=='all';

@@ -387,7 +387,6 @@ function renderTable(){
   document.getElementById('pgPrev').disabled=currentPage<=1;
   document.getElementById('pgNext').disabled=currentPage>=totalPages;
 }
-// Export: seluruh data hasil filter, bukan hanya halaman tabel
 const EXPORT_HEADERS=['Tanggal','Jam','Latitude','Longitude','Desa','Blok','Satelit','Instrumen','Owner','Penutup Lahan','Keterangan'];
 function exportRows(){
   const pad=n=>String(n).padStart(2,'0');
@@ -444,7 +443,7 @@ function renderBlokSummary(rows){
 let fireTrendChartInst=null;
 function isoWeekKey(d){
 
-  const dt=new Date(d);const day=(dt.getDay()+6)%7; // 0=Senin
+  const dt=new Date(d);const day=(dt.getDay()+6)%7;
   dt.setDate(dt.getDate()-day);dt.setHours(0,0,0,0);
   return dateKey(dt);
 }
@@ -533,7 +532,6 @@ let fireYears=[],yearFilter=null,quarterFilter=null;
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -550,7 +548,6 @@ function getSelectedWeek(){
   return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
 }
 
-// Rentang tanggal kontinu untuk filter aktif (null bila tidak kontinu, mis. Q1 semua tahun)
 function currentRange(){
   const now=new Date(),endToday=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59,999);
   if(periodMode==='ytd')return[new Date(now.getFullYear(),0,1),endToday];
@@ -770,7 +767,6 @@ Papa.parse(BMKG_URL,{download:true,header:false,skipEmptyLines:true,complete:(re
   }).filter(Boolean).sort((a,b)=>a.dateObj-b.dateObj);
 
   const now=new Date();
-  // Jam yang sudah lewat tidak ditampilkan (slot jam berjalan tetap ikut)
   const hourStart=new Date(now.getFullYear(),now.getMonth(),now.getDate(),now.getHours());
   const upcoming=forecastBmkg.filter(d=>d.dateObj>=hourStart);
 
@@ -803,15 +799,6 @@ function fdrsBadgeClass(status){
   if(s==='MEDIUM')return'fdrs-medium';
   return'fdrs-medium';
 }
-function pickField(raw,...names){
-  const keys=Object.keys(raw);
-  const norm=s=>s.toString().trim().toLowerCase();
-  for(const want of names){
-    const found=keys.find(k=>norm(k)===norm(want));
-    if(found!==undefined)return raw[found];
-  }
-  return undefined;
-}
 function parseFdrsDate(v){
   const s=str(v).trim();
   const MON={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,agt:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
@@ -827,9 +814,7 @@ fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   const normalized=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const parsed=Papa.parse(normalized,{header:false,skipEmptyLines:true});
   const allRows=parsed.data;
-  console.log('[FDRS] semua baris mentah:',allRows);
 
-  // Baris tanggal = baris dengan sel tanggal terbanyak; kolom dipilih = tanggal terbaru yang ada isinya
   let dateRow=null,best=0;
   allRows.forEach(row=>{const n=row.filter(c=>parseFdrsDate(c)).length;if(n>best){best=n;dateRow=row;}});
   const findLoc=re=>allRows.find(row=>re.test(str(row[0]).replace(/\s+/g,' ').trim()));
@@ -843,7 +828,6 @@ fetch(FDRS_URL).then(r=>r.text()).then(text=>{
     if(!str(row1&&row1[i]).trim()&&!str(row2&&row2[i]).trim())return;
     if(!latest||d>latest){latest=d;col=i;}
   });
-  console.log('[FDRS] kolom tanggal terbaru:',col,str(dateRow[col]));
   if(col<0){document.getElementById('fdrsDate').textContent='Data tidak tersedia';return;}
 
   const blok1=str(row1&&row1[col]).trim();

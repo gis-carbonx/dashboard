@@ -685,7 +685,6 @@ const catColorMap={};
 function catColor(cat){if(!catColorMap[cat])catColorMap[cat]=PALETTE[Object.keys(catColorMap).length%PALETTE.length];return catColorMap[cat];}
 
 function fmtLabel(s){return(s||'').replace(/_/g,' ');}
-// ID patroli ada di kolom data-meta-instanceID (format "uuid:..."); _id/id dipertahankan untuk data lama
 function patrolId(r){return(r['data-meta-instanceID']||r['_id']||r['id']||'').replace(/^uuid:/,'');}
 function convert(url){if(!url||!url.trim())return null;const id=url.match(/[-\w]{25,}/);return id?`https://drive.google.com/thumbnail?id=${id[0]}&sz=w1000`:null;}
 function toMidnight(y,m,d){return new Date(y,m,d);}

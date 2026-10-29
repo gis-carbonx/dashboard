@@ -86,11 +86,11 @@
 
   .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
   @media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
-  .stat-label{font-size:11px;color:#6A665B;font-weight:600;margin-bottom:10px}
-  .stat-value{font-size:22px;font-weight:800;color:var(--color-pine);line-height:1}
-  .stat-value small{font-size:12px;font-weight:700;margin-left:3px}
-  .stat-sub{font-size:10.5px;color:#6A665B;font-weight:600;margin-top:5px}
+  .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:18px 20px}
+  .stat-label{font-size:13px;color:#6A665B;font-weight:600;margin-bottom:8px}
+  .stat-value{font-size:28px;font-weight:800;color:var(--color-pine);line-height:1;letter-spacing:-.01em}
+  .stat-value small{font-size:14px;font-weight:700;margin-left:3px}
+  .stat-sub{font-size:10.5px;color:#6A665B;font-weight:500;line-height:1.45;margin-top:8px}
   .chart-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:16px}
   .chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   .chart-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:10.5px;color:#6A665B;font-weight:600}
@@ -362,13 +362,11 @@
 <script>
 'use strict';
 const GIBS='https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
-// windowH = jam pencarian ke belakang, frames = jumlah frame animasi
 const LAYERS={
   ir:     {id:'Himawari_AHI_Band13_Clean_Infrared',label:'Inframerah',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
            note:'Animasi 3 jam terakhir, interval 10 menit. Citra biasanya tersedia 20–40 menit setelah observasi.'},
   rain:   {id:'IMERG_Precipitation_Rate_30min',   label:'Curah Hujan',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:36,frames:12,
            legend:'https://gibs.earthdata.nasa.gov/legends/GPM_Precipitation_Rate_H.svg',
-           // Legenda SVG: Rain Rate di y 0–63,18 (Snow Rate di bawahnya tidak dipakai)
            legendSize:[302.4,140.4],legendCrops:[[0,63.18]],
            note:'Animasi 6 jam data terakhir yang tersedia, interval 30 menit. Data IMERG terlambat sekitar 4–6 jam dari waktu sekarang.'},
   vis:    {id:'Himawari_AHI_Band3_Red_Visible_1km',label:'Visible',   tms:'GoogleMapsCompatible_Level7',maxNative:7,windowH:6,frames:18,
@@ -393,7 +391,6 @@ fetch(CMI_URL).then(r=>r.json()).then(j=>{
   map.setView(b.getBounds().getCenter(),7);
 }).catch(()=>{});
 
-// Format Domains GIBS: "start/end/PT10M,..." atau ".../P1D"
 function isoMin(d){return d.toISOString().slice(0,19)+'Z';}
 function isoDay(d){return d.toISOString().slice(0,10);}
 function periodMs(p){
@@ -414,7 +411,6 @@ async function fetchFrames(key){
     const t1=new Date(b.includes('T')?b:b+'T00:00:00Z'),step=periodMs(p);
     for(let t=t0.getTime();t<=t1.getTime();t+=step)times.push(new Date(t));
   });
-  // Ambil N frame terakhir yang tersedia (tiap layer punya jeda berbeda)
   return times.filter(t=>t>=start).sort((a,b)=>a-b).slice(-L_.frames);
 }
 
@@ -455,7 +451,6 @@ async function loadLayer(key){
   const lb=document.getElementById('legendBar');
   lb.classList.toggle('visible',!!L_.legend);
   if(L_.legend){
-    // legendCrops = [y awal, tinggi] tiap skala (satuan SVG)
     const [w,h]=L_.legendSize||[1,1],crops=L_.legendCrops||[[0,h]];
     lb.innerHTML=`<div class="legend-row" style="--n:${crops.length}">`
       +crops.map(([y0,ch])=>`<div class="legend-crop" style="--ar:${w}/${ch}">`
@@ -539,7 +534,6 @@ function pastRegionPlugin(cut,isBar,pastLabel=null,futLabel=null){
     }};
 }
 const RAIN_MODEL='ecmwf_ifs',RAIN_PX_PER_BLOCK=54;
-// Kode cuaca WMO (weather_code Open-Meteo): [label, ikon, tingkat signifikansi]
 const WMO={0:['Cerah','☀️',0],1:['Cerah berawan','🌤️',1],2:['Berawan','⛅',2],3:['Mendung','☁️',3],45:['Kabut','🌫️',4],48:['Kabut','🌫️',4],
   51:['Gerimis','🌦️',5],53:['Gerimis','🌦️',6],55:['Gerimis','🌦️',7],56:['Gerimis','🌦️',7],57:['Gerimis','🌦️',7],
   61:['Hujan ringan','🌧️',8],80:['Hujan ringan','🌧️',8],63:['Hujan sedang','🌧️',9],81:['Hujan sedang','🌧️',9],66:['Hujan sedang','🌧️',9],
@@ -547,21 +541,18 @@ const WMO={0:['Cerah','☀️',0],1:['Cerah berawan','🌤️',1],2:['Berawan','
 const wmo=c=>WMO[c]||['–','',-1];
 const DAY_SHORT=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const wxIcon=(code,isDay)=>{const i=wmo(code)[1];if(isDay!==0)return i;return code<=1?'🌙':code===2?'☁️':i;};
-// Kondisi yang paling sering dalam rentang jam (seri → yang lebih signifikan)
 function blockCode(codes,s,e){
   const n={};for(let i=s;i<e;i++){const l=wmo(codes[i])[0];n[l]=(n[l]||0)+1;}
   let best=codes[s];
   for(let i=s;i<e;i++){const a=wmo(codes[i]),b=wmo(best);if(n[a[0]]>n[b[0]]||(n[a[0]]===n[b[0]]&&a[2]>b[2]))best=codes[i];}
   return best;
 }
-// Ambang kode cuaca WMO di Open-Meteo (WeatherCode.swift), dalam intensitas mm/jam
 const RAIN_CATS=[
   {max:1.3,lbl:'Gerimis',rng:'< 1,3',color:'#8fbfa6'},
   {max:2.5,lbl:'Ringan',rng:'1,3–2,5',color:'#356760'},
   {max:7.6,lbl:'Sedang',rng:'2,5–7,6',color:'#d9a21b'},
   {max:Infinity,lbl:'Lebat',rng:'> 7,6 mm/jam',color:'#d9480f'}];
 const rainCat=v=>RAIN_CATS.find(c=>v<c.max);
-// Garis batas kategori + satu label per pita kategori di awal setiap hari
 function rainBandsPlugin(blocks){
   return{id:'rainBands',
     beforeDatasetsDraw(c){
@@ -582,7 +573,6 @@ function rainBandsPlugin(blocks){
       ctx.restore();
     }};
 }
-// Header per slot: tanggal + resolusi (awal hari), jam, ikon, suhu
 function wxDecorPlugin(blocks){
   return{id:'wxDecor',
     afterDraw(c){
@@ -608,21 +598,19 @@ function wxDecorPlugin(blocks){
 }
 let rainChart=null;
 function fmtMm(v){return v.toLocaleString('id-ID',{maximumFractionDigits:1});}
-// Hari ini per jam, berikutnya per 3 jam; sumbu Y = intensitas rata-rata mm/jam agar sebanding dengan ambang kategori
 async function loadPointRain(lat,lon){
   const msg=document.getElementById('rainChartMsg');
   document.getElementById('rainCatLegend').innerHTML=RAIN_CATS.map(c=>`<span><i style="background:${c.color}"></i>${c.lbl} ${c.rng}</span>`).join('');
   try{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`
-      +'&hourly=precipitation,precipitation_probability,weather_code,temperature_2m,is_day'
+      +'&hourly=precipitation,weather_code,temperature_2m,is_day'
       +`&forecast_days=6&timezone=Asia%2FJakarta&models=${RAIN_MODEL}`;
     const j=await (await fetch(url)).json();
     const h=j.hourly;if(!h||!h.time)throw new Error('respons tidak valid');
-    // Waktu Open-Meteo sudah WIB; dibandingkan sebagai jam lokal
     const pad=n=>String(n).padStart(2,'0');
     const nowW=new Date(Date.now()+7*3600e3),nowKey=`${nowW.getUTCFullYear()}-${pad(nowW.getUTCMonth()+1)}-${pad(nowW.getUTCDate())}T${pad(nowW.getUTCHours())}:00`;
     let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
-    const rain=h.precipitation.map(v=>v||0),prob=h.precipitation_probability.map(v=>v??0);
+    const rain=h.precipitation.map(v=>v||0);
 
     const len=h.time.length,today=nowKey.slice(0,10);
     const mk=(s,e)=>{const m=Math.min(s+1,e-1),sum=rain.slice(s,e).reduce((a,b)=>a+b,0);
@@ -679,7 +667,6 @@ async function loadPointRain(lat,lon){
     msg.textContent='Gagal memuat prakiraan cuaca dari Open-Meteo.';msg.style.color='#a5382c';
   }
 }
-// Kategori US AQI (EPA), bukan ISPU KLHK
 const AQI_CATS=[
   {max:50, label:'Baik',                               color:'#2e7d32'},
   {max:100,label:'Sedang',                             color:'#b08900'},
@@ -704,7 +691,6 @@ async function loadPointAirQuality(lat,lon){
     let nowIdx=h.time.indexOf(nowKey);if(nowIdx<0)nowIdx=h.time.findIndex(t=>t>nowKey);if(nowIdx<0)nowIdx=h.time.length-1;
     const from=Math.max(0,nowIdx-24),to=Math.min(h.time.length,nowIdx+73);
     const times=h.time.slice(from,to),pm=h.pm2_5.slice(from,to),cut=nowIdx-from;
-    // Open-Meteo tidak menyimpan prakiraan lama kualitas udara, jadi tanpa pembanding
 
     const past=pm.slice(0,cut).filter(v=>v!=null);
     const avg=past.length?past.reduce((a,b)=>a+b,0)/past.length:null;
@@ -754,7 +740,6 @@ async function loadPointAirQuality(lat,lon){
   }
 }
 
-// GetCapabilities tanpa CORS: frame per 3 jam dimuat dulu, yang gagal (balasan XML) dibuang
 const CAMS_WMS='https://eccharts.ecmwf.int/wms/?token=public';
 const AQ_BOUNDS=L.latLngBounds([-5,106],[5,119]);
 const AQ_COLORS=[[2,'#1464d1'],[5,'#2881ef'],[10,'#50a4f4'],[20,'#00db00'],[30,'#50ef50'],[40,'#9fe532'],
@@ -845,14 +830,12 @@ aqMap.on('click',async e=>{
 loadAqMap();
 }
 
-// Sementara disembunyikan; ubah ke true untuk menampilkan lagi
 const SHOW_AIR_QUALITY=false;
 if(SHOW_AIR_QUALITY){
   document.getElementById('aqSection').hidden=false;
   initAirQualityMap();
 }
 
-// Grid prakiraan = area peta terlihat + 1 langkah, serapat mungkin dalam FC_MAX_POINTS (batas Open-Meteo 600/menit); interpolasi bicubic
 const FC_LAT_HALF=1.6,FC_MAX_POINTS=560,FC_HOURS=48;
 const FC_CACHE_KEY='weather.fcGrid.v5',FC_CACHE_MS=2*3600e3;
 const FC_ACC_H=6;
@@ -865,7 +848,6 @@ async function fetchForecastGrid(cells,sig){
     if(c&&c.sig===sig&&Date.now()-c.ts<FC_CACHE_MS&&c.data.length===cells.length)return c;
   }catch(e){}
   const chunks=[];for(let i=0;i<cells.length;i+=150)chunks.push(cells.slice(i,i+150));
-  // Open-Meteo sesekali membalas "service is overloaded"; tiap bagian dicoba ulang hingga 3 kali
   const parts=await Promise.all(chunks.map(async ch=>{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${ch.map(c=>c.lat).join(',')}&longitude=${ch.map(c=>c.lon).join(',')}`
       +`&hourly=precipitation&forecast_hours=${FC_HOURS}&timezone=Asia%2FJakarta&models=${RAIN_MODEL}`;
@@ -984,7 +966,6 @@ async function initRainForecastMap(lat,lon){
   }
 }
 
-// Radar RainViewer: frame 10 menit untuk 2 jam terakhir; tile gratis tersedia hingga zoom 7 (diperbesar di atasnya)
 const RV_API='https://api.rainviewer.com/public/weather-maps.json';
 function initRadarMap(lat,lon){
   const rvMap=L.map('rvMap',{zoomControl:true,attributionControl:true,minZoom:5,maxZoom:10});
@@ -1045,7 +1026,6 @@ function initRadarMap(lat,lon){
   setInterval(load,10*60e3);
 }
 
-// Titik acuan = kantor CMI Raut
 const OBS_POINT={lat:0.81636,lon:110.348495};
 initRainForecastMap(OBS_POINT.lat,OBS_POINT.lon);
 loadPointRain(OBS_POINT.lat,OBS_POINT.lon);

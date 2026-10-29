@@ -22,10 +22,10 @@ body{display:flex;flex-direction:column}
 .stat-pairs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:16px;flex-shrink:0}
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:900px){.stat-pairs{grid-template-columns:1fr;gap:14px}}
-.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 16px}
-.stat-lbl{font-size:11px;color:var(--text-2);font-weight:600;margin-bottom:10px}
-.stat-val{font-size:22px;font-weight:800;color:var(--primary);line-height:1}
-.stat-sub{font-size:10.5px;color:var(--text-2);font-weight:600;margin-top:5px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.stat-lbl{font-size:13px;color:var(--text-2);font-weight:600;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:800;color:var(--primary);line-height:1;letter-spacing:-.01em}
+.stat-sub{font-size:10.5px;color:var(--text-2);font-weight:500;line-height:1.45;margin-top:8px}
 
 .filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;flex-shrink:0}
 .explore-filters{display:flex;gap:8px;flex-wrap:wrap}
@@ -207,7 +207,6 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-// Baca kolom lewat nama header; posisi kolom hanya cadangan
 function colV(raw,keys,names,idx){
   const v=pickCI(raw,keys,...names);
   if(v!==undefined)return v;
@@ -219,7 +218,6 @@ let EXISTING_PLANT_COLS=[],PLANTED_PLANT_COLS=[];
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // Header "E-<jenis>" = tanaman eksisting, "P-<jenis>" = tanaman program
   const headerKeys=data.length?Object.keys(data[0]):[];
   EXISTING_PLANT_COLS=[];PLANTED_PLANT_COLS=[];
   headerKeys.forEach(h=>{
@@ -245,7 +243,7 @@ function parseSheet(csv){
     const existingPlants=EXISTING_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
-    if(!prog)return; // fokus halaman ini: lahan program Agroforestri/Reforestasi saja
+    if(!prog)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
     sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,tglRealisasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,jumlahTanaman,existingPlants,plantedPlants};
@@ -260,7 +258,6 @@ function parseMonDate(s){
   return m?new Date(+m[1],+m[2]-1,+m[3]):parseDate(s);
 }
 
-// Baris dengan Kode Petak + Tanggal + Kategori + Intervensi yang sama digabung jadi satu kegiatan
 function parseMonitoring(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   monMap={};
@@ -399,7 +396,6 @@ function computeStats(){
     if(st.group==='agro')luasAgro+=luas;else luasTemb+=luas;
     tanamanTotal+=r.jumlahTanaman;
     if(parseDate(r.tglRealisasi))luasTertanam+=luas;
-    // Petani dihitung hanya bila Jenis Kelamin terisi (sama dengan planting-summary)
     const p=str(r.petani).toLowerCase(),g=str(r.jk).toLowerCase();
     if(!p)return;
     if(g.startsWith('laki')){laki.add(p);petaniSet.add(p);}
@@ -699,7 +695,6 @@ function renderPage(){
   }else window.addEventListener('resize',fitExploreRow);
 }
 
-// Tinggi daftar: saat pencarian di batas atas, pencarian + filter + daftar muat satu layar
 function fitExploreRow(){
   const sc=document.querySelector('.page-scroll'),search=document.getElementById('searchInput'),row=document.getElementById('exploreRow');
   if(!sc||!search||!row)return;

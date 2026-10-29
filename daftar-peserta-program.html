@@ -173,7 +173,6 @@ function setPill(key,val,btn){
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // "P-<jenis>" = tanaman program, "E-<jenis>" = tanaman eksisting
   const plantCols=[],existCols=[];
   (data.length?Object.keys(data[0]):[]).forEach(h=>{
     let m=h.match(/^P-\s*(.+)$/i);if(m){plantCols.push({header:h,name:m[1].trim()});return;}
@@ -202,7 +201,6 @@ function parseSheet(csv){
   });
 }
 
-// full = disembunyikan saat panel terbuka
 const COLS=[
   {key:'petani',label:'Nama Petani'},
   {key:'id',label:'ID Lahan',full:true},
@@ -234,7 +232,7 @@ function visibleRows(){
   const sorter=SORTERS[sortState.key];
   return rows.filter(r=>(!q||r.petani.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))
     &&(!state.prog||r.prog===state.prog)&&(!state.desa||r.desa===state.desa)&&(!state.kth||r.kth===state.kth)
-    &&(!state.status||(state.status==='tanam')===!!parseDate(r.tglRealisasi))) // Penanaman = punya Tgl_Realisasi
+    &&(!state.status||(state.status==='tanam')===!!parseDate(r.tglRealisasi)))
     .sort((a,b)=>sortState.dir*sorter(a,b)||cmpText(a.petani,b.petani)||cmpText(a.id,b.id));
 }
 

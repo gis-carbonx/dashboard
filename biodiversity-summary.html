@@ -41,6 +41,9 @@
     .card-lbl.species small{display:block;font-style:normal;font-weight:600;color:var(--text-2);font-size:10.5px;margin-top:2px}
     .quad-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
     @media (max-width:900px){.quad-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .pair-row,.quad-row{row-gap:0}
+    .pair-row>.card,.quad-row>.card{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-items:start}
+    @media (max-width:900px){.quad-row>.card{margin-bottom:14px}}
 
     .sebaran-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:8px}
     @media (max-width:900px){.sebaran-row{grid-template-columns:1fr}}
@@ -342,7 +345,6 @@ function parseDateStr(s){
   m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return toMidnight(+m[1],+m[2]-1,+m[3]);
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(m){if(+m[1]>12)return toMidnight(+m[3],+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(+m[3],+m[1]-1,+m[2]);return toMidnight(+m[3],+m[1]-1,+m[2]);}
-  // Tahun dua digit (mis. 5/8/26)
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if(m){const yyyy=+m[3]<=50?2000+ +m[3]:1900+ +m[3];if(+m[1]>12)return toMidnight(yyyy,+m[2]-1,+m[1]);if(+m[2]>12)return toMidnight(yyyy,+m[1]-1,+m[2]);return toMidnight(yyyy,+m[1]-1,+m[2]);}
   const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
@@ -442,9 +444,7 @@ function pickFieldExactOrPartial(row,...patterns){
 
 let ctRows=[],bioRows=[],gridGeo=null,boundaryGeo=null,patrolMap={},huntingRecords=[],patrolRows=[];
 let allCt=[],allBio=[],allHunting=[];
-// Alat terpasang = punya catatan (kolom Date) di periode filter; satu pemasangan = ID alat + Batch
 let ctDeployments=[],bioDeployments=[];
-// "CT 12" ≠ "CT12" (beda Site): jangan hapus spasi di tengah ID
 const normUnitId=s=>(s||'').trim();
 function buildDeployments(rows){
   return rows.filter(r=>r.id&&r.date);
@@ -458,7 +458,6 @@ function groupDeployments(rows){
   });
   return Object.values(map).map(d=>({...d,sites:[...d.sites]}));
 }
-// ≤ 5 alat: sebut ID + site; lebih banyak: ringkas per site agar kalimat tidak panjang
 let activeCtDeps=[],activeBioDeps=[];
 const MAX_LISTED=5;
 function deviceListText(deps){
@@ -475,7 +474,6 @@ function deviceListText(deps){
   const multi=sites.filter(([,n])=>n>1).slice(0,3);
   return` across ${sites.length} sites`+(multi.length?`, including ${fmt(multi)}`:'');
 }
-// Key species: catatan independen per trigger species, termasuk baris tanpa koordinat
 let keySpeciesRows=[];
 function renderKeySpecies(){
   const norm=s=>(s||'').trim().toLowerCase();
@@ -509,7 +507,6 @@ function renderDeviceCounts(){
 let years=[],currentYear='all',currentQuarter='all';
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
-// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -543,11 +540,6 @@ function periodLabel(){
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtShortD(wk.sat)} – ${fmtDateID(wk.fri)}`:'the selected week';}
   if(currentYear==='all')return currentQuarter==='all'?'the entire monitoring period':`Q${currentQuarter} across all years`;
   return currentQuarter==='all'?String(currentYear):`Q${currentQuarter} ${currentYear}`;
-}
-function periodYear(){
-  if(periodMode==='ytd'||periodMode==='mtd')return new Date().getFullYear();
-  if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri.getFullYear():null;}
-  return currentYear==='all'?null:+currentYear;
 }
 function setFilter(y){currentYear=y;periodMode='yq';applyFilter();}
 function setQuarter(q){currentQuarter=q;periodMode='yq';applyFilter();}
@@ -614,7 +606,6 @@ async function loadAll(){
   ]);
   boundaryGeo=boundary;
 
-  // Sheet patroli per tahun: kolom B tanggal, kolom F petak kerja (dipisah koma/titik/baris baru)
   patrolRows=patrolYearRaw.flat().map(r=>({date:parseDateStr(r[1]),petak:parsePetak(r[5])}))
     .filter(r=>r.date&&r.petak.length);
 
@@ -638,21 +629,6 @@ async function loadAll(){
     if(label)patrolMap[label.toLowerCase()]=val;
   });
 
-  console.log('[Hunting] raw rows fetched from submission sheet:',subRaw.length);
-  if(subRaw.length){
-    const actualHeaders=Object.keys(subRaw[0]);
-    console.log('[Hunting] headers actually fetched:',actualHeaders);
-    const looksRight=actualHeaders.some(h=>h.toLowerCase().includes('survey-finding'));
-    if(!looksRight){
-      console.warn('[Hunting] WARNING: the headers above do not contain "survey-finding" at all. '+
-        'This is a strong sign that gid=0 is NOT the correct "submission" tab, or the sheet has not '+
-        'been shared publicly ("Anyone with the link -> Viewer"). Open the submission tab in your '+
-        'browser, check "#gid=..." in the URL, and report that number so SUBMISSION_URL can be fixed.');
-    }
-  }else{
-    console.warn('[Hunting] 0 rows fetched at all. The sheet is most likely not shared publicly, '+
-      'or gid=0 is wrong/empty. Also check the Network tab in DevTools to inspect the raw response.');
-  }
   huntingRecords=subRaw.map(row=>{
     const findingRaw=pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding');
     return{
@@ -663,12 +639,7 @@ async function loadAll(){
       finding:(findingRaw||'').toString().trim().toLowerCase()
     };
   }).filter(r=>HUNTING_FINDINGS.includes(r.finding));
-  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0)); 
-  console.log('[Hunting] matching rows (gunshot_sound/wildlife_trap/hunter_shelter):',huntingRecords.length);
-  if(subRaw.length&&!huntingRecords.length){
-    const findingValues=new Set(subRaw.map(row=>(pickFieldExactOrPartial(row,'data-survey-finding','survey-finding','finding')||'').toString().trim()).filter(Boolean));
-    console.log('[Hunting] no matches found. Unique finding values present in the sheet:',[...findingValues]);
-  }
+  huntingRecords.sort((a,b)=>(b.dateObj||0)-(a.dateObj||0));
 
   document.getElementById('bioTodayDate').textContent=fmtDateID(new Date());
 
@@ -676,10 +647,7 @@ async function loadAll(){
   const maxDate=allDates.length?new Date(Math.max(...allDates.map(d=>d.getTime()))):null;
   document.getElementById('bioLastUpdated').textContent=fmtDateTimeID(maxDate);
 
-  // Apex predator dari seluruh data agar daftarnya sama di semua periode
   allCt=ctRows;allBio=bioRows;allHunting=huntingRecords;
-  // Kolom CT: [2] Batch [6] Site [9] CameraID [10] Date [14] Species [17] Independency
-  // Kolom bioacoustic: [0] Recorder [1] Batch [3] Grid [7] Date [10] Species (1 catatan/baris)
   const normSp=s=>(s||'').trim().toLowerCase();
   keySpeciesRows=[
     ...ctRaw.slice(1).map(r=>({unit:(r[9]||'').trim(),date:parseDateStr(r[10]),species:normSp(r[14]),indep:Math.max(0,parseInt(r[17])||0)})),
@@ -687,7 +655,6 @@ async function loadAll(){
   ].filter(r=>r.unit&&r.date&&r.species);
   ctDeployments=buildDeployments(ctRaw.slice(1).map(r=>({id:normUnitId(r[9]),name:normUnitId(r[9]),batch:(r[2]||'').trim(),
     site:(r[6]||'').trim(),date:parseDateStr(r[10])})));
-  // Bioacoustic tidak punya kolom Site; lokasi memakai Grid
   bioDeployments=buildDeployments(bioRaw.slice(1).map(r=>({id:normUnitId(r[0]),name:(r[0]||'').trim(),batch:(r[1]||'').trim(),
     site:(r[3]||'').trim()?`grid ${(r[3]||'').trim()}`:'',date:parseDateStr(r[7])})));
   buildApexPredatorSpecies();
@@ -750,7 +717,6 @@ function renderPatrolCoverage(){
     :'no patrol data for this period';
 }
 
-// Hanya nama ilmiah (≥ 2 kata, tanpa "/"); nama lokal seperti "bajing" atau "tikus" diabaikan
 const isScientificName=s=>{const n=(s||'').trim();return !!n&&!n.includes('/')&&n.split(/\s+/).length>=2;};
 function uniqueSpeciesSet(rows){
   const s=new Set();
@@ -833,7 +799,6 @@ function renderPresenceRow(sp){
     ${count>0?detListHtml(speciesDetections(sp.latin)):''}
   </div>`;
 }
-// Satu entri = tanggal + alat + sumber; jumlah = Σ Independency (camera trap) atau baris (bioacoustic)
 function speciesDetections(latinName,loc=null){
   const norm=s=>(s||'').trim().toLowerCase();
   const by={};
@@ -1031,7 +996,6 @@ async function openSpeciesInfoInline(latinName,localName,iucn,fromLocation=false
 
     const info={images,descriptions};
     spInfoCache[latinName]=info;
-    // Abaikan hasil bila pengguna sudah membuka spesies/titik lain selama fetch
     if(panel.dataset.req!==latinName)return;
     renderSpeciesInfoInline(latinName,localName,iucn,info,fromLocation);
   }catch(err){

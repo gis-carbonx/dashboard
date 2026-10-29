@@ -160,7 +160,6 @@ function fmtDate(d){
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
-// Urutan jabatan ("wakil" dicek sebelum "ketua"); jabatan lain setelah sekretaris, anggota terakhir
 function roleRank(j){
   const n=j.toLowerCase();
   if(/wakil/.test(n))return 1;
@@ -173,7 +172,6 @@ function roleRank(j){
 
 let kegiatanList=[],pengurusList=[],peserta=null;
 
-// Peserta unik = petani KTH dengan jenis kelamin terisi (sama dengan planting-summary)
 function parsePeserta(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   const byName={};

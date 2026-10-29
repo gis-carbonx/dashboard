@@ -297,7 +297,6 @@ const INS_STAGES=[
   {key:'thn10',    label:'Tahun 10',       idx:26},
 ];
 const PROG_LABEL={Agro_Reg:'Agroforestri Reguler',Agro_BPO:'Bantuan Pupuk Organik',Temb_Reg:'Reforestasi Reguler',Temb_MTL:'Menjaga Tutupan Lahan'};
-// Y = dibayar, R = dibayar di awal
 const stageStatus=v=>/^y$/i.test(str(v))?'paid':/^r$/i.test(str(v))?'early':'unpaid';
 const stageLabel=v=>({paid:'Sudah Bayar',early:'Dibayar Diawal',unpaid:'Belum Bayar'})[stageStatus(v)];
 const stageText=v=>({paid:'Sudah',early:'Selesai',unpaid:'Belum'})[stageStatus(v)];
@@ -307,7 +306,6 @@ const fmtDate=s=>{const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{da
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   rows=[];
-  // Kolom "P-<jenis>" = tanaman program
   const plantCols=[];
   (data.length?Object.keys(data[0]):[]).forEach(h=>{const m=h.match(/^P-\s*(.+)$/i);if(m)plantCols.push({header:h,name:m[1].trim()});});
   data.forEach(raw=>{
@@ -321,7 +319,7 @@ function parseSheet(csv){
     const luasAgroAT=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTembAU=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
-    if(!prog)return; // enrichment tidak dihitung
+    if(!prog)return;
     const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
     const plantedPlants=plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const nominalStages={},stages={};
@@ -346,7 +344,6 @@ function parseSheet(csv){
   });
 }
 
-// TARGET_CAPAIAN: A uraian, B target utama, C tahun, D–O target Jan–Des, P target tahunan
 function parseTargetSheet(csv){
   const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
   targetData={};
@@ -373,7 +370,6 @@ const QUARTERS=['1','2','3','4'];
 let currentYear='all',currentQuarter='all',periodMode='yq';
 let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 
-// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -401,7 +397,6 @@ function inPeriod(d){
   if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
   return true;
 }
-// Target sesuai periode: tahunan (Tahun/YTD), jumlah 3 bulan (Quarter), bulanan (MTD/Mingguan)
 function targetScope(){
   const now=new Date();
   if(periodMode==='ytd')return{year:now.getFullYear(),months:null,label:`Target ${now.getFullYear()}`};
@@ -427,7 +422,6 @@ function getTarget(){
   if(!sc.months)return{agro:td.agro_total,temb:td.temb_total};
   return sc.months.reduce((o,m)=>({agro:o.agro+td.monthly[m].agro,temb:o.temb+td.monthly[m].temb}),{agro:0,temb:0});
 }
-// Mingguan: capaian = akumulasi bulan berjalan s/d akhir minggu (dibanding target bulanan)
 function targetBase(rA,rT){
   if(periodMode!=='week')return{a:rA,t:rT,acc:false};
   const wk=getSelectedWeek();if(!wk)return{a:rA,t:rT,acc:false};
@@ -472,7 +466,6 @@ function compute(){
     tanaman:tanA+tanT,tanA,tanT,
     sub:{aReg,aBPO,tReg,tMTL},
     subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
-    // [nama, total, agroforestri, reforestasi]
     species:Object.entries(speciesMap).map(([n,o])=>[n,o.a+o.t,o.a,o.t]).sort((a,b)=>b[1]-a[1]),
     pct:target>0?(base.a+base.t)/target*100:null,
     petani:petani.size,laki:laki.size,pmp:pmp.size};
@@ -516,7 +509,6 @@ function dataSpan(){
   _span={n:rows.length,start:min,months:min?(now.getFullYear()-min.getFullYear())*12+now.getMonth()-min.getMonth()+1:0};
   return _span;
 }
-// Filter All: ≤ 2 tahun per bulan, ≤ 6 tahun per kuartal, selebihnya per tahun (maks ±24 titik)
 function bucketUnit(){
   if(periodMode==='mtd'||periodMode==='week')return'hari';
   if(periodMode==='yq'&&currentYear==='all'){
@@ -702,7 +694,6 @@ function cumulativeSeries(){
   const luas=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
   const sorted=k=>rows.filter(r=>r[k]).map(r=>[r[k],luas(r)]).sort((a,b)=>a[0]-b[0]);
   const P=sorted('tglPartisipasi'),R=sorted('tglRealisasi');
-  // Petani unik yang sudah menanam, dihitung pada tanggal realisasi pertamanya
   const F=rows.filter(r=>r.tglRealisasi&&r.petani).map(r=>[r.tglRealisasi,r.petani.toLowerCase()]).sort((a,b)=>a[0]-b[0]);
   const seen=new Set();
   let ip=0,ir=0,iff=0,reg=0,tan=0;
@@ -747,7 +738,6 @@ function drawLine(){
   const sc=niceScale(Math.max(...lcData.map(d=>Math.max(d.reg,d.tan))));
   const n=lcData.length,step=n>1?iw/(n-1):0;
   const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
-  // Sumbu kanan diskalakan agar jumlah petani akhir setinggi luas ditanam akhir
   const last=lcData[n-1],maxPet=Math.max(1,...lcData.map(d=>d.pet));
   const perHa=last.tan>0&&last.pet>0?last.pet/last.tan:maxPet/sc.max;
   const scP={max:sc.max*perHa,ticks:sc.ticks.map(t=>t*perHa)};
@@ -830,9 +820,7 @@ function speciesCardHTML(s){
     </div>`;
 }
 
-// Lahan dihitung menurut tanggal bergabung (Tgl_Partisipasi)
 const insRows=()=>rows.filter(r=>inPeriod(r.tglPartisipasi));
-// Insentif reguler hanya untuk lahan yang sudah direalisasikan (Tgl_Realisasi)
 const insRegRows=()=>insRows().filter(r=>(r.prog==='Agro_Reg'||r.prog==='Temb_Reg')&&r.tglRealisasi);
 const hasBPO=r=>r.pupukCair>0||r.pupukPadat>0||!!r.tglBPO;
 const hasMTL=r=>r.insentifMTL>0||!!r.tglMTL;
@@ -1279,11 +1267,19 @@ function render(){
     </div>
 
     <div class="sec-title">ARR</div>
-    <div class="grid-row">
+    <div class="kpi-grid c4">
       ${card('Total Lahan',`${fmt(s.real)} ha`,s.pct!==null?`${fmtPct(s.pct)}% dari ${tgtTxt} ${fmt(s.target)} ha${s.base.acc?' (akumulasi bulan)':''}`:'target belum tersedia')}
       ${card('Anggota Petani Terdaftar',fmtInt(s.petani),`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.pmp)} perempuan`)}
-      ${card('Luas Sudah Ditanam',`${fmt(s.ditanam)} ha`,plantPct!==null?`${fmtPct(plantPct)}% dari luas terdaftar`:'—')}
-      ${card('Jumlah Tanaman',fmtInt(s.tanaman),`${fmtInt(s.tanA)} agro, ${fmtInt(s.tanT)} reforestasi`)}
+      <div class="card split-card">
+        <div class="card-lbl">ARR Implementation</div>
+        <div class="card-val-lg">${fmt(s.ditanam)} ha</div>
+        <div class="card-sub-pct">${fmtInt(s.tanaman)} tanaman${plantPct!==null?` &middot; ${fmtPct(plantPct)}% dari luas terdaftar`:''}</div>
+        <div class="ss-div"></div>
+        <div class="ss-parts">
+          <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(s.dA)} ha</span><span class="ss-note">${fmtInt(s.tanA)} tanaman</span></div></div>
+          <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note">${fmtInt(s.tanT)} tanaman</span></div></div>
+        </div>
+      </div>
     </div>
     <p class="page-note kpi-note">${note}</p>
 

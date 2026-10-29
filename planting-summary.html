@@ -32,8 +32,8 @@ body{display:flex;flex-direction:column}
 .card-val-row .card-val-lg{white-space:nowrap}
 .card-tgt{font-size:10.5px;font-weight:700;color:var(--primary-md);text-align:right;line-height:1.25}
 .card-split{display:flex;justify-content:space-between;gap:8px}
-.pair-row .card{min-height:122px}
-.pair-row .card-val-row,.pair-row .card-lbl+.card-val-lg{min-height:27px}
+.pair-row .card{min-height:132px}
+.pair-row .card-val-row,.pair-row .card-lbl+.card-val-lg{min-height:33px}
 .pair-row .card-lbl+.card-val-lg{display:flex;align-items:flex-end}
 .pair-row .card-val-lg+.card-sub-pct,.pair-row .card-val-row+.card-sub-pct{margin-top:10px}
 .card-split span:last-child{white-space:nowrap}
@@ -146,7 +146,6 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-// Baca kolom lewat nama header; posisi kolom hanya cadangan
 function colV(raw,keys,names,idx){
   const v=pickCI(raw,keys,...names);
   if(v!==undefined)return v;
@@ -164,7 +163,6 @@ const QUARTERS=['1','2','3','4'];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 let periodMode='yq',weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 
-// Minggu = Sabtu–Jumat
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
@@ -186,7 +184,6 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  // Header "P-<jenis>" = tanaman program, "E-<jenis>" = tanaman eksisting
   const plantCols=[],existCols=[];
   (data.length?Object.keys(data[0]):[]).forEach(h=>{
     let m=h.match(/^P-\s*(.+)$/i);
@@ -238,7 +235,6 @@ function parseTargetSheet(csv){
     if(isT){td.temb_utama+=utama;td.temb_total+=total;}
     if(isENP){td.enp_utama+=utama;td.enp_total+=total;}
     if(isENL){td.enl_utama+=utama;td.enl_total+=total;}
-    // Kolom D–O = target per bulan (sama dengan planting.html)
     for(let m=0;m<12;m++){
       const v=parseFloat(str(row[3+m]))||0;
       if(isA)td.monthly[m].agro+=v;
@@ -287,7 +283,6 @@ function matchesDateFilter(d){
 }
 function computeNursery(){
   if(!nurseryRows)return null;
-  // Stok = Σ per jenis Pembesaran (E) + BST (H), akumulasi s/d akhir periode
   const end=periodEndDate();
   const upTo=nurseryRows.filter(r=>!end||(r.date&&r.date<=end));
   const by={};
@@ -299,7 +294,6 @@ function computeNursery(){
     bst+=Math.max(0,g(NCAT.bst)-g(NCAT.matiBst)-g(NCAT.tanam)-g(NCAT.sulam)-g(NCAT.support));
   });
   const last=upTo.reduce((a,r)=>r.date&&(!a||r.date>a)?r.date:a,null);
-  // Distribusi = Penanaman + Penyulaman + Support di dalam periode
   const dist={tanam:0,sulam:0,support:0};
   nurseryRows.forEach(r=>{
     if(!matchesDateFilter(r.date))return;
@@ -351,7 +345,6 @@ function computeTanamanTotal(){
   return{total,agro,temb};
 }
 
-// Sudah ditanam = punya Tgl_Realisasi; jumlah tanaman bukan syarat
 function computePlanting(){
   let agro=0,temb=0;const speciesMap={};
   Object.values(sheetMap).forEach(r=>{
@@ -384,7 +377,6 @@ function computeTarget(){
   const td=targetData[+currentYear];
   return td?{agro:td.agro_total??null,temb:td.temb_total??null}:{agro:null,temb:null};
 }
-// Target luas per program sesuai periode filter: tahunan, quarter (Σ 3 bulan), atau bulanan
 const TGT_KEYS=['agro','temb'];
 function periodTarget(){
   const pick=(td,suffix,label)=>{
@@ -411,7 +403,6 @@ function periodTarget(){
   const q=+currentQuarter;
   return sumMonths(td,[3*q-3,3*q-2,3*q-1],`target Q${q}`);
 }
-// Luas pembanding target; mode mingguan memakai akumulasi bulan s/d minggu terpilih (seperti planting.html)
 function targetRealAreas(areas){
   if(periodMode!=='week')return areas;
   const wk=getSelectedWeek();if(!wk)return areas;
@@ -439,7 +430,6 @@ function pctOfTarget(val,target,label){
 }
 function pctText(val,target){
   if(target===null||target===undefined||target<=0)return'';
-  // Filter quarter tetap dibandingkan ke target tahunan
   const partial=periodMode==='yq'?currentQuarter!=='all':periodMode!=='ytd';
   return(val/target*100).toFixed(1)+(partial?'% dari target tahunan':'% dari target');
 }
@@ -448,7 +438,7 @@ function computePesertaTotal(){
   const all=new Set(),agro=new Set(),temb=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglPartisipasi'))return;
-    if(!r.petani||!str(r.jk).trim())return; // jenis kelamin kosong -> tidak dihitung anggota
+    if(!r.petani||!str(r.jk).trim())return;
     const p=r.petani.toLowerCase();
     all.add(p);
     if(r.luasAgro>0)agro.add(p);
@@ -618,16 +608,14 @@ function render(){
 
     <div class="two-col-row">
       <div class="col">
-        <div class="pair-row">
-          <div class="card">
-            <div class="card-lbl">Luas Sudah Ditanam</div>
-            <div class="card-val-row"><div class="card-val-lg">${fmt(plant.luas)} ha</div><span class="card-tgt">${plantPct}% dari terdaftar</span></div>
-            ${subLines(`${fmt(plant.agro)} ha agroforestri`,`${fmt(plant.temb)} ha reforestasi`)}
-          </div>
-          <div class="card">
-            <div class="card-lbl">Jumlah Tanaman</div>
-            <div class="card-val-lg">${fmtInt(tanaman.total)}</div>
-            ${subLines(`${fmtInt(tanaman.agro)} agroforestri`,`${fmtInt(tanaman.temb)} reforestasi`)}
+        <div class="card split-card">
+          <div class="card-lbl">ARR Implementation</div>
+          <div class="card-val-lg">${fmt(plant.luas)} ha</div>
+          <div class="card-sub-pct">${fmtInt(tanaman.total)} tanaman &middot; ${plantPct}% dari luas terdaftar</div>
+          <div class="ss-div"></div>
+          <div class="ss-parts">
+            <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note">${fmtInt(tanaman.agro)} tanaman</span></div></div>
+            <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note">${fmtInt(tanaman.temb)} tanaman</span></div></div>
           </div>
         </div>
         <p class="page-note">${note3}</p>
@@ -684,7 +672,6 @@ async function initSebaran(){
   updateSebaran(true);
 }
 
-// Lahan mengikuti filter (Tgl_Partisipasi)
 function updateSebaran(fit){
   if(!lgLahan)return;
   lgLahan.clearLayers();

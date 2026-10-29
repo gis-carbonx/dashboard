@@ -827,8 +827,6 @@ function updateCtStats(){
   const klassCounts={};
   filtered.forEach(r=>{if(r.Class)klassCounts[r.Class]=(klassCounts[r.Class]||0)+r.Indep;});
   const{total:trapNights,detail:tnDetail}=calcTrapNights(filtered);
-  const totalBatches=tnDetail.length,totalCamsAcrossBatches=tnDetail.reduce((s,d)=>s+d.cams,0);
-  const tnSub=totalBatches>0?`${totalBatches} batch${totalBatches>1?'es':''} · ${totalCamsAcrossBatches} cam-deployments`:'';
   const monitoredGrids=computeMonitoredGrids(filtered);
   const totalLok=monitoredGrids.length;
   document.getElementById('ctSummaryBody').innerHTML=`<div class="ct-stat-inline"><span>Total individuals recorded</span><span class="ct-stat-inline-val">${totalDet}</span></div><div class="ct-stat-inline"><span>Species Recorded</span><span class="ct-stat-inline-val">${totalSp}</span></div><div class="ct-stat-inline"><span>Cameras Deployed</span><span class="ct-stat-inline-val">${totalCam}</span></div><div class="ct-stat-inline"><span>Avg Events / Camera</span><span class="ct-stat-inline-val">${totalCam?Math.round(totalDet/totalCam):0}</span></div><div class="ct-stat-inline"><span>Monitoring Locations</span><span class="ct-stat-inline-val">${totalLok}</span></div><div class="ct-stat-inline"><span>Total Trap-Nights</span><span class="ct-stat-inline-val">${trapNights}</span></div><div style="padding:8px 16px 4px;font-size:9px;font-weight:700;color:#9C998C;text-transform:uppercase;letter-spacing:.5px">By Class</div>${Object.entries(klassCounts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ct-stat-inline"><span>${k}</span><span class="ct-stat-inline-val">${v} (${totalDet?Math.round(v/totalDet*100):0}%)</span></div>`).join('')}`;
