@@ -39,7 +39,6 @@ body{display:flex;flex-direction:column}
 .chart-subhead{font-size:12px;font-weight:700;color:var(--text);margin:18px 0 6px}
 .hb-list{display:flex;flex-direction:column;gap:2px}
 .hb-row{position:relative;display:grid;grid-template-columns:120px 1fr 28px;gap:10px;align-items:center;padding:5px 4px;border-radius:6px;outline:none}
-.hb-list.mh .hb-row{grid-template-columns:96px 1fr 64px 44px}
 .hb-row:hover,.hb-row:focus{background:#f3f3f3}
 .hb-lbl{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hb-bar{display:flex;gap:2px;height:14px}
@@ -53,15 +52,15 @@ body{display:flex;flex-direction:column}
 .tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
 
 .sm-wrap{padding:16px 0 0;margin-bottom:36px}
-.sm-panel{display:grid;grid-template-columns:3fr 5fr 3fr 4fr;padding-bottom:14px}
+.sm-panel{display:grid;grid-template-columns:4fr 5fr 2fr 4fr;padding-bottom:14px}
 .sm-cell{display:flex;flex-direction:column;padding:4px 4px 0;transition:opacity .15s,background .15s}
 .sm-wrap.hl .sm-cell{opacity:.3}
 .sm-wrap.hl .sm-cell.on{opacity:1;background:#f3f3f3}
 .sm-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;padding:6px 0 4px;min-height:18px;border-top:1px solid var(--border)}
-.sm-dots i{width:8px;height:8px;border-radius:50%}
+.sm-dots svg{width:9px;height:9px}
 .sm-legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 16px 12px;border-top:1px solid var(--border-lt)}
 .sm-key{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text);cursor:default;border-radius:6px;padding:2px 4px;outline:none}
-.sm-key i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sm-key svg{width:11px;height:11px;flex-shrink:0}
 .sm-key small{font-size:10.5px;font-weight:500;color:var(--text-2)}
 .sm-wrap.hl .sm-key{opacity:.4}
 .sm-wrap.hl .sm-key.on{opacity:1;background:#f3f3f3}
@@ -95,7 +94,7 @@ body{display:flex;flex-direction:column}
 .tbl .clip{max-width:240px;overflow:hidden;text-overflow:ellipsis}
 .inc-detail{display:none}
 .inc-detail.open{display:table-row}
-.inc-detail td{white-space:normal;background:#f6f6f6;padding:12px 16px 16px}
+.inc-detail td{white-space:normal;background:#f3f3f3;padding:12px 16px 16px}
 .inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 @media (max-width:760px){.inc-grid{grid-template-columns:1fr}}
 .inc-f{padding:6px 0;border-bottom:1px solid var(--border-lt)}
@@ -312,15 +311,10 @@ function parseManhours(csv){
   });
 }
 
-const UNIT_ORDER=['Staff Site','Staff HO','Agronomis','Biodiversity','Fire Patrol'];
-const UNIT_COLOR={'Staff Site':'#356760','Staff HO':'#B5BBA9','Agronomis':'#8B7BB0','Biodiversity':'#4a7fc1','Fire Patrol':'#c2703f'};
-const unitColor=u=>UNIT_COLOR[u]||'#9C998C';
-const unitList=list=>{
-  const s=[...new Set(list.map(r=>r.unit))];
-  return[...UNIT_ORDER.filter(u=>s.includes(u)),...s.filter(u=>!UNIT_ORDER.includes(u)).sort()];
-};
+const MH_COLOR='#356760';
+const LTI_COLOR='#c0611c',LTI_FILL='rgba(192,97,28,.15)';
 
-// Hari kerja dari kolom G: ≥ hari kalender = setiap hari, ≤ jumlah Senin–Jumat = Senin–Jumat, selain itu Senin–Sabtu
+// Pola hari kerja dari kolom G: setiap hari / Sen–Jum / Sen–Sab
 const countDays=(a,b,mode)=>{
   let n=0;
   for(let d=toDate(a),e=toDate(b);d<=e;d.setDate(d.getDate()+1)){
@@ -337,7 +331,7 @@ function workMode(r){
   return r._mode;
 }
 
-// Manhours baris dibagi proporsional ke hari kerja yang beririsan dengan periode
+// Manhours proporsional hari kerja dalam periode
 function mhShare(r,ranges,after){
   const mode=workMode(r);
   if(!r._days)return 0;
@@ -350,7 +344,7 @@ function mhShare(r,ranges,after){
   return r.manhours*days/r._days;
 }
 
-// Bulan yang dipecah karena insiden berisi pekerja yang sama: ambil maks. kolom J per unit/kelompok/lokasi, bukan dijumlah
+// Bulan terpecah: ambil maks. manpower per unit/kelompok/lokasi, bukan dijumlah
 function manpowerByUnit(list){
   const seg={};
   list.forEach(r=>{const k=[r.month,r.unit,r.kelompok,r.lokasi].join('|');seg[k]=Math.max(seg[k]||0,r.manpower);});
@@ -368,7 +362,7 @@ function manpowerSum(list){
   const n=Object.keys(by).length;
   return{unit,total,avg:n?total/n:0};
 }
-// Minggu lintas bulan: ambil bulan dengan manpower terbesar
+// Minggu lintas bulan: ambil bulan terbesar
 function manpowerMax(list){
   const by=manpowerByUnit(list),unit={};
   let total=0;
@@ -380,7 +374,7 @@ function manpowerMax(list){
 }
 const mpRowsIn=ranges=>mhRows.filter(r=>r.mpValid&&(!ranges||ranges.some(([a,b])=>r.start<=b&&r.end>=a)));
 
-// LTI free = manhours sejak LTI/fatality terakhir s/d akhir periode (maks. hari ini); bulan berjalan proporsional per hari
+// LTI free = manhours sejak LTI/fatality terakhir s/d akhir periode (maks. hari ini)
 function ltiFree(ranges){
   const today=todayIso();
   const end=ranges&&ranges.length?ranges.map(r=>r[1]).sort().pop():today;
@@ -394,29 +388,7 @@ function ltiFree(ranges){
 function manhoursHTML(ranges,periode,inc){
   const rows=mhRows.filter(r=>r.mhValid).map(r=>({...r,mhP:mhShare(r,ranges)})).filter(r=>r.mhP>0);
   const total=rows.reduce((a,r)=>a+r.mhP,0);
-  const mpUnit=manpowerByUnit(mpRowsIn(ranges));
-  const avgUnit=u=>{const v=Object.values(mpUnit).filter(o=>o[u]).map(o=>o[u]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};
   const free=ltiFree(ranges);
-  const units=unitList(rows);
-  const byUnit=units.map(u=>{
-    const list=rows.filter(r=>r.unit===u);
-    return{u,mh:list.reduce((a,r)=>a+r.mhP,0),months:new Set(list.map(r=>r.month)).size,lokasi:[...new Set(list.map(r=>r.lokasi).filter(Boolean))]};
-  }).sort((a,b)=>b.mh-a.mh);
-  const max=Math.max(1,...byUnit.map(o=>o.mh));
-  const unitRows=byUnit.map(o=>`
-    <div class="hb-row" tabindex="0">
-      <div class="hb-lbl">${esc(o.u)}</div>
-      <div class="hb-bar" style="width:${o.mh/max*100}%"><div class="hb-seg" style="flex:1;background:${unitColor(o.u)}"></div></div>
-      <div class="hb-val">${fmtInt(o.mh)}</div>
-      <div class="hb-pct">${total?(o.mh/total*100).toFixed(1).replace('.',','):0}%</div>
-      <div class="tt-box"><div class="tt-head"><strong>${esc(o.u)}</strong> - ${fmtInt(o.mh)} jam</div>
-        <div class="tt-row"><span>Bulan tercatat</span><span>${fmtInt(o.months)}</span></div>
-        <div class="tt-row"><span>Rata-rata manpower</span><span>${avgUnit(o.u).toFixed(1).replace('.',',')} orang/bulan</span></div>
-        <div class="tt-row"><span>Lokasi</span><span>${esc(o.lokasi.join(', ')||'–')}</span></div>
-      </div>
-    </div>`).join('');
-  const legend=units.map(u=>`<span class="lg-item"><i style="background:${unitColor(u)}"></i>${esc(u)}</span>`).join('')
-    +'<span class="lg-item"><b style="font-size:10px;color:var(--text)">123</b>Manpower (orang)</span>';
   const mpPk=manpowerSum(mpRowsIn(ranges));
   return`
     <div class="grid-row">
@@ -441,90 +413,91 @@ function manhoursHTML(ranges,periode,inc){
         ${subLines([null,free.last?`Sejak LTI ${fmtDate(free.last)}`:'Sejak awal pencatatan'],[null,`Per ${fmtDate(free.asOf)}`])}
       </div>
     </div>
-    <div class="chart-pair">
+    <div class="chart-pair" style="grid-template-columns:1fr">
       <div class="card chart-card">
         <div class="chart-head">
           <div><div class="chart-title">Tren Manhours</div><div class="chart-sub">${periode} - ${periodBuckets(ranges,firstData()).unit}</div></div>
-          <div class="chart-legend">${legend}</div>
+          <div class="chart-legend">
+            <span class="lg-item"><i style="background:${MH_COLOR}"></i>Manhours</span>
+            <span class="lg-item"><i style="background:${LTI_FILL};border-top:2px solid ${LTI_COLOR};border-radius:0"></i>LTI Free Manhours</span>
+          </div>
         </div>
         ${rows.length?`<div class="chart-wrap"><canvas id="mhChart"></canvas></div>
         <div class="chart-subhead">Manpower (orang)</div>
         <div class="chart-wrap sm"><canvas id="mpChart"></canvas></div>`:'<div class="empty">Tidak ada data manhours pada periode ini.</div>'}
       </div>
-      <div class="card chart-card">
-        <div class="chart-head">
-          <div><div class="chart-title">Manhours per Unit Kerja</div><div class="chart-sub">${periode}</div></div>
-        </div>
-        ${byUnit.length?`<div class="hb-list mh">${unitRows}</div>`:'<div class="empty">Tidak ada data manhours pada periode ini.</div>'}
-      </div>
     </div>`;
 }
 
-let mhChart=null,mpChart=null;
+let mhCharts=[];
 function drawMhChart(ranges,inc){
-  if(mhChart){mhChart.destroy();mhChart=null;}
-  if(mpChart){mpChart.destroy();mpChart=null;}
+  mhCharts.forEach(c=>c.destroy());
+  mhCharts=[];
   const canvas=document.getElementById('mhChart');
   if(!canvas)return;
   const rows=mhRows.filter(r=>r.mhValid&&mhShare(r,ranges)>0);
-  const units=unitList(rows);
   const {list:bk}=periodBuckets(ranges,firstData());
-  // Manpower = jumlah kolom J baris yang beririsan dengan batang
-  const by=bk.map(b=>{
-    const o={};
-    rows.forEach(r=>{const v=mhShare(r,[[b.from,b.to]]);if(v>0)o[r.unit]=(o[r.unit]||0)+v;});
-    return o;
-  });
+  const mhBk=bk.map(b=>rows.reduce((a,r)=>a+mhShare(r,[[b.from,b.to]]),0));
   const mpAgg=periodBuckets(ranges,firstData()).unit==='per minggu'?manpowerMax:manpowerSum;
-  const mpPk=bk.map(b=>mpAgg(mpRowsIn([[b.from,b.to]])));
-  const mpBy=mpPk.map(p=>p.unit);
-  const mhTotal=i=>Object.values(by[i]).reduce((a,v)=>a+v,0);
-  const mpTotal=i=>mpPk[i].total;
-  mhChart=new Chart(canvas,{
+  const mpBk=bk.map(b=>mpAgg(mpRowsIn([[b.from,b.to]])).total||null);
+  const today=todayIso();
+  const ltiBk=bk.map(b=>b.from>today?null:ltiFree([[b.from,b.to]]).total);
+  mhCharts.push(new Chart(canvas,{
     type:'bar',
-    data:{labels:bk.map(b=>b.title),datasets:units.map(u=>({
-      label:u,data:by.map(o=>o[u]||0),
-      backgroundColor:unitColor(u),borderRadius:2,borderSkipped:'start',borderColor:'#fff',borderWidth:{top:1},
+    data:{labels:bk.map(b=>b.title),datasets:[{
+      type:'line',label:'LTI Free Manhours',data:ltiBk,yAxisID:'y2',order:2,
+      borderColor:LTI_COLOR,backgroundColor:LTI_FILL,fill:'origin',borderWidth:2,tension:0,
+      pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:LTI_COLOR,pointBorderWidth:0
+    },{
+      label:'Manhours',data:mhBk,order:1,
+      backgroundColor:MH_COLOR,borderRadius:2,borderSkipped:'start',
       barPercentage:.8,categoryPercentage:.9,maxBarThickness:28
-    }))},
-    plugins:[{id:'mpLabel',afterDatasetsDraw(c){
-      const xs=c.scales.x,ys=c.scales.y,ctx=c.ctx,w=xs.width/Math.max(1,bk.length);
-      if(w<14)return;
-      ctx.save();
-      ctx.font='700 9.5px Libre Franklin, sans-serif';ctx.fillStyle='#6A665B';ctx.textAlign='center';ctx.textBaseline='bottom';
-      bk.forEach((b,i)=>{if(mpTotal(i))ctx.fillText(fmtInt(mpTotal(i)),xs.getPixelForValue(i),ys.getPixelForValue(mhTotal(i))-4);});
-      ctx.restore();
-    }}],
+    }]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      layout:{padding:{top:16}},
       plugins:{legend:{display:false},tooltip:{...TT_STYLE,
-        filter:it=>it.parsed.y>0,
+        filter:it=>it.parsed.y>0||it.dataset.yAxisID==='y2',
+        itemSort:(a,b)=>a.dataset.order-b.dataset.order,
         callbacks:{
-          title:items=>{const i=items[0].dataIndex;return`${bk[i].title} - ${fmtInt(mhTotal(i))} jam`;},
-          label:it=>`${it.dataset.label}: ${fmtInt(it.parsed.y)} jam`
+          title:items=>bk[items[0].dataIndex].title,
+          label:it=>`${it.dataset.label}: ${fmtInt(it.parsed.y)} jam`,
+          afterLabel:it=>!it.dataset.yAxisID&&mpBk[it.dataIndex]?`Manpower: ${fmtInt(mpBk[it.dataIndex])} orang`:''
         }}},
       scales:{
-        x:{stacked:true,grid:{display:false},border:{color:'#DCDACC'},
+        x:{grid:{display:false},border:{color:'#DCDACC'},
           ticks:{color:'#9C998C',font:AXIS_FONT,maxRotation:0,autoSkip:true,autoSkipPadding:8,callback:(v,i)=>bk[i].tick}},
-        y:{stacked:true,beginAtZero:true,grid:{color:'#EDE7D8'},border:{display:false},afterFit:s=>{s.width=48;},
-          ticks:{color:'#9C998C',font:AXIS_FONT,callback:v=>fmtInt(v)}}
+        y:{beginAtZero:true,grid:{color:'#EDE7D8'},border:{display:false},afterFit:s=>{s.width=48;},
+          ticks:{color:'#9C998C',font:AXIS_FONT,callback:v=>fmtInt(v)}},
+        y2:{position:'right',beginAtZero:true,grid:{display:false},border:{display:false},afterFit:s=>{s.width=56;},
+          ticks:{color:LTI_COLOR,font:AXIS_FONT,callback:v=>fmtInt(v)}}
       }}
-  });
+  }));
   const mpCanvas=document.getElementById('mpChart');
   if(!mpCanvas)return;
-  mpChart=new Chart(mpCanvas,{
+  // Label sistematis: interval tetap ~8 label, dihitung mundur dari titik terakhir
+  const step=Math.max(1,Math.ceil(bk.length/8));
+  const lastMp=mpBk.reduce((m,v,i)=>v?i:m,-1);
+  const mpShow=mpBk.map((v,i)=>v&&(lastMp-i)%step===0?i:-1).filter(i=>i>=0);
+  const mpLabel={id:'mpLabel',afterDatasetsDraw(c){
+    const pts=c.getDatasetMeta(0).data,ctx=c.ctx;
+    ctx.save();ctx.font='700 9.5px Libre Franklin, sans-serif';ctx.fillStyle='#6A665B';ctx.textAlign='center';ctx.textBaseline='bottom';
+    mpShow.forEach(i=>{if(pts[i])ctx.fillText(fmtInt(mpBk[i]),pts[i].x,pts[i].y-5);});
+    ctx.restore();
+  }};
+  mhCharts.push(new Chart(mpCanvas,{
+    plugins:[mpLabel],
     type:'line',
-    data:{labels:bk.map(b=>b.title),datasets:units.map(u=>({
-      label:u,data:mpBy.map(o=>o[u]??null),
-      borderColor:unitColor(u),backgroundColor:unitColor(u),borderWidth:2,tension:.25,
+    data:{labels:bk.map(b=>b.title),datasets:[{
+      label:'Manpower',data:mpBk,
+      borderColor:MH_COLOR,backgroundColor:MH_COLOR,borderWidth:2,tension:.25,
       pointRadius:2,pointHoverRadius:4,pointBorderWidth:0,spanGaps:false
-    }))},
+    }]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      layout:{padding:{right:56,top:14}},
       plugins:{legend:{display:false},tooltip:{...TT_STYLE,
         filter:it=>it.parsed.y>0,
         callbacks:{
-          title:items=>{const i=items[0].dataIndex;return`${bk[i].title} - ${fmtInt(mpTotal(i))} orang`;},
-          label:it=>`${it.dataset.label}: ${fmtInt(it.parsed.y)} orang`
+          title:items=>bk[items[0].dataIndex].title,
+          label:it=>`Manpower: ${fmtInt(it.parsed.y)} orang`
         }}},
       scales:{
         x:{offset:true,grid:{display:false},border:{color:'#DCDACC'},
@@ -532,7 +505,7 @@ function drawMhChart(ranges,inc){
         y:{beginAtZero:true,grid:{color:'#EDE7D8'},border:{display:false},afterFit:s=>{s.width=48;},
           ticks:{color:'#9C998C',font:AXIS_FONT,precision:0,maxTicksLimit:4}}
       }}
-  });
+  }));
 }
 
 const CLASSES=[
@@ -548,27 +521,36 @@ function worstClass(i){
   return c?`${c.lbl} (${fmtInt(i[c.key])} orang)`:'Tanpa korban';
 }
 
-// Warna per insiden urut tanggal; insiden ke-9 dst. abu-abu
 const INC_PALETTE=['#c0611c','#356760','#4a7fc1','#8B7BB0','#d9a21b','#618273','#3A342C','#B5BBA9'];
+const INC_SHAPES=[
+  '<circle cx="5" cy="5" r="4.5"/>',
+  '<path d="M5 .3l1.2 3.4 3.6.1-2.9 2.2 1.1 3.5L5 7.4 2 9.5l1.1-3.5L.2 3.8l3.6-.1Z"/>',
+  '<path d="M6.8 .9A4.5 4.5 0 1 0 9.1 7.1 3.6 3.6 0 0 1 6.8 .9Z"/>',
+  '<rect x="1" y="1" width="8" height="8" rx=".8"/>',
+  '<path d="M5 .6l4.6 8.6H.4Z"/>',
+  '<path d="M5 .3L9.7 5 5 9.7.3 5Z"/>',
+  '<path d="M3.6 .5h2.8v3.1h3.1v2.8H6.4v3.1H3.6V6.4H.5V3.6h3.1Z"/>',
+  '<path d="M5 .3l4.1 2.35v4.7L5 9.7.9 7.35v-4.7Z"/>'
+];
 function summaryHTML(inc){
   const ordered=inc.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
-  const color={};
-  ordered.forEach((i,k)=>color[i.id]=INC_PALETTE[k]||'#9C998C');
+  const mark={};
+  ordered.forEach((i,k)=>mark[i.id]=`<svg viewBox="0 0 10 10" fill="${INC_PALETTE[k]||'#9C998C'}"><title>${esc(i.id)}</title>${INC_SHAPES[k%INC_SHAPES.length]}</svg>`);
   const cell=(lbl,list,v=list.length)=>`
     <div class="sm-cell${v?'':' zero'}" data-inc="${list.map(i=>esc(i.id)).join(' ')}">
       <div class="sm-val">${fmtInt(v)}</div>
       <div class="sm-lbl">${lbl}</div>
-      <div class="sm-dots">${list.map(i=>`<i style="background:${color[i.id]}" title="${esc(i.id)}"></i>`).join('')}</div>
+      <div class="sm-dots">${list.map(i=>mark[i.id]).join('')}</div>
     </div>`;
   const f=p=>ordered.filter(p);
   const selesai=f(i=>/^selesai/i.test(i.status));
   const groups=[
-    {t:'Kejadian',c:[cell('Total insiden',ordered),...JENIS_ORDER.map(j=>cell(j,f(i=>i.jenis===j)))]},
-    {t:'Korban (kasus orang)',c:CLASSES.map(c=>cell(c.key==='rwc'?'RWC':c.lbl,f(i=>i[c.key]>0),sumKey(inc,c.key)))},
-    {t:'Kerusakan (kejadian)',c:[cell('Properti rusak',f(i=>i.properti)),cell('Kecelakaan kendaraan',f(i=>i.kendaraan)),cell('Kebakaran',f(i=>i.kebakaran))]},
+    {t:'Kejadian',c:[cell('Total insiden',ordered),...JENIS_ORDER.map(j=>cell(j,f(i=>i.jenis===j))),cell('Kebakaran',f(i=>i.kebakaran))]},
+    {t:'Dampak insiden',c:CLASSES.map(c=>cell(c.key==='rwc'?'RWC':c.lbl,f(i=>i[c.key]>0),sumKey(inc,c.key)))},
+    {t:'Kerusakan (kejadian)',c:[cell('Properti rusak',f(i=>i.properti)),cell('Kecelakaan kendaraan',f(i=>i.kendaraan))]},
     {t:'Investigasi',c:[cell('Selesai',selesai),cell('Belum selesai',f(i=>!selesai.includes(i))),cell('Terlambat',f(i=>i.terlambat>0||/terlambat/i.test(i.tenggat))),cell('Belum ada target',f(i=>!i.target))]}
   ];
-  const legend=ordered.map(i=>`<span class="sm-key" data-id="${esc(i.id)}" tabindex="0"><i style="background:${color[i.id]}"></i>${esc(i.id)} <small>${esc(i.jenis)} - ${fmtDate(i.date,'short')}</small></span>`).join('');
+  const legend=ordered.map(i=>`<span class="sm-key" data-id="${esc(i.id)}" tabindex="0">${mark[i.id]}${esc(i.id)} <small>${esc(i.jenis)} - ${fmtDate(i.date,'short')}</small></span>`).join('');
   return`<div class="card sm-wrap" id="smPanel">
     <div class="sm-panel">${groups.map(g=>`
       <div class="sm-group" style="--n:${g.c.length}">
@@ -644,7 +626,7 @@ function chartsHTML(inc,periode){
     </div>`;
 }
 
-// Satuan grafik: tahunan (quarter/bulan lintas tahun), mingguan Sabtu–Jumat (quarter/bulan satu tahun, MTD), selain itu bulanan
+// Satuan grafik: tahunan / mingguan Sab–Jum / bulanan
 function periodBuckets(ranges,first){
   const today=todayIso();
   const yq=periodMode==='yq',sub=currentQuarter!=='all'||currentMonth!=='all';
