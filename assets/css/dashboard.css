@@ -75,9 +75,10 @@ button,input,select,textarea{font-family:inherit}
 .ss-part+.ss-part{border-top:1px solid var(--border-lt);margin-top:8px;padding-top:8px}
 .ss-lbl{font-size:10.5px;font-weight:600;color:var(--text-2)}
 .ss-val{font-size:18px;font-weight:800;color:var(--primary);line-height:1.15;margin-top:2px;white-space:nowrap}
-.ss-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:2px}
+.ss-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:2px}
 .ss-row>.ss-val{margin-top:0}
-.ss-note{font-size:10.5px;font-weight:500;color:var(--text-2);white-space:nowrap}
+.ss-note{font-size:10.5px;font-weight:500;color:var(--text-2);white-space:nowrap;text-align:right;line-height:1.4;padding-bottom:1px}
+.ss-sub{color:var(--text-3)}
 
 .filter-lbl,.year-filter-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);min-width:58px}
 .fpill,.year-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;transition:background .15s,color .15s}

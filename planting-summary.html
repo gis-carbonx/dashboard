@@ -346,14 +346,19 @@ function computeTanamanTotal(){
 }
 
 function computePlanting(){
-  let agro=0,temb=0;const speciesMap={};
+  let agro=0,temb=0,lahanA=0,lahanT=0;const speciesMap={},petaniA=new Set(),petaniT=new Set();
   Object.values(sheetMap).forEach(r=>{
     if(!matchesFilter(r,'tglRealisasi'))return;
     agro+=r.luasAgro;temb+=r.luasTemb;
+    const isAgro=r.prog?.startsWith('Agro');
+    if(isAgro||r.prog?.startsWith('Temb')){
+      if(isAgro)lahanA++;else lahanT++;
+      if(r.petani&&str(r.jk).trim())(isAgro?petaniA:petaniT).add(r.petani.toLowerCase());
+    }
     r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
   });
   const species=Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
-  return{luas:agro+temb,agro,temb,species};
+  return{luas:agro+temb,agro,temb,species,lahanA,lahanT,petaniA:petaniA.size,petaniT:petaniT.size};
 }
 function joinID(list){
   return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
@@ -545,7 +550,7 @@ function render(){
   const plant=computePlanting();
   const plantPct=totalHa>0?(plant.luas/totalHa*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
   const dominan=plant.species.slice(0,3);
-  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman, mencakup ${plantPct}% dari total luas lahan terdaftar. Sekitar ${fmtInt(tanaman.total)} pohon telah ditanam`
+  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman, mencakup ${plantPct}% dari total luas lahan terdaftar. Sekitar ${fmtInt(tanaman.agro)} pohon telah ditanam`
     +(plant.species.length
       ?`, yang terdiri dari ${fmtInt(plant.species.length)} jenis tanaman, dengan jenis ${esc(joinID(dominan))} sebagai jenis tanaman dominan.`
       :'.');
@@ -611,11 +616,11 @@ function render(){
         <div class="card split-card">
           <div class="card-lbl">ARR Implementation</div>
           <div class="card-val-lg">${fmt(plant.luas)} ha</div>
-          <div class="card-sub-pct">${fmtInt(tanaman.total)} tanaman &middot; ${plantPct}% dari luas terdaftar</div>
+          <div class="card-sub-pct">${fmtInt(tanaman.agro)} tanaman &middot; ${plantPct}% dari luas terdaftar</div>
           <div class="ss-div"></div>
           <div class="ss-parts">
-            <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note">${fmtInt(tanaman.agro)} tanaman</span></div></div>
-            <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note">${fmtInt(tanaman.temb)} tanaman</span></div></div>
+            <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(plant.petaniA)} petani &middot; ${fmtInt(plant.lahanA)} petak</span><br>${fmtInt(tanaman.agro)} tanaman</span></div></div>
+            <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note ss-sub">${fmtInt(plant.petaniT)} petani &middot; ${fmtInt(plant.lahanT)} petak</span></div></div>
           </div>
         </div>
         <p class="page-note">${note3}</p>

@@ -432,7 +432,8 @@ function targetBase(rA,rT){
 }
 
 function compute(){
-  let rA=0,rT=0,dA=0,dT=0,tanA=0,tanT=0,lahan=0;
+  let rA=0,rT=0,dA=0,dT=0,tanA=0,tanT=0,lahan=0,lahanA=0,lahanT=0;
+  const petaniA=new Set(),petaniT=new Set();
   let aReg=0,aBPO=0,tReg=0,tMTL=0;
   const petani=new Set(),laki=new Set(),pmp=new Set();
   const pAR=new Set(),pAB=new Set(),pTR=new Set(),pTM=new Set();
@@ -453,9 +454,10 @@ function compute(){
       }
     }
     if(inPeriod(r.tglRealisasi)){
-      if(r.prog.startsWith('Agro')){dA+=r.luasAgro;tanA+=r.jumlahTanaman;}
-      else{dT+=r.luasTemb;tanT+=r.jumlahTanaman;}
       const agro=r.prog.startsWith('Agro');
+      if(agro){dA+=r.luasAgro;tanA+=r.jumlahTanaman;lahanA++;}
+      else{dT+=r.luasTemb;tanT+=r.jumlahTanaman;lahanT++;}
+      if(r.petani&&r.jk)(agro?petaniA:petaniT).add(r.petani.toLowerCase());
       r.plantedPlants.forEach(p=>{const o=speciesMap[p.name]||(speciesMap[p.name]={a:0,t:0});o[agro?'a':'t']+=p.count;});
     }
   });
@@ -463,7 +465,7 @@ function compute(){
   const target=tgt?tgt.agro+tgt.temb:null;
   const real=rA+rT,ditanam=dA+dT,base=targetBase(rA,rT);
   return{tgt,target,base,real,rA,rT,ditanam,dA,dT,lahan,
-    tanaman:tanA+tanT,tanA,tanT,
+    tanaman:tanA+tanT,tanA,tanT,lahanA,lahanT,petaniA:petaniA.size,petaniT:petaniT.size,
     sub:{aReg,aBPO,tReg,tMTL},
     subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
     species:Object.entries(speciesMap).map(([n,o])=>[n,o.a+o.t,o.a,o.t]).sort((a,b)=>b[1]-a[1]),
@@ -1244,7 +1246,7 @@ function render(){
     +(s.pct===null?'':s.base.acc
       ?`, dengan akumulasi ${s.base.month} ${fmt(s.base.a+s.base.t)} ha atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`
       :`, atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`)
-    +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah ditanami ${fmtInt(s.tanaman)} pohon`
+    +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah ditanami ${fmtInt(s.tanA)} pohon`
     +(top3.length?`, dengan ${joinID(top3)} sebagai jenis yang paling banyak ditanam.`:'.');
   const page=document.getElementById('pageBody');
   page.innerHTML=`
@@ -1273,11 +1275,11 @@ function render(){
       <div class="card split-card">
         <div class="card-lbl">ARR Implementation</div>
         <div class="card-val-lg">${fmt(s.ditanam)} ha</div>
-        <div class="card-sub-pct">${fmtInt(s.tanaman)} tanaman${plantPct!==null?` &middot; ${fmtPct(plantPct)}% dari luas terdaftar`:''}</div>
+        <div class="card-sub-pct">${fmtInt(s.tanA)} tanaman${plantPct!==null?` &middot; ${fmtPct(plantPct)}% dari luas terdaftar`:''}</div>
         <div class="ss-div"></div>
         <div class="ss-parts">
-          <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(s.dA)} ha</span><span class="ss-note">${fmtInt(s.tanA)} tanaman</span></div></div>
-          <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note">${fmtInt(s.tanT)} tanaman</span></div></div>
+          <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(s.dA)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(s.petaniA)} petani &middot; ${fmtInt(s.lahanA)} petak</span><br>${fmtInt(s.tanA)} tanaman</span></div></div>
+          <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note ss-sub">${fmtInt(s.petaniT)} petani &middot; ${fmtInt(s.lahanT)} petak</span></div></div>
         </div>
       </div>
     </div>
