@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -849,7 +850,7 @@ let lastDisp={aBPO:0,tReg:0,tMTL:0,pBPO:0,pTReg:0,pMTL:0};
 const layerState={agro:true,temb:true,cmi:true},kthVis={};
 
 const str=v=>(v??'').toString().trim();
-const num=v=>parseFloat(str(v))||0;
+const num=v=>sheetNum(v);
 const fmt=v=>(+v).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtInt=v=>(+v).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
 const setText=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
@@ -1104,12 +1105,7 @@ function setPreset(p){
   applyFilter();
 }
 
-function parseDate(s){
-  if(!s)return null;const c=str(s).trim();
-  const m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
-  const d=new Date(c);return isNaN(d)?null:d;
-}
+function parseDate(s){return sheetDate(s,'mdy');}
 function fmtDate(s){if(!s||!str(s))return'';const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):s;}
 function yearOf(r){const d=parseDate(r.tglPartisipasi);return d?d.getFullYear():null;}
 

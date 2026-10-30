@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="assets/css/dashboard.css">
@@ -315,21 +316,9 @@ let allFire=[],filteredFire=[],currentPage=1;
 const PAGE_SIZE=6;
 
 function str(v){return (v??'').toString().trim();}
-function num(v){const n=parseFloat(str(v));return isNaN(n)?null:n;}
+function num(v){return sheetNum(v,null);}
 
-function parseDateLoose(s){
-  s=str(s);if(!s)return null;
-  let m=s.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
-  if(m)return new Date(+m[1],+m[2],+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0));
-  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
-  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
-  m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})/);
-  const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  if(m&&MON[m[2]]!==undefined)return new Date(+m[3],MON[m[2]],+m[1]);
-  const d=new Date(s);return isNaN(d)?null:d;
-}
+function parseDateLoose(s){return sheetDate(s,'mdy');}
 function dateKey(d){return d?d.toISOString().slice(0,10):'';}
 function fmtDateID(d){return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'–';}
 function fmtDateShort(d){return d?`${d.getDate()} ${MN_SHORT[d.getMonth()]}`:'–';}
@@ -799,17 +788,7 @@ function fdrsBadgeClass(status){
   if(s==='MEDIUM')return'fdrs-medium';
   return'fdrs-medium';
 }
-function parseFdrsDate(v){
-  const s=str(v).trim();
-  const MON={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,agt:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
-  let m=s.match(/^(\d{1,2})[\s-]+([A-Za-z]{3})[A-Za-z]*\.?[\s-]+(\d{4})$/);
-  if(m&&MON[m[2].toLowerCase()]!==undefined)return new Date(+m[3],MON[m[2].toLowerCase()],+m[1]);
-  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
-  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
-  return null;
-}
+function parseFdrsDate(v){return sheetDate(v,'dmy');}
 fetch(FDRS_URL).then(r=>r.text()).then(text=>{
   const normalized=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const parsed=Papa.parse(normalized,{header:false,skipEmptyLines:true});

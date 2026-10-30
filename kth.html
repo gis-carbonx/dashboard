@@ -6,6 +6,7 @@
 <title>KTH</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -146,14 +147,7 @@ function pickCI(raw,keys,...names){
   for(const kk of keys){if(wanted.includes(norm(kk)))return raw[kk];}
   return undefined;
 }
-function parseDate(s){
-  if(!s)return null;const c=str(s);
-  const m=c.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
-  const m2=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m2)return new Date(+m2[3],+m2[1]-1,+m2[2]);
-  const d=new Date(c);return isNaN(d)?null:d;
-}
+function parseDate(s){return sheetDate(s,'mdy');}
 function fmtDate(d){
   return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'';
 }

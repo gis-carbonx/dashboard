@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
   <link rel="stylesheet" href="assets/css/dashboard.css">
 <style>
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Libre Franklin',sans-serif}
@@ -435,16 +436,7 @@ function parseDateDMY(s){
   if(!m)return null;
   return toMidnight(+m[3],+m[2]-1,+m[1]);
 }
-function parseDateTimeLoose(s){
-  s=(s||'').trim();if(!s)return null;
-  const [datePart,timePart]=s.split(' ');
-  const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!dm)return null;
-  const day=+dm[1],month=+dm[2],year=+dm[3];
-  let h=0,mi=0,se=0;
-  if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
-  return new Date(year,month-1,day,h,mi,se);
-}
+function parseDateTimeLoose(s){return sheetDate(s,'dmy');}
 function dateKey(d){
   if(!d)return null;
   const pad=n=>String(n).padStart(2,'0');
@@ -486,11 +478,7 @@ function pickFieldExactOrPartial(row,...patterns){
 const FDRS_SHEET_ID='1BFHIizqJZdzJ-ZHt0X9etrDgIMY3Wr4rnIzWovJv2xA';
 const FDRS_URL=`https://docs.google.com/spreadsheets/d/${FDRS_SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&headers=0&t=${Date.now()}`;
 const FDRS_MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:7,sep:8,oct:9,okt:9,nov:10,dec:11,des:11};
-function parseFdrsDate(v){
-  const m=(v||'').toString().trim().match(/^(\d{1,2})[\s-]+([A-Za-z]{3})[A-Za-z]*\.?[\s-]+(\d{4})$/);
-  if(!m||FDRS_MONTHS[m[2].toLowerCase()]===undefined)return null;
-  return toMidnight(+m[3],FDRS_MONTHS[m[2].toLowerCase()],+m[1]);
-}
+function parseFdrsDate(v){return sheetDate(v,'dmy');}
 async function loadFdrs(){
   const rows=await fetchCsv(FDRS_URL);
   const cell=(r,i)=>((r&&r[i])||'').toString().trim();

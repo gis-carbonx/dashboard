@@ -7,7 +7,8 @@
 <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script><link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/dashboard.css">
@@ -115,8 +116,10 @@ body{display:flex;flex-direction:column}
 <div class="dashboard-frame">
   <div class="hero">
     <div class="hero-inner">
-      <div class="hero-title">Monitoring</div>
-      <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      <div>
+        <div class="hero-title">Monitoring</div>
+        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      </div>
     </div>
   </div>
 
@@ -157,19 +160,12 @@ const PROG={
 };
 
 const str=v=>(v??'').toString().trim();
-const num=v=>parseFloat(str(v))||0;
+const num=v=>sheetNum(v);
 const fmt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function parseDate(s){
-  if(!s)return null;const c=str(s).trim();
-  const m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
-  const iso=c.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(iso)return new Date(+iso[1],+iso[2]-1,+iso[3]);
-  const d=new Date(c);return isNaN(d)?null:d;
-}
+function parseDate(s){return sheetDate(s,'mdy');}
 function fmtDate(s){if(!s)return'';const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'';}
 
 function resolveProgram(aReg,aBPO,tReg,tMTL,tipe){

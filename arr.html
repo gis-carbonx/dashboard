@@ -6,6 +6,7 @@
 <title>ARR</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
@@ -258,20 +259,13 @@ const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=ou
 const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
 
 const str=v=>(v??'').toString().trim();
-const num=v=>parseFloat(str(v))||0;
+const num=v=>sheetNum(v);
 const fmt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
 const fmtPct=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function parseDate(s){
-  if(!s)return null;const c=str(s);
-  const m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return new Date(+m[3],+m[1]-1,+m[2]);
-  const iso=c.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(iso)return new Date(+iso[1],+iso[2]-1,+iso[3]);
-  const d=new Date(c);return isNaN(d)?null:d;
-}
+function parseDate(s){return sheetDate(s,'mdy');}
 function pickCI(raw,keys,...names){
   const norm=s=>s.toString().trim().toLowerCase();
   const wanted=names.map(norm);

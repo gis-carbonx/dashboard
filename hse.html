@@ -6,6 +6,7 @@
 <title>Monitoring Manhours &amp; Insiden HSE</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,20 +146,11 @@ const INCIDENT_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?fo
 const MANHOURS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=530829684`;
 
 const str=v=>(v??'').toString().trim();
-const num=v=>{
-  const n=parseFloat(str(v).replace(/,/g,''));
-  return isNaN(n)?0:n;
-};
+const num=v=>sheetNum(v);
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
-const isoDate=v=>{
-  const s=str(v);
-  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(m)return`${m[1]}-${pad(+m[2])}-${pad(+m[3])}`;
-  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
-  return m&&+m[2]<=12&&+m[1]<=31?`${m[3]}-${pad(+m[2])}-${pad(+m[1])}`:'';
-};
+const isoDate=v=>sheetIso(v,'dmy');
 const toDate=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d);};
 const toIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const todayIso=()=>toIso(new Date());

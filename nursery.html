@@ -6,6 +6,7 @@
 <title>Nursery</title>
 <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -190,11 +191,7 @@ const SHEET_ID='1or3IIjtpas5QD8PRAfO8WdhW6iTc-xH7v0B7hNOAF5M',SHEET_NAME='Log';
 const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
 const str=v=>(v??'').toString().trim();
-const num=v=>{
-  const c=str(v).replace(/,/g,'');
-  const n=parseFloat(c);
-  return isNaN(n)?0:n;
-};
+const num=v=>sheetNum(v);
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

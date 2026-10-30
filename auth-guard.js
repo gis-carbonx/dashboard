@@ -7,7 +7,15 @@
   const CONTACT_EMAIL = "gis@carbonxco.com";
   const SESSION_KEY = "dashboardAuthed";
   const SESSION_EMAIL_KEY = "dashboardAuthedEmail";
-  const FIREBASE_CONFIG = null;
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyD5NoN07XptjPlh6_rcaacRra-X0-ggo90",
+    authDomain: "sanggala-dashboard.firebaseapp.com",
+    databaseURL: "https://sanggala-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sanggala-dashboard",
+    storageBucket: "sanggala-dashboard.firebasestorage.app",
+    messagingSenderId: "262406535220",
+    appId: "1:262406535220:web:72972fde5b91b5563e7261"
+  };
   const FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
   const PRESENCE_COLORS = ["#356760", "#c0611c", "#8B7BB0", "#4a7fc1", "#618273", "#3A342C"];
 

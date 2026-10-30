@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="assets/css/dashboard.css">
 <style>
@@ -348,16 +349,7 @@ function parseDateStr(s){
   const d=new Date(s);if(!isNaN(d))return toMidnight(d.getFullYear(),d.getMonth(),d.getDate());
   return null;
 }
-function parseDateTimeLoose(s){
-  s=(s||'').trim();if(!s)return null;
-  const [datePart,timePart]=s.split(' ');
-  const dm=datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!dm){const d=new Date(s);return isNaN(d)?null:d;}
-  const day=+dm[1],month=+dm[2],year=+dm[3];
-  let h=0,mi=0,se=0;
-  if(timePart){const tm=timePart.split(':').map(Number);h=tm[0]||0;mi=tm[1]||0;se=tm[2]||0;}
-  return new Date(year,month-1,day,h,mi,se);
-}
+function parseDateTimeLoose(s){return sheetDate(s,'dmy');}
 function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
 function fmtDateTimeID(d){
   if(!d)return '–';
