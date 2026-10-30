@@ -711,8 +711,8 @@ function cumulativeSeries(){
   });
 }
 const STATUS_GROUPS=[
-  {key:'agro',label:'Agroforestri',color:'var(--c-agro)',lt:'var(--c-agro-lt)',verb:'ditanam',subs:['Agro_Reg','Agro_BPO']},
-  {key:'temb',label:'Reforestasi',color:'var(--c-temb)',lt:'var(--c-temb-lt)',verb:'diintervensi',subs:['Temb_Reg','Temb_MTL']}
+  {key:'agro',label:'Agroforestri',color:'var(--c-agro)',lt:'var(--c-agro-lt)',verb:'ditanam',noun:'penanaman',subs:['Agro_Reg','Agro_BPO']},
+  {key:'temb',label:'Reforestasi',color:'var(--c-temb)',lt:'var(--c-temb-lt)',verb:'diintervensi',noun:'intervensi',subs:['Temb_Reg','Temb_MTL']}
 ];
 const statusOpen=new Set();
 function toggleStatus(el){const k=el.dataset.key;if(statusOpen.has(k))statusOpen.delete(k);else statusOpen.add(k);el.classList.toggle('open');}
@@ -739,10 +739,10 @@ function statusCardHTML(){
     <div class="pb-detail">
       <div><span>Petani terdaftar</span><span>${fmtInt(o.petani)}</span></div>
       <div><span>Petak ${g.verb} / terdaftar</span><span>${fmtInt(o.lahanDone)} / ${fmtInt(o.lahan)}</span></div>
-      <div><span>Belum ${g.verb}</span><span>${fmt(o.reg-o.done)} ha</span></div>
+      <div><span>Tanpa ${g.noun}</span><span>${fmt(o.reg-o.done)} ha</span></div>
       ${g.key==='agro'?`<div><span>Tanaman program</span><span>${fmtInt(o.tanaman)}</span></div>`:''}
       ${o.both>0?`<div><span>${g.verb[0].toUpperCase()+g.verb.slice(1)} &amp; dipupuk</span><span>${fmt(o.both)} ha</span></div>`:''}
-      ${o.pupukOnly>0?`<div><span>Dipupuk, belum ${g.verb}</span><span>${fmt(o.pupukOnly)} ha</span></div>`:''}
+      ${o.pupukOnly>0?`<div><span>Dipupuk, tanpa ${g.noun}</span><span>${fmt(o.pupukOnly)} ha</span></div>`:''}
     </div></div>`;
   const groups=STATUS_GROUPS.map(g=>{
     const list=cohort.filter(r=>g.subs.includes(r.prog));
@@ -758,12 +758,12 @@ function statusCardHTML(){
       <div class="im-sum">
         <div><div class="im-sum-lbl">Terdaftar</div><div class="im-sum-val">${fmt(all.reg)}<small>ha</small></div><div class="im-sum-sub">${fmtInt(all.lahan)} petak &middot; ${fmtInt(all.petani)} petani</div></div>
         <div><div class="im-sum-lbl">Ditanam / diintervensi</div><div class="im-sum-val">${fmt(all.done)}<small>ha</small></div><div class="im-sum-sub">${pc(all.done,all.reg)}% dari terdaftar &middot; ${fmtInt(all.lahanDone)} petak</div></div>
-        <div><div class="im-sum-lbl">Dipupuk</div><div class="im-sum-val">${fmt(pupuk)}<small>ha</small></div><div class="im-sum-sub">${fmt(all.both)} ha sudah ditanam${all.pupukOnly>0?` &middot; ${fmt(all.pupukOnly)} ha belum`:''}</div></div>
+        <div><div class="im-sum-lbl">Dipupuk</div><div class="im-sum-val">${fmt(pupuk)}<small>ha</small></div><div class="im-sum-sub">${fmt(all.both)} ha sudah ditanam${all.pupukOnly>0?` &middot; ${fmt(all.pupukOnly)} ha tanpa penanaman`:''}</div></div>
       </div>
       <div class="lg im-lg">
         <span class="lg-item"><i style="background:var(--c-agro)"></i><i style="background:var(--c-temb);margin-left:-4px"></i>Ditanam/diintervensi &amp; dipupuk</span>
         <span class="lg-item"><i style="background:var(--c-agro-lt)"></i><i style="background:var(--c-temb-lt);margin-left:-4px"></i>Ditanam/diintervensi</span>
-        <span class="lg-item"><i style="background:var(--border-lt)"></i>Belum</span>
+        <span class="lg-item"><i style="background:var(--border-lt)"></i>Tanpa penanaman/intervensi</span>
         <span class="lg-item im-hint">Klik baris untuk detail</span>
       </div>
       ${cohort.length?`<div class="im-grid">${groups}</div>`:'<div class="empty">Belum ada lahan terdaftar pada periode ini.</div>'}    </div>`;
