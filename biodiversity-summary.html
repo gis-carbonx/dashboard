@@ -142,8 +142,6 @@
     .lb-btn:hover{background:rgba(255,255,255,.25)}
     .lb-close{top:14px;right:14px}
     .hunting-empty{font-size:11.5px;color:var(--text-3)}
-    .hunting-more-btn{background:none;border:none;color:var(--primary-md);font-size:11px;font-weight:600;cursor:pointer;padding:10px 0 0;display:flex;align-items:center;gap:4px;font-family:inherit}
-    .hunting-more-btn:hover{color:var(--primary)}
     .tbl-scroll{overflow-x:auto}
 
     .leaflet-container,.leaflet-popup-content{font-family:'Libre Franklin',system-ui,sans-serif}
@@ -291,7 +289,7 @@
                 <tbody id="huntingList"></tbody>
               </table>
             </div>
-            <button class="hunting-more-btn" id="huntingMoreBtn" style="display:none">&#9660; Show more</button>
+            <button type="button" class="more-btn" id="huntingMoreBtn" style="display:none"></button>
           </div>
           <p class="page-note" id="noteHunting"></p>
         </div>
@@ -1333,15 +1331,15 @@ function renderHuntingRecords(){
     return;
   }
   if(!huntingRecords.length){
-    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">No matching hunting records found. Open the browser Console (F12) for diagnostics — the "submission" tab is most likely at the wrong gid, or the sheet has not been shared publicly ("Anyone with the link → Viewer").</td></tr>';
+    listEl.innerHTML='<tr><td colspan="5" class="hunting-empty">No hunting records found.</td></tr>';
     moreBtn.style.display='none';
     return;
   }
   const shown=huntingExpanded?huntingRecords:huntingRecords.slice(0,HUNTING_PREVIEW_COUNT);
   listEl.innerHTML=shown.map(huntingRowHtml).join('');
   if(huntingRecords.length>HUNTING_PREVIEW_COUNT){
-    moreBtn.style.display='flex';
-    moreBtn.innerHTML=huntingExpanded?'&#9650; Show less':'&#9660; Show more';
+    moreBtn.style.display='';
+    moreBtn.textContent=huntingExpanded?'Show less':`Show all (${huntingRecords.length} records)`;
   }else{
     moreBtn.style.display='none';
   }
