@@ -7,6 +7,9 @@
   const CONTACT_EMAIL = "gis@carbonxco.com";
   const SESSION_KEY = "dashboardAuthed";
   const SESSION_EMAIL_KEY = "dashboardAuthedEmail";
+  const FIREBASE_CONFIG = null;
+  const FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+  const PRESENCE_COLORS = ["#356760", "#c0611c", "#8B7BB0", "#4a7fc1", "#618273", "#3A342C"];
 
   const CSS = `
     .authg-lock { filter: blur(8px); pointer-events: none; user-select: none; }
@@ -86,6 +89,17 @@
     .authg-logout-btn:hover { background: #618273; color: #fff; }
     .authg-logout-btn.authg-show { display: inline-flex; }
 
+    .authg-presence { display: inline-flex; align-items: center; margin-right: 10px; vertical-align: middle; }
+    .authg-av {
+      width: 26px; height: 26px; border-radius: 50%; margin-left: -6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .3px;
+      border: 2px solid #fff; box-shadow: 0 0 0 1px #DCDACC; cursor: default;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .authg-av:first-child { margin-left: 0; }
+    .authg-av.authg-more { background: #EDE7D8; color: #3A342C; }
+
     .authg-logout-fixed {
       position: fixed; top: 14px; right: 16px; z-index: 100000;
     }
@@ -160,6 +174,31 @@
     }).then(function (res) { return res.json(); });
   }
 
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      const s = document.createElement("script");
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function initials(email) {
+    const parts = email.split("@")[0].split(/[._\-\s]+/).filter(Boolean);
+    const txt = parts.length > 1 ? parts[0][0] + parts[1][0] : (parts[0] || "?").slice(0, 2);
+    return txt.toUpperCase();
+  }
+
+  function colorFor(email) {
+    let h = 0;
+    for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) >>> 0;
+    return PRESENCE_COLORS[h % PRESENCE_COLORS.length];
+  }
+
+  function pageName() {
+    const t = document.querySelector(".hero-title");
+    return (t && t.textContent.trim()) || document.title || location.pathname;
+  }
+
   function init() {
     injectCSS();
 
@@ -169,6 +208,81 @@
     });
 
     const overlay = buildOverlay();
+
+    const presenceEl = document.createElement("span");
+    presenceEl.className = "authg-presence";
+    let presence = null;
+
+    function renderPresence(all, myId) {
+      const people = {};
+      const cutoff = Date.now() - 12 * 3600 * 1000;
+      Object.keys(all).forEach(function (id) {
+        const v = all[id] || {};
+        if (!v.email || (v.ts && v.ts < cutoff)) return;
+        const o = people[v.email] || (people[v.email] = { email: v.email, pages: [], me: false });
+        if (v.page && o.pages.indexOf(v.page) < 0) o.pages.push(v.page);
+        if (id === myId) o.me = true;
+      });
+      const list = Object.values(people).sort(function (a, b) { return (b.me - a.me) || a.email.localeCompare(b.email); });
+      presenceEl.textContent = "";
+      list.slice(0, 4).forEach(function (o) {
+        const av = document.createElement("span");
+        av.className = "authg-av";
+        av.style.background = colorFor(o.email);
+        av.textContent = initials(o.email);
+        av.title = o.email + (o.me ? " (Anda)" : "") + (o.pages.length ? " · " + o.pages.join(", ") : "");
+        presenceEl.appendChild(av);
+      });
+      if (list.length > 4) {
+        const more = document.createElement("span");
+        more.className = "authg-av authg-more";
+        more.textContent = "+" + (list.length - 4);
+        more.title = list.slice(4).map(function (o) { return o.email + (o.pages.length ? " · " + o.pages.join(", ") : ""); }).join("\n");
+        presenceEl.appendChild(more);
+      }
+    }
+
+    function startPresence() {
+      if (!FIREBASE_CONFIG || presence) return;
+      const email = sessionStorage.getItem(SESSION_EMAIL_KEY) || "";
+      if (!email) return;
+      const p = presence = { stopped: false };
+      loadScript(FIREBASE_SDK + "firebase-app-compat.js")
+        .then(function () {
+          return Promise.all([loadScript(FIREBASE_SDK + "firebase-auth-compat.js"), loadScript(FIREBASE_SDK + "firebase-database-compat.js")]);
+        })
+        .then(function () {
+          const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+          return app.auth().signInAnonymously().then(function () { return app; });
+        })
+        .then(function (app) {
+          if (p.stopped) return;
+          const db = app.database();
+          const id = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(16).slice(2);
+          p.me = db.ref("presence/" + id);
+          p.conn = db.ref(".info/connected");
+          p.connCb = p.conn.on("value", function (snap) {
+            if (snap.val() !== true) return;
+            p.me.onDisconnect().remove().then(function () {
+              p.me.set({ email: email, page: pageName(), ts: firebase.database.ServerValue.TIMESTAMP });
+            });
+          });
+          p.list = db.ref("presence");
+          p.listCb = p.list.on("value", function (snap) { renderPresence(snap.val() || {}, id); });
+        })
+        .catch(function () { presence = null; });
+    }
+
+    function stopPresence() {
+      if (!presence) return;
+      const p = presence;
+      presence = null;
+      p.stopped = true;
+      if (p.conn) p.conn.off("value", p.connCb);
+      if (p.list) p.list.off("value", p.listCb);
+      if (p.me) p.me.remove();
+      presenceEl.textContent = "";
+    }
 
     const logoutBtn = document.createElement("button");
     logoutBtn.type = "button";
@@ -187,6 +301,7 @@
       logoutBtn.classList.add("authg-logout-fixed");
       document.body.appendChild(logoutBtn);
     }
+    logoutBtn.parentNode.insertBefore(presenceEl, logoutBtn);
 
     function positionOverlay() {
       overlay.style.top = navbar ? navbar.offsetHeight + "px" : "0px";
@@ -206,12 +321,14 @@
       overlay.classList.add("authg-hidden");
       logoutBtn.classList.add("authg-show");
       document.documentElement.classList.remove("authg-noscroll");
+      startPresence();
     }
     function isLocked() {
       return document.documentElement.classList.contains("authg-noscroll");
     }
 
     logoutBtn.addEventListener("click", function () {
+      stopPresence();
       sessionStorage.removeItem(SESSION_KEY);
       sessionStorage.removeItem(SESSION_EMAIL_KEY);
       lock();

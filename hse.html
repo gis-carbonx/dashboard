@@ -152,7 +152,13 @@ const num=v=>{
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
-const isoDate=v=>{const m=str(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:'';};
+const isoDate=v=>{
+  const s=str(v);
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return`${m[1]}-${pad(+m[2])}-${pad(+m[3])}`;
+  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+  return m&&+m[2]<=12&&+m[1]<=31?`${m[3]}-${pad(+m[2])}-${pad(+m[1])}`:'';
+};
 const toDate=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d);};
 const toIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const todayIso=()=>toIso(new Date());
