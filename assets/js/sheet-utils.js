@@ -70,6 +70,34 @@
     return neg ? -n : n;
   }
 
+  const LOG_URL = "https://docs.google.com/spreadsheets/d/1DRYnz-86Gx7mIzGaeNzUUd9xz_HoxwCgF4W-lLsOYjk/gviz/tq?tqx=out:csv&sheet=Sheet1";
+
+  function plantName(v) {
+    return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ").replace(/(^|\s)\S/g, function (c) { return c.toUpperCase(); });
+  }
+
+  function parseActivityLog(csv) {
+    const pupuk = {}, tanam = {};
+    if (!csv) return { pupuk: pupuk, tanam: tanam, hasTanam: false };
+    const data = Papa.parse(csv, { header: true, skipEmptyLines: true, transformHeader: function (h) { return h.trim(); } }).data;
+    data.forEach(function (raw) {
+      const cat = String(raw["Activities Category"] || "").trim().toLowerCase();
+      const id = String(raw["Kode Petak"] || "").trim().toUpperCase();
+      const d = sheetDate(raw["Tanggal"], "dmy");
+      if (!id || id === "#N/A" || !d) return;
+      if (cat === "pemupukan") (pupuk[id] || (pupuk[id] = [])).push(d);
+      else if (cat === "planting" && String(raw["Tipe Intervensi"] || "").trim().toLowerCase() === "penanaman") {
+        const n = Math.max(0, sheetNum(raw["Jumlah"]));
+        (tanam[id] || (tanam[id] = [])).push({ d: d, name: n > 0 ? plantName(raw["Jenis Tanaman"]) : "", n: n });
+      }
+    });
+    Object.keys(pupuk).forEach(function (k) { pupuk[k].sort(function (a, b) { return a - b; }); });
+    Object.keys(tanam).forEach(function (k) { tanam[k].sort(function (a, b) { return a.d - b.d; }); });
+    return { pupuk: pupuk, tanam: tanam, hasTanam: Object.keys(tanam).length > 0 };
+  }
+
+  window.ACTIVITY_LOG_URL = LOG_URL;
+  window.parseActivityLog = parseActivityLog;
   window.sheetDate = sheetDate;
   window.sheetIso = sheetIso;
   window.sheetNum = sheetNum;

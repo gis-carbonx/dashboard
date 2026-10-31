@@ -199,18 +199,28 @@ function parseSheet(csv){
     const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTemb=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
-    const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
-    const plantedPlants=plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
+    const tglTanam=parseDate(tglRealisasi);
+    const plantEvents=tglTanam?plantCols.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
     const existingPlants=existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,jumlahTanaman,plantedPlants,existingPlants};
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi:tglTanam,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,plantEvents,existingPlants};
   });
 }
+function parseLog(csv){
+  const log=parseActivityLog(csv);
+  if(!log.hasTanam)return;
+  Object.values(sheetMap).forEach(r=>{
+    r.plantEvents=log.tanam[r.id.toUpperCase()]||[];
+    r.tglRealisasi=r.plantEvents.length?r.plantEvents[0].d:null;
+  });
+}
+const plantsIn=r=>r.plantEvents.reduce((a,e)=>matchesDateFilter(e.d)?a+e.n:a,0);
+const plantTotals=r=>Object.entries(r.plantEvents.reduce((o,e)=>(o[e.name]=(o[e.name]||0)+e.n,o),{})).map(([name,count])=>({name,count})).filter(p=>p.count>0);
 
 function parseTargetSheet(csv){
   const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
@@ -333,28 +343,34 @@ function computeSubAreas(){
 function computeTanamanTotal(){
   let total=0,agro=0,temb=0;
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglRealisasi'))return;
-    total+=r.jumlahTanaman;
-    if(r.prog?.startsWith('Agro'))agro+=r.jumlahTanaman;
-    else if(r.prog?.startsWith('Temb'))temb+=r.jumlahTanaman;
+    const n=plantsIn(r);
+    total+=n;
+    if(r.prog?.startsWith('Agro'))agro+=n;
+    else if(r.prog?.startsWith('Temb'))temb+=n;
   });
   return{total,agro,temb};
 }
 
 function computePlanting(){
-  let agro=0,temb=0,lahanA=0,lahanT=0;const speciesMap={},petaniA=new Set(),petaniT=new Set();
+  let agro=0,temb=0,lahanA=0,lahanT=0,addA=0,addT=0,addTanA=0,addLuasA=0,addLuasT=0;const speciesMap={},petaniA=new Set(),petaniT=new Set();
   Object.values(sheetMap).forEach(r=>{
-    if(!matchesFilter(r,'tglRealisasi'))return;
+    const isAgro=r.prog?.startsWith('Agro'),isTemb=r.prog?.startsWith('Temb');
+    r.plantEvents.forEach(e=>{if(e.n&&matchesDateFilter(e.d))speciesMap[e.name]=(speciesMap[e.name]||0)+e.n;});
+    if(!matchesFilter(r,'tglRealisasi')){
+      if(r.tglRealisasi&&!matchesFilter(r,'tglPartisipasi')&&r.plantEvents.some(e=>matchesDateFilter(e.d))){
+        if(isAgro){addA++;addTanA+=plantsIn(r);addLuasA+=r.luasAgro;}
+        else if(isTemb){addT++;addLuasT+=r.luasTemb;}
+      }
+      return;
+    }
     agro+=r.luasAgro;temb+=r.luasTemb;
-    const isAgro=r.prog?.startsWith('Agro');
-    if(isAgro||r.prog?.startsWith('Temb')){
+    if(isAgro||isTemb){
       if(isAgro)lahanA++;else lahanT++;
       if(r.petani&&str(r.jk).trim())(isAgro?petaniA:petaniT).add(r.petani.toLowerCase());
     }
-    r.plantedPlants.forEach(p=>{speciesMap[p.name]=(speciesMap[p.name]||0)+p.count;});
   });
   const species=Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
-  return{luas:agro+temb,agro,temb,species,lahanA,lahanT,petaniA:petaniA.size,petaniT:petaniT.size};
+  return{luas:agro+temb,agro,temb,species,lahanA,lahanT,addA,addT,addTanA,addLuasA,addLuasT,petaniA:petaniA.size,petaniT:petaniT.size};
 }
 function joinID(list){
   return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
@@ -525,6 +541,13 @@ function nurseryHtml(){
     </div>`;
 }
 
+const plantTip=(luas,petak,tan,addLuas,addPetak,addTan)=>{
+  const v=(l,p,t)=>`${fmt(l)} ha / ${fmtInt(p)} petak${t===null?'':` / ${fmtInt(t)} tanaman`}`;
+  return`<div class="ss-tip"><div class="ss-tip-head"><strong>Rincian penanaman</strong></div>
+    <div class="ss-tip-row"><span>Penanaman baru</span><b>${v(luas,petak,tan)}</b></div>
+    <div class="ss-tip-row"><span>Penambahan tanaman</span><b>${v(addLuas,addPetak,addTan)}</b></div>
+    <div class="ss-tip-note">Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luasnya tidak dihitung sebagai capaian, sedangkan tanaman tetap tercatat.</div></div>`;
+};
 function render(){
   const yq=periodMode==='yq';
   const areas=computeAreas();
@@ -544,9 +567,8 @@ function render(){
     :'(target belum tersedia)';
   const note2=`Luasan program agroforestri mencapai ${fmt(areas.agro)} ha, ${tgtPhrase(areas.agro,tgt.agro)}. Sedangkan program reforestasi mencapai ${fmt(areas.temb)} ha, ${tgtPhrase(areas.temb,tgt.temb)}.`;
   const plant=computePlanting();
-  const plantPct=totalHa>0?(plant.luas/totalHa*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
   const dominan=plant.species.slice(0,3);
-  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman, mencakup ${plantPct}% dari total luas lahan terdaftar. Sekitar ${fmtInt(tanaman.agro)} pohon telah ditanam`
+  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman. Sekitar ${fmtInt(tanaman.agro)} pohon telah ditanam${plant.addTanA?` (termasuk ${fmtInt(plant.addTanA)} penanaman tambahan)`:''}`
     +(plant.species.length
       ?`, yang terdiri dari ${fmtInt(plant.species.length)} jenis tanaman, dengan jenis ${esc(joinID(dominan))} sebagai jenis tanaman dominan.`
       :'.');
@@ -612,11 +634,11 @@ function render(){
         <div class="card split-card">
           <div class="card-lbl">ARR Implementation</div>
           <div class="card-val-lg">${fmt(plant.luas)} ha</div>
-          <div class="card-sub-pct">${fmtInt(tanaman.agro)} tanaman &middot; ${plantPct}% dari luas terdaftar</div>
+          <div class="card-sub-pct">${fmtInt(tanaman.agro)} tanaman</div>
           <div class="ss-div"></div>
           <div class="ss-parts">
-            <div class="ss-part"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(plant.petaniA)} petani &middot; ${fmtInt(plant.lahanA)} petak</span><br>${fmtInt(tanaman.agro)} tanaman</span></div></div>
-            <div class="ss-part"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note ss-sub">${fmtInt(plant.petaniT)} petani &middot; ${fmtInt(plant.lahanT)} petak</span></div></div>
+            <div class="ss-part${plant.addA?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(plant.petaniA)} petani &middot; ${fmtInt(plant.lahanA)} petak</span><br>${fmtInt(tanaman.agro)} tanaman</span></div>${plant.addA?plantTip(plant.agro,plant.lahanA,tanaman.agro-plant.addTanA,plant.addLuasA,plant.addA,plant.addTanA):''}</div>
+            <div class="ss-part${plant.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note ss-sub">${fmtInt(plant.petaniT)} petani &middot; ${fmtInt(plant.lahanT)} petak</span></div>${plant.addT?plantTip(plant.temb,plant.lahanT,null,plant.addLuasT,plant.addT,null):''}</div>
           </div>
         </div>
         <p class="page-note">${note3}</p>
@@ -711,22 +733,24 @@ function selectLahan(id){
       <div><div class="ld-lbl">ID Lahan</div><div class="ld-val">${esc(r.id)}</div></div>
       <div><div class="ld-lbl">Program</div><div class="ld-val">${pi.label}</div></div>
       <div><div class="ld-lbl">Luas</div><div class="ld-val">${fmt(lahanLuas(r))} ha</div></div>
-      <div><div class="ld-lbl">Total Tanaman</div><div class="ld-val">${fmtInt(r.existingPlants.reduce((s,p)=>s+p.count,0)+r.plantedPlants.reduce((s,p)=>s+p.count,0))}</div></div>
+      <div><div class="ld-lbl">Total Tanaman</div><div class="ld-val">${fmtInt(r.existingPlants.reduce((s,p)=>s+p.count,0)+r.plantEvents.reduce((s,e)=>s+e.n,0))}</div></div>
     </div>
     ${plantListHtml('Tanaman Eksisting',r.existingPlants)}
-    ${plantListHtml('Tanaman Program',r.plantedPlants)}`;
+    ${plantListHtml('Tanaman Program',plantTotals(r))}`;
 }
 
 
 (async function boot(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    const [csvTxt,tgtTxt,nurTxt]=await Promise.all([
+    const [csvTxt,tgtTxt,nurTxt,logTxt]=await Promise.all([
       getText(CSV_URL),
       getText(TARGET_URL).catch(()=>''),
-      getText(NURSERY_URL).catch(e=>{console.warn('Gagal memuat data nursery',e);return'';})
+      getText(NURSERY_URL).catch(e=>{console.warn('Gagal memuat data nursery',e);return'';}),
+      getText(ACTIVITY_LOG_URL).catch(()=>'')
     ]);
     parseSheet(csvTxt);
+    parseLog(logTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(nurTxt)parseNursery(nurTxt);
     const yrsData=new Set();

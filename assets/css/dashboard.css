@@ -70,6 +70,7 @@ button,input,select,textarea{font-family:inherit}
 @media (max-width:900px){.kpi-grid.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .split-card{display:grid;grid-template-columns:auto 1px minmax(0,1fr);grid-template-rows:auto auto 1fr;align-items:start;column-gap:20px}
 .kpi-grid>.split-card{grid-column:span 2}
+.split-card>.card-sub-pct{max-width:240px}
 .split-card>.card-lbl{grid-area:1/1}
 .split-card>.card-val-lg{grid-area:2/1}
 .split-card>:is(.card-note,.card-sub,.card-sub-pct){grid-area:3/1}
@@ -82,6 +83,14 @@ button,input,select,textarea{font-family:inherit}
 .ss-row>.ss-val{margin-top:0}
 .ss-note{font-size:10.5px;font-weight:500;color:var(--text-2);white-space:nowrap;text-align:right;line-height:1.4;padding-bottom:1px}
 .ss-sub{color:var(--text-3)}
+.ss-part.ss-has-tip{position:relative;cursor:default}
+.ss-tip{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;width:max-content;max-width:360px;pointer-events:none}
+.ss-has-tip:hover .ss-tip,.ss-has-tip:focus .ss-tip{display:block}
+.ss-tip-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.ss-tip-head strong{color:var(--text)}
+.ss-tip-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ss-tip-note{font-size:10px;color:var(--text-3);line-height:1.4;margin-top:6px;padding-top:6px;border-top:1px solid var(--border-lt)}
+.ss-tip-row b{color:var(--text);font-weight:700}
 .pb-legend{display:flex;gap:14px;justify-content:flex-end;font-size:10px;color:var(--text-2);margin-bottom:6px}
 .pb-legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .pb-part{cursor:pointer;border-radius:8px;padding:4px 6px;margin:0 -6px;transition:background .15s}

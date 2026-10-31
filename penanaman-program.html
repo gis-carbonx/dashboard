@@ -230,17 +230,25 @@ function parseSheet(csv){
     const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTemb=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
-    const jumlahTanaman=num(colV(raw,keys,['Total_Tanaman','Total Tanaman','Jumlah_Tanaman'],49));
-    const tglPupuk=str(colV(raw,keys,['Aplikasi Pupuk','Aplikasi_Pupuk'],98));
     const existingPlants=EXISTING_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
-    const plantedPlants=PLANTED_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
+    const tglTanam=parseDate(tglRealisasi);
+    const plantEvents=tglTanam?PLANTED_PLANT_COLS.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,tglRealisasi,tglPupuk,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,jumlahTanaman,existingPlants,plantedPlants};
+    sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,existingPlants,plantEvents};
   });
 }
+function parseTanam(csv){
+  const log=parseActivityLog(csv);
+  if(!log.hasTanam)return;
+  Object.values(sheetMap).forEach(r=>{r.plantEvents=log.tanam[monKey(r.id)]||[];});
+}
+const sumPlants=ev=>ev.reduce((a,e)=>a+e.n,0);
+const tanamUpTo=(r,end)=>r.plantEvents.filter(e=>e.d<=end);
+const tanamDays=ev=>[...new Set(ev.map(e=>+e.d))].map(t=>new Date(t));
+const plantTotals=ev=>Object.entries(ev.reduce((o,e)=>(o[e.name]=(o[e.name]||0)+e.n,o),{})).map(([name,count])=>({name,count})).filter(p=>p.count>0);
 
 let monMap={};
 const monKey=s=>str(s).toUpperCase();
@@ -327,13 +335,24 @@ function matchesTime(r){
   }
   return true;
 }
+function timeEnd(){
+  const now=new Date();
+  let end=now;
+  if(timePreset==='year'&&timeYear!=null)end=new Date(timeYear,12,0,23,59,59);
+  else if(timePreset==='month'&&timeYear!=null&&timeMonth!=null)end=new Date(timeYear,timeMonth+1,0,23,59,59);
+  else if(timePreset==='week'&&timeWeekYear!=null&&timeWeekMonth!=null){const wk=getWeeksInMonth(timeWeekYear,timeWeekMonth)[timeWeekIdx];if(wk)end=wk.fri;}
+  else if(timePreset==='custom'&&timeCustomEnd)end=timeCustomEnd;
+  return end<now?end:now;
+}
+const pupukDates=(id,end)=>(monMap[monKey(id)]||[]).filter(e=>e.date&&e.date<=end&&/^pemupukan$/i.test(e.cat)).map(e=>e.date);
 function matchesKTH(r,k){
   if(!k)return true;
   return r.kth===k;
 }
 function matchesStatus(r,f){
   if(f==='all')return true;
-  return !!parseDate(r.tglRealisasi);
+  const days=tanamDays(tanamUpTo(r,timeEnd())).length;
+  return f==='tambah'?days>1:days>0;
 }
 
 function getFilteredRows(){
@@ -378,19 +397,25 @@ function renderList(){
 }
 
 function computeStats(){
-  const rows=getFilteredRows();
-  let luasTotal=0,luasAgro=0,luasTemb=0,tanamanAgro=0,luasTertanam=0,tanamAgro=0,tanamTemb=0,pupukAgro=0,pupukTemb=0,bothAgro=0,bothTemb=0,lahanAgro=0,lahanTemb=0;
+  const rows=getFilteredRows(),end=timeEnd();
+  let luasTotal=0,luasAgro=0,luasTemb=0,tanamanAgro=0,luasTertanam=0,tanamAgro=0,tanamTemb=0,pupukAgro=0,pupukTemb=0,bothAgro=0,bothTemb=0,lahanAgro=0,lahanTemb=0,petakPupukAgro=0,petakPupukTemb=0,aplikasiAgro=0,aplikasiTemb=0,addPetakAgro=0,addPetakTemb=0,addTanAgro=0;
   const petaniSet=new Set(),laki=new Set(),perempuan=new Set(),petaniAgro=new Set(),petaniTemb=new Set();
   rows.forEach(r=>{
     const st=PROG[r.prog];
     const agro=st.group==='agro';
     const luas=agro?r.luasAgro:r.luasTemb;
     luasTotal+=luas;
-    if(agro){luasAgro+=luas;lahanAgro++;tanamanAgro+=r.jumlahTanaman;}else{luasTemb+=luas;lahanTemb++;}
-    if(parseDate(r.tglRealisasi)){luasTertanam+=luas;if(agro)tanamAgro+=luas;else tanamTemb+=luas;}
-    if(parseDate(r.tglPupuk)){
-      if(agro)pupukAgro+=luas;else pupukTemb+=luas;
-      if(parseDate(r.tglRealisasi)){if(agro)bothAgro+=luas;else bothTemb+=luas;}
+    const ev=tanamUpTo(r,end),planted=ev.length>0;
+    if(agro){luasAgro+=luas;lahanAgro++;tanamanAgro+=sumPlants(ev);}else{luasTemb+=luas;lahanTemb++;}
+    if(planted){
+      luasTertanam+=luas;if(agro)tanamAgro+=luas;else tanamTemb+=luas;
+      const extra=ev.filter(e=>+e.d!==+ev[0].d);
+      if(extra.length){if(agro){addPetakAgro++;addTanAgro+=sumPlants(extra);}else addPetakTemb++;}
+    }
+    const pd=pupukDates(r.id,end);
+    if(pd.length){
+      if(agro){pupukAgro+=luas;petakPupukAgro++;aplikasiAgro+=pd.length;}else{pupukTemb+=luas;petakPupukTemb++;aplikasiTemb+=pd.length;}
+      if(planted){if(agro)bothAgro+=luas;else bothTemb+=luas;}
     }
     const p=str(r.petani).toLowerCase(),g=str(r.jk).toLowerCase();
     if(!p)return;
@@ -400,7 +425,7 @@ function computeStats(){
     petaniSet.add(p);
     (agro?petaniAgro:petaniTemb).add(p);
   });
-  return{luasTotal,luasAgro,luasTemb,tanamanAgro,luasTertanam,tanamAgro,tanamTemb,pupukAgro,pupukTemb,bothAgro,bothTemb,lahanAgro,lahanTemb,
+  return{luasTotal,luasAgro,luasTemb,tanamanAgro,addPetakAgro,addPetakTemb,addTanAgro,luasTertanam,tanamAgro,tanamTemb,pupukAgro,pupukTemb,bothAgro,bothTemb,lahanAgro,lahanTemb,petakPupukAgro,petakPupukTemb,aplikasiAgro,aplikasiTemb,
     petaniTotal:petaniSet.size,laki:laki.size,perempuan:perempuan.size,petaniAgro:petaniAgro.size,petaniTemb:petaniTemb.size};
 }
 
@@ -419,10 +444,15 @@ function renderStats(){
     <div class="pb-track"><div class="pb-fill" style="width:${reg>0?done/reg*100:0}%"></div><div class="pb-fill pb-pupuk" style="width:${reg>0?both/reg*100:0}%"></div></div>
     <div class="pb-sub">${pctOf(done,reg)}% ${verb}${both>0?` &middot; ${pctOf(both,reg)}% dipupuk`:''}</div>
     <div class="pb-detail">${detail.map(([l,v])=>`<div><span>${l}</span><span>${v}</span></div>`).join('')}</div></div>`;
-  const detAgro=[['Petani',fmtInt(s.petaniAgro)],['Petak',fmtInt(s.lahanAgro)],['Tanaman',fmtInt(s.tanamanAgro)],['Ditanam & dipupuk',fmt(s.bothAgro)+' ha']];
+  const detAgro=[['Petani',fmtInt(s.petaniAgro)],['Petak',fmtInt(s.lahanAgro)],['Tanaman',fmtInt(s.tanamanAgro)]];
+  if(s.addPetakAgro>0)detAgro.push(['Penambahan tanaman',`${fmtInt(s.addPetakAgro)} petak &middot; ${fmtInt(s.addTanAgro)} tanaman`]);
+  detAgro.push(['Ditanam & dipupuk',fmt(s.bothAgro)+' ha']);
   if(s.pupukAgro>s.bothAgro)detAgro.push(['Dipupuk, belum ditanam',fmt(s.pupukAgro-s.bothAgro)+' ha']);
+  if(s.petakPupukAgro>0)detAgro.push(['Aplikasi pupuk',`${fmtInt(s.aplikasiAgro)} kali di ${fmtInt(s.petakPupukAgro)} petak`]);
   const detTemb=[['Petani',fmtInt(s.petaniTemb)],['Petak',fmtInt(s.lahanTemb)]];
+  if(s.addPetakTemb>0)detTemb.push(['Penambahan tanaman',`${fmtInt(s.addPetakTemb)} petak`]);
   if(s.pupukTemb>0)detTemb.push(['Dipupuk',fmt(s.pupukTemb)+' ha']);
+  if(s.petakPupukTemb>0)detTemb.push(['Aplikasi pupuk',`${fmtInt(s.aplikasiTemb)} kali di ${fmtInt(s.petakPupukTemb)} petak`]);
   html('statParts',`<div class="pb-legend"><span><i class="pb-sw-pupuk"></i>Dipupuk</span><span><i class="pb-sw-fill"></i>Ditanam</span><span><i class="pb-sw-track"></i>Terdaftar</span></div>`
     +bar('agro','Agroforestri',s.luasAgro,s.tanamAgro,'ditanam',s.bothAgro,detAgro)
     +bar('temb','Restorasi',s.luasTemb,s.tanamTemb,'diintervensi',s.bothTemb,detTemb));
@@ -506,9 +536,11 @@ function openDetail(id){
   rows.push(`<div class="detail-row"><span class="detail-row-lbl">Luas</span><span class="detail-row-val">${fmt(luas)} ha</span></div>`);
   const tglGabung=fmtDate(r.tglPartisipasi);
   if(tglGabung)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Tanggal Bergabung Program</span><span class="detail-row-val">${tglGabung}</span></div>`);
-  const tglTanam=fmtDate(r.tglRealisasi);
-  if(tglTanam)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Tanggal Penanaman</span><span class="detail-row-val">${tglTanam}</span></div>`);
-  if(r.jumlahTanaman>0)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${fmtInt(r.jumlahTanaman)} tanaman</span></div>`);
+  const days=tanamDays(r.plantEvents);
+  if(days.length)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Tanggal Penanaman</span><span class="detail-row-val">${days.map(d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})).join('<br>')}</span></div>`);
+  if(days.length>1)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Penambahan Tanaman</span><span class="detail-row-val">${fmtInt(days.length-1)} kali</span></div>`);
+  const jml=sumPlants(r.plantEvents);
+  if(jml>0)rows.push(`<div class="detail-row"><span class="detail-row-lbl">Jumlah Tanaman</span><span class="detail-row-val">${fmtInt(jml)} tanaman</span></div>`);
   document.getElementById('detailTabInfo').innerHTML=rows.join('');
   renderKomposisi(r);
   renderMonitoring(r);
@@ -536,7 +568,7 @@ function komposisiSectionHTML(title,list){
 }
 function renderKomposisi(r){
   const el=document.getElementById('detailTabKomposisi');if(!el)return;
-  el.innerHTML=komposisiSectionHTML('Tanaman Eksisting',r.existingPlants)+komposisiSectionHTML('Tanaman Ditanam Project',r.plantedPlants);
+  el.innerHTML=komposisiSectionHTML('Tanaman Eksisting',r.existingPlants)+komposisiSectionHTML('Tanaman Ditanam Project',plantTotals(r.plantEvents));
 }
 
 function renderMonitoring(r){
@@ -653,6 +685,7 @@ function renderPage(){
       <div class="explore-filters" id="statusFilters">
         <button type="button" class="fpill active" data-val="all" onclick="setStatusFilter('all')">Semua</button>
         <button type="button" class="fpill" data-val="ditanam" onclick="setStatusFilter('ditanam')">Penanaman</button>
+        <button type="button" class="fpill" data-val="tambah" onclick="setStatusFilter('tambah')">Penambahan Tanaman</button>
       </div>
     </div>
     <div class="filter-group">
@@ -717,7 +750,7 @@ function fitExploreRow(){
     const monTxt=getText(MON_CSV_URL).catch(e=>{console.warn('Gagal memuat data monitoring:',e);return'';});
     const [csvTxt,monCsv]=await Promise.all([getText(CSV_URL),monTxt,loadGeoJSON()]);
     parseSheet(csvTxt);
-    if(monCsv)parseMonitoring(monCsv);
+    if(monCsv){parseMonitoring(monCsv);parseTanam(monCsv);}
     setupFilterOptions();
     renderPage();
   }catch(err){

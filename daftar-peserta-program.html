@@ -130,7 +130,10 @@ const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumF
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function parseDate(s){return sheetDate(s,'mdy');}
-const fmtDate=s=>{const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'—';};
+const fmtD=d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+const fmtDate=s=>{const d=parseDate(s);return d?fmtD(d):'—';};
+const fmtDates=l=>l.length?l.map(fmtD).join(', '):'—';
+const lastOf=l=>l.length?l[l.length-1]:0;
 function pickCI(raw,keys,...names){
   const norm=s=>s.toString().trim().toLowerCase();
   const wanted=names.map(norm);
@@ -189,12 +192,23 @@ function parseSheet(csv){
     const r={id,prog,group,
       petani:str(raw['Petani']),jk:str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']),
       kth:str(raw['KTH']),desa:str(raw['Desa']),dusun:str(colV(raw,keys,['dusun'],44)),
-      tglPartisipasi,tglRealisasi:str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']),
-      tglPupuk:str(colV(raw,keys,['Aplikasi Pupuk','Aplikasi_Pupuk'],98)),
+      tglPartisipasi,tanamDates:[parseDate(raw['Tgl_Realisasi']||raw['Tgl Realisasi'])].filter(Boolean),
+      pupukDates:[],
       luas:group==='agro'?(luasAgro>0?luasAgro:aReg+aBPO):(luasTemb>0?luasTemb:tReg+tMTL),
       planted:plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0),
       existing:existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0)};
     rows.push(r);byId[id]=r;
+  });
+}
+function parseLog(csv){
+  const log=parseActivityLog(csv);
+  rows.forEach(r=>{
+    const k=r.id.toUpperCase();
+    r.pupukDates=log.pupuk[k]||[];
+    if(!log.hasTanam)return;
+    const ev=log.tanam[k]||[];
+    r.tanamDates=[...new Set(ev.map(e=>+e.d))].map(t=>new Date(t));
+    r.planted=Object.entries(ev.reduce((o,e)=>(o[e.name]=(o[e.name]||0)+e.n,o),{})).map(([name,count])=>({name,count})).filter(p=>p.count>0);
   });
 }
 
@@ -217,8 +231,8 @@ const SORTERS={
   prog:(a,b)=>cmpText(PROG_INFO[a.prog].label,PROG_INFO[b.prog].label),
   luas:(a,b)=>a.luas-b.luas,
   tgl:(a,b)=>parseDate(a.tglPartisipasi)-parseDate(b.tglPartisipasi),
-  tglTanam:(a,b)=>(parseDate(a.tglRealisasi)||0)-(parseDate(b.tglRealisasi)||0),
-  tglPupuk:(a,b)=>(parseDate(a.tglPupuk)||0)-(parseDate(b.tglPupuk)||0),
+  tglTanam:(a,b)=>lastOf(a.tanamDates)-lastOf(b.tanamDates),
+  tglPupuk:(a,b)=>lastOf(a.pupukDates)-lastOf(b.pupukDates),
 };
 function setSort(key){
   sortState.dir=sortState.key===key?-sortState.dir:1;
@@ -227,10 +241,11 @@ function setSort(key){
 }
 
 const STATUS_TEST={
-  tanam:r=>!!parseDate(r.tglRealisasi),
-  belum:r=>!parseDate(r.tglRealisasi),
-  pupuk:r=>!!parseDate(r.tglPupuk),
-  belumPupuk:r=>!parseDate(r.tglPupuk),
+  tanam:r=>r.tanamDates.length>0,
+  tambah:r=>r.tanamDates.length>1,
+  belum:r=>!r.tanamDates.length,
+  pupuk:r=>r.pupukDates.length>0,
+  belumPupuk:r=>!r.pupukDates.length,
 };
 function visibleRows(){
   const q=state.q.toLowerCase().trim();
@@ -249,7 +264,7 @@ function render(){
     <div class="filters">
       <div>
         <div class="filter-group"><span class="filter-lbl">Program</span>${pills('prog',[['','Semua'],['Agro_Reg','Agroforestri'],['Temb_Reg','Reforestasi'],['Temb_MTL','MTL'],['Agro_BPO','BPO']])}</div>
-        <div class="filter-group"><span class="filter-lbl">Status</span>${pills('status',[['','Semua'],['tanam','Penanaman'],['belum','Belum Ditanam'],['pupuk','Sudah Dipupuk'],['belumPupuk','Belum Dipupuk']])}</div>
+        <div class="filter-group"><span class="filter-lbl">Status</span>${pills('status',[['','Semua'],['tanam','Penanaman'],['tambah','Penambahan Tanaman'],['belum','Belum Ditanam'],['pupuk','Sudah Dipupuk'],['belumPupuk','Belum Dipupuk']])}</div>
         <div class="filter-group"><span class="filter-lbl">Desa</span><select class="sel" onchange="state.desa=this.value;updateTable()">${opts(uniq(r=>r.desa).map(v=>[v,v]),'Semua Desa')}</select></div>
         <div class="filter-group"><span class="filter-lbl">KTH</span><select class="sel" onchange="state.kth=this.value;updateTable()">${opts(uniq(r=>r.kth).map(v=>[v,v]),'Semua KTH')}</select></div>
       </div>
@@ -301,8 +316,8 @@ function updateTable(){
       <td>${PROG_INFO[r.prog].label}</td>
       <td class="r">${fmt(r.luas)}</td>
       <td class="full">${fmtDate(r.tglPartisipasi)}</td>
-      <td class="full">${fmtDate(r.tglRealisasi)}</td>
-      <td class="full">${fmtDate(r.tglPupuk)}</td>
+      <td class="full">${fmtDates(r.tanamDates)}</td>
+      <td class="full">${fmtDates(r.pupukDates)}</td>
     </tr>`).join('');
   document.getElementById('empty').style.display=vis.length?'none':'block';
   document.getElementById('count').textContent=`${fmtInt(vis.length)} lahan · ${fmt(vis.reduce((a,r)=>a+r.luas,0))} ha`;
@@ -310,7 +325,7 @@ function updateTable(){
 
 const EXPORT_HDR=['No','Nama Petani','ID Lahan','Desa','KTH','Program','Luas (ha)','Tgl Partisipasi','Tgl Penanaman','Tgl Pemupukan'];
 function exportBody(raw){
-  return visibleRows().map((r,i)=>[i+1,r.petani,r.id,r.desa,r.kth,PROG_INFO[r.prog].label,raw?+r.luas.toFixed(2):fmt(r.luas),fmtDate(r.tglPartisipasi),fmtDate(r.tglRealisasi),fmtDate(r.tglPupuk)]);
+  return visibleRows().map((r,i)=>[i+1,r.petani,r.id,r.desa,r.kth,PROG_INFO[r.prog].label,raw?+r.luas.toFixed(2):fmt(r.luas),fmtDate(r.tglPartisipasi),fmtDates(r.tanamDates),fmtDates(r.pupukDates)]);
 }
 const exportName=()=>`Daftar_Peserta_Program_${new Date().toISOString().slice(0,10)}`;
 function toggleDl(ev){ev.stopPropagation();document.getElementById('dlWrap').classList.toggle('open');}
@@ -371,8 +386,10 @@ function detailHTML(r){
       ${row('KTH',esc(r.kth)||'—')}
       ${row('Desa / Dusun',`${esc(r.desa)||'—'}${r.dusun?` / ${esc(r.dusun)}`:''}`)}
       ${row('Tgl Partisipasi',fmtDate(r.tglPartisipasi))}
-      ${row('Tgl Realisasi Tanam',fmtDate(r.tglRealisasi))}
-      ${row('Tgl Pemupukan',fmtDate(r.tglPupuk))}
+      ${row('Tgl Penanaman',r.tanamDates.length?r.tanamDates.map(fmtD).join('<br>'):'—')}
+      ${r.tanamDates.length>1?row('Penambahan Tanaman',`${fmtInt(r.tanamDates.length-1)} kali`):''}
+      ${row('Aplikasi Pupuk',r.pupukDates.length?`${fmtInt(r.pupukDates.length)} kali`:'—')}
+      ${row('Tgl Pemupukan',r.pupukDates.length?r.pupukDates.map(fmtD).join('<br>'):'—')}
     </div>
     <div class="plants">
       ${list('Tanaman Program',r.planted)}
@@ -429,7 +446,9 @@ async function showOnMap(id){
 (async function boot(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    parseSheet(await getText(CSV_URL));
+    const [csvTxt,logTxt]=await Promise.all([getText(CSV_URL),getText(ACTIVITY_LOG_URL).catch(()=>'')]);
+    parseSheet(csvTxt);
+    parseLog(logTxt);
     render();
   }catch(err){
     console.error('LOAD ERROR:',err);
