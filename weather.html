@@ -65,8 +65,6 @@
   .guide-list li{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#6A665B;line-height:1.45}
   .sw{width:12px;height:12px;border-radius:3px;flex-shrink:0;margin-top:1px;border:1px solid rgba(0,0,0,.1)}
 
-  .rv-legend{display:flex;align-items:center;gap:10px;max-width:560px;font-size:9.5px;font-weight:600;color:var(--text-2)}
-  .rv-grad{flex:1;height:10px;border-radius:2px;background:linear-gradient(90deg,#88ddee,#0099cc,#005588,#ffee00,#ffaa00,#ff4400,#c10000,#ffaaff)}
   .forecast-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
   .forecast-scroll::-webkit-scrollbar{height:6px}
   .forecast-scroll::-webkit-scrollbar-thumb{background:var(--color-sand);border-radius:10px}
@@ -83,11 +81,6 @@
 
   .legend-bar{padding:10px 16px 12px;border-top:1px solid var(--color-sand);display:none}
   .legend-bar.visible{display:block}
-  .legend-bar img{display:block;width:100%;max-width:560px;height:auto}
-  .legend-row{display:grid;grid-template-columns:repeat(var(--n,1),minmax(0,300px));gap:24px;justify-content:center}
-  @media (max-width:640px){.legend-row{grid-template-columns:minmax(0,300px)}}
-  .legend-crop{position:relative;overflow:hidden;aspect-ratio:var(--ar)}
-  .legend-crop img{position:absolute;left:0;width:100%;max-width:none;height:auto}
 
   .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
   @media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -176,7 +169,6 @@
           <input type="range" class="time-slider" id="timeSlider" min="0" max="0" value="0" aria-label="Waktu citra">
           <div class="time-label" id="timeLabel">&ndash;</div>
         </div>
-        <div class="legend-bar" id="legendBar"></div>
       </div>
 
       <h2 class="section-title">Cara Membaca Citra</h2>
@@ -213,32 +205,18 @@
           </ul>
           <div class="guide-source">Sumber: Himawari-9 (<a href="https://www.data.jma.go.jp/mscweb/en/himawari89/" target="_blank" rel="noopener">JMA</a>) via <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener">NASA GIBS</a></div>
         </div>
-      </div>
-
-      <h2 class="section-title">Radar Hujan 2 Jam Terakhir</h2>
-      <div class="map-card">
-        <div class="map-toolbar">
-          <div class="chart-title">Pantauan radar cuaca area proyek</div>
-          <label class="opacity-ctl">Opasitas
-            <input type="range" id="rvOpacityInput" min="20" max="100" value="80">
-          </label>
-        </div>
-        <div class="map-wrap">
-          <div id="rvMap" class="aq-map"></div>
-          <div class="map-status" id="rvMapStatus"></div>
-        </div>
-        <div class="time-bar">
-          <button type="button" class="time-btn" id="rvPrevBtn" aria-label="Sebelumnya"><svg viewBox="0 0 24 24"><path d="M15.5 5v14L6 12Z"/></svg></button>
-          <button type="button" class="time-btn play" id="rvPlayBtn" aria-label="Putar animasi"><svg viewBox="0 0 24 24" id="rvPlayIcon"><path d="M8 5v14l11-7Z"/></svg></button>
-          <button type="button" class="time-btn" id="rvNextBtn" aria-label="Berikutnya"><svg viewBox="0 0 24 24"><path d="M8.5 5v14L18 12Z"/></svg></button>
-          <input type="range" class="time-slider" id="rvTimeSlider" min="0" max="0" value="0" aria-label="Waktu radar">
-          <div class="time-label" id="rvTimeLabel">&ndash;</div>
-        </div>
-        <div class="legend-bar visible">
-          <div class="rv-legend"><span>Ringan</span><div class="rv-grad"></div><span>Sangat lebat</span></div>
+        <div class="guide-card" data-layer="radar">
+          <div class="guide-title">Radar (RainViewer)</div>
+          <div class="guide-meta">reflektivitas &middot; interval 10 menit</div>
+          <div class="guide-text">Gabungan radar cuaca darat untuk 2 jam terakhir. Hanya mencakup area dalam jangkauan radar; area berarsir abu-abu tidak terpantau.</div>
+          <ul class="guide-list">
+            <li><span class="sw" style="background:linear-gradient(90deg,#88ddee,#0099cc)"></span>Biru: hujan ringan</li>
+            <li><span class="sw" style="background:linear-gradient(90deg,#ffee00,#ff4400)"></span>Kuning&ndash;oranye: hujan sedang&ndash;lebat</li>
+            <li><span class="sw" style="background:linear-gradient(90deg,#c10000,#ffaaff)"></span>Merah&ndash;ungu: hujan sangat lebat</li>
+          </ul>
+          <div class="guide-source">Sumber: <a href="https://www.rainviewer.com/api.html" target="_blank" rel="noopener">RainViewer API</a></div>
         </div>
       </div>
-      <div class="source-note" style="margin-top:12px;border-top:none;padding-top:0">Sumber: <a href="https://www.rainviewer.com/api.html" target="_blank" rel="noopener">RainViewer API</a>, gabungan citra radar cuaca (reflektivitas) setiap 10 menit untuk 2 jam terakhir. Area tanpa warna dapat berarti tidak hujan atau di luar jangkauan radar.</div>
 
       <h2 class="section-title">Prediksi Cuaca BMKG</h2>
       <div class="chart-card">
@@ -320,11 +298,10 @@ const LAYERS={
   ir:     {id:'Himawari_AHI_Band13_Clean_Infrared',label:'Inframerah',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:6,frames:18,
            note:'Animasi 3 jam terakhir, interval 10 menit. Citra biasanya tersedia 20–40 menit setelah observasi.'},
   rain:   {id:'IMERG_Precipitation_Rate_30min',   label:'Curah Hujan',tms:'GoogleMapsCompatible_Level6',maxNative:6,windowH:36,frames:12,
-           legend:'https://gibs.earthdata.nasa.gov/legends/GPM_Precipitation_Rate_H.svg',
-           legendSize:[302.4,140.4],legendCrops:[[0,63.18]],
            note:'Animasi 6 jam data terakhir yang tersedia, interval 30 menit. Data IMERG terlambat sekitar 4–6 jam dari waktu sekarang.'},
   vis:    {id:'Himawari_AHI_Band3_Red_Visible_1km',label:'Visible',   tms:'GoogleMapsCompatible_Level7',maxNative:7,windowH:6,frames:18,
-           note:'Animasi 3 jam terakhir, interval 10 menit. Hanya bermakna pada siang hari.'}
+           note:'Animasi 3 jam terakhir, interval 10 menit. Hanya bermakna pada siang hari.'},
+  radar:  {label:'Radar',rv:true,note:'Animasi 2 jam terakhir, interval 10 menit. Hanya mencakup area dalam jangkauan radar.'}
 };
 const FRAME_MS=700;
 const CMI_URL='assets/json/CMI.json';
@@ -353,7 +330,13 @@ function periodMs(p){
   return ((+m[1]||0)*86400+(+m[2]||0)*3600+(+m[3]||0)*60)*1e3||10*60e3;
 }
 async function fetchFrames(key){
-  const L_=LAYERS[key],end=new Date(),start=new Date(end.getTime()-L_.windowH*3600e3);
+  const L_=LAYERS[key];
+  if(L_.rv){
+    const j=await (await fetch(RV_API)).json(),past=(j.radar&&j.radar.past)||[];
+    rvHost=j.host;rvPaths=Object.fromEntries(past.map(f=>[f.time*1000,f.path]));
+    return past.map(f=>new Date(f.time*1000));
+  }
+  const end=new Date(),start=new Date(end.getTime()-L_.windowH*3600e3);
   const url=`${GIBS}/1.0.0/${L_.id}/default/${L_.tms}/all/${isoMin(start)}--${isoMin(end)}.xml`;
   const txt=await (await fetch(url)).text();
   const dom=(txt.match(/<Domain>([^<]*)<\/Domain>/)||[])[1]||'';
@@ -379,15 +362,28 @@ function setStatus(msg){const el=document.getElementById('mapStatus');el.textCon
 function buildFrameLayers(){
   frameLayers.forEach(l=>map.removeLayer(l));
   const L_=LAYERS[activeKey];
-  frameLayers=frames.map(t=>L.tileLayer(
-    `${GIBS}/${L_.id}/default/${L_.daily?isoDay(t):isoMin(t)}/${L_.tms}/{z}/{y}/{x}.png`,
-    {maxNativeZoom:L_.maxNative,maxZoom:10,opacity:0,attribution:'NASA GIBS'}
+  frameLayers=frames.map(t=>(L_.rv
+    ?L.tileLayer(`${rvHost}${rvPaths[t.getTime()]}/256/{z}/{x}/{y}/2/1_1.png`,{maxNativeZoom:7,maxZoom:10,opacity:0,zIndex:300,attribution:'Radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'})
+    :L.tileLayer(`${GIBS}/${L_.id}/default/${L_.daily?isoDay(t):isoMin(t)}/${L_.tms}/{z}/{y}/{x}.png`,{maxNativeZoom:L_.maxNative,maxZoom:10,opacity:0,attribution:'NASA GIBS'})
   ).addTo(map));
 }
 function fmtFrame(t,long){
   if(LAYERS[activeKey].daily)return fmtWIB(t,{weekday:long?undefined:'short',day:'numeric',month:'short',year:long?'numeric':undefined});
   return fmtWIB(t,{day:'numeric',month:'short',year:long?'numeric':undefined,hour:'2-digit',minute:'2-digit'})+' WIB';
 }
+const RV_API='https://api.rainviewer.com/public/weather-maps.json';
+let rvHost='',rvPaths={},rvCoverage=null;
+function rvCoverageLayer(){
+  const Cov=L.GridLayer.extend({createTile(c,done){
+    const cv=document.createElement('canvas');cv.width=cv.height=256;
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=()=>{const x=cv.getContext('2d');x.fillStyle='rgba(58,52,44,.32)';x.fillRect(0,0,256,256);x.globalCompositeOperation='destination-out';x.drawImage(img,0,0);done(null,cv);};
+    img.onerror=()=>done(null,cv);
+    img.src=`${rvHost}/v2/coverage/0/256/${c.z}/${c.x}/${c.y}/0/0_0.png`;
+    return cv;}});
+  return new Cov({maxNativeZoom:7,maxZoom:10,zIndex:250});
+}
+
 function showFrame(i){
   if(!frames.length)return;
   idx=(i+frames.length)%frames.length;
@@ -402,15 +398,7 @@ async function loadLayer(key){
   renderPills();
   document.querySelectorAll('.guide-card').forEach(c=>c.classList.toggle('active',c.dataset.layer===key));
   const L_=LAYERS[key];
-  const lb=document.getElementById('legendBar');
-  lb.classList.toggle('visible',!!L_.legend);
-  if(L_.legend){
-    const [w,h]=L_.legendSize||[1,1],crops=L_.legendCrops||[[0,h]];
-    lb.innerHTML=`<div class="legend-row" style="--n:${crops.length}">`
-      +crops.map(([y0,ch])=>`<div class="legend-crop" style="--ar:${w}/${ch}">`
-        +`<img src="${L_.legend}" alt="Legenda ${L_.label}" loading="lazy" style="top:${(-y0/ch*100).toFixed(3)}%"></div>`).join('')
-      +'</div>';
-  }else lb.innerHTML='';
+  if(rvCoverage&&!L_.rv)map.removeLayer(rvCoverage);
   const token=++loadToken;
   setStatus('Memuat citra…');
   try{
@@ -419,6 +407,10 @@ async function loadLayer(key){
     frames=f;
     if(!frames.length){setStatus('Belum ada citra yang tersedia untuk layer ini');frameLayers.forEach(l=>map.removeLayer(l));frameLayers=[];return;}
     buildFrameLayers();
+    if(L_.rv){
+      if(!rvCoverage)rvCoverage=rvCoverageLayer();
+      rvCoverage.addTo(map);
+    }
     const slider=document.getElementById('timeSlider');
     slider.max=frames.length-1;
     showFrame(frames.length-1);
@@ -426,7 +418,7 @@ async function loadLayer(key){
     setStatus('');
   }catch(e){
     console.error('[Weather] gagal memuat',e);
-    if(token===loadToken)setStatus('Gagal memuat citra dari NASA GIBS');
+    if(token===loadToken)setStatus(L_.rv?'Gagal memuat radar dari RainViewer':'Gagal memuat citra dari NASA GIBS');
   }
 }
 
@@ -685,68 +677,7 @@ async function loadBmkgForecast(){
   }
 }
 
-const RV_API='https://api.rainviewer.com/public/weather-maps.json';
-function initRadarMap(lat,lon){
-  const rvMap=L.map('rvMap',{zoomControl:true,attributionControl:true,minZoom:5,maxZoom:10});
-  rvMap.attributionControl.setPrefix(false);
-  rvMap.createPane('labels');rvMap.getPane('labels').style.zIndex=450;rvMap.getPane('labels').style.pointerEvents='none';
-  L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,attribution:'Basemap: Esri'}).addTo(rvMap);
-  L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,pane:'labels'}).addTo(rvMap);
-  rvMap.setView([lat,lon],7);
-  fetch(CMI_URL).then(r=>r.json()).then(j=>{
-    L.geoJSON(j,{style:{color:'#fff',weight:2.5,fillOpacity:0},pane:'labels'}).addTo(rvMap);
-    L.geoJSON(j,{style:{color:'#356760',weight:1.5,fillOpacity:0},pane:'labels'}).addTo(rvMap);
-  }).catch(()=>{});
-  L.circleMarker([lat,lon],{radius:4,color:'#fff',weight:2,fillColor:'#3A342C',fillOpacity:1,pane:'labels'}).bindTooltip('Kantor CMI Raut').addTo(rvMap);
-
-  const status=msg=>{const el=document.getElementById('rvMapStatus');el.textContent=msg||'';el.style.display=msg?'block':'none';};
-  let frames=[],layers=[],idx=0,timer=null,opacity=.8;
-  const show=i=>{
-    if(!frames.length)return;
-    idx=(i+frames.length)%frames.length;
-    layers.forEach((l,k)=>l.setOpacity(k===idx?opacity:0));
-    document.getElementById('rvTimeSlider').value=idx;
-    const t=new Date(frames[idx].time*1000);
-    document.getElementById('rvTimeLabel').innerHTML=`${fmtWIB(t,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} WIB<small>${relTime(t)}</small>`;
-  };
-  const stop=()=>{clearInterval(timer);timer=null;document.getElementById('rvPlayIcon').innerHTML=PLAY_SVG;};
-  const play=()=>{
-    if(frames.length<2)return;
-    if(idx===frames.length-1)show(0);
-    timer=setInterval(()=>{if(idx>=frames.length-1){stop();return;}show(idx+1);},FRAME_MS);
-    document.getElementById('rvPlayIcon').innerHTML=PAUSE_SVG;
-  };
-  document.getElementById('rvPlayBtn').addEventListener('click',()=>timer?stop():play());
-  document.getElementById('rvPrevBtn').addEventListener('click',()=>{stop();show(idx-1);});
-  document.getElementById('rvNextBtn').addEventListener('click',()=>{stop();show(idx+1);});
-  document.getElementById('rvTimeSlider').addEventListener('input',e=>{stop();show(+e.target.value);});
-  document.getElementById('rvOpacityInput').addEventListener('input',e=>{opacity=e.target.value/100;show(idx);});
-
-  const load=async()=>{
-    if(timer)return;
-    try{
-      if(!frames.length)status('Memuat radar…');
-      const j=await (await fetch(RV_API)).json();
-      const past=(j.radar&&j.radar.past)||[];
-      if(!past.length)throw new Error('tidak ada frame radar');
-      layers.forEach(l=>rvMap.removeLayer(l));
-      frames=past;
-      layers=frames.map(f=>L.tileLayer(`${j.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`,
-        {maxNativeZoom:7,maxZoom:10,opacity:0,zIndex:300,attribution:'Radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'}).addTo(rvMap));
-      document.getElementById('rvTimeSlider').max=frames.length-1;
-      show(frames.length-1);
-      status('');
-    }catch(e){
-      console.error('[Weather] RainViewer gagal',e);
-      if(!frames.length)status('Gagal memuat radar dari RainViewer');
-    }
-  };
-  load();
-  setInterval(load,10*60e3);
-}
-
 const OBS_POINT={lat:0.81636,lon:110.348495};
-initRadarMap(OBS_POINT.lat,OBS_POINT.lon);
 loadBmkgForecast();
 if(SHOW_AIR_QUALITY)loadPointAirQuality(OBS_POINT.lat,OBS_POINT.lon);
 </script>
