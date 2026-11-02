@@ -71,6 +71,16 @@
   .fire-kpi-label{font-size:11px;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.6px}
   .fire-kpi-value{font-size:54px;color:var(--color-pine);line-height:1.1;margin-top:4px}
   .fire-kpi-sub{font-size:11.5px;color:var(--color-muted);margin-top:2px;font-family:'Libre Franklin',sans-serif}
+  .fire-kpi-main{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .conf-stats{display:flex;align-items:center;gap:14px;font-family:'Libre Franklin',sans-serif}
+  .conf-donut{width:96px;height:96px;flex-shrink:0}
+  .conf-donut .seg{fill:none;stroke-width:14}
+  .conf-donut-c{font-size:9px;font-weight:600;fill:var(--text-3)}
+  .conf-list{display:flex;flex-direction:column;gap:5px}
+  .conf-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2);white-space:nowrap}
+  .conf-item b{font-size:12.5px;font-weight:800;color:var(--text);margin-left:auto;padding-left:10px;font-variant-numeric:tabular-nums}
+  .conf-item small{font-size:10.5px;color:var(--text-3);min-width:40px;text-align:right;font-variant-numeric:tabular-nums}
+  .conf-note{font-size:10px;color:var(--text-3);margin-top:2px}
   .fire-kpi-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:28px}
   .filter-divider{width:1px;height:20px;background:var(--color-sand);margin:0 4px}
 
@@ -93,9 +103,11 @@
   @media (max-width:900px){ .two-col-row{grid-template-columns:1fr} }
   .map-panel{padding:0;overflow:hidden;display:flex;flex-direction:column}
   #map{width:100%;flex:1;min-height:340px}
-  .map-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--color-muted);padding:12px 18px;border-top:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif}
-  .legend-line{display:inline-block;width:16px;height:2px;background:var(--color-pine);margin-right:5px;vertical-align:middle}
-  .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .map-box{position:relative;flex:1;display:flex;flex-direction:column}
+  .map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px;font-family:'Libre Franklin',sans-serif}
+  .map-legend span{display:flex;align-items:center;gap:6px}
+  .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+  .lg-line{width:16px;border-top:2px solid #356760;flex-shrink:0}
 
   .loc-panel{display:flex;flex-direction:column}
   .blok-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid #EDE7D8}
@@ -212,8 +224,13 @@
     <div class="two-col-row kpi-trend-row" style="margin-top:16px">
       <div class="panel fire-kpi-panel">
         <div class="fire-kpi-label">Titik Api</div>
-        <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
-        <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
+        <div class="fire-kpi-main">
+          <div>
+            <div class="fire-kpi-value" id="fireTodayCount">&ndash;</div>
+            <div class="fire-kpi-sub" id="fireDateRange">&ndash;</div>
+          </div>
+          <div class="conf-stats" id="fireConfStats"></div>
+        </div>
         <div class="fire-kpi-filters" id="fireFilterBar"></div>
       </div>
       <div class="panel trend-panel">
@@ -225,10 +242,9 @@
     <h2 class="section-title">Peta Sebaran Titik Api</h2>
     <div class="two-col-row">
       <div class="panel map-panel">
-        <div id="map"></div>
-        <div class="map-legend">
-          <span><span class="legend-line"></span>Batas Area</span>
-          <span><span class="legend-dot" style="background:var(--color-fire)"></span>Titik Api (Ditampilkan)</span>
+        <div class="map-box">
+          <div id="map"></div>
+          <div class="map-legend" id="confLegend"></div>
         </div>
       </div>
       <div class="panel loc-panel">
@@ -339,11 +355,43 @@ fetch(CMI_URL).then(r=>r.json()).then(j=>{
   setTimeout(()=>map.invalidateSize(),150);
 }).catch(()=>{});
 
+const CONF=[
+  {key:'h',label:'Tinggi',fill:'#3A342C',stroke:'#fff',r:7},
+  {key:'n',label:'Nominal',fill:'#c2703f',stroke:'#fff',r:6},
+  {key:'l',label:'Rendah',fill:'#B5BBA9',stroke:'#6A665B',r:5}
+];
+const CONF_NONE={key:'',label:'Tidak tercatat',fill:'#9C998C',stroke:'#fff',r:5};
+const confOf=r=>CONF.find(c=>c.key===r.conf)||CONF_NONE;
+function confKey(v){
+  const s=str(v).toLowerCase();
+  if(/^h/.test(s))return'h';if(/^n/.test(s))return'n';if(/^l/.test(s))return'l';
+  const n=num(s);
+  return n===null?'':n>=80?'h':n>=30?'n':'l';
+}
+document.getElementById('confLegend').innerHTML=CONF.map(c=>`<span><i class="lg-dot" style="background:${c.fill}"></i>${c.label} (${c.key})</span>`).join('')+'<span><i class="lg-line"></i>Batas Area</span>';
+
+function renderConfStats(rows){
+  const el=document.getElementById('fireConfStats'),n=rows.length;
+  if(!n){el.innerHTML='';return;}
+  const count=k=>rows.filter(r=>r.conf===k).length,none=count('');
+  const pct=v=>(v/n*100).toLocaleString('id-ID',{maximumFractionDigits:1});
+  const R=40,C=2*Math.PI*R,GAP=n>1?1.5:0,parts=[...CONF,...(none?[CONF_NONE]:[])].map(c=>({c,v:count(c.key)}));
+  let acc=0;
+  const segs=parts.map(({c,v})=>{
+    const len=v/n*C,draw=Math.max(0,len-(len>GAP*2?GAP:0)),el=v?`<circle class="seg" cx="50" cy="50" r="${R}" stroke="${c.fill}" stroke-dasharray="${draw} ${C-draw}" stroke-dashoffset="${-acc}" transform="rotate(-90 50 50)"><title>${c.label}: ${v}</title></circle>`:'';
+    acc+=len;return el;
+  }).join('');
+  el.innerHTML=`<svg class="conf-donut" viewBox="0 0 100 100" role="img" aria-label="Komposisi confidence titik api">${segs}<text class="conf-donut-c" x="50" y="53" text-anchor="middle">Confidence</text></svg>
+    <div class="conf-list">${parts.map(({c,v})=>`<div class="conf-item"><i class="lg-dot" style="background:${c.fill}"></i>${c.label}${c.key?` (${c.key})`:''}<b>${v}</b><small>${pct(v)}%</small></div>`).join('')}</div>`;
+}
+
 function renderFireMarkers(rows){
   fireLayer.clearLayers();
-  rows.forEach(r=>{
+  const order=k=>k==='h'?3:k==='n'?2:k==='l'?1:0;
+  [...rows].sort((a,b)=>order(a.conf)-order(b.conf)).forEach(r=>{
     if(r.lat===null||r.lon===null)return;
-    L.circleMarker([r.lat,r.lon],{radius:6,color:'#fff',weight:1.5,fillColor:'#c2703f',fillOpacity:.9})
+    const c=confOf(r);
+    L.circleMarker([r.lat,r.lon],{radius:c.r,color:c.stroke,weight:1.5,fillColor:c.fill,fillOpacity:.95})
       .bindPopup(`<div style="font-family:'Libre Franklin';font-size:12px">
         <b style="color:#a05a26">Titik Api</b><br>
         <b>Tanggal:</b> ${fmtDateID(r.dateObj)}${r.jam?' '+r.jam:''}<br>
@@ -351,6 +399,7 @@ function renderFireMarkers(rows){
         ${r.blok?`<b>Blok:</b> ${r.blok}<br>`:''}
         ${r.owner?`<b>Owner:</b> ${r.owner}<br>`:''}
         ${r.lahan?`<b>Penutup Lahan:</b> ${r.lahan}<br>`:''}
+        <b>Confidence:</b> ${confOf(r).label}${r.conf?` (${r.conf})`:''}<br>
       </div>`)
       .addTo(fireLayer);
   });
@@ -376,12 +425,12 @@ function renderTable(){
   document.getElementById('pgPrev').disabled=currentPage<=1;
   document.getElementById('pgNext').disabled=currentPage>=totalPages;
 }
-const EXPORT_HEADERS=['Tanggal','Jam','Latitude','Longitude','Desa','Blok','Satelit','Instrumen','Owner','Penutup Lahan','Keterangan'];
+const EXPORT_HEADERS=['Tanggal','Jam','Latitude','Longitude','Desa','Blok','Satelit','Instrumen','Owner','Penutup Lahan','Keterangan','Confidence'];
 function exportRows(){
   const pad=n=>String(n).padStart(2,'0');
   return filteredFire.map(r=>[
     r.dateObj?`${r.dateObj.getFullYear()}-${pad(r.dateObj.getMonth()+1)}-${pad(r.dateObj.getDate())}`:'',
-    r.jam,r.lat,r.lon,r.desa,r.blok,r.satellite,r.instrument,r.owner,r.lahan,r.ket
+    r.jam,r.lat,r.lon,r.desa,r.blok,r.satellite,r.instrument,r.owner,r.lahan,r.ket,r.conf
   ]);
 }
 function exportFileName(ext){
@@ -613,6 +662,7 @@ function applyFilter(){
 function renderAll(){
   document.getElementById('fireTodayCount').textContent=filteredFire.length;
   renderFireMarkers(filteredFire);
+  renderConfStats(filteredFire);
   renderBlokSummary(filteredFire);
   renderTable();
   renderFireTrendChart();
@@ -635,7 +685,8 @@ Papa.parse(FIRE_SHEET_URL,{download:true,header:false,skipEmptyLines:true,comple
       desa:str(row[7]),
       lahan:str(row[8]),
       blok:str(row[9]),
-      ket:str(row[10])
+      ket:str(row[10]),
+      conf:confKey(row[11])
     };
   }).filter(r=>r.lat!==null&&r.lon!==null);
 
