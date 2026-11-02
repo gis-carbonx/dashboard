@@ -343,6 +343,7 @@ function computeSubAreas(){
 function computeTanamanTotal(){
   let total=0,agro=0,temb=0;
   Object.values(sheetMap).forEach(r=>{
+    if(!matchesFilter(r,'tglRealisasi'))return;
     const n=plantsIn(r);
     total+=n;
     if(r.prog?.startsWith('Agro'))agro+=n;
@@ -546,7 +547,7 @@ const plantTip=(luas,petak,tan,addLuas,addPetak,addTan)=>{
   return`<div class="ss-tip"><div class="ss-tip-head"><strong>Rincian penanaman</strong></div>
     <div class="ss-tip-row"><span>Penanaman baru</span><b>${v(luas,petak,tan)}</b></div>
     <div class="ss-tip-row"><span>Penambahan tanaman</span><b>${v(addLuas,addPetak,addTan)}</b></div>
-    <div class="ss-tip-note">Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luasnya tidak dihitung sebagai capaian, sedangkan tanaman tetap tercatat.</div></div>`;
+    <div class="ss-tip-note">Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luas dan tanamannya tidak dihitung sebagai capaian.</div></div>`;
 };
 function render(){
   const yq=periodMode==='yq';
@@ -568,7 +569,7 @@ function render(){
   const note2=`Luasan program agroforestri mencapai ${fmt(areas.agro)} ha, ${tgtPhrase(areas.agro,tgt.agro)}. Sedangkan program reforestasi mencapai ${fmt(areas.temb)} ha, ${tgtPhrase(areas.temb,tgt.temb)}.`;
   const plant=computePlanting();
   const dominan=plant.species.slice(0,3);
-  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman. Sekitar ${fmtInt(tanaman.agro)} pohon telah ditanam${plant.addTanA?` (termasuk ${fmtInt(plant.addTanA)} penanaman tambahan)`:''}`
+  const note3=`Total ${fmt(plant.luas)} ha lahan sudah dilakukan penanaman. Sekitar ${fmtInt(tanaman.agro)} pohon telah ditanam`
     +(plant.species.length
       ?`, yang terdiri dari ${fmtInt(plant.species.length)} jenis tanaman, dengan jenis ${esc(joinID(dominan))} sebagai jenis tanaman dominan.`
       :'.');
@@ -637,7 +638,7 @@ function render(){
           <div class="card-sub-pct">${fmtInt(tanaman.agro)} tanaman</div>
           <div class="ss-div"></div>
           <div class="ss-parts">
-            <div class="ss-part${plant.addA?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(plant.petaniA)} petani &middot; ${fmtInt(plant.lahanA)} petak</span><br>${fmtInt(tanaman.agro)} tanaman</span></div>${plant.addA?plantTip(plant.agro,plant.lahanA,tanaman.agro-plant.addTanA,plant.addLuasA,plant.addA,plant.addTanA):''}</div>
+            <div class="ss-part${plant.addA?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(plant.agro)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(plant.petaniA)} petani &middot; ${fmtInt(plant.lahanA)} petak</span><br>${fmtInt(tanaman.agro)} tanaman</span></div>${plant.addA?plantTip(plant.agro,plant.lahanA,tanaman.agro,plant.addLuasA,plant.addA,plant.addTanA):''}</div>
             <div class="ss-part${plant.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note ss-sub">${fmtInt(plant.petaniT)} petani &middot; ${fmtInt(plant.lahanT)} petak</span></div>${plant.addT?plantTip(plant.temb,plant.lahanT,null,plant.addLuasT,plant.addT,null):''}</div>
           </div>
         </div>
