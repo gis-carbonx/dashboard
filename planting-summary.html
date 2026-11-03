@@ -624,8 +624,7 @@ function render(){
     <div class="sec-title">Summary</div>
     <div class="sub-title">Agroforestry and Restoration</div>
 
-    <div class="two-col-row">
-      <div class="col">
+    <div class="two-col-row impl-row">
         <div class="pair-row">
           <div class="card">
             <div class="card-lbl">Total Lahan</div>
@@ -638,9 +637,6 @@ function render(){
             ${subLines(`${fmtInt(peserta.agro)} agroforestri`,`${fmtInt(peserta.temb)} reforestasi`)}
           </div>
         </div>
-        <p class="page-note">${note1}</p>
-      </div>
-      <div class="col">
         <div class="pair-row">
           <div class="card">
             <div class="card-lbl">Agroforestri</div>
@@ -655,8 +651,8 @@ function render(){
             <div class="card-sub-pct card-split" style="margin-top:2px">${subLine(sub.tRegHa,'reguler',subP.tReg)}</div>
           </div>
         </div>
+        <p class="page-note">${note1}</p>
         <p class="page-note">${note2}</p>
-      </div>
     </div>
 
     <div class="two-col-row impl-row">
