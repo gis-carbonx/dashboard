@@ -208,11 +208,12 @@ function parseSheet(csv){
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi:tglTanam,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,plantEvents,existingPlants};
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi:tglTanam,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,plantEvents,existingPlants,pupukDates:[]};
   });
 }
 function parseLog(csv){
   const log=parseActivityLog(csv);
+  Object.values(sheetMap).forEach(r=>{r.pupukDates=log.pupuk[r.id.toUpperCase()]||[];});
   if(!log.hasTanam)return;
   Object.values(sheetMap).forEach(r=>{
     r.plantEvents=log.tanam[r.id.toUpperCase()]||[];
@@ -372,6 +373,23 @@ function computePlanting(){
   });
   const species=Object.entries(speciesMap).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
   return{luas:agro+temb,agro,temb,species,lahanA,lahanT,addA,addT,addTanA,addLuasA,addLuasT,petaniA:petaniA.size,petaniT:petaniT.size};
+}
+function computePupuk(){
+  const o={agro:0,temb:0,lahanA:0,lahanT:0,aplA:0,aplT:0,addA:0,addT:0,addLuasA:0,addLuasT:0};
+  const petani={A:new Set(),T:new Set()};
+  Object.values(sheetMap).forEach(r=>{
+    const isAgro=r.prog?.startsWith('Agro'),isTemb=r.prog?.startsWith('Temb');
+    if(!(isAgro||isTemb)||!r.pupukDates.length)return;
+    const inP=r.pupukDates.filter(matchesDateFilter).length;
+    if(!inP)return;
+    const k=isAgro?'A':'T',luas=isAgro?r.luasAgro:r.luasTemb;
+    o['apl'+k]+=inP;
+    if(matchesDateFilter(r.pupukDates[0])){
+      o[isAgro?'agro':'temb']+=luas;o['lahan'+k]++;
+      if(r.petani&&str(r.jk).trim())petani[k].add(r.petani.toLowerCase());
+    }else{o['add'+k]++;o['addLuas'+k]+=luas;}
+  });
+  return{...o,luas:o.agro+o.temb,lahan:o.lahanA+o.lahanT,apl:o.aplA+o.aplT,add:o.addA+o.addT,addLuas:o.addLuasA+o.addLuasT,petaniA:petani.A.size,petaniT:petani.T.size};
 }
 function joinID(list){
   return list.length<=1?list.join(''):list.slice(0,-1).join(', ')+(list.length>2?',':'')+' dan '+list[list.length-1];
@@ -549,6 +567,10 @@ const plantTip=(luas,petak,tan,addLuas,addPetak,addTan)=>{
     <div class="ss-tip-row"><span>Penambahan tanaman</span><b>${v(addLuas,addPetak,addTan)}</b></div>
     <div class="ss-tip-note">Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luas dan tanamannya tidak dihitung sebagai capaian.</div></div>`;
 };
+const pupukTip=(luas,petak,addLuas,addPetak)=>`<div class="ss-tip"><div class="ss-tip-head"><strong>Rincian pemupukan</strong></div>
+    <div class="ss-tip-row"><span>Pemupukan pertama</span><b>${fmt(luas)} ha / ${fmtInt(petak)} petak</b></div>
+    <div class="ss-tip-row"><span>Pemupukan ulang</span><b>${fmt(addLuas)} ha / ${fmtInt(addPetak)} petak</b></div>
+    <div class="ss-tip-note">Pemupukan ulang dilakukan pada ${fmt(addLuas)} ha lahan yang sudah dipupuk sebelum periode ini: luasnya tidak dihitung sebagai capaian.</div></div>`;
 function render(){
   const yq=periodMode==='yq';
   const areas=computeAreas();
@@ -573,6 +595,12 @@ function render(){
     +(plant.species.length
       ?`, yang terdiri dari ${fmtInt(plant.species.length)} jenis tanaman, dengan jenis ${esc(joinID(dominan))} sebagai jenis tanaman dominan.`
       :'.');
+  const pupuk=computePupuk();
+  const note4=pupuk.luas||pupuk.add
+    ?`Dalam periode ${yearLabel()}, pemupukan pertama dilakukan pada ${fmt(pupuk.luas)} ha lahan (${fmtInt(pupuk.lahan)} petak), yang terdiri dari ${fmt(pupuk.agro)} ha lahan agroforestri dan ${fmt(pupuk.temb)} ha lahan reforestasi. Total aplikasi pupuk tercatat sebanyak ${fmtInt(pupuk.apl)} kali`
+      +(pupuk.add?`, termasuk pemupukan ulang pada ${fmt(pupuk.addLuas)} ha lahan (${fmtInt(pupuk.add)} petak) yang sudah dipupuk sebelumnya.`:'.')
+    :`Belum ada kegiatan pemupukan yang tercatat dalam periode ${yearLabel()}.`;
+  const pupukPart=(lbl,luas,petani,petak,apl,addLuas,addPetak)=>`<div class="ss-part${addPetak?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">${lbl}</div><div class="ss-row"><span class="ss-val">${fmt(luas)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(petani)} petani &middot; ${fmtInt(petak)} petak</span><br>${fmtInt(apl)} kali aplikasi</span></div>${addPetak?pupukTip(luas,petak,addLuas,addPetak):''}</div>`;
 
   const body=`
     <div class="filter-row" style="margin-bottom:6px">
@@ -643,6 +671,19 @@ function render(){
           </div>
         </div>
         <p class="page-note">${note3}</p>
+      </div>
+      <div class="col">
+        <div class="card split-card">
+          <div class="card-lbl">Pemupukan</div>
+          <div class="card-val-lg">${fmt(pupuk.luas)} ha</div>
+          <div class="card-sub-pct">${fmtInt(pupuk.apl)} kali aplikasi pupuk</div>
+          <div class="ss-div"></div>
+          <div class="ss-parts">
+            ${pupukPart('Agroforestri',pupuk.agro,pupuk.petaniA,pupuk.lahanA,pupuk.aplA,pupuk.addLuasA,pupuk.addA)}
+            ${pupukPart('Reforestasi',pupuk.temb,pupuk.petaniT,pupuk.lahanT,pupuk.aplT,pupuk.addLuasT,pupuk.addT)}
+          </div>
+        </div>
+        <p class="page-note">${note4}</p>
       </div>
     </div>
 
