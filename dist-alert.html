@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 <script src="assets/js/sheet-utils.js"></script>
 <link rel="stylesheet" href="assets/css/dashboard.css">
 <style>
@@ -24,6 +25,7 @@ body{display:flex;flex-direction:column}
 .hero-stats{display:flex;gap:28px;flex-wrap:wrap}
 #summaryNote{margin-bottom:8px}
 #methodNote{margin-top:0}
+.filter-loading{font-size:10.5px;color:var(--text-3);margin-left:4px}
 .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
 .filter-row.last{margin-bottom:28px}
 .filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
@@ -33,6 +35,8 @@ body{display:flex;flex-direction:column}
 #alertMap{height:100%;width:100%;background:#EDE7D8}
 .map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px}
 .map-legend span{display:flex;align-items:center;gap:6px}
+.map-pdf{position:absolute;right:10px;top:10px;z-index:500;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.map-pdf:disabled{opacity:.7;cursor:wait}
 .lg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .lg-line{width:16px;border-top:2px solid #356760;flex-shrink:0}
 .leaflet-container,.leaflet-popup-content{font-family:'Libre Franklin',sans-serif}
@@ -64,16 +68,34 @@ body{display:flex;flex-direction:column}
 .hb-val small{display:inline-block;min-width:38px}
 .empty{padding:36px 10px;text-align:center;color:var(--text-3);font-size:12px}
 
-.table-card{padding:16px 0 8px;margin-bottom:16px}
-.table-card .chart-title,.table-card .chart-sub{padding:0 16px}
-.table-scroll{max-height:420px;overflow:auto}
-table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px}
-.alert-table th{position:sticky;top:0;background:#fff;text-align:left;padding:7px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-3);border-bottom:1px solid var(--border);white-space:nowrap}
+.ins-card{padding:18px 20px 14px;margin-bottom:16px}
+.ins-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.dl-wrap{position:relative}
+.btn-dl{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-dl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.dl-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:130px;overflow:hidden}
+.dl-wrap.open .dl-menu{display:block}
+.dl-menu button{display:block;width:100%;padding:8px 13px;border:none;background:none;text-align:left;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit}
+.dl-menu button:hover{background:var(--primary-bg);color:var(--primary-md)}
+.ins-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search-wrap{position:relative;flex:0 1 240px;display:flex;align-items:center}
+.search-wrap svg{position:absolute;left:10px;width:12px;height:12px;stroke:var(--text-3);fill:none;stroke-width:2;pointer-events:none}
+.search-wrap input{width:100%;padding:5px 10px 5px 28px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-family:inherit;color:var(--text);outline:none}
+.search-wrap input:focus{border-color:var(--primary)}
+.ins-count{margin-left:auto;font-size:11px;font-weight:600;color:var(--text-2)}
+.ins-scroll{max-height:420px;overflow:auto;border-top:1.5px solid var(--text);border-bottom:1.5px solid var(--text)}
+.clip{position:relative}
+.clip.clipped .ins-scroll{max-height:150px;overflow:hidden}
+.clip.clipped::after{content:'';position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)}
+table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px;color:var(--text)}
+.alert-table thead{position:sticky;top:0;z-index:2;background:#fff}
+.alert-table th{padding:6px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
 .alert-table th.sortable{cursor:pointer;user-select:none}
 .alert-table th.sortable:hover,.alert-table th.sorted{color:var(--primary)}
 .sort-ic{margin-left:5px;font-size:8px;opacity:.5}
 .alert-table th.sorted .sort-ic{opacity:1}
-.alert-table td{padding:7px 10px;border-bottom:1px solid var(--border-lt);color:var(--text);white-space:nowrap}
+.alert-table td{padding:5px 10px;border-bottom:1px solid var(--border-lt);white-space:nowrap}
+.alert-table .r{text-align:right;font-variant-numeric:tabular-nums}
 .alert-table tbody tr{cursor:pointer}
 .alert-table tbody tr:hover td{background:var(--primary-bg)}
 .conf-tag{display:inline-flex;align-items:center;gap:5px}
@@ -152,6 +174,7 @@ table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px}
         <div class="card map-card" id="mapCard">
           <div id="alertMap"></div>
           <div class="map-legend" id="mapLegend"></div>
+          <button type="button" class="btn-dl map-pdf" id="mapPdfBtn" onclick="exportMapPdf()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Unduh Peta (PDF)</span></button>
         </div>
 
         <div class="chart-grid">
@@ -169,10 +192,30 @@ table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px}
           </div>
         </div>
 
-        <div class="card table-card">
-          <div class="chart-title">Daftar Alert</div>
-          <div class="chart-sub" id="tableSub"></div>
-          <div class="table-scroll" id="alertTable"></div>
+        <div class="card ins-card" id="tblCard">
+          <div class="ins-hd">
+            <div>
+              <div class="chart-title">Daftar Alert</div>
+              <div class="chart-sub" style="margin-bottom:0" id="tableSub"></div>
+            </div>
+            <div class="dl-wrap" id="tblDl">
+              <button type="button" class="btn-dl" onclick="toggleDl(event)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Unduh</button>
+              <div class="dl-menu">
+                <button type="button" onclick="downloadTable('csv')">CSV</button>
+                <button type="button" onclick="downloadTable('xlsx')">Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="ins-tools">
+            <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Cari desa, pemilik, atau koordinat..." oninput="tblState.q=this.value;applyTableFilter()"/></div>
+            <select class="filter-select" id="tblDesa" onchange="tblState.desa=this.value;applyTableFilter()"></select>
+            <span class="ins-count" id="tblCount"></span>
+          </div>
+          <div class="clip" id="tblClip">
+            <div class="ins-scroll" id="tblScroll"><div id="alertTable"></div></div>
+          </div>
+          <button type="button" class="more-btn" id="tblMore" onclick="toggleTableOpen()"></button>
         </div>
       </div>
     </div>
@@ -183,6 +226,8 @@ table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px}
 <script>
 'use strict';
 const DATA_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=0';
+const dataQuery=where=>`${DATA_URL}&tq=${encodeURIComponent(`select A,B,C,D,E,F,G,H,I,J,K where ${where}`)}`;
+const CACHE_DB='dist-alert',CACHE_KEY='alerts';
 const LOG_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=1998535494';
 const RUN_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=1814004549';
 const CMI_URL='assets/json/CMI.json';
@@ -195,14 +240,15 @@ const CONF_ORDER=['highest','high','nominal'];
 const SOURCES=[['gladl','GLAD-L'],['glads2','GLAD-S2'],['radd','RADD']];
 const QUARTERS=['1','2','3','4'];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-const TABLE_STEP=50;
+const TABLE_CHUNK=200,TABLE_PREVIEW=5;
 
-let rows=[],years=[],bloks=[];
+let rows=[],years=[],bloks=[],yearInit=false,loadState='loading';
 let currentYear='all',currentQuarter='all',periodMode='ytd';
 let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 let areaFilter='in',blokFilter='all',confFilter='all',coverFilter='forest';
-let tableRows=[],tableLimit=TABLE_STEP,trendData=[];
-let map=null,pointLayer=null,focusLayer=null,renderer=null;
+let tableRows=[],tableLimit=TABLE_CHUNK,trendData=[];
+let tblState={q:'',desa:'',open:false},tblBase=[];
+let map=null,pointLayer=null,focusLayer=null,renderer=null,cmiGeo=null;
 
 const str=v=>(v??'').toString().trim();
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
@@ -256,18 +302,21 @@ function periodLabel(){
   return currentYear==='all'?'seluruh periode pemantauan':`tahun ${y}`;
 }
 
-function parseAlerts(csv){
+function parseRows(csv){
+  if(!csv)return[];
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   const detected=v=>{const s=str(v).toLowerCase();return !!s&&s!=='not_detected';};
-  rows=data.map(r=>{
+  return data.map(r=>{
     const lat=sheetNum(r.latitude),lon=sheetNum(r.longitude),d=sheetDate(r.Date,'dmy');
     const conf=str(r.Conf_Integrated).toLowerCase();
     const cover=str(r.Penutup_Lahan)||OUTSIDE,owner=str(r.Owner)||OUTSIDE;
     return{lat,lon,d,px:`${lat.toFixed(5)},${lon.toFixed(5)}`,conf:CONF[conf]?conf:'nominal',desa:str(r.Desa)||'Tanpa desa',owner,blok:str(r.Blok),cover,
       inside:cover!==OUTSIDE&&owner!==OUTSIDE,gladl:detected(r.Conf_GLADL),glads2:detected(r.Conf_GLADS2),radd:detected(r.Conf_RADD)};
   }).filter(r=>r.d&&r.lat&&r.lon);
+}
+function setRows(list){
   const seen=new Map();
-  rows=rows.filter(r=>{
+  rows=list.filter(r=>{
     const k=r.px+'|'+(+r.d),p=seen.get(k);
     if(!p){seen.set(k,r);return true;}
     if(CONF_ORDER.indexOf(r.conf)<CONF_ORDER.indexOf(p.conf))p.conf=r.conf;
@@ -276,7 +325,8 @@ function parseAlerts(csv){
   });
   years=[...new Set(rows.map(r=>r.d.getFullYear()))].sort((a,b)=>a-b);
   bloks=[...new Set(rows.map(r=>r.blok).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));
-  currentYear=years.length?String(years[years.length-1]):'all';
+  if(!yearInit&&years.length){currentYear=String(years[years.length-1]);yearInit=true;}
+  if(rows.length)document.getElementById('heroLatest').textContent=fmtShort(rows.reduce((a,r)=>r.d>a?r.d:a,rows[0].d));
 }
 
 function filtered(){
@@ -286,7 +336,7 @@ function filtered(){
     &&(confFilter==='all'||r.conf===confFilter)
     &&(coverFilter==='all'||(r.inside&&(coverFilter==='forest')===(r.cover==='Forest'))));
 }
-const emptyMsg=()=>rows.length?'Tidak ada alert pada filter ini.':'Data belum terhubung.';
+const emptyMsg=()=>rows.length?'Tidak ada alert pada filter ini.':loadState==='error'?'Data alert gagal dimuat.':'Memuat data…';
 
 function renderFilters(){
   const yq=periodMode==='yq';
@@ -303,6 +353,7 @@ function renderFilters(){
     <div class="filter-row"><span class="filter-lbl">Filter</span>
       ${pill(yq&&currentYear==='all',"setYear('all')",'All')}
       ${years.map(y=>pill(yq&&currentYear===String(y),`setYear('${y}')`,y)).join('')}
+      ${loadState==='older'?'<span class="filter-loading">memuat tahun sebelumnya…</span>':''}
     </div>
     <div class="filter-row"><span class="filter-lbl">Quarter</span>
       ${pill(yq&&currentQuarter==='all',"setQuarter('all')",'All')}
@@ -369,7 +420,7 @@ function renderKpi(list){
 
 function renderNote(list){
   const el=document.getElementById('summaryNote');
-  if(!list.length){el.textContent=rows.length?`Tidak ada alert pembukaan lahan yang tercatat dalam ${periodLabel()} pada filter yang dipilih.`:'Data alert belum terhubung ke halaman ini.';return;}
+  if(!list.length){el.textContent=rows.length?`Tidak ada alert pembukaan lahan yang tercatat dalam ${periodLabel()} pada filter yang dipilih.`:emptyMsg();return;}
   const inside=list.filter(r=>r.inside);
   const covers=countBy(inside,'cover').slice(0,2).map(([k])=>k);
   const desa=countBy(list,'desa')[0];
@@ -507,30 +558,80 @@ function sortTable(){
 function setSort(k){
   const col=TABLE_COLS.find(c=>c[0]===k);
   if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=col[3];}
-  sortTable();tableLimit=TABLE_STEP;drawTable();
+  sortTable();tableLimit=TABLE_CHUNK;drawTable();
 }
 function renderTable(list){
-  tableRows=[...list];
+  tblBase=list;
+  const desas=[...new Set(list.map(r=>r.desa))].sort((a,b)=>a.localeCompare(b,'id'));
+  if(tblState.desa&&!desas.includes(tblState.desa))tblState.desa='';
+  document.getElementById('tblDesa').innerHTML=`<option value="">Semua Desa</option>${desas.map(d=>`<option value="${esc(d)}"${d===tblState.desa?' selected':''}>${esc(d)}</option>`).join('')}`;
+  applyTableFilter();
+}
+const coordTxt=r=>`${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}`;
+function applyTableFilter(){
+  const q=tblState.q.toLowerCase().trim();
+  tableRows=tblBase.filter(r=>(!tblState.desa||r.desa===tblState.desa)
+    &&(!q||r.desa.toLowerCase().includes(q)||r.owner.toLowerCase().includes(q)||r.cover.toLowerCase().includes(q)||coordTxt(r).includes(q)));
   sortTable();
-  tableLimit=TABLE_STEP;
+  tableLimit=TABLE_CHUNK;
   drawTable();
 }
+function toggleTableOpen(){
+  tblState.open=!tblState.open;
+  tableLimit=TABLE_CHUNK;
+  drawTable();
+  document.getElementById('tblScroll').scrollTop=0;
+  if(!tblState.open)document.getElementById('tblCard').scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function onTableScroll(){
+  const el=document.getElementById('tblScroll');
+  if(tblState.open&&tableLimit<tableRows.length&&el.scrollTop+el.clientHeight>el.scrollHeight-200){tableLimit+=TABLE_CHUNK;drawTable();}
+}
 function drawTable(){
-  const el=document.getElementById('alertTable');
-  document.getElementById('tableSub').textContent=tableRows.length?`${fmtInt(tableRows.length)} titik`:'';
-  if(!tableRows.length){el.innerHTML=`<div class="empty">${emptyMsg()}</div>`;return;}
-  const shown=tableRows.slice(0,tableLimit);
+  const el=document.getElementById('alertTable'),n=tableRows.length;
+  const lbl=periodLabel();
+  document.getElementById('tableSub').textContent=lbl.charAt(0).toUpperCase()+lbl.slice(1);
+  document.getElementById('tblCount').textContent=`${fmtInt(n)} titik`;
+  const many=n>TABLE_PREVIEW,btn=document.getElementById('tblMore');
+  document.getElementById('tblClip').classList.toggle('clipped',many&&!tblState.open);
+  btn.style.display=many?'':'none';
+  btn.textContent=tblState.open?'Tampilkan lebih sedikit':`Tampilkan semua (${fmtInt(n)} titik)`;
+  if(!n){el.innerHTML=`<div class="empty">${tblBase.length?'Tidak ada hasil.':emptyMsg()}</div>`;return;}
+  const shown=tableRows.slice(0,tblState.open?tableLimit:TABLE_PREVIEW+1);
   el.innerHTML=`<table class="alert-table">
-    <thead><tr>${TABLE_COLS.map(([k,l])=>`<th class="sortable${k===sortKey?' sorted':''}" onclick="setSort('${k}')">${l}<span class="sort-ic">${k===sortKey?(sortDir>0?'▲':'▼'):'↕'}</span></th>`).join('')}</tr></thead>
+    <thead><tr><th class="r">No</th>${TABLE_COLS.map(([k,l])=>`<th class="sortable${k===sortKey?' sorted':''}" onclick="setSort('${k}')">${l}<span class="sort-ic">${k===sortKey?(sortDir>0?'▲':'▼'):'↕'}</span></th>`).join('')}</tr></thead>
     <tbody>${shown.map((r,i)=>`<tr data-i="${i}">
+      <td class="r">${fmtInt(i+1)}</td>
       <td>${fmtD(r.d,'l')}</td>
       <td><span class="conf-tag"><i style="background:${CONF[r.conf].color}"></i>${CONF[r.conf].label}</span></td>
       <td>${esc(r.desa)}</td><td>${esc(r.owner)}</td><td>${esc(r.cover)}</td><td>${esc(r.blok)||'–'}</td>
-      <td>${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}</td></tr>`).join('')}</tbody>
-  </table>${tableRows.length>tableLimit?`<button type="button" class="more-btn" onclick="moreRows()">Tampilkan ${fmtInt(Math.min(TABLE_STEP,tableRows.length-tableLimit))} lagi</button>`:''}`;
+      <td>${coordTxt(r)}</td></tr>`).join('')}</tbody>
+  </table>`;
   el.querySelectorAll('tbody tr').forEach(tr=>tr.addEventListener('click',()=>focusPoint(shown[+tr.dataset.i])));
 }
-function moreRows(){tableLimit+=TABLE_STEP;drawTable();}
+
+function toggleDl(ev){
+  ev.stopPropagation();
+  document.getElementById('tblDl').classList.toggle('open');
+}
+document.addEventListener('click',()=>document.getElementById('tblDl').classList.remove('open'));
+function dlBlob(blob,name){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:name});a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function downloadTable(type){
+  document.getElementById('tblDl').classList.remove('open');
+  if(!tableRows.length){alert('Tidak ada data.');return;}
+  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const hdr=['No','Tanggal','Kepercayaan','Desa','Pemilik','Tutupan Lahan','Blok','Latitude','Longitude','Sistem Deteksi'];
+  const body=tableRows.map((r,i)=>[i+1,iso(r.d),CONF[r.conf].label,r.desa,r.owner,r.cover,r.blok,r.lat,r.lon,SOURCES.filter(([k])=>r[k]).map(([,l])=>l).join(', ')]);
+  const fname=`Land_Clearing_Alert_${periodLabel().replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')}`;
+  if(type==='csv'){
+    const csv=[hdr,...body].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    dlBlob(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}),fname+'.csv');
+  }else{
+    if(!window.XLSX){alert('Library Excel belum dimuat.');return;}
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([hdr,...body]),'Alert');
+    XLSX.writeFile(wb,fname+'.xlsx');
+  }
+}
 
 function popupHTML(r){
   return`<div class="pp-title">${fmtD(r.d,'l')}</div>
@@ -551,6 +652,7 @@ function initMap(){
   focusLayer=L.layerGroup().addTo(map);
   document.getElementById('mapLegend').innerHTML=CONF_ORDER.map(k=>`<span><i class="lg-dot" style="background:${CONF[k].color}"></i>${CONF[k].label}</span>`).join('')+'<span><i class="lg-line"></i>Batas CMI</span>';
   fetch(CMI_URL).then(r=>r.json()).then(j=>{
+    cmiGeo=j;
     L.geoJSON(j,{interactive:false,style:()=>({color:'#fff',weight:2.5,fill:false})}).addTo(map);
     const b=L.geoJSON(j,{interactive:false,style:()=>({color:'#356760',weight:1.5,fill:false})}).addTo(map).getBounds();
     if(b.isValid())map.fitBounds(b,{padding:[16,16]});
@@ -571,6 +673,116 @@ function focusPoint(r){
   map.setView([r.lat,r.lon],16);
   L.popup().setLatLng([r.lat,r.lon]).setContent(popupHTML(r)).openOn(map);
   document.getElementById('mapCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+const TILE_BASE='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile';
+const TILE_REF='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile';
+const worldPx=(lat,lon)=>{const s=Math.sin(lat*Math.PI/180);return[(lon+180)/360*256,(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*256];};
+const loadImg=src=>new Promise(res=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src;});
+function cmiRings(){
+  if(!cmiGeo)return[];
+  const out=[],walk=c=>{if(typeof c[0]==='number')return;if(typeof c[0][0]==='number'){out.push(c);return;}c.forEach(walk);};
+  (cmiGeo.features||[cmiGeo]).forEach(f=>{const g=f.geometry||f;if(g&&g.coordinates)walk(g.coordinates);});
+  return out;
+}
+async function renderMapCanvas(list,W,H,withTiles){
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#EDE7D8';ctx.fillRect(0,0,W,H);
+  const rings=cmiRings(),pts=[];
+  rings.forEach(r=>r.forEach(([lon,lat])=>pts.push(worldPx(lat,lon))));
+  list.forEach(r=>pts.push(worldPx(r.lat,r.lon)));
+  if(!pts.length)pts.push(worldPx(0.8,110.3));
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const s=W/2400,pad=80*s,fit=Math.min((W-2*pad)/Math.max(x1-x0,1e-6),(H-2*pad)/Math.max(y1-y0,1e-6));
+  const zf=Math.min(16,Math.log2(fit)),zt=Math.min(16,Math.round(zf)),k=2**(zf-zt),sz=2**zt;
+  const ox=(x0+x1)/2*sz-W/2/k,oy=(y0+y1)/2*sz-H/2/k;
+  const toCv=(lat,lon)=>{const [x,y]=worldPx(lat,lon);return[(x*sz-ox)*k,(y*sz-oy)*k];};
+  const toGeo=(cx,cy)=>{const wx=(cx/k+ox)/sz,wy=(cy/k+oy)/sz;return[Math.atan(Math.sinh(Math.PI*(1-wy/128)))*180/Math.PI,wx/256*360-180];};
+  if(withTiles){
+    const tiles=[];
+    for(let tx=Math.floor(ox/256);tx<=Math.floor((ox+W/k)/256);tx++)
+      for(let ty=Math.floor(oy/256);ty<=Math.floor((oy+H/k)/256);ty++)tiles.push([tx,ty]);
+    const draw=async base=>{
+      const ims=await Promise.all(tiles.map(([tx,ty])=>loadImg(`${base}/${zt}/${ty}/${tx}`)));
+      ims.forEach((im,i)=>{if(im){const [tx,ty]=tiles[i];ctx.drawImage(im,(tx*256-ox)*k,(ty*256-oy)*k,256*k+1,256*k+1);}});
+    };
+    await draw(TILE_BASE);await draw(TILE_REF);
+  }
+  ctx.lineJoin='round';
+  [['#fff',5],['#356760',2.5]].forEach(([c,w])=>{
+    ctx.strokeStyle=c;ctx.lineWidth=w*s;
+    rings.forEach(r=>{ctx.beginPath();r.forEach(([lon,lat],i)=>{const [x,y]=toCv(lat,lon);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();ctx.stroke();});
+  });
+  const rad=(list.length>5000?3:list.length>1000?4:5)*s;
+  [...list].sort((a,b)=>CONF_ORDER.indexOf(b.conf)-CONF_ORDER.indexOf(a.conf)).forEach(r=>{
+    const [x,y]=toCv(r.lat,r.lon);
+    ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fillStyle=CONF[r.conf].color;ctx.globalAlpha=.9;ctx.fill();
+  });
+  ctx.globalAlpha=1;
+  const items=[...CONF_ORDER.map(k=>['dot',CONF[k].color,CONF[k].label]),['line','#356760','Batas CMI']];
+  const lh=40*s,lw=250*s,lx=30*s,lb=items.length*lh+62*s,ly=H-30*s-lb;
+  ctx.fillStyle='rgba(255,255,255,.92)';ctx.strokeStyle='#DCDACC';ctx.lineWidth=2*s;
+  ctx.beginPath();ctx.roundRect(lx,ly,lw,lb,14*s);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#3A342C';ctx.font=`700 ${26*s}px Helvetica, Arial, sans-serif`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('Legenda',lx+22*s,ly+34*s);
+  ctx.font=`400 ${24*s}px Helvetica, Arial, sans-serif`;
+  items.forEach(([t,c,l],i)=>{
+    const cy=ly+78*s+i*lh;
+    if(t==='dot'){ctx.fillStyle=c;ctx.beginPath();ctx.arc(lx+34*s,cy,10*s,0,Math.PI*2);ctx.fill();}
+    else{ctx.strokeStyle='#fff';ctx.lineWidth=7*s;ctx.beginPath();ctx.moveTo(lx+20*s,cy);ctx.lineTo(lx+48*s,cy);ctx.stroke();ctx.strokeStyle=c;ctx.lineWidth=3.5*s;ctx.stroke();}
+    ctx.fillStyle='#3A342C';ctx.fillText(l,lx+62*s,cy);
+  });
+  return{cv,corners:{bl:toGeo(0,H),tl:toGeo(0,0),tr:toGeo(W,0),br:toGeo(W,H)}};
+}
+
+const WKT_3857='PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1],AUTHORITY["EPSG","3857"]]';
+function buildGeoPdf(jpeg,iw,ih,pw,ph,corners,title){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=b=>{if(typeof b==='string')b=enc.encode(b);parts.push(b);len+=b.length;};
+  const obj=(n,body,stream)=>{
+    offs[n]=len;push(`${n} 0 obj\n${body}\n`);
+    if(stream){push('stream\n');push(stream);push('\nendstream\n');}
+    push('endobj\n');
+  };
+  const f=v=>v.toFixed(8);
+  const g=[corners.bl,corners.tl,corners.tr,corners.br].map(([la,lo])=>`${f(la)} ${f(lo)}`).join(' ');
+  const content=`q ${pw.toFixed(2)} 0 0 ${ph.toFixed(2)} 0 0 cm /Im0 Do Q`;
+  const now=new Date(),pad2=n=>String(n).padStart(2,'0');
+  const stamp=`D:${now.getFullYear()}${pad2(now.getMonth()+1)}${pad2(now.getDate())}${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(now.getSeconds())}`;
+  push('%PDF-1.7\n');push(new Uint8Array([0x25,0xE2,0xE3,0xCF,0xD3,0x0A]));
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw.toFixed(2)} ${ph.toFixed(2)}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R /VP [<< /Type /Viewport /BBox [0 0 ${pw.toFixed(2)} ${ph.toFixed(2)}] /Name (Peta) /Measure 6 0 R >>] >>`);
+  obj(4,`<< /Type /XObject /Subtype /Image /Width ${iw} /Height ${ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>`,jpeg);
+  obj(5,`<< /Length ${content.length} >>`,content);
+  obj(6,`<< /Type /Measure /Subtype /GEO /Bounds [0 0 0 1 1 1 1 0] /GPTS [${g}] /LPTS [0 0 0 1 1 1 1 0] /GCS 7 0 R /PDU [/KM /SQKM /DEG] >>`);
+  obj(7,`<< /Type /PROJCS /EPSG 3857 /WKT (${WKT_3857}) >>`);
+  obj(8,`<< /Title (${title.replace(/[^\x20-\x7E]/g,'-').replace(/[()\\]/g,'\\$&')}) /Producer (Sanggala Corridor Project Dashboard) /CreationDate (${stamp}) >>`);
+  const xref=len;
+  push(`xref\n0 9\n0000000000 65535 f \n${offs.slice(1).map(o=>`${String(o).padStart(10,'0')} 00000 n \n`).join('')}`);
+  push(`trailer\n<< /Size 9 /Root 1 0 R /Info 8 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  return new Blob(parts,{type:'application/pdf'});
+}
+async function exportMapPdf(){
+  const btn=document.getElementById('mapPdfBtn'),lbl=btn.querySelector('span');
+  btn.disabled=true;lbl.textContent='Membuat PDF…';
+  try{
+    const list=filtered(),W=4800,H=Math.round(W/Math.SQRT2);
+    const toJpeg=cv=>new Promise((res,rej)=>cv.toBlob(b=>b?res(b):rej(Error('toBlob')),'image/jpeg',.95));
+    let out,blob;
+    try{out=await renderMapCanvas(list,W,H,true);blob=await toJpeg(out.cv);}
+    catch(e){out=await renderMapCanvas(list,W,H,false);blob=await toJpeg(out.cv);}
+    const jpeg=new Uint8Array(await blob.arrayBuffer());
+    const slug=periodLabel().replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
+    dlBlob(buildGeoPdf(jpeg,W,H,841.89,595.28,out.corners,`Peta Sebaran Land Clearing Alert ${periodLabel()}`),`Peta_Land_Clearing_Alert_${slug}.pdf`);
+  }catch(err){
+    console.error('Gagal membuat PDF:',err);
+    alert('Gagal membuat peta PDF.');
+  }finally{
+    btn.disabled=false;lbl.textContent='Unduh Peta (PDF)';
+  }
 }
 
 function showTip(h,e){
@@ -602,8 +814,59 @@ async function loadLogTime(url,col,elId){
     const {data}=Papa.parse(await res.text(),{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
     const last=data.map(r=>sheetDate(r[col],'dmy')).filter(Boolean).reduce((a,d)=>!a||d>a?d:a,null);
     if(last)document.getElementById(elId).textContent=`${fmtShort(last)}, ${last.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',hour12:false})}`;
+    return last?String(+last):null;
   }catch(err){
     console.error('Gagal memuat log:',url,err);
+    return null;
+  }
+}
+
+function openCache(){
+  return new Promise((res,rej)=>{
+    const q=indexedDB.open(CACHE_DB,1);
+    q.onupgradeneeded=()=>q.result.createObjectStore('cache');
+    q.onsuccess=()=>res(q.result);
+    q.onerror=()=>rej(q.error);
+  });
+}
+async function cacheGet(){
+  try{
+    const db=await openCache();
+    return await new Promise(res=>{const q=db.transaction('cache').objectStore('cache').get(CACHE_KEY);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);});
+  }catch(e){return null;}
+}
+async function cachePut(v){
+  try{const db=await openCache();db.transaction('cache','readwrite').objectStore('cache').put(v,CACHE_KEY);}catch(e){}
+}
+async function getText(url){
+  const res=await fetch(url);
+  if(!res.ok)throw Error(res.status);
+  return res.text();
+}
+
+async function loadAlerts(runP){
+  const cached=await cacheGet();
+  if(cached){
+    setRows([...parseRows(cached.recent),...parseRows(cached.older)]);
+    loadState='done';render();
+    if(cached.key&&cached.key===await runP)return;
+  }
+  const y0=`${new Date().getFullYear()}-01-01`;
+  try{
+    const olderP=getText(dataQuery(`C < date '${y0}'`));
+    olderP.catch(()=>{});
+    const recent=await getText(dataQuery(`C >= date '${y0}'`));
+    const recentRows=parseRows(recent);
+    if(!cached){setRows(recentRows);loadState='older';render();}
+    const older=await olderP;
+    setRows([...recentRows,...parseRows(older)]);
+    loadState='done';render();
+    const runKey=await runP;
+    if(runKey)cachePut({key:runKey,recent,older});
+  }catch(err){
+    console.error('Gagal memuat data alert:',err);
+    if(!rows.length)loadState='error';else loadState='done';
+    render();
   }
 }
 
@@ -612,21 +875,13 @@ async function loadLogTime(url,col,elId){
   const m=v=>v.toLocaleString('id-ID',{maximumFractionDigits:1});
   document.getElementById('methodNote').textContent=`Estimasi luas: setiap titik alert mewakili satu piksel grid 0,0001° × 0,0001° (± ${m(PIXEL_M.x)} × ${m(PIXEL_M.y)} m), sehingga luas per titik ± ${HA_PER_ALERT.toLocaleString('id-ID',{maximumFractionDigits:4})} ha. Estimasi luas = jumlah piksel unik × luas per titik. Nilai ini menggambarkan luas piksel yang terdeteksi, bukan hasil pengukuran batas pembukaan lahan di lapangan.`;
   loadLogTime(LOG_URL,'Waktu Pengambilan','heroUpdate');
-  loadLogTime(RUN_URL,'Last Update','heroRun');
-  if(DATA_URL){
-    try{
-      const res=await fetch(DATA_URL);
-      if(!res.ok)throw Error(res.status);
-      parseAlerts(await res.text());
-      if(rows.length)document.getElementById('heroLatest').textContent=fmtShort(rows.reduce((a,r)=>r.d>a?r.d:a,rows[0].d));
-    }catch(err){
-      console.error('Gagal memuat data alert:',err);
-    }
-  }
+  const runP=loadLogTime(RUN_URL,'Last Update','heroRun');
   render();
   document.getElementById('pageScroll').addEventListener('scroll',hideTip,{passive:true});
+  document.getElementById('tblScroll').addEventListener('scroll',onTableScroll,{passive:true});
   if(window.ResizeObserver)new ResizeObserver(drawTrend).observe(document.getElementById('trendChart'));
   else window.addEventListener('resize',drawTrend);
+  loadAlerts(runP);
 })();
 </script>
 <script src="auth-guard.js"></script>
