@@ -28,6 +28,7 @@ body{display:flex;flex-direction:column}
 
 .grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
 .two-col-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:8px}
+.impl-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:0}
 .two-col-row .page-note{margin:10px 0 0}
 .card-val-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .card-val-row .card-val-lg{white-space:nowrap}
@@ -658,8 +659,7 @@ function render(){
       </div>
     </div>
 
-    <div class="two-col-row">
-      <div class="col">
+    <div class="two-col-row impl-row">
         <div class="card split-card">
           <div class="card-lbl">ARR Implementation</div>
           <div class="card-val-lg">${fmt(plant.luas)} ha</div>
@@ -670,9 +670,6 @@ function render(){
             <div class="ss-part${plant.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(plant.temb)} ha</span><span class="ss-note ss-sub">${fmtInt(plant.petaniT)} petani &middot; ${fmtInt(plant.lahanT)} petak</span></div>${plant.addT?plantTip(plant.temb,plant.lahanT,null,plant.addLuasT,plant.addT,null):''}</div>
           </div>
         </div>
-        <p class="page-note">${note3}</p>
-      </div>
-      <div class="col">
         <div class="card split-card">
           <div class="card-lbl">Pemupukan</div>
           <div class="card-val-lg">${fmt(pupuk.luas)} ha</div>
@@ -683,8 +680,8 @@ function render(){
             ${pupukPart('Reforestasi',pupuk.temb,pupuk.petaniT,pupuk.lahanT,pupuk.aplT,pupuk.addLuasT,pupuk.addT)}
           </div>
         </div>
+        <p class="page-note">${note3}</p>
         <p class="page-note">${note4}</p>
-      </div>
     </div>
 
     <div class="sub-title">Nursery</div>
