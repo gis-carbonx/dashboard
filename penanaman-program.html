@@ -25,10 +25,6 @@ body{display:flex;flex-direction:column}
 .explore-filters{display:flex;gap:8px;flex-wrap:wrap}
 .kth-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none}
 .kth-select:focus{border-color:var(--primary)}
-.date-input{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);outline:none;font-family:inherit}
-.date-input:focus{border-color:var(--primary)}
-.time-picker-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 6px;flex-shrink:0}
-.time-picker-sep{font-size:10.5px;color:var(--text-2)}
 
 .search-input{width:100%;padding:7px 14px;border-radius:20px;border:1px solid var(--border);font-size:11.5px;color:var(--text);background:#fff;outline:none;margin-bottom:8px;flex-shrink:0}
 .search-input:focus{border-color:var(--primary)}
@@ -96,6 +92,31 @@ body{display:flex;flex-direction:column}
 .mon-item-meta{font-size:10.5px;color:var(--text-2);margin-bottom:4px}
 .mon-item-note{font-size:11px;color:var(--text-2);font-style:italic;margin-top:6px}
 .mon-tag{font-size:9.5px;font-weight:600;color:var(--primary);background:var(--primary-bg);border-radius:8px;padding:1px 6px;margin-left:6px}
+
+.viz-wrap{margin:-12px 0 28px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0;margin-right:6px;vertical-align:-1px}
+.im-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:4px 0 14px;margin-bottom:10px;border-bottom:1px solid var(--border-lt)}
+.im-sum>div+div{border-left:1px solid var(--border-lt);padding-left:16px}
+.im-sum-lbl{font-size:11px;font-weight:600;color:var(--text-2)}
+.im-sum-val{font-size:22px;font-weight:800;color:var(--primary);line-height:1.15;margin-top:4px;white-space:nowrap}
+.im-sum-val small{font-size:12px;font-weight:700;color:var(--text-2);margin-left:3px}
+.im-sum-sub{font-size:10.5px;color:var(--text-2);margin-top:4px}
+.sb-row{display:grid;grid-template-columns:130px minmax(0,1fr) 120px;align-items:center;gap:14px;padding:7px 0}
+.sb-lbl{font-size:12px;font-weight:700;color:var(--text);line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-lbl small{display:block;font-size:10.5px;font-weight:500;color:var(--text-3)}
+.sb-track{display:flex;height:26px;border-radius:5px;overflow:hidden;background:var(--border-lt);cursor:default}
+.sb-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;flex-shrink:0}
+.sb-seg+.sb-seg{border-left:1px solid #fff}
+.sb-val{text-align:right;font-size:10.5px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sb-val b{font-size:14px;font-weight:800;color:var(--primary)}
+.viz-empty{padding:40px 10px;text-align:center;color:var(--text-3);font-size:12px}
+.tt-box{display:none;position:fixed;z-index:50;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:220px}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row b{color:var(--text)}
+.tt-row small{font-size:10px;color:var(--text-3);margin-left:4px}
+@media (max-width:760px){.im-sum{grid-template-columns:1fr 1fr}.im-sum>div+div{border-left:0;padding-left:0}.sb-row{grid-template-columns:90px minmax(0,1fr);}.sb-row .sb-val{grid-column:2;text-align:left}}
 </style>
 </head>
 <body>
@@ -137,6 +158,7 @@ body{display:flex;flex-direction:column}
     </div>
   </div>
 </div>
+<div class="tt-box" id="vizTt"></div>
 
 <script>
 'use strict';
@@ -180,15 +202,37 @@ let searchQuery='',progFilter='all',kthFilter='',statusFilter='all';
 let years=[],kthNames=[];
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-let timePreset='all',timeYear=null,timeMonth=null,timeWeekYear=null,timeWeekMonth=null,timeWeekIdx=0,timeCustomStart=null,timeCustomEnd=null;
+const QUARTERS=['1','2','3','4'];
+let currentYear='all',currentQuarter='all',periodMode='yq';
+let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
 
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
   const last=new Date(yr,mo+1,0),weeks=[];let n=1;
-  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);fri.setHours(23,59,59);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
   return weeks;
 }
 function fmtDShort(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
+}
+const isAllTime=()=>periodMode==='yq'&&currentYear==='all'&&currentQuarter==='all';
+function inPeriod(d){
+  if(!d)return false;
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=wk.fri;}
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
+}
 
 async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();}
 
@@ -318,30 +362,13 @@ function matchesProg(r,f){
   return r.prog===PROG_FILTER_MAP[f];
 }
 function matchesTime(r){
-  if(timePreset==='all')return true;
-  const d=parseDate(r.tglPartisipasi);
-  if(!d)return false;
-  if(timePreset==='year')return timeYear!=null&&d.getFullYear()===timeYear;
-  if(timePreset==='month')return timeYear!=null&&timeMonth!=null&&d.getFullYear()===timeYear&&d.getMonth()===timeMonth;
-  if(timePreset==='week'){
-    if(timeWeekYear==null||timeWeekMonth==null)return false;
-    const wk=getWeeksInMonth(timeWeekYear,timeWeekMonth)[timeWeekIdx];
-    return wk?(d>=wk.sat&&d<=wk.fri):false;
-  }
-  if(timePreset==='custom'){
-    if(timeCustomStart&&d<timeCustomStart)return false;
-    if(timeCustomEnd&&d>timeCustomEnd)return false;
-    return true;
-  }
-  return true;
+  return isAllTime()||inPeriod(parseDate(r.tglPartisipasi));
 }
 function timeEnd(){
   const now=new Date();
   let end=now;
-  if(timePreset==='year'&&timeYear!=null)end=new Date(timeYear,12,0,23,59,59);
-  else if(timePreset==='month'&&timeYear!=null&&timeMonth!=null)end=new Date(timeYear,timeMonth+1,0,23,59,59);
-  else if(timePreset==='week'&&timeWeekYear!=null&&timeWeekMonth!=null){const wk=getWeeksInMonth(timeWeekYear,timeWeekMonth)[timeWeekIdx];if(wk)end=wk.fri;}
-  else if(timePreset==='custom'&&timeCustomEnd)end=timeCustomEnd;
+  if(periodMode==='week'){const wk=getSelectedWeek();if(wk)end=wk.fri;}
+  else if(periodMode==='yq'&&currentYear!=='all')end=new Date(+currentYear,currentQuarter==='all'?12:+currentQuarter*3,0,23,59,59);
   return end<now?end:now;
 }
 const pupukDates=(id,end)=>(monMap[monKey(id)]||[]).filter(e=>e.date&&e.date<=end&&/^pemupukan$/i.test(e.cat)).map(e=>e.date);
@@ -351,8 +378,10 @@ function matchesKTH(r,k){
 }
 function matchesStatus(r,f){
   if(f==='all')return true;
-  const days=tanamDays(tanamUpTo(r,timeEnd())).length;
-  return f==='tambah'?days>1:days>0;
+  const end=timeEnd();
+  if(f==='pupuk'||f==='belumPupuk'){const p=pupukDates(r.id,end).length>0;return f==='pupuk'?p:!p;}
+  const days=tanamDays(tanamUpTo(r,end)).length;
+  return f==='tambah'?days>1:f==='belum'?days===0:days>0;
 }
 
 function getFilteredRows(){
@@ -458,7 +487,82 @@ function renderStats(){
     +bar('temb','Restorasi',s.luasTemb,s.tanamTemb,'diintervensi',s.bothTemb,detTemb));
   set('statPetaniVal',fmtInt(s.petaniTotal));
   set('statPetaniSub',`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.perempuan)} perempuan`);
+  renderViz();
 }
+
+const ST_COLORS={both:'#356760',only:'#9DBFAE',pupukOnly:'repeating-linear-gradient(135deg,#d08a4c 0 2px,#f6e6d4 2px 5px)',belum:'#EDE7D8'};
+const ST_FG={both:'#fff',only:'#3A342C',pupukOnly:'#3A342C',belum:'#6A665B'};
+const VIZ_STATES=[['both','Ditanam & dipupuk'],['only','Hanya penanaman'],['pupukOnly','Hanya pemupukan'],['belum','Belum diintervensi']];
+const luasOf=r=>PROG[r.prog].group==='agro'?r.luasAgro:r.luasTemb;
+const pctTxt=(a,b)=>b>0?(a/b*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
+let vizTip={};
+
+function rowStatus(r,end){
+  const t=tanamUpTo(r,end).length>0,p=pupukDates(r.id,end).length>0;
+  return t&&p?'both':t?'only':p?'pupukOnly':'belum';
+}
+function tally(list){
+  const o={reg:0,n:0};
+  VIZ_STATES.forEach(([k])=>{o[k]=0;o[k+'N']=0;});
+  list.forEach(x=>{o.reg+=x.luas;o.n++;o[x.key]+=x.luas;o[x.key+'N']++;});
+  o.int=o.both+o.only+o.pupukOnly;
+  return o;
+}
+function tipHTML(title,o){
+  return`<div class="tt-head"><strong>${esc(title)}</strong> &middot; ${fmt(o.reg)} ha &middot; ${fmtInt(o.n)} petak</div>`
+    +VIZ_STATES.map(([k,l])=>`<div class="tt-row"><span><i class="sw" style="background:${ST_COLORS[k]}"></i>${l}</span><span><b>${fmt(o[k])} ha</b><small>${pctTxt(o[k],o.reg)}% &middot; ${fmtInt(o[k+'N'])} petak</small></span></div>`).join('');
+}
+function sbRow(key,label,sub,o){
+  vizTip[key]=tipHTML(label,o);
+  const segs=VIZ_STATES.map(([k])=>{
+    const w=o.reg>0?o[k]/o.reg*100:0;
+    if(w<=0)return'';
+    return`<div class="sb-seg" style="width:${w}%;background:${ST_COLORS[k]};color:${ST_FG[k]}">${w>=9?`${pctTxt(o[k],o.reg)}%`:''}</div>`;
+  }).join('');
+  return`<div class="sb-row">
+    <div class="sb-lbl">${esc(label)}<small>${sub}</small></div>
+    <div class="sb-track" data-tip="${esc(key)}">${segs}</div>
+    <div class="sb-val"><b>${fmt(o.int)}</b> / ${fmt(o.reg)} ha</div>
+  </div>`;
+}
+
+function renderViz(){
+  const wrap=document.getElementById('vizWrap');if(!wrap)return;
+  const end=timeEnd();
+  const items=getFilteredRows().map(r=>({luas:luasOf(r),grp:PROG[r.prog].group,key:rowStatus(r,end)}));
+  vizTip={};
+  const all=tally(items);
+  const pos=`posisi per ${end.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;
+  if(!items.length){
+    wrap.innerHTML=`<div class="card chart-card"><div class="chart-title">Status Intervensi Lahan</div><div class="viz-empty">Tidak ada lahan yang cocok dengan filter.</div></div>`;
+    return;
+  }
+  const progRows=[['agro','Agroforestri'],['temb','Restorasi']].map(([g,l])=>{
+    const o=tally(items.filter(x=>x.grp===g));
+    return o.n?sbRow('prog-'+g,l,`${fmtInt(o.n)} petak`,o):'';
+  }).join('');
+  wrap.innerHTML=`
+    <div class="card chart-card">
+      <div class="chart-title">Status Intervensi Lahan</div>
+      <div class="chart-sub">${fmtInt(all.n)} petak terdaftar seluas ${fmt(all.reg)} ha &middot; ${pos}</div>
+      <div class="im-sum">${VIZ_STATES.map(([k,l])=>`<div>
+        <div class="im-sum-lbl"><i class="sw" style="background:${ST_COLORS[k]}"></i>${l}</div>
+        <div class="im-sum-val">${fmt(all[k])}<small>ha</small></div>
+        <div class="im-sum-sub">${pctTxt(all[k],all.reg)}% &middot; ${fmtInt(all[k+'N'])} petak</div></div>`).join('')}</div>
+      ${progRows}
+    </div>`;
+}
+
+function showTip(h,e){
+  const tip=document.getElementById('vizTt');if(!tip)return;
+  tip.innerHTML=h;tip.style.display='block';
+  const w=tip.offsetWidth,ht=tip.offsetHeight;
+  let l=e.clientX+14,t=e.clientY+14;
+  if(l+w>window.innerWidth-8)l=e.clientX-14-w;
+  if(t+ht>window.innerHeight-8)t=e.clientY-14-ht;
+  tip.style.left=Math.max(8,l)+'px';tip.style.top=Math.max(8,t)+'px';
+}
+function hideTip(){const tip=document.getElementById('vizTt');if(tip)tip.style.display='none';}
 
 function setProgFilter(f){progFilter=f;syncPillActive('progFilters',f);renderList();}
 function setKTHFilter(v){kthFilter=v;renderList();}
@@ -467,59 +571,41 @@ function syncPillActive(wrapId,val){
   document.querySelectorAll(`#${wrapId} .fpill`).forEach(b=>b.classList.toggle('active',b.dataset.val===String(val)));
 }
 
-function populateTimeFilterOptions(){
-  const curYear=new Date().getFullYear();
-  const yrList=years.length?years:[curYear];
-  const fill=id=>{
-    const el=document.getElementById(id);if(!el)return;
-    el.innerHTML=yrList.map(y=>`<option value="${y}">${y}</option>`).join('');
-    el.value=String(yrList.includes(curYear)?curYear:yrList[yrList.length-1]);
-  };
-  fill('timeYearSel');fill('timeMonthYearSel');fill('timeWeekYearSel');
-  const monthOpts=MN.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  const mSel=document.getElementById('timeMonthSel');if(mSel){mSel.innerHTML=monthOpts;mSel.value=String(new Date().getMonth());}
-  const wmSel=document.getElementById('timeWeekMonthSel');if(wmSel){wmSel.innerHTML=monthOpts;wmSel.value=String(new Date().getMonth());}
-  populateWeekOptions();
-}
-function populateWeekOptions(){
-  const sel=document.getElementById('timeWeekSel');
-  const yEl=document.getElementById('timeWeekYearSel'),mEl=document.getElementById('timeWeekMonthSel');
-  if(!sel||!yEl||!mEl)return;
-  const yr=+yEl.value,mo=+mEl.value;
-  const weeks=getWeeksInMonth(yr,mo);
-  sel.innerHTML=weeks.map((w,i)=>`<option value="${i}">${w.label} (${fmtDShort(w.sat)}–${fmtDShort(w.fri)})</option>`).join('');
-  const now=new Date();let best=0;weeks.forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
-  sel.value=String(best);
-}
-function setTimePreset(p){
-  timePreset=p;
-  document.querySelectorAll('#timePresetFilters .fpill').forEach(b=>b.classList.toggle('active',b.dataset.val===p));
-  ['year','month','week','custom'].forEach(k=>{
-    const el=document.getElementById('timePicker'+k[0].toUpperCase()+k.slice(1));
-    if(el)el.style.display=(p===k)?'flex':'none';
-  });
-  const row=document.getElementById('timePickerRow');
-  if(row)row.style.display=(p==='all')?'none':'flex';
-  onTimePickerChange();
-}
-function onTimePickerChange(){
-  if(timePreset==='year'){
-    timeYear=+( document.getElementById('timeYearSel')?.value||new Date().getFullYear());
-  }else if(timePreset==='month'){
-    timeYear=+( document.getElementById('timeMonthYearSel')?.value||new Date().getFullYear());
-    timeMonth=+( document.getElementById('timeMonthSel')?.value||0);
-  }else if(timePreset==='week'){
-    timeWeekYear=+( document.getElementById('timeWeekYearSel')?.value||new Date().getFullYear());
-    timeWeekMonth=+( document.getElementById('timeWeekMonthSel')?.value||0);
-    timeWeekIdx=+( document.getElementById('timeWeekSel')?.value||0);
-  }else if(timePreset==='custom'){
-    const s=document.getElementById('timeCustomStart')?.value||'';
-    const e=document.getElementById('timeCustomEnd')?.value||'';
-    timeCustomStart=s?new Date(s+'T00:00:00'):null;
-    timeCustomEnd=e?new Date(e+'T23:59:59'):null;
+function renderTimeFilters(){
+  const el=document.getElementById('timeFilters');if(!el)return;
+  const yq=periodMode==='yq';
+  const pill=(on,fn,lbl)=>`<button type="button" class="fpill${on?' active':''}" onclick="${fn}">${lbl}</button>`;
+  let week='';
+  if(periodMode==='week'){
+    const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+    const sel=weekIdx??defaultWeekIdx();
+    week=`<select class="kth-select" aria-label="Tahun" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+      <select class="kth-select" aria-label="Bulan" onchange="setWeekMonth(this.value)">${MN.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+      <select class="kth-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${getWeeksInMonth(weekYear,weekMonth).map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtDShort(w.sat)}–${fmtDShort(w.fri)})</option>`).join('')}</select>`;
   }
-  renderList();
+  el.innerHTML=`
+    <div class="filter-group"><span class="filter-lbl">Filter</span><div class="explore-filters">
+      ${pill(yq&&currentYear==='all',"setYear('all')",'All')}
+      ${years.map(y=>pill(yq&&currentYear===String(y),`setYear('${y}')`,y)).join('')}
+    </div></div>
+    <div class="filter-group"><span class="filter-lbl">Quarter</span><div class="explore-filters">
+      ${pill(yq&&currentQuarter==='all',"setQuarter('all')",'All')}
+      ${QUARTERS.map(q=>pill(yq&&currentQuarter===q,`setQuarter('${q}')`,'Q'+q)).join('')}
+    </div></div>
+    <div class="filter-group"><span class="filter-lbl">Periode</span><div class="explore-filters">
+      ${pill(periodMode==='ytd',"setPeriod('ytd')",'Year to Date')}
+      ${pill(periodMode==='mtd',"setPeriod('mtd')",'Month to Date')}
+      ${pill(periodMode==='week',"setPeriod('week')",'Mingguan')}
+      ${week}
+    </div></div>`;
 }
+function onTimeChange(){renderTimeFilters();renderList();}
+function setYear(y){currentYear=y;periodMode='yq';onTimeChange();}
+function setQuarter(q){currentQuarter=q;periodMode='yq';onTimeChange();}
+function setPeriod(p){periodMode=p;onTimeChange();}
+function setWeekYear(v){weekYear=+v;weekIdx=null;onTimeChange();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;onTimeChange();}
+function setWeekPick(v){weekIdx=+v;onTimeChange();}
 
 function openDetail(id){
   const r=sheetMap[id];if(!r)return;
@@ -638,38 +724,11 @@ function renderPage(){
         <div class="card-sub-pct" id="statPetaniSub">—</div>
       </div>
     </div>
+    <div class="viz-wrap" id="vizWrap"></div>
 
     <input class="search-input" id="searchInput" type="text" placeholder="Cari ID lahan, nama petani, desa, atau KTH...">
 
-    <div class="filter-group">
-      <span class="filter-lbl">Waktu</span>
-      <div class="explore-filters" id="timePresetFilters">
-        <button type="button" class="fpill active" data-val="all" onclick="setTimePreset('all')">Semua</button>
-        <button type="button" class="fpill" data-val="year" onclick="setTimePreset('year')">Tahun</button>
-        <button type="button" class="fpill" data-val="month" onclick="setTimePreset('month')">Bulan</button>
-        <button type="button" class="fpill" data-val="week" onclick="setTimePreset('week')">Mingguan</button>
-        <button type="button" class="fpill" data-val="custom" onclick="setTimePreset('custom')">Custom</button>
-      </div>
-    </div>
-    <div class="time-picker-row" id="timePickerRow" style="display:none">
-      <div id="timePickerYear" style="display:none">
-        <select class="kth-select" id="timeYearSel" onchange="onTimePickerChange()"></select>
-      </div>
-      <div id="timePickerMonth" style="display:none;gap:8px" class="explore-filters">
-        <select class="kth-select" id="timeMonthSel" onchange="onTimePickerChange()"></select>
-        <select class="kth-select" id="timeMonthYearSel" onchange="onTimePickerChange()"></select>
-      </div>
-      <div id="timePickerWeek" style="display:none;gap:8px" class="explore-filters">
-        <select class="kth-select" id="timeWeekMonthSel" onchange="populateWeekOptions();onTimePickerChange()"></select>
-        <select class="kth-select" id="timeWeekYearSel" onchange="populateWeekOptions();onTimePickerChange()"></select>
-        <select class="kth-select" id="timeWeekSel" onchange="onTimePickerChange()"></select>
-      </div>
-      <div id="timePickerCustom" style="display:none;gap:8px;align-items:center" class="explore-filters">
-        <input type="date" class="date-input" id="timeCustomStart" onchange="onTimePickerChange()">
-        <span class="time-picker-sep">s/d</span>
-        <input type="date" class="date-input" id="timeCustomEnd" onchange="onTimePickerChange()">
-      </div>
-    </div>
+    <div id="timeFilters"></div>
     <div class="filter-group">
       <span class="filter-lbl">Program</span>
       <div class="explore-filters" id="progFilters">
@@ -686,6 +745,9 @@ function renderPage(){
         <button type="button" class="fpill active" data-val="all" onclick="setStatusFilter('all')">Semua</button>
         <button type="button" class="fpill" data-val="ditanam" onclick="setStatusFilter('ditanam')">Penanaman</button>
         <button type="button" class="fpill" data-val="tambah" onclick="setStatusFilter('tambah')">Penambahan Tanaman</button>
+        <button type="button" class="fpill" data-val="belum" onclick="setStatusFilter('belum')">Belum Ditanam</button>
+        <button type="button" class="fpill" data-val="pupuk" onclick="setStatusFilter('pupuk')">Sudah Dipupuk</button>
+        <button type="button" class="fpill" data-val="belumPupuk" onclick="setStatusFilter('belumPupuk')">Belum Dipupuk</button>
       </div>
     </div>
     <div class="filter-group">
@@ -726,13 +788,21 @@ function renderPage(){
     </div>
   `;
   document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderList();});
-  populateTimeFilterOptions();
+  const viz=document.getElementById('vizWrap');
+  viz.addEventListener('mousemove',e=>{
+    const t=e.target.closest('[data-tip]');
+    if(t&&vizTip[t.dataset.tip])showTip(vizTip[t.dataset.tip],e);
+    else hideTip();
+  });
+  viz.addEventListener('mouseleave',hideTip);
+  document.querySelector('.page-scroll').addEventListener('scroll',hideTip,{passive:true});
+  renderTimeFilters();
   renderList();
   fitExploreRow();
   if(window.ResizeObserver){
     const ro=new ResizeObserver(fitExploreRow);
     ro.observe(document.querySelector('.page-scroll'));
-    ro.observe(document.getElementById('timePickerRow'));
+    ro.observe(document.getElementById('timeFilters'));
   }else window.addEventListener('resize',fitExploreRow);
 }
 

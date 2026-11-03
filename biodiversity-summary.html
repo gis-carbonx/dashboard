@@ -977,11 +977,11 @@ async function openSpeciesInfoInline(latinName,localName,iucn,fromLocation=false
       fetchWikipediaDescription(latinName)
     ]);
     const descriptions=[];
-    if(gbifDescResult.status==='ok'){
-      descriptions.push({text:gbifDescResult.text,source:gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF'});
-    }
     if(wikiResult.status==='ok'){
       descriptions.push({text:wikiResult.text,source:'Wikipedia'});
+    }
+    if(gbifDescResult.status==='ok'){
+      descriptions.push({text:gbifDescResult.text,source:gbifDescResult.provider?`GBIF (${gbifDescResult.provider})`:'GBIF'});
     }
 
     const info={images,descriptions};
