@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Land Clearing Alert | Sanggala Corridor Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+#summaryNote{margin-bottom:8px}
+#methodNote{margin-top:0}
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.filter-row.last{margin-bottom:28px}
+.filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
+.filter-select:focus{border-color:var(--primary)}
+
+.map-card{position:relative;height:440px;padding:0;overflow:hidden;margin-bottom:16px}
+#alertMap{height:100%;width:100%;background:#EDE7D8}
+.map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px}
+.map-legend span{display:flex;align-items:center;gap:6px}
+.lg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.lg-line{width:16px;border-top:2px solid #356760;flex-shrink:0}
+.leaflet-container,.leaflet-popup-content{font-family:'Libre Franklin',sans-serif}
+.pp-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.pp-row{display:flex;justify-content:space-between;gap:14px;font-size:11px;color:var(--text-2);padding:1px 0}
+.pp-row b{color:var(--text);font-weight:600}
+
+.chart-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.chart-grid>.span2{grid-column:1/-1}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:-6px 0 14px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2)}
+.lg-item i{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.tc{position:relative;height:230px}
+.tc svg{display:block}
+.hb-row{display:grid;grid-template-columns:150px minmax(0,1fr) 92px;align-items:center;gap:10px;padding:3px 0}
+.hb-lbl{font-size:11.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb-track{display:block;height:12px}
+.hb-bar{display:block;height:100%;border-radius:0 3px 3px 0;min-width:2px}
+.hb-val{font-size:11px;font-weight:600;color:var(--text);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hb-val small{font-weight:500;color:var(--text-3);margin-left:4px}
+.bd-tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin:10px -16px 0;padding:0 16px}
+.bd-tab{padding:9px 10px;font-size:11px;font-weight:600;color:var(--text-2);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-family:inherit}
+.bd-tab:hover{color:var(--primary-md)}
+.bd-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+#bdSub{margin-top:12px}
+#bdChart{height:250px;overflow-y:auto}
+#bdChart .hb-row{grid-template-columns:200px minmax(0,1fr) 190px}
+.hb-ha{display:inline-block;min-width:72px;font-weight:500;color:var(--text-2);margin-left:10px}
+.hb-val small{display:inline-block;min-width:38px}
+.empty{padding:36px 10px;text-align:center;color:var(--text-3);font-size:12px}
+
+.table-card{padding:16px 0 8px;margin-bottom:16px}
+.table-card .chart-title,.table-card .chart-sub{padding:0 16px}
+.table-scroll{max-height:420px;overflow:auto}
+table.alert-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.alert-table th{position:sticky;top:0;background:#fff;text-align:left;padding:7px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-3);border-bottom:1px solid var(--border);white-space:nowrap}
+.alert-table th.sortable{cursor:pointer;user-select:none}
+.alert-table th.sortable:hover,.alert-table th.sorted{color:var(--primary)}
+.sort-ic{margin-left:5px;font-size:8px;opacity:.5}
+.alert-table th.sorted .sort-ic{opacity:1}
+.alert-table td{padding:7px 10px;border-bottom:1px solid var(--border-lt);color:var(--text);white-space:nowrap}
+.alert-table tbody tr{cursor:pointer}
+.alert-table tbody tr:hover td{background:var(--primary-bg)}
+.conf-tag{display:inline-flex;align-items:center;gap:5px}
+.conf-tag i{width:8px;height:8px;border-radius:50%}
+
+.tt-box{display:none;position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:190px}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row b{color:var(--text)}
+.tt-row i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+@media (max-width:900px){.chart-grid{grid-template-columns:1fr}}
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.side-menu{display:none}.hb-row,#bdChart .hb-row{grid-template-columns:110px minmax(0,1fr) 160px}.hb-ha{min-width:60px;margin-left:6px}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="fire-header">
+    <div class="fire-header-inner">
+      <div>
+        <div class="fire-header-title">Land Clearing Alert</div>
+        <div class="fire-header-date" id="heroDate">–</div>
+      </div>
+      <div class="hero-stats">
+        <div class="fire-header-right">
+          <div class="fire-header-updated-label">Alert Terakhir</div>
+          <div class="fire-header-updated-value" id="heroLatest">–</div>
+        </div>
+        <div class="fire-header-right">
+          <div class="fire-header-updated-label">Data Masuk Terakhir</div>
+          <div class="fire-header-updated-value" id="heroUpdate">–</div>
+        </div>
+        <div class="fire-header-right">
+          <div class="fire-header-updated-label">Pembaruan Terakhir</div>
+          <div class="fire-header-updated-value" id="heroRun">–</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll" id="pageScroll">
+    <div class="content-row">
+      <nav class="side-menu">
+        <a class="side-item" href="patrol-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+        <a class="side-item" href="monitoring-fire-event.html" title="Fire Alert" aria-label="Fire Alert"><svg viewBox="0 0 24 24"><path d="M12 3c.4 3-2.6 4.6-2.6 7.6 0 .9.3 1.7.8 2.3C8 12.6 6.5 10.9 6.5 9 4.9 10.6 4 12.7 4 14.9 4 18.8 7.6 21 12 21s8-2.2 8-6.1C20 9.6 15.4 6.2 12 3Z"/><path d="M12 21c-1.8 0-3-1.1-3-2.7 0-1.9 1.6-2.8 3-4.8 1.4 2 3 2.9 3 4.8 0 1.6-1.2 2.7-3 2.7Z"/></svg></a>
+        <a class="side-item" href="pantauan-titik-api.html" title="Perbandingan History Data Titik Api" aria-label="Perbandingan History Data Titik Api"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/><path d="M15 8h4v4"/></svg></a>
+        <a class="side-item" href="satellite-tracker.html" title="Satellite Tracker" aria-label="Satellite Tracker"><svg viewBox="0 0 24 24"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></svg></a>
+        <a class="side-item active" href="dist-alert.html" title="Land Clearing Alert" aria-label="Land Clearing Alert"><svg viewBox="0 0 24 24"><path d="M9 3 4.5 9.5h2.3L3.5 14.5h11L11.2 9.5h2.3Z"/><path d="M9 14.5V20"/><path d="M15.5 20h5"/><path d="M16.5 20v-3h3v3"/></svg></a>
+        <a class="side-item" href="community-fire-management.html" title="Community Fire Management" aria-label="Community Fire Management"><svg viewBox="0 0 24 24"><circle cx="9.2" cy="8.3" r="2.9"/><path d="M3.5 19.5c0-3.1 2.5-5.7 5.7-5.7s5.7 2.6 5.7 5.7"/><circle cx="16.8" cy="9" r="2.2"/><path d="M15.4 13.9c2.4.5 4.1 2.6 4.1 5.1"/></svg></a>
+        <a class="side-item" href="weather.html" title="Weather" aria-label="Weather"><svg viewBox="0 0 24 24"><path d="M7 15.5a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a3.5 3.5 0 0 1 .5 7Z"/><path d="M8.5 18.5 7.5 21"/><path d="M12.5 18.5l-1 2.5"/><path d="M16.5 18.5l-1 2.5"/></svg></a>
+      </nav>
+
+      <div class="page-body-inner">
+        <div id="filterBar"></div>
+
+        <div class="sec-title">Ringkasan</div>
+        <div class="kpi-grid c4" id="kpiGrid"></div>
+        <p class="page-note" id="summaryNote"></p>
+        <p class="page-note" id="methodNote"></p>
+
+        <div class="card map-card" id="mapCard">
+          <div id="alertMap"></div>
+          <div class="map-legend" id="mapLegend"></div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="card chart-card span2">
+            <div class="chart-title">Tren Alert</div>
+            <div class="chart-sub" id="trendSub">Jumlah titik alert per bulan menurut tingkat kepercayaan</div>
+            <div class="lg" id="trendLegend"></div>
+            <div class="tc" id="trendChart"></div>
+          </div>
+          <div class="card chart-card span2">
+            <div class="chart-title">Rincian Alert</div>
+            <div class="bd-tabs" id="bdTabs"></div>
+            <div class="chart-sub" id="bdSub"></div>
+            <div id="bdChart"></div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="chart-title">Daftar Alert</div>
+          <div class="chart-sub" id="tableSub"></div>
+          <div class="table-scroll" id="alertTable"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tt-box" id="ttBox"></div>
+
+<script>
+'use strict';
+const DATA_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=0';
+const LOG_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=1998535494';
+const RUN_URL='https://docs.google.com/spreadsheets/d/1UW3uOFcLr4AQFBp_VMbEXk37_Vb5DekHU-_9QSkskCo/gviz/tq?tqx=out:csv&gid=1814004549';
+const CMI_URL='assets/json/CMI.json';
+const OUTSIDE='Outside Project Area';
+const PIXEL_DEG=0.0001,REF_LAT=0.8;
+const PIXEL_M={y:PIXEL_DEG*110574,x:PIXEL_DEG*111320*Math.cos(REF_LAT*Math.PI/180)};
+const HA_PER_ALERT=PIXEL_M.x*PIXEL_M.y/10000;
+const CONF={highest:{label:'Highest',color:'#8a1f1f'},high:{label:'High',color:'#c0611c'},nominal:{label:'Nominal',color:'#e0a46e'}};
+const CONF_ORDER=['highest','high','nominal'];
+const SOURCES=[['gladl','GLAD-L'],['glads2','GLAD-S2'],['radd','RADD']];
+const QUARTERS=['1','2','3','4'];
+const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const TABLE_STEP=50;
+
+let rows=[],years=[],bloks=[];
+let currentYear='all',currentQuarter='all',periodMode='ytd';
+let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+let areaFilter='in',blokFilter='all',confFilter='all',coverFilter='forest';
+let tableRows=[],tableLimit=TABLE_STEP,trendData=[];
+let map=null,pointLayer=null,focusLayer=null,renderer=null;
+
+const str=v=>(v??'').toString().trim();
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const fmtHa=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=(a,b)=>b>0?(a/b*100).toLocaleString('id-ID',{maximumFractionDigits:1}):'0';
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtShort=d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+function fmtD(d,t){return d.toLocaleDateString('id-ID',t==='s'?{day:'numeric',month:'short'}:{day:'numeric',month:'long',year:'numeric'});}
+
+function getWeeksInMonth(yr,mo){
+  let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
+  const last=new Date(yr,mo+1,0),weeks=[];let n=1;
+  while(sat<=last){const fri=new Date(sat);fri.setDate(fri.getDate()+6);fri.setHours(23,59,59);weeks.push({sat:new Date(sat),fri,label:`Minggu ke-${n++}`});sat.setDate(sat.getDate()+7);}
+  return weeks;
+}
+function defaultWeekIdx(){
+  const now=new Date();let best=0;
+  getWeeksInMonth(weekYear,weekMonth).forEach((w,i)=>{if(w.sat<=now&&now<=w.fri)best=i;});
+  return best;
+}
+function getSelectedWeek(){
+  const weeks=getWeeksInMonth(weekYear,weekMonth);
+  return weeks[weekIdx??defaultWeekIdx()]||weeks[0]||null;
+}
+function inPeriod(d){
+  if(!d)return false;
+  const now=new Date();
+  if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
+  if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
+  if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=wk.fri;}
+  if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
+  if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
+  return true;
+}
+function periodRange(){
+  const now=new Date();
+  if(periodMode==='ytd')return[new Date(now.getFullYear(),0,1),now];
+  if(periodMode==='mtd')return[new Date(now.getFullYear(),now.getMonth(),1),now];
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?[wk.sat,wk.fri]:null;}
+  if(currentYear==='all')return null;
+  const y=+currentYear,q=currentQuarter==='all'?0:+currentQuarter;
+  return[new Date(y,q?q*3-3:0,1),new Date(y,q?q*3:12,0)];
+}
+function periodLabel(){
+  const now=new Date();
+  if(periodMode==='ytd')return`1 Januari–${fmtD(now,'l')}`;
+  if(periodMode==='mtd')return`1–${fmtD(now,'l')}`;
+  if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtD(wk.sat,'s')}–${fmtD(wk.fri,'l')}`:'mingguan';}
+  const y=currentYear==='all'?'semua tahun':String(currentYear);
+  if(currentQuarter!=='all')return`Q${currentQuarter} ${y}`;
+  return currentYear==='all'?'seluruh periode pemantauan':`tahun ${y}`;
+}
+
+function parseAlerts(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  const detected=v=>{const s=str(v).toLowerCase();return !!s&&s!=='not_detected';};
+  rows=data.map(r=>{
+    const lat=sheetNum(r.latitude),lon=sheetNum(r.longitude),d=sheetDate(r.Date,'dmy');
+    const conf=str(r.Conf_Integrated).toLowerCase();
+    const cover=str(r.Penutup_Lahan)||OUTSIDE,owner=str(r.Owner)||OUTSIDE;
+    return{lat,lon,d,px:`${lat.toFixed(5)},${lon.toFixed(5)}`,conf:CONF[conf]?conf:'nominal',desa:str(r.Desa)||'Tanpa desa',owner,blok:str(r.Blok),cover,
+      inside:cover!==OUTSIDE&&owner!==OUTSIDE,gladl:detected(r.Conf_GLADL),glads2:detected(r.Conf_GLADS2),radd:detected(r.Conf_RADD)};
+  }).filter(r=>r.d&&r.lat&&r.lon);
+  const seen=new Map();
+  rows=rows.filter(r=>{
+    const k=r.px+'|'+(+r.d),p=seen.get(k);
+    if(!p){seen.set(k,r);return true;}
+    if(CONF_ORDER.indexOf(r.conf)<CONF_ORDER.indexOf(p.conf))p.conf=r.conf;
+    SOURCES.forEach(([s])=>{p[s]=p[s]||r[s];});
+    return false;
+  });
+  years=[...new Set(rows.map(r=>r.d.getFullYear()))].sort((a,b)=>a-b);
+  bloks=[...new Set(rows.map(r=>r.blok).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));
+  currentYear=years.length?String(years[years.length-1]):'all';
+}
+
+function filtered(){
+  return rows.filter(r=>inPeriod(r.d)
+    &&(areaFilter==='all'||(areaFilter==='in')===r.inside)
+    &&(blokFilter==='all'||r.blok===blokFilter)
+    &&(confFilter==='all'||r.conf===confFilter)
+    &&(coverFilter==='all'||(r.inside&&(coverFilter==='forest')===(r.cover==='Forest'))));
+}
+const emptyMsg=()=>rows.length?'Tidak ada alert pada filter ini.':'Data belum terhubung.';
+
+function renderFilters(){
+  const yq=periodMode==='yq';
+  const pill=(on,fn,lbl)=>`<button type="button" class="fpill${on?' active':''}" onclick="${fn}">${lbl}</button>`;
+  let week='';
+  if(periodMode==='week'){
+    const yrs=[...new Set([...years,new Date().getFullYear(),weekYear])].sort((a,b)=>a-b);
+    const sel=weekIdx??defaultWeekIdx();
+    week=`<select class="filter-select" aria-label="Tahun" onchange="setWeekYear(this.value)">${yrs.map(y=>`<option value="${y}"${y===weekYear?' selected':''}>${y}</option>`).join('')}</select>
+      <select class="filter-select" aria-label="Bulan" onchange="setWeekMonth(this.value)">${MN.map((m,i)=>`<option value="${i}"${i===weekMonth?' selected':''}>${m}</option>`).join('')}</select>
+      <select class="filter-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${getWeeksInMonth(weekYear,weekMonth).map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})</option>`).join('')}</select>`;
+  }
+  document.getElementById('filterBar').innerHTML=`
+    <div class="filter-row"><span class="filter-lbl">Filter</span>
+      ${pill(yq&&currentYear==='all',"setYear('all')",'All')}
+      ${years.map(y=>pill(yq&&currentYear===String(y),`setYear('${y}')`,y)).join('')}
+    </div>
+    <div class="filter-row"><span class="filter-lbl">Quarter</span>
+      ${pill(yq&&currentQuarter==='all',"setQuarter('all')",'All')}
+      ${QUARTERS.map(q=>pill(yq&&currentQuarter===q,`setQuarter('${q}')`,'Q'+q)).join('')}
+    </div>
+    <div class="filter-row"><span class="filter-lbl">Periode</span>
+      ${pill(periodMode==='ytd',"setPeriod('ytd')",'Year to Date')}
+      ${pill(periodMode==='mtd',"setPeriod('mtd')",'Month to Date')}
+      ${pill(periodMode==='week',"setPeriod('week')",'Mingguan')}
+      ${week}
+    </div>
+    <div class="filter-row"><span class="filter-lbl">Area</span>
+      ${pill(areaFilter==='all',"setArea('all')",'Semua')}
+      ${pill(areaFilter==='in',"setArea('in')",'Dalam Area Proyek')}
+      ${pill(areaFilter==='out',"setArea('out')",'Luar Area Proyek')}
+    </div>
+    <div class="filter-row"><span class="filter-lbl">Blok</span>
+      ${pill(blokFilter==='all',"setBlok('all')",'Semua')}
+      ${bloks.map(b=>pill(blokFilter===b,`setBlok('${esc(b)}')`,'Blok '+esc(b))).join('')}
+    </div>
+    <div class="filter-row"><span class="filter-lbl">Tutupan Lahan</span>
+      ${pill(coverFilter==='all',"setCover('all')",'Semua')}
+      ${pill(coverFilter==='forest',"setCover('forest')",'Forest')}
+      ${pill(coverFilter==='nonforest',"setCover('nonforest')",'Non-Forest')}
+    </div>
+    <div class="filter-row last"><span class="filter-lbl">Kepercayaan</span>
+      ${pill(confFilter==='all',"setConf('all')",'Semua')}
+      ${CONF_ORDER.map(k=>pill(confFilter===k,`setConf('${k}')`,CONF[k].label)).join('')}
+    </div>`;
+}
+function setYear(y){currentYear=y;periodMode='yq';render();}
+function setQuarter(q){currentQuarter=q;periodMode='yq';render();}
+function setPeriod(p){periodMode=p;render();}
+function setWeekYear(v){weekYear=+v;weekIdx=null;render();}
+function setWeekMonth(v){weekMonth=+v;weekIdx=null;render();}
+function setWeekPick(v){weekIdx=+v;render();}
+function setArea(v){areaFilter=v;render();}
+function setBlok(v){blokFilter=v;render();}
+function setConf(v){confFilter=v;render();}
+function setCover(v){coverFilter=v;render();}
+
+const haOf=list=>new Set(list.map(r=>r.px)).size*HA_PER_ALERT;
+function countBy(list,key){
+  const o={};list.forEach(r=>{(o[r[key]]||(o[r[key]]=[])).push(r);});
+  return Object.entries(o).map(([k,l])=>[k,l.length,haOf(l),l]).sort((a,b)=>b[1]-a[1]);
+}
+
+function renderKpi(list){
+  const card=(lbl,val,sub)=>`<div class="card"><div class="card-lbl">${lbl}</div><div class="card-val-lg">${val}</div><div class="card-sub-pct">${sub}</div></div>`;
+  if(!list.length){
+    document.getElementById('kpiGrid').innerHTML=card('Total Alert','–','titik alert')+card('Dalam Area Proyek','–','titik alert')+card('Kepercayaan Tinggi','–','highest dan high')+card('Alert Terbaru','–','tanggal deteksi terakhir');
+    return;
+  }
+  const inside=list.filter(r=>r.inside).length;
+  const c={highest:0,high:0,nominal:0};list.forEach(r=>c[r.conf]++);
+  const latest=list.reduce((a,r)=>r.d>a?r.d:a,list[0].d);
+  const onLatest=list.filter(r=>+r.d===+latest).length;
+  document.getElementById('kpiGrid').innerHTML=
+    card('Total Alert',fmtInt(list.length),`estimasi ${fmtHa(haOf(list))} ha`)
+    +card('Dalam Area Proyek',fmtInt(inside),`${pct(inside,list.length)}% dari total alert &middot; ${fmtHa(haOf(list.filter(r=>r.inside)))} ha`)
+    +card('Kepercayaan Tinggi',fmtInt(c.highest+c.high),`${fmtInt(c.highest)} highest &middot; ${fmtInt(c.high)} high`)
+    +card('Alert Terbaru',fmtD(latest,'s')+` <small>${latest.getFullYear()}</small>`,`${fmtInt(onLatest)} titik pada tanggal tersebut`);
+}
+
+function renderNote(list){
+  const el=document.getElementById('summaryNote');
+  if(!list.length){el.textContent=rows.length?`Tidak ada alert pembukaan lahan yang tercatat dalam ${periodLabel()} pada filter yang dipilih.`:'Data alert belum terhubung ke halaman ini.';return;}
+  const inside=list.filter(r=>r.inside);
+  const covers=countBy(inside,'cover').slice(0,2).map(([k])=>k);
+  const desa=countBy(list,'desa')[0];
+  el.textContent=`Dalam ${periodLabel()}, tercatat ${fmtInt(list.length)} titik alert pembukaan lahan dengan estimasi luas ${fmtHa(haOf(list))} ha. `
+    +`Sebanyak ${fmtInt(inside.length)} titik (${pct(inside.length,list.length)}%) berada di dalam area proyek`
+    +(covers.length?`, terutama pada tutupan ${covers.join(' dan ')}`:'')
+    +`. Desa dengan jumlah alert terbanyak adalah ${desa[0]} (${fmtInt(desa[1])} titik).`;
+}
+
+function buildTrend(list){
+  const daily=periodMode==='mtd'||periodMode==='week';
+  let range=periodRange();
+  if(!range){
+    if(!list.length)return[];
+    const ts=list.map(r=>+r.d);
+    range=[new Date(Math.min(...ts)),new Date(Math.max(...ts))];
+  }
+  const out=[],idx={};
+  const cur=daily?new Date(range[0].getFullYear(),range[0].getMonth(),range[0].getDate()):new Date(range[0].getFullYear(),range[0].getMonth(),1);
+  const keyOf=d=>daily?`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`:`${d.getFullYear()}-${d.getMonth()}`;
+  while(cur<=range[1]){
+    const b={label:daily?String(cur.getDate()):cur.toLocaleDateString('id-ID',{month:'short',year:'2-digit'}),
+      full:daily?fmtD(cur,'l'):`${MN[cur.getMonth()]} ${cur.getFullYear()}`,px:new Map(),highest:0,high:0,nominal:0,total:0};
+    idx[keyOf(cur)]=b;out.push(b);
+    if(daily)cur.setDate(cur.getDate()+1);else cur.setMonth(cur.getMonth()+1);
+  }
+  list.forEach(r=>{
+    const b=idx[keyOf(r.d)];if(!b)return;
+    const p=b.px.get(r.px);
+    if(!p||CONF_ORDER.indexOf(r.conf)<CONF_ORDER.indexOf(p))b.px.set(r.px,r.conf);
+  });
+  out.forEach(b=>{b.px.forEach(c=>{b[c]++;b.total++;});b.px=null;});
+  return out;
+}
+function niceScale(max,n=4){
+  if(!(max>0))return{max:1,ticks:[0,1]};
+  const raw=max/n,p=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,5,10].map(m=>m*p).find(s=>s>=raw);
+  const top=Math.ceil(max/step)*step,ticks=[];
+  for(let v=0;v<=top+step/2;v+=step)ticks.push(+v.toFixed(6));
+  return{max:top,ticks};
+}
+function renderTrend(list){
+  trendData=buildTrend(list);
+  document.getElementById('trendSub').textContent=`Jumlah piksel alert (sumbu kiri) dan estimasi luas (sumbu kanan) per ${periodMode==='mtd'||periodMode==='week'?'hari':'bulan'} menurut tingkat kepercayaan`;
+  document.getElementById('trendLegend').innerHTML=CONF_ORDER.map(k=>`<span class="lg-item"><i style="background:${CONF[k].color}"></i>${CONF[k].label}</span>`).join('');
+  drawTrend();
+}
+function drawTrend(){
+  const el=document.getElementById('trendChart');
+  if(!trendData.length||!trendData.some(d=>d.total)){el.innerHTML=`<div class="empty">${emptyMsg()}</div>`;el.onmousemove=null;return;}
+  const W=el.clientWidth,H=el.clientHeight||230,n=trendData.length;
+  if(!W)return;
+  const pl=44,pr=52,pt=10,pb=24,iw=W-pl-pr,ih=H-pt-pb,bw=iw/n;
+  const fmtAx=v=>v.toLocaleString('id-ID',{maximumFractionDigits:2});
+  const sc=niceScale(Math.max(...trendData.map(d=>d.total)));
+  const y=v=>pt+ih-v/sc.max*ih;
+  const every=Math.ceil(n/(W<480?6:12));
+  const bars=trendData.map((d,i)=>{
+    let acc=0;
+    return CONF_ORDER.map(k=>{
+      if(!d[k])return'';
+      const y0=y(acc),y1=y(acc+d[k]);acc+=d[k];
+      return`<rect x="${(pl+i*bw+bw*.15).toFixed(1)}" y="${y1.toFixed(1)}" width="${Math.max(1,bw*.7).toFixed(1)}" height="${Math.max(.5,y0-y1).toFixed(1)}" fill="${CONF[k].color}"/>`;
+    }).join('');
+  }).join('');
+  el.innerHTML=`<svg width="${W}" height="${H}">
+    ${sc.ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#EDE7D8"/><text x="${pl-8}" y="${(y(t)+3).toFixed(1)}" text-anchor="end" font-size="10" fill="#9C998C">${fmtInt(t)}</text><text x="${W-pr+8}" y="${(y(t)+3).toFixed(1)}" text-anchor="start" font-size="10" fill="#9C998C">${fmtAx(t*HA_PER_ALERT)} ha</text>`).join('')}    <rect id="trendHover" y="${pt}" height="${ih}" width="${bw.toFixed(1)}" fill="#f3f3f3" style="display:none"/>
+    ${bars}
+    ${trendData.map((d,i)=>i%every===0?`<text x="${(pl+i*bw+bw/2).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="10" fill="#9C998C">${d.label}</text>`:'').join('')}
+  </svg>`;
+  const hov=document.getElementById('trendHover');
+  el.onmousemove=e=>{
+    const i=Math.floor((e.clientX-el.getBoundingClientRect().left-pl)/bw);
+    if(i<0||i>=n){hov.style.display='none';hideTip();return;}
+    const d=trendData[i];
+    hov.setAttribute('x',(pl+i*bw).toFixed(1));hov.style.display='';
+    showTip(`<div class="tt-head"><strong>${d.full}</strong> &middot; ${fmtInt(d.total)} titik &middot; ${fmtHa(d.total*HA_PER_ALERT)} ha</div>`
+      +CONF_ORDER.map(k=>`<div class="tt-row"><span><i style="background:${CONF[k].color}"></i>${CONF[k].label}</span><span><b>${fmtInt(d[k])}</b> titik &middot; ${fmtHa(d[k]*HA_PER_ALERT)} ha</span></div>`).join(''),e);
+  };
+  el.onmouseleave=()=>{hov.style.display='none';hideTip();};
+}
+
+function hbHTML(entries,total,color){
+  if(!entries.length)return`<div class="empty">${emptyMsg()}</div>`;
+  const top=entries.slice(0,10),rest=entries.slice(10);
+  if(rest.length){const l=rest.flatMap(e=>e[3]);top.push(['Lainnya',l.length,haOf(l)]);}
+  const max=Math.max(...top.map(e=>e[1]));
+  return top.map(([k,v,ha])=>`<div class="hb-row"><span class="hb-lbl" title="${esc(k)}">${esc(k)}</span><span class="hb-track"><span class="hb-bar" style="width:${v/max*100}%;background:${k==='Lainnya'?'#DCDACC':color}"></span></span><span class="hb-val">${fmtInt(v)}<span class="hb-ha">${fmtHa(ha)} ha</span><small>${pct(v,total)}%</small></span></div>`).join('');
+}
+const BREAKDOWNS={
+  cover:{label:'Tutupan Lahan',sub:'Titik alert di dalam area proyek menurut tutupan lahan',color:'#356760',
+    data:list=>{const l=list.filter(r=>r.inside);return[countBy(l,'cover'),l];}},
+  desa:{label:'Desa',sub:'Jumlah titik alert menurut desa',color:'#618273',
+    data:list=>[countBy(list,'desa'),list]},
+  owner:{label:'Pemilik Lahan',sub:'Titik alert di dalam area proyek menurut pemilik lahan',color:'#356760',
+    data:list=>{const l=list.filter(r=>r.inside);return[countBy(l,'owner'),l];}},
+  source:{label:'Sistem Deteksi',sub:'Jumlah titik yang terdeteksi oleh tiap sistem peringatan',color:'#c0611c',
+    data:list=>{
+      const entry=(lbl,l)=>[lbl,l.length,haOf(l),l];
+      const src=SOURCES.map(([k,l])=>entry(l,list.filter(r=>r[k]))).filter(e=>e[1]>0);
+      const multi=list.filter(r=>SOURCES.filter(([k])=>r[k]).length>1);
+      if(multi.length)src.push(entry('Terdeteksi ≥ 2 sistem',multi));
+      return[src,list];
+    }}
+};
+let bdView='cover',bdList=[];
+function renderBreakdowns(list){bdList=list;drawBreakdown();}
+function setBreakdown(v){bdView=v;drawBreakdown();}
+function drawBreakdown(){
+  const b=BREAKDOWNS[bdView],[entries,base]=b.data(bdList),total=base.length;
+  document.getElementById('bdTabs').innerHTML=Object.entries(BREAKDOWNS).map(([k,o])=>`<button type="button" class="bd-tab${k===bdView?' active':''}" onclick="setBreakdown('${k}')">${o.label}</button>`).join('');
+  document.getElementById('bdSub').innerHTML=total?`${b.sub} &middot; ${fmtInt(total)} titik, ${fmtHa(haOf(base))} ha`:b.sub;
+  document.getElementById('bdChart').innerHTML=hbHTML(entries,total,b.color);
+}
+
+const TABLE_COLS=[
+  ['d','Tanggal',r=>+r.d,-1],
+  ['conf','Kepercayaan',r=>CONF_ORDER.length-CONF_ORDER.indexOf(r.conf),-1],
+  ['desa','Desa',r=>r.desa,1],
+  ['owner','Pemilik',r=>r.owner,1],
+  ['cover','Tutupan Lahan',r=>r.cover,1],
+  ['blok','Blok',r=>+r.blok||0,1],
+  ['coord','Koordinat',r=>r.lat,1]
+];
+let sortKey='d',sortDir=-1;
+function sortTable(){
+  const col=TABLE_COLS.find(c=>c[0]===sortKey),val=col[2];
+  tableRows.sort((a,b)=>{
+    const x=val(a),y=val(b);
+    const c=typeof x==='string'?x.localeCompare(y,'id'):x-y;
+    return c*sortDir||b.d-a.d;
+  });
+}
+function setSort(k){
+  const col=TABLE_COLS.find(c=>c[0]===k);
+  if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=col[3];}
+  sortTable();tableLimit=TABLE_STEP;drawTable();
+}
+function renderTable(list){
+  tableRows=[...list];
+  sortTable();
+  tableLimit=TABLE_STEP;
+  drawTable();
+}
+function drawTable(){
+  const el=document.getElementById('alertTable');
+  document.getElementById('tableSub').textContent=tableRows.length?`${fmtInt(tableRows.length)} titik`:'';
+  if(!tableRows.length){el.innerHTML=`<div class="empty">${emptyMsg()}</div>`;return;}
+  const shown=tableRows.slice(0,tableLimit);
+  el.innerHTML=`<table class="alert-table">
+    <thead><tr>${TABLE_COLS.map(([k,l])=>`<th class="sortable${k===sortKey?' sorted':''}" onclick="setSort('${k}')">${l}<span class="sort-ic">${k===sortKey?(sortDir>0?'▲':'▼'):'↕'}</span></th>`).join('')}</tr></thead>
+    <tbody>${shown.map((r,i)=>`<tr data-i="${i}">
+      <td>${fmtD(r.d,'l')}</td>
+      <td><span class="conf-tag"><i style="background:${CONF[r.conf].color}"></i>${CONF[r.conf].label}</span></td>
+      <td>${esc(r.desa)}</td><td>${esc(r.owner)}</td><td>${esc(r.cover)}</td><td>${esc(r.blok)||'–'}</td>
+      <td>${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}</td></tr>`).join('')}</tbody>
+  </table>${tableRows.length>tableLimit?`<button type="button" class="more-btn" onclick="moreRows()">Tampilkan ${fmtInt(Math.min(TABLE_STEP,tableRows.length-tableLimit))} lagi</button>`:''}`;
+  el.querySelectorAll('tbody tr').forEach(tr=>tr.addEventListener('click',()=>focusPoint(shown[+tr.dataset.i])));
+}
+function moreRows(){tableLimit+=TABLE_STEP;drawTable();}
+
+function popupHTML(r){
+  return`<div class="pp-title">${fmtD(r.d,'l')}</div>
+    <div class="pp-row"><span>Kepercayaan</span><b>${CONF[r.conf].label}</b></div>
+    <div class="pp-row"><span>Desa</span><b>${esc(r.desa)}</b></div>
+    <div class="pp-row"><span>Pemilik</span><b>${esc(r.owner)}</b></div>
+    <div class="pp-row"><span>Tutupan lahan</span><b>${esc(r.cover)}</b></div>
+    <div class="pp-row"><span>Sistem</span><b>${SOURCES.filter(([k])=>r[k]).map(([,l])=>l).join(', ')||'–'}</b></div>`;
+}
+function initMap(){
+  map=L.map('alertMap',{zoomControl:true,attributionControl:false,preferCanvas:true});
+  map.createPane('labels');map.getPane('labels').style.zIndex=450;map.getPane('labels').style.pointerEvents='none';
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,pane:'labels'}).addTo(map);
+  map.setView([0.8,110.3],11);
+  renderer=L.canvas({padding:.5});
+  pointLayer=L.layerGroup().addTo(map);
+  focusLayer=L.layerGroup().addTo(map);
+  document.getElementById('mapLegend').innerHTML=CONF_ORDER.map(k=>`<span><i class="lg-dot" style="background:${CONF[k].color}"></i>${CONF[k].label}</span>`).join('')+'<span><i class="lg-line"></i>Batas CMI</span>';
+  fetch(CMI_URL).then(r=>r.json()).then(j=>{
+    L.geoJSON(j,{interactive:false,style:()=>({color:'#fff',weight:2.5,fill:false})}).addTo(map);
+    const b=L.geoJSON(j,{interactive:false,style:()=>({color:'#356760',weight:1.5,fill:false})}).addTo(map).getBounds();
+    if(b.isValid())map.fitBounds(b,{padding:[16,16]});
+  }).catch(()=>{});
+}
+function renderMap(list){
+  if(!map)initMap();
+  pointLayer.clearLayers();focusLayer.clearLayers();
+  [...list].sort((a,b)=>CONF_ORDER.indexOf(b.conf)-CONF_ORDER.indexOf(a.conf)).forEach(r=>{
+    L.circleMarker([r.lat,r.lon],{renderer,radius:3,stroke:false,fillColor:CONF[r.conf].color,fillOpacity:.85})
+      .bindPopup(()=>popupHTML(r)).addTo(pointLayer);
+  });
+}
+function focusPoint(r){
+  if(!r||!map)return;
+  focusLayer.clearLayers();
+  L.circleMarker([r.lat,r.lon],{radius:9,color:'#1d4ed8',weight:2.5,fill:false}).addTo(focusLayer);
+  map.setView([r.lat,r.lon],16);
+  L.popup().setLatLng([r.lat,r.lon]).setContent(popupHTML(r)).openOn(map);
+  document.getElementById('mapCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function showTip(h,e){
+  const tip=document.getElementById('ttBox');
+  tip.innerHTML=h;tip.style.display='block';
+  const w=tip.offsetWidth,ht=tip.offsetHeight;
+  let l=e.clientX+14,t=e.clientY+14;
+  if(l+w>window.innerWidth-8)l=e.clientX-14-w;
+  if(t+ht>window.innerHeight-8)t=e.clientY-14-ht;
+  tip.style.left=Math.max(8,l)+'px';tip.style.top=Math.max(8,t)+'px';
+}
+function hideTip(){document.getElementById('ttBox').style.display='none';}
+
+function render(){
+  const list=filtered();
+  renderFilters();
+  renderKpi(list);
+  renderNote(list);
+  renderMap(list);
+  renderTrend(list);
+  renderBreakdowns(list);
+  renderTable(list);
+}
+
+async function loadLogTime(url,col,elId){
+  try{
+    const res=await fetch(url);
+    if(!res.ok)throw Error(res.status);
+    const {data}=Papa.parse(await res.text(),{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+    const last=data.map(r=>sheetDate(r[col],'dmy')).filter(Boolean).reduce((a,d)=>!a||d>a?d:a,null);
+    if(last)document.getElementById(elId).textContent=`${fmtShort(last)}, ${last.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',hour12:false})}`;
+  }catch(err){
+    console.error('Gagal memuat log:',url,err);
+  }
+}
+
+(async function boot(){
+  document.getElementById('heroDate').textContent=fmtD(new Date(),'l');
+  const m=v=>v.toLocaleString('id-ID',{maximumFractionDigits:1});
+  document.getElementById('methodNote').textContent=`Estimasi luas: setiap titik alert mewakili satu piksel grid 0,0001° × 0,0001° (± ${m(PIXEL_M.x)} × ${m(PIXEL_M.y)} m), sehingga luas per titik ± ${HA_PER_ALERT.toLocaleString('id-ID',{maximumFractionDigits:4})} ha. Estimasi luas = jumlah piksel unik × luas per titik. Nilai ini menggambarkan luas piksel yang terdeteksi, bukan hasil pengukuran batas pembukaan lahan di lapangan.`;
+  loadLogTime(LOG_URL,'Waktu Pengambilan','heroUpdate');
+  loadLogTime(RUN_URL,'Last Update','heroRun');
+  if(DATA_URL){
+    try{
+      const res=await fetch(DATA_URL);
+      if(!res.ok)throw Error(res.status);
+      parseAlerts(await res.text());
+      if(rows.length)document.getElementById('heroLatest').textContent=fmtShort(rows.reduce((a,r)=>r.d>a?r.d:a,rows[0].d));
+    }catch(err){
+      console.error('Gagal memuat data alert:',err);
+    }
+  }
+  render();
+  document.getElementById('pageScroll').addEventListener('scroll',hideTip,{passive:true});
+  if(window.ResizeObserver)new ResizeObserver(drawTrend).observe(document.getElementById('trendChart'));
+  else window.addEventListener('resize',drawTrend);
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

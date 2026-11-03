@@ -12,7 +12,7 @@ Dashboard ini menyajikan data pemantauan dan implementasi kegiatan Sanggala Corr
 | [Fire Alert](monitoring-fire-event.html) | Peta sebaran titik api, data titik api terbaru, kondisi cuaca terkini, dan prediksi cuaca. |
 | [Perbandingan Titik Api](pantauan-titik-api.html) | Perbandingan data historis titik api di area Sanggala. |
 | [Satellite Tracker](satellite-tracker.html) | Pemantauan titik panas (*hotspot*) satelit di wilayah Kalimantan Barat. |
-| [Land Clearing Alert](land-clearing-alert.html) | Titik pembukaan lahan berdasarkan *Integrated Disturbance Alert* Global Forest Watch. |
+| [Land Clearing Alert](dist-alert.html) | Titik pembukaan lahan dari *Integrated Deforestation Alerts* Global Forest Watch (GLAD-L, GLAD-S2, RADD): jumlah alert dan estimasi luas, alert di dalam area proyek, tingkat kepercayaan, peta sebaran, tren bulanan, rincian per tutupan lahan, desa, pemilik lahan, dan sistem deteksi, serta daftar alert. Filter: tahun, kuartal, periode, area, blok, tutupan lahan (forest/non-forest), dan kepercayaan. |
 | [Community Fire Management](community-fire-management.html) | Hasil penggalian aspirasi masyarakat terkait pengendalian dan mitigasi kebakaran hutan dan lahan. |
 | [Weather](weather.html) | Citra cuaca satelit, prediksi cuaca BMKG, dan segala hal yang berkaitan dengan itu di sekitaran area CMI. |
 
