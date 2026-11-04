@@ -41,6 +41,17 @@ body{display:flex;flex-direction:column}
 .card-split span:last-child{white-space:nowrap}
 
 .pair-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sp-tm{position:relative;height:200px}
+.sp-tile{position:absolute;overflow:hidden;border-radius:3px;cursor:default;outline:none;transition:filter .15s}
+.sp-tile.lbl{padding:7px 8px}
+.sp-tile:hover,.sp-tile:focus{filter:brightness(1.08)}
+.sp-tile-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-tile-n{font-size:10.5px;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums;opacity:.9}
+.sp-tm-tip{display:none;position:absolute;z-index:6;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
+.sp-tm-tip .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.sp-tm-tip .tt-head strong{color:var(--text);font-weight:700}
+.sp-tm-tip .tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.sp-tm-empty{height:100%;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text-3)}
 
 .sebaran-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:8px}
 .sebaran-map-wrap{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:360px;background:var(--border-lt)}
@@ -295,12 +306,15 @@ function computeNursery(){
   const upTo=nurseryRows.filter(r=>!end||(r.date&&r.date<=end));
   const by={};
   upTo.forEach(r=>{const o=by[r.jenis]||(by[r.jenis]={});o[r.cat]=(o[r.cat]||0)+r.jumlah;});
-  let pemb=0,bst=0;
-  Object.values(by).forEach(c=>{
+  let pemb=0,bst=0;const jenis=[];
+  Object.entries(by).forEach(([name,c])=>{
     const g=k=>c[k]||0;
-    pemb+=Math.max(0,g(NCAT.pemb)-g(NCAT.matiPemb)-g(NCAT.bst));
-    bst+=Math.max(0,g(NCAT.bst)-g(NCAT.matiBst)-g(NCAT.tanam)-g(NCAT.sulam)-g(NCAT.support));
+    const p=Math.max(0,g(NCAT.pemb)-g(NCAT.matiPemb)-g(NCAT.bst));
+    const b=Math.max(0,g(NCAT.bst)-g(NCAT.matiBst)-g(NCAT.tanam)-g(NCAT.sulam)-g(NCAT.support));
+    pemb+=p;bst+=b;
+    if(p+b>0)jenis.push({name:name.charAt(0).toUpperCase()+name.slice(1),n:p+b,pemb:p,bst:b});
   });
+  jenis.sort((a,b)=>b.n-a.n);
   const last=upTo.reduce((a,r)=>r.date&&(!a||r.date>a)?r.date:a,null);
   const dist={tanam:0,sulam:0,support:0};
   nurseryRows.forEach(r=>{
@@ -309,8 +323,79 @@ function computeNursery(){
     else if(r.cat===NCAT.sulam)dist.sulam+=r.jumlah;
     else if(r.cat===NCAT.support)dist.support+=r.jumlah;
   });
-  return{pemb,bst,stok:pemb+bst,asOf:end||last,dist,distTotal:dist.tanam+dist.sulam+dist.support};
+  return{pemb,bst,stok:pemb+bst,jenis,asOf:end||last,dist,distTotal:dist.tanam+dist.sulam+dist.support};
 }
+
+function squarify(vals,x,y,w,h){
+  const out=[];let i=0;
+  while(i<vals.length){
+    const short=Math.min(w,h);
+    const worst=r=>{const s=r.reduce((a,b)=>a+b,0);return Math.max(short*short*Math.max(...r)/(s*s),s*s/(short*short*Math.min(...r)));};
+    const row=[vals[i]];let j=i+1;
+    while(j<vals.length&&worst([...row,vals[j]])<=worst(row))row.push(vals[j++]);
+    const s=row.reduce((a,b)=>a+b,0);
+    if(w>=h){const rw=s/h;let cy=y;row.forEach(v=>{out.push({x,y:cy,w:rw,h:v/rw});cy+=v/rw;});x+=rw;w-=rw;}
+    else{const rh=s/w;let cx=x;row.forEach(v=>{out.push({x:cx,y,w:v/rh,h:rh});cx+=v/rh;});y+=rh;h-=rh;}
+    i=j;
+  }
+  return out;
+}
+const TM_OTHERS_MIN=0.01;
+const tmMix=(a,b,t)=>'#'+[0,2,4].map(i=>Math.round(parseInt(a.substr(i+1,2),16)*(1-t)+parseInt(b.substr(i+1,2),16)*t).toString(16).padStart(2,'0')).join('');
+const tmIsDark=hex=>{const [r,g,b]=[1,3,5].map(i=>parseInt(hex.substr(i,2),16)/255);return .2126*r+.7152*g+.0722*b<.5;};
+const tmPct=v=>v.toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1});
+function drawNurseryTreemap(){
+  const el=document.getElementById('nurseryTreemap');
+  const n=computeNursery();
+  if(!el||!n)return;
+  const items=n.jenis;
+  if(!items.length){el.innerHTML='<div class="sp-tm-empty">Tidak ada persediaan bibit.</div>';return;}
+  const sum=items.reduce((a,o)=>a+o.n,0);
+  const main=items.filter(o=>o.n/sum>=TM_OTHERS_MIN),small=items.filter(o=>o.n/sum<TM_OTHERS_MIN);
+  if(small.length>1)main.push({name:`Lainnya (${small.length} jenis)`,n:small.reduce((a,o)=>a+o.n,0),members:small});
+  else main.push(...small);
+  const tiles=main.map(o=>({...o,pct:o.n/sum*100}));
+  const W=el.clientWidth,H=el.clientHeight,maxPct=tiles[0].pct;
+  const rects=squarify(tiles.map(o=>o.n/sum*W*H),0,0,W,H);
+  el.innerHTML=tiles.map((o,i)=>{
+    const r=rects[i];
+    const bg=o.members?'#DCDACC':tmMix('#356760','#B5BBA9',1-Math.sqrt(o.pct/maxPct));
+    const fg=tmIsDark(bg)?'#fff':'#3A342C';
+    const showName=r.w>58&&r.h>26,showMeta=r.w>58&&r.h>44;
+    return`<div class="sp-tile${showName?' lbl':''}" data-i="${i}" tabindex="0"
+      style="left:${r.x+1}px;top:${r.y+1}px;width:${Math.max(0,r.w-2)}px;height:${Math.max(0,r.h-2)}px;background:${bg};color:${fg}">
+      ${showName?`<div class="sp-tile-name">${esc(o.name)}</div>`:''}
+      ${showMeta?`<div class="sp-tile-n">${fmtInt(o.n)} &middot; ${tmPct(o.pct)}%</div>`:''}
+    </div>`;
+  }).join('')+'<div class="sp-tm-tip"></div>';
+  const tip=el.querySelector('.sp-tm-tip');
+  const show=(t,e)=>{
+    const o=tiles[+t.dataset.i];
+    const rows=o.members
+      ?o.members.slice(0,8).map(m=>`<div class="tt-row"><span>${esc(m.name)}</span><span>${fmtInt(m.n)}</span></div>`).join('')
+        +(o.members.length>8?`<div class="tt-row"><span>+${o.members.length-8} lainnya</span><span>${fmtInt(o.members.slice(8).reduce((a,m)=>a+m.n,0))}</span></div>`:'')
+      :`<div class="tt-row"><span>Pembesaran</span><span>${fmtInt(o.pemb)}</span></div>
+        <div class="tt-row"><span>Bibit siap tanam</span><span>${fmtInt(o.bst)}</span></div>`;
+    tip.innerHTML=`<div class="tt-head"><strong>${esc(o.name)}</strong> &middot; ${fmtInt(o.n)} bibit &middot; ${tmPct(o.pct)}%</div>${rows}`;
+    tip.style.display='block';
+    const b=el.getBoundingClientRect();
+    let px,py;
+    if(e){px=e.clientX-b.left+14;py=e.clientY-b.top+14;}
+    else{px=t.offsetLeft+8;py=t.offsetTop+t.offsetHeight/2;}
+    px=Math.min(px,W-tip.offsetWidth-4);
+    if(py+tip.offsetHeight>H+40)py=Math.max(0,py-tip.offsetHeight-28);
+    tip.style.left=Math.max(0,px)+'px';tip.style.top=py+'px';
+  };
+  const hide=()=>{tip.style.display='none';};
+  el.querySelectorAll('.sp-tile').forEach(t=>{
+    t.addEventListener('mousemove',e=>show(t,e));
+    t.addEventListener('focus',()=>show(t));
+    t.addEventListener('mouseleave',hide);
+    t.addEventListener('blur',hide);
+  });
+}
+let tmResize;
+window.addEventListener('resize',()=>{clearTimeout(tmResize);tmResize=setTimeout(drawNurseryTreemap,120);});
 
 function matchesFilter(row,field){
   const d=parseDate(row[field]);
@@ -558,6 +643,10 @@ function nurseryHtml(){
         </div>
         <p class="page-note">${note}</p>
       </div>
+      <div class="card">
+        <div class="card-lbl">Persediaan Bibit per Jenis (${fmtInt(n.jenis.length)} jenis)</div>
+        <div class="sp-tm" id="nurseryTreemap"></div>
+      </div>
     </div>`;
 }
 
@@ -684,6 +773,7 @@ function render(){
     ${nurseryHtml()}
   `;
   document.getElementById('pageBody').innerHTML=body;
+  drawNurseryTreemap();
   updateSebaran();
 }
 

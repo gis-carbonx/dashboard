@@ -109,6 +109,21 @@ body{display:flex;flex-direction:column}
 .sb-seg+.sb-seg{border-left:1px solid #fff}
 .sb-val{text-align:right;font-size:10.5px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
 .sb-val b{font-size:14px;font-weight:800;color:var(--primary)}
+.pg-wrap{align-self:stretch}
+.pg-track{display:flex;height:12px;border-radius:4px;overflow:hidden;background:var(--border-lt)}
+.pg-track span{height:100%;flex-shrink:0}
+.pg-track span+span{border-left:1px solid #fff}
+.pg-leg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.pg-leg>div+div{border-left:1px solid var(--border-lt);padding-left:12px}
+.pg-leg-lbl{font-size:10.5px;font-weight:600;color:var(--text-2);white-space:nowrap}
+.pg-leg-val{font-size:18px;font-weight:800;color:var(--text);line-height:1.15;margin-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pg-leg-val small{font-size:10.5px;font-weight:600;color:var(--text-3);margin-left:5px}
+.pg-prog{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px 8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-lt)}
+.pg-prog:empty{display:none}
+.pg-row{display:contents}
+.pg-row .pg-track{height:8px;border-radius:3px}
+.pg-row-lbl{font-size:10.5px;font-weight:600;color:var(--text-2)}
+.pg-row-val{font-size:10.5px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
 .viz-empty{padding:40px 10px;text-align:center;color:var(--text-3);font-size:12px}
 .tt-box{display:none;position:fixed;z-index:50;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none;min-width:220px}
 .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
@@ -429,6 +444,7 @@ function computeStats(){
   const rows=getFilteredRows(),end=timeEnd();
   let luasTotal=0,luasAgro=0,luasTemb=0,tanamanAgro=0,luasTertanam=0,tanamAgro=0,tanamTemb=0,pupukAgro=0,pupukTemb=0,bothAgro=0,bothTemb=0,lahanAgro=0,lahanTemb=0,petakPupukAgro=0,petakPupukTemb=0,aplikasiAgro=0,aplikasiTemb=0,addPetakAgro=0,addPetakTemb=0,addTanAgro=0;
   const petaniSet=new Set(),laki=new Set(),perempuan=new Set(),petaniAgro=new Set(),petaniTemb=new Set();
+  const jkProg={agro:{L:new Set(),P:new Set()},temb:{L:new Set(),P:new Set()}};
   rows.forEach(r=>{
     const st=PROG[r.prog];
     const agro=st.group==='agro';
@@ -448,14 +464,16 @@ function computeStats(){
     }
     const p=str(r.petani).toLowerCase(),g=str(r.jk).toLowerCase();
     if(!p)return;
-    if(g.startsWith('laki'))laki.add(p);
-    else if(g.startsWith('perempuan'))perempuan.add(p);
+    const jp=jkProg[agro?'agro':'temb'];
+    if(g.startsWith('laki')){laki.add(p);jp.L.add(p);}
+    else if(g.startsWith('perempuan')){perempuan.add(p);jp.P.add(p);}
     else return;
     petaniSet.add(p);
     (agro?petaniAgro:petaniTemb).add(p);
   });
   return{luasTotal,luasAgro,luasTemb,tanamanAgro,addPetakAgro,addPetakTemb,addTanAgro,luasTertanam,tanamAgro,tanamTemb,pupukAgro,pupukTemb,bothAgro,bothTemb,lahanAgro,lahanTemb,petakPupukAgro,petakPupukTemb,aplikasiAgro,aplikasiTemb,
-    petaniTotal:petaniSet.size,laki:laki.size,perempuan:perempuan.size,petaniAgro:petaniAgro.size,petaniTemb:petaniTemb.size};
+    petaniTotal:petaniSet.size,laki:laki.size,perempuan:perempuan.size,petaniAgro:petaniAgro.size,petaniTemb:petaniTemb.size,
+    jkAgro:{L:jkProg.agro.L.size,P:jkProg.agro.P.size},jkTemb:{L:jkProg.temb.L.size,P:jkProg.temb.P.size}};
 }
 
 const pbOpen=new Set();
@@ -486,8 +504,24 @@ function renderStats(){
     +bar('agro','Agroforestri',s.luasAgro,s.tanamAgro,'ditanam',s.bothAgro,detAgro)
     +bar('temb','Restorasi',s.luasTemb,s.tanamTemb,'diintervensi',s.bothTemb,detTemb));
   set('statPetaniVal',fmtInt(s.petaniTotal));
-  set('statPetaniSub',`${fmtInt(s.laki)} laki-laki, ${fmtInt(s.perempuan)} perempuan`);
+  html('statPetaniSub',genderHTML(s));
   renderViz();
+}
+
+const JK_COLORS={L:'#356760',P:'#B5BBA9'};
+function jkTrack(L,P){
+  const n=L+P;
+  if(!n)return'<div class="pg-track"></div>';
+  return`<div class="pg-track">${L?`<span style="width:${L/n*100}%;background:${JK_COLORS.L}"></span>`:''}${P?`<span style="width:${P/n*100}%;background:${JK_COLORS.P}"></span>`:''}</div>`;
+}
+function genderHTML(s){
+  const n=s.laki+s.perempuan;
+  const leg=(k,l,v)=>`<div><div class="pg-leg-lbl"><i class="sw" style="background:${JK_COLORS[k]}"></i>${l}</div>
+    <div class="pg-leg-val">${fmtInt(v)}<small>${pctTxt(v,n)}%</small></div></div>`;
+  const row=(l,o)=>o.L+o.P?`<div class="pg-row"><span class="pg-row-lbl">${l}</span>${jkTrack(o.L,o.P)}<span class="pg-row-val">${fmtInt(o.L)} L &middot; ${fmtInt(o.P)} P</span></div>`:'';
+  return`${jkTrack(s.laki,s.perempuan)}
+    <div class="pg-leg">${leg('L','Laki-laki',s.laki)}${leg('P','Perempuan',s.perempuan)}</div>
+    <div class="pg-prog">${row('Agroforestri',s.jkAgro)}${row('Restorasi',s.jkTemb)}</div>`;
 }
 
 const ST_COLORS={both:'#356760',only:'#9DBFAE',pupukOnly:'repeating-linear-gradient(135deg,#d08a4c 0 2px,#f6e6d4 2px 5px)',belum:'#EDE7D8'};
@@ -721,7 +755,7 @@ function renderPage(){
       <div class="card">
         <div class="card-lbl">Jumlah Petani</div>
         <div class="card-val-lg" id="statPetaniVal">—</div>
-        <div class="card-sub-pct" id="statPetaniSub">—</div>
+        <div class="card-sub-pct pg-wrap" id="statPetaniSub">—</div>
       </div>
     </div>
     <div class="viz-wrap" id="vizWrap"></div>
