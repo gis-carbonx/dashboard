@@ -18,6 +18,7 @@
   };
   const FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
   const PRESENCE_COLORS = ["#356760", "#c0611c", "#8B7BB0", "#4a7fc1", "#618273", "#3A342C"];
+  const PRESENCE_VIEWER = "gis@carbonxco.com";
 
   const CSS = `
     .authg-lock { filter: blur(8px); pointer-events: none; user-select: none; }
@@ -98,6 +99,7 @@
     .authg-logout-btn.authg-show { display: inline-flex; }
 
     .authg-presence { display: inline-flex; align-items: center; margin-right: 10px; vertical-align: middle; }
+    .authg-presence:empty { display: none; }
     .authg-av {
       width: 26px; height: 26px; border-radius: 50%; margin-left: -6px;
       display: inline-flex; align-items: center; justify-content: center;
@@ -275,6 +277,7 @@
               p.me.set({ email: email, page: pageName(), ts: firebase.database.ServerValue.TIMESTAMP });
             });
           });
+          if (email !== PRESENCE_VIEWER) return;
           p.list = db.ref("presence");
           p.listCb = p.list.on("value", function (snap) { renderPresence(snap.val() || {}, id); });
         })
