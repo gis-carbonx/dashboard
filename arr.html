@@ -138,6 +138,9 @@ body{display:flex;flex-direction:column}
 .im-flow .im-subhead td{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-3);padding-top:14px}
 .im-flow .im-total td{font-weight:700;color:var(--text);border-bottom:0}
 .im-flow .im-c1{width:22%}
+.im-flow th:not(:first-child),.im-flow td:not(:first-child){text-align:center}
+.im-flow td:has(.im-nw){line-height:1.45}
+.im-flow .im-nw{display:block}
 .im-flow td .im-desc{display:none;font-size:10px;font-weight:500;color:var(--text-3);white-space:normal;line-height:1.4;margin-top:2px;max-width:320px}
 .im-flow tr.im-click{cursor:pointer}
 .im-flow tr.im-click:hover td{background:var(--primary-bg)}
@@ -852,7 +855,7 @@ function statusCardHTML(){
     }
     return o;
   },{tan:0,tanN:0,tanL:0,apl:0,aplN:0,aplL:0,ulang:0,ulangN:0,ulangL:0,rw:0,rwN:0,rwL:0,rwU:0,rwUN:0,rwUL:0});
-  const cnt=(v,unit,l,n)=>`${fmtInt(v)} ${unit} &middot; ${fmt(l)} ha <span class="im-n">(${fmtInt(n)} petak)</span>`;
+  const cnt=(v,unit,l,n)=>`<span class="im-nw">${fmtInt(v)} ${unit}</span><span class="im-nw">${fmt(l)} ha <span class="im-n">(${fmtInt(n)} petak)</span></span>`;
   const cohort=base.filter(r=>r.tglPartisipasi<=end),all=statusStats(cohort,end);
   const pc=(a,b)=>b>0?fmtPct(a/b*100):'0,0';
   const ha=(v,n,plus)=>`${plus?'+':''}${fmt(v)} ha <span class="im-n">(${fmtInt(n)} petak)</span>`;
