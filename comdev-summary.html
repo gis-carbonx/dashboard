@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Community Engagement</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
+.ds-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.ds-leg{display:flex;gap:14px;font-size:10px;color:var(--text-2)}
+.ds-leg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ds-leg i{width:10px;height:10px;border-radius:2px}
+.ds-grp+.ds-grp{margin-top:14px}
+.ds-grp-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid var(--border-lt)}
+.ds-grp-lbl{font-size:12px;font-weight:700;color:var(--text)}
+summary.ds-grp-hd{list-style:none;cursor:pointer;border-radius:6px;padding:4px 6px 6px;margin:0 -6px 4px}
+summary.ds-grp-hd::-webkit-details-marker{display:none}
+summary.ds-grp-hd:hover{background:var(--primary-bg)}
+details.ds-grp:not([open])>summary.ds-grp-hd{border-bottom-color:transparent;margin-bottom:0}
+.ds-caret{display:inline-block;width:12px;font-size:10px;color:var(--text-3);transition:transform .15s}
+details[open] .ds-caret{transform:rotate(90deg)}
+.ds-grp-lbl small{font-size:10.5px;font-weight:500;color:var(--text-3);margin-left:6px}
+.ds-row{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;align-items:center;gap:12px;padding:4px 0}
+.ds-lbl{font-size:11.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ds-track{display:flex;height:14px;border-radius:3px;overflow:hidden}
+.ds-track span{height:100%;flex-shrink:0}
+.ds-track span+span{border-left:1px solid #fff}
+.ds-val{font-size:10.5px;color:var(--text-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ds-val b{font-size:12px;font-weight:800;color:var(--text)}
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.ds-row{grid-template-columns:100px minmax(0,1fr)}.ds-val{grid-column:2;text-align:left}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Community Engagement</div>
+        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+    <div class="content-row">
+      <nav class="side-menu">
+          <a class="side-item active" href="comdev-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+      </nav>
+      <div class="page-body-inner" id="pageBody"><div class="loading-note">Memuat data masyarakat...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c',SHEET_NAME='db-comdev-2';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const str=v=>(v??'').toString().trim();
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isOne=v=>str(v)==='1';
+
+const DESA_MIN=10;
+const PROJECT_ZONE=['Raut Muara','Nekan','Mawang Muda','Sekendal','Thang Raya','Engkahan','Engkangin','Kenaman','Sungai Ilai','Sepangah'];
+const inZone=name=>PROJECT_ZONE.some(z=>z.toLowerCase()===name.toLowerCase());
+const JK_COLORS={L:'#356760',P:'#B5BBA9'};
+const normDesa=v=>str(v).replace(/\s+/g,' ').replace(/^desa\s+/i,'');
+
+let people=new Map();
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  people=new Map();
+  data.slice(1).forEach(c=>{
+    const id=str(c[0]);
+    const L=isOne(c[6]),P=isOne(c[7]);
+    if(!id||!(str(c[5])||L||P))return;
+    const p=people.get(id)||{id,nama:str(c[5]),desa:normDesa(c[3]),L:false,P:false};
+    p.L=p.L||L;p.P=p.P||P;
+    people.set(id,p);
+  });
+}
+
+function computeStats(){
+  let L=0,P=0;
+  people.forEach(p=>{if(p.L)L++;else if(p.P)P++;});
+  return{total:people.size,L,P};
+}
+
+function computeDesa(){
+  const map=new Map();
+  people.forEach(p=>{
+    const k=p.desa.toLowerCase();
+    const o=map.get(k)||{name:p.desa||'Tidak tercatat',n:0,L:0,P:0};
+    o.n++;if(p.L)o.L++;else if(p.P)o.P++;
+    map.set(k,o);
+  });
+  const sum=(list,name)=>list.reduce((a,o)=>(a.n+=o.n,a.L+=o.L,a.P+=o.P,a),{name,n:0,L:0,P:0});
+  const all=[...map.values()].sort((a,b)=>b.n-a.n);
+  const zone=all.filter(o=>inZone(o.name));
+  const out=all.filter(o=>!inZone(o.name));
+  const blank=out.find(o=>o.name==='Tidak tercatat');
+  const outMain=out.filter(o=>o.n>=DESA_MIN&&o!==blank);
+  const rest=out.filter(o=>o.n<DESA_MIN&&o!==blank);
+  if(rest.length)outMain.push(sum(rest,`Lainnya (${rest.length} lokasi)`));
+  if(blank)outMain.push(blank);
+  return[{...sum(zone,'Project Zone'),rows:zone,desa:zone.length},{...sum(out,'Di luar Project Zone'),rows:outMain,desa:out.length-(blank?1:0)}];
+}
+
+function desaHTML(){
+  const groups=computeDesa(),max=Math.max(...groups.flatMap(g=>g.rows.map(o=>o.n)),1);
+  const seg=(k,v)=>v?`<span style="width:${v/max*100}%;background:${JK_COLORS[k]}"></span>`:'';
+  const val=o=>`<div class="ds-val"><b>${fmtInt(o.n)}</b> &middot; ${fmtInt(o.L)} L &middot; ${fmtInt(o.P)} P</div>`;
+  return`<div class="card chart-card">
+    <div class="ds-head">
+      <div class="chart-title">Sebaran per Desa</div>
+      <div class="ds-leg"><span><i style="background:${JK_COLORS.L}"></i>Laki-laki</span><span><i style="background:${JK_COLORS.P}"></i>Perempuan</span></div>
+    </div>
+    ${groups.filter(g=>g.n).map((g,i)=>{
+      const hd=`<span class="ds-grp-lbl">${i?'<span class="ds-caret">▸</span>':''}${esc(g.name)}<small>${fmtInt(g.desa)} ${i?'desa/lokasi':'desa'}</small></span>${val(g)}`;
+      const rows=g.rows.map(o=>`<div class="ds-row">
+        <div class="ds-lbl" title="${esc(o.name)}">${esc(o.name)}</div>
+        <div class="ds-track">${seg('L',o.L)}${seg('P',o.P)}</div>
+        ${val(o)}
+      </div>`).join('');
+      return i?`<details class="ds-grp"><summary class="ds-grp-hd">${hd}</summary>${rows}</details>`
+        :`<div class="ds-grp"><div class="ds-grp-hd">${hd}</div>${rows}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderPage(){
+  const s=computeStats();
+  document.getElementById('pageBody').innerHTML=`
+    <div class="sec-title">Summary</div>
+    <div class="grid-row">
+      <div class="card">
+        <div class="card-lbl">Masyarakat Terdampak Proyek</div>
+        <div class="card-val-lg">${fmtInt(s.total)}</div>
+        <div class="card-sub-pct">${fmtInt(s.L)} laki-laki</div>
+        <div class="card-sub-pct" style="margin-top:2px">${fmtInt(s.P)} perempuan</div>
+      </div>
+    </div>
+    ${desaHTML()}`;
+}
+
+(async function boot(){
+  try{
+    document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const res=await fetch(CSV_URL);
+    if(!res.ok)throw Error(res.status+' '+CSV_URL);
+    parseSheet(await res.text());
+    renderPage();
+  }catch(err){
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

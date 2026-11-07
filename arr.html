@@ -113,7 +113,7 @@ body{display:flex;flex-direction:column}
 .lg-item i,.sw{display:inline-block;width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .lg-item i.ln{height:2px;width:14px;border-radius:1px}
 .im-card{margin-bottom:16px}
-.im-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:4px 0 14px;margin-bottom:14px;border-bottom:1px solid var(--border-lt)}
+.im-sum{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;padding:4px 0 14px;margin-bottom:14px;border-bottom:1px solid var(--border-lt)}
 .im-sum>div+div{border-left:1px solid var(--border-lt);padding-left:16px}
 .im-sum-lbl{font-size:11px;font-weight:600;color:var(--text-2)}
 .im-sum-val{font-size:22px;font-weight:800;color:var(--primary);line-height:1.15;margin-top:4px;white-space:nowrap}
@@ -128,7 +128,7 @@ body{display:flex;flex-direction:column}
 .tt-sep{border-top:1px solid var(--border-lt);margin:6px 0}
 .tt-row small{font-size:10px;color:var(--text-3)}
 .im-flow-wrap{overflow-x:auto;margin:6px 0 16px}
-.im-flow{width:100%;min-width:760px;table-layout:fixed;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums}
+.im-flow{width:100%;min-width:900px;table-layout:fixed;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums}
 .im-flow th{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-3);text-align:right;padding:4px 10px;border-bottom:1px solid var(--border)}
 .im-flow td{text-align:right;padding:6px 10px;color:var(--text);border-bottom:1px solid var(--border-lt);white-space:nowrap}
 .im-flow th:first-child,.im-flow td:first-child{text-align:left;padding-left:0;color:var(--text-2)}
@@ -137,13 +137,19 @@ body{display:flex;flex-direction:column}
 .im-flow .im-end td{color:var(--primary);border-bottom:1px solid var(--border)}
 .im-flow .im-subhead td{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-3);padding-top:14px}
 .im-flow .im-total td{font-weight:700;color:var(--text);border-bottom:0}
-.im-flow .im-c1{width:28%}
+.im-flow .im-c1{width:22%}
 .im-flow td .im-desc{display:none;font-size:10px;font-weight:500;color:var(--text-3);white-space:normal;line-height:1.4;margin-top:2px;max-width:320px}
 .im-flow tr.im-click{cursor:pointer}
 .im-flow tr.im-click:hover td{background:var(--primary-bg)}
 .im-flow tr.open .im-desc{display:block}
 .im-flow tr.open .pb-caret{transform:rotate(180deg)}
 .pb-detail div span.im-n:last-child{font-weight:500;color:var(--text-2)}
+.pb-detail .im-det-sub{padding-left:12px}
+.pb-detail .im-det-sub span:last-child{font-weight:600;color:var(--text-2)}
+.im-flow tr.im-det{display:none}
+.im-flow tr.im-det.show{display:table-row}
+.im-flow tr.im-det td{font-size:11px;color:var(--text-2);padding-top:4px;padding-bottom:4px}
+.im-flow tr.im-det td:first-child{padding-left:14px;color:var(--text-3)}
 .im-sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:2px;vertical-align:-1px}.im-sw:last-of-type{margin-right:6px}
 @media (max-width:760px){.im-sum,.im-grid{grid-template-columns:1fr}.im-sum>div+div{border-left:0;padding-left:0}}
 
@@ -208,6 +214,9 @@ body{display:flex;flex-direction:column}
 .lc{position:relative;flex:1;min-height:230px}
 .lc svg{display:block;width:100%;height:100%}
 .lc .tt-box{top:8px}
+.dv-card{margin-bottom:16px}
+.lc.dv{min-height:280px}
+.tt-sep{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border-lt)}
 
 .sl{display:flex;flex-direction:column;gap:1px;max-height:372px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
 .sl-row{display:grid;grid-template-columns:130px 1fr 60px 46px;gap:10px;align-items:center;padding:4px 4px;border-radius:6px}
@@ -354,7 +363,7 @@ function parseSheet(csv){
     rows.push({id,kth,petani,jk,prog,
       desa:str(raw['Desa']||''),dusun:str(colV(raw,keys,['dusun'],44)),
       tglPartisipasi:parseDate(tglPartisipasi),tglRealisasi:tglTanam,
-      luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,plantEvents,
+      luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,plantEvents,careEvents:[],tglRestore:tglTanam,
       luasAgro,luasTemb,luas:luasAgro+luasTemb,
       nominalStages,stages,
       pupukPadat:num(colV(raw,keys,['PupukPadat','Pupuk_Padat'],39)),
@@ -475,7 +484,7 @@ function compute(){
       }
     }
     const agro=r.prog.startsWith('Agro'),tan=plantsIn(r,inPeriod);
-    if(inPeriod(r.tglRealisasi)){
+    if(inPeriod(r.tglRestore)){
       if(agro){dA+=r.luasAgro;lahanA++;tanA+=tan;}
       else{dT+=r.luasTemb;lahanT++;tanT+=tan;}
       if(r.petani&&r.jk)(agro?petaniA:petaniT).add(r.petani.toLowerCase());
@@ -731,10 +740,11 @@ function cumulativeSeries(){
 }
 const STATUS_GROUPS=[
   {key:'agro',label:'Agroforestri',color:'var(--c-agro)',lt:'var(--c-agro-lt)',verb:'ditanam',subs:['Agro_Reg','Agro_BPO']},
-  {key:'temb',label:'Reforestasi',color:'var(--c-temb)',lt:'var(--c-temb-lt)',verb:'diintervensi',subs:['Temb_Reg','Temb_MTL']}
+  {key:'temb',label:'Reforestasi',color:'var(--c-temb)',lt:'var(--c-temb-lt)',verb:'restored',subs:['Temb_Reg','Temb_MTL']}
 ];
 const statusOpen=new Set();
 function toggleStatus(el){const k=el.dataset.key;if(statusOpen.has(k))statusOpen.delete(k);else statusOpen.add(k);el.classList.toggle('open');}
+function toggleImRow(tr){tr.classList.toggle('open');let n=tr.nextElementSibling;while(n&&n.classList.contains('im-det')){n.classList.toggle('show');n=n.nextElementSibling;}}
 function periodEnd(){
   const now=new Date();
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri:now;}
@@ -749,27 +759,46 @@ function parseLog(csv){
   rows.forEach(r=>{
     const k=r.id.toUpperCase();
     r.pupukDates=log.pupuk[k]||[];
-    if(!log.hasTanam)return;
-    r.plantEvents=log.tanam[k]||[];
-    r.tglRealisasi=r.plantEvents.length?r.plantEvents[0].d:null;
+    r.careEvents=r.prog.startsWith('Temb')?(log.rawat[k]||[]):[];
+    if(log.hasTanam){
+      r.plantEvents=log.tanam[k]||[];
+      r.tglRealisasi=r.plantEvents.length?r.plantEvents[0].d:null;
+    }
+    const c=r.careEvents.length?r.careEvents[0].d:null,t=r.tglRealisasi;
+    r.tglRestore=c&&(!t||c<t)?c:t;
   });
 }
+const careTypes=(r,f)=>[...new Set(r.careEvents.filter(e=>f(e.d)).map(e=>e.type))];
+const PUPUK_LBL='Pemupukan';
+function lainDetail(list,end){
+  const m={};
+  const add=(k,l)=>{const o=m[k]||(m[k]={l:0,n:0});o.l+=l;o.n++;};
+  list.forEach(r=>{
+    const l=r.luasTemb;
+    careTypes(r,d=>d<=end).forEach(t=>add(t,l));
+    if((r.pupukDates||[]).some(d=>d<=end))add(PUPUK_LBL,l);
+  });
+  return Object.entries(m).sort((a,b)=>(a[0]===PUPUK_LBL)-(b[0]===PUPUK_LBL)||b[1].l-a[1].l);
+}
 function statusStats(list,end){
-  const o={reg:0,done:0,both:0,pupukOnly:0,lahanPupukOnly:0,lahanBoth:0,lahanPupuk:0,aplikasi:0,lahan:list.length,lahanDone:0,tanaman:0,petani:new Set()};
+  const o={reg:0,done:0,both:0,pupukOnly:0,lahanPupukOnly:0,lahanBoth:0,lahanPupuk:0,aplikasi:0,lahan:list.length,lahanDone:0,lain:0,lahanLain:0,tanaman:0,petani:new Set()};
+  const lainList=[];
   list.forEach(r=>{
     const luas=r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
     o.reg+=luas;
     const done=r.tglRealisasi&&r.tglRealisasi<=end,n=(r.pupukDates||[]).filter(d=>d<=end).length,pupuk=n>0;
     if(pupuk){o.lahanPupuk++;o.aplikasi+=n;}
     if(done){o.done+=luas;o.lahanDone++;o.tanaman+=plantsIn(r,d=>d<=end);if(pupuk){o.both+=luas;o.lahanBoth++;}}
+    else if(r.careEvents.some(e=>e.d<=end)){o.lain+=luas;o.lahanLain++;lainList.push(r);}
     else if(pupuk){o.pupukOnly+=luas;o.lahanPupukOnly++;}
     if(r.petani&&r.jk)o.petani.add(r.petani.toLowerCase());
   });
   o.petani=o.petani.size;
-  o.only=o.done-o.both;o.belum=o.reg-o.done-o.pupukOnly;o.lahanBelum=o.lahan-o.lahanDone-o.lahanPupukOnly;
+  o.lainDetail=lainDetail(lainList,end);
+  o.only=o.done-o.both;o.belum=o.reg-o.done-o.lain-o.pupukOnly;o.lahanBelum=o.lahan-o.lahanDone-o.lahanLain-o.lahanPupukOnly;
   return o;
 }
-const isTambahan=r=>!inPeriod(r.tglPartisipasi)&&r.tglRealisasi&&!inPeriod(r.tglRealisasi)&&r.plantEvents.some(e=>inPeriod(e.d));
+const isTambahan=r=>!inPeriod(r.tglPartisipasi)&&r.tglRestore&&!inPeriod(r.tglRestore)&&(r.plantEvents.some(e=>inPeriod(e.d))||r.careEvents.some(e=>inPeriod(e.d)));
 function tambahanStats(list){
   return list.reduce((o,r)=>{o.luas+=r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;o.lahan++;o.tanaman+=plantsIn(r,inPeriod);return o;},{luas:0,lahan:0,tanaman:0});
 }
@@ -777,6 +806,7 @@ const hatch=c=>`repeating-linear-gradient(135deg,${c} 0 2px,transparent 2px 5px)
 const STATUS_STATES=[
   {key:'both',lbl:'Ditanam & dipupuk',bg:g=>g.color},
   {key:'only',lbl:'Hanya penanaman',bg:g=>g.lt},
+  {key:'lain',lbl:'Intervensi lainnya',bg:g=>`radial-gradient(circle,${g.color} 1px,${g.lt} 1.4px) 0 0/4px 4px`,only:'temb'},
   {key:'pupukOnly',lbl:'Hanya pemupukan',bg:g=>hatch(g.lt)},
   {key:'belum',lbl:'Belum diintervensi',bg:()=>'var(--border-lt)'}
 ];
@@ -788,7 +818,7 @@ function periodStart(){
   if(currentYear==='all')return null;
   return new Date(+currentYear,currentQuarter==='all'?0:(+currentQuarter-1)*3,1);
 }
-const STOCK_KINDS={reg:()=>true,done:(r,b)=>!!r.tglRealisasi&&b(r.tglRealisasi),pupuk:(r,b)=>(r.pupukDates||[]).some(b)};
+const STOCK_KINDS={reg:()=>true,done:(r,b)=>!!r.tglRealisasi&&b(r.tglRealisasi),lain:(r,b)=>r.careEvents.some(e=>b(e.d)),pupuk:(r,b)=>(r.pupukDates||[]).some(b)};
 function stockAt(list,before){
   const o={};
   Object.keys(STOCK_KINDS).forEach(k=>{o[k]=0;o[k+'N']=0;});
@@ -805,45 +835,57 @@ function statusCardHTML(){
   const awal=start?stockAt(base,d=>d<start):null,akhir=stockAt(base,d=>d<=end);
   const inStock=(r,k,b)=>b(r.tglPartisipasi)&&STOCK_KINDS[k](r,b);
   const flow=k=>stockAt(base.filter(r=>!(start&&inStock(r,k,d=>d<start))),d=>d<=end);
-  const fReg=flow('reg'),fTanam=flow('done'),fPupuk=flow('pupuk');
-  const add=tambahanStats(rows.filter(isTambahan));
+  const fReg=flow('reg'),fTanam=flow('done'),fPupuk=flow('pupuk'),fLain=flow('lain');
+  const luasOf=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
+  const fLainDet=lainDetail(base.filter(r=>!(start&&inStock(r,'lain',d=>d<start))&&inStock(r,'lain',d=>d<=end)),end);
+  const add=tambahanStats(rows.filter(r=>!inPeriod(r.tglPartisipasi)&&r.tglRealisasi&&!inPeriod(r.tglRealisasi)&&r.plantEvents.some(e=>inPeriod(e.d))));
   const act=base.reduce((o,r)=>{
     if(r.tglPartisipasi>end)return o;
-    const lu=r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb,tan=plantsIn(r,d=>inPeriod(d)&&d<=end);if(tan>0){o.tan+=tan;o.tanN++;o.tanL+=lu;}
+    const lu=luasOf(r),tan=plantsIn(r,d=>inPeriod(d)&&d<=end);if(tan>0){o.tan+=tan;o.tanN++;o.tanL+=lu;}
     const pd=(r.pupukDates||[]).filter(d=>d<=end),inP=pd.filter(inPeriod);
     if(inP.length){o.apl+=inP.length;o.aplN++;o.aplL+=lu;const rep=inP.length-(inPeriod(pd[0])?1:0);if(rep>0){o.ulang+=rep;o.ulangN++;o.ulangL+=lu;}}
+    const ce=r.careEvents.filter(e=>e.d<=end&&inPeriod(e.d));
+    if(ce.length){
+      o.rw+=ce.length;o.rwN++;o.rwL+=lu;
+      const rep=ce.length-(inPeriod(r.careEvents[0].d)?1:0);
+      if(rep>0){o.rwU+=rep;o.rwUN++;o.rwUL+=lu;}
+    }
     return o;
-  },{tan:0,tanN:0,tanL:0,apl:0,aplN:0,aplL:0,ulang:0,ulangN:0,ulangL:0});
+  },{tan:0,tanN:0,tanL:0,apl:0,aplN:0,aplL:0,ulang:0,ulangN:0,ulangL:0,rw:0,rwN:0,rwL:0,rwU:0,rwUN:0,rwUL:0});
   const cnt=(v,unit,l,n)=>`${fmtInt(v)} ${unit} &middot; ${fmt(l)} ha <span class="im-n">(${fmtInt(n)} petak)</span>`;
   const cohort=base.filter(r=>r.tglPartisipasi<=end),all=statusStats(cohort,end);
   const pc=(a,b)=>b>0?fmtPct(a/b*100):'0,0';
-  const cap=s=>s[0].toUpperCase()+s.slice(1);
   const ha=(v,n,plus)=>`${plus?'+':''}${fmt(v)} ha <span class="im-n">(${fmtInt(n)} petak)</span>`;
   const dayBefore=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate()-1);
-  const flowHtml=`<div class="im-flow-wrap"><table class="im-flow"><colgroup><col class="im-c1"><col><col><col></colgroup>
-    <thead><tr><th></th><th>Terdaftar</th><th>Ditanam / diintervensi</th><th>Dipupuk</th></tr></thead>
+  const flowHtml=`<div class="im-flow-wrap"><table class="im-flow"><colgroup><col class="im-c1"><col><col><col><col></colgroup>
+    <thead><tr><th></th><th>Terdaftar</th><th>Ditanam</th><th>Dipupuk</th><th>Intervensi lainnya</th></tr></thead>
     <tbody>
-      ${awal?`<tr class="im-pos"><td>Per ${fmtD(dayBefore(start),'l')}</td><td>${ha(awal.reg,awal.regN)}</td><td>${ha(awal.done,awal.doneN)}</td><td>${ha(awal.pupuk,awal.pupukN)}</td></tr>`:''}
-      <tr><td>Pendaftaran baru</td><td>${ha(fReg.reg,fReg.regN,true)}</td><td></td><td></td></tr>
-      <tr><td>Penanaman / intervensi</td><td></td><td>${ha(fTanam.done,fTanam.doneN,true)}</td><td></td></tr>
-      <tr><td>Pemupukan</td><td></td><td></td><td>${ha(fPupuk.pupuk,fPupuk.pupukN,true)}</td></tr>
-      <tr class="im-pos im-end"><td>Per ${fmtD(end,'l')}</td><td>${ha(akhir.reg,akhir.regN)}</td><td>${ha(akhir.done,akhir.doneN)}</td><td>${ha(akhir.pupuk,akhir.pupukN)}</td></tr>
-      <tr class="im-subhead"><td colspan="4">Aktivitas lanjutan</td></tr>
-      <tr class="im-click" onclick="this.classList.toggle('open')"><td>Penambahan tanaman<span class="pb-caret">▾</span><div class="im-desc">Tanam lagi di lahan yang sudah ditanam; luas tidak dihitung sebagai capaian.</div></td><td></td><td>${cnt(add.tanaman,'tanaman',add.luas,add.lahan)}</td><td></td></tr>
-      <tr class="im-click" onclick="this.classList.toggle('open')"><td>Penambahan pemupukan<span class="pb-caret">▾</span><div class="im-desc">Pupuk lagi di lahan yang sudah dipupuk; luas tidak dihitung sebagai capaian.</div></td><td></td><td></td><td>${cnt(act.ulang,'kali',act.ulangL,act.ulangN)}</td></tr>
-      <tr class="im-total"><td>Total aktivitas periode</td><td></td><td>${cnt(act.tan,'tanaman',act.tanL,act.tanN)}</td><td>${cnt(act.apl,'kali',act.aplL,act.aplN)}</td></tr>
+      ${awal?`<tr class="im-pos"><td>Per ${fmtD(dayBefore(start),'l')}</td><td>${ha(awal.reg,awal.regN)}</td><td>${ha(awal.done,awal.doneN)}</td><td>${ha(awal.pupuk,awal.pupukN)}</td><td>${ha(awal.lain,awal.lainN)}</td></tr>`:''}
+      <tr><td>Pendaftaran baru</td><td>${ha(fReg.reg,fReg.regN,true)}</td><td></td><td></td><td></td></tr>
+      <tr><td>Penanaman</td><td></td><td>${ha(fTanam.done,fTanam.doneN,true)}</td><td></td><td></td></tr>
+      <tr><td>Pemupukan</td><td></td><td></td><td>${ha(fPupuk.pupuk,fPupuk.pupukN,true)}</td><td></td></tr>
+      <tr class="im-click" onclick="toggleImRow(this)"><td>Intervensi lainnya<span class="pb-caret">▾</span><div class="im-desc">Khusus reforestasi: pemeliharaan restorasi di lahan program. Rincian per jenis; satu petak bisa tercatat di lebih dari satu jenis.</div></td><td></td><td></td><td></td><td>${ha(fLain.lain,fLain.lainN,true)}</td></tr>
+      ${fLainDet.map(([t,o])=>`<tr class="im-det"><td>${esc(t)}</td><td></td><td></td><td></td><td>${ha(o.l,o.n)}</td></tr>`).join('')}
+      <tr class="im-pos im-end"><td>Per ${fmtD(end,'l')}</td><td>${ha(akhir.reg,akhir.regN)}</td><td>${ha(akhir.done,akhir.doneN)}</td><td>${ha(akhir.pupuk,akhir.pupukN)}</td><td>${ha(akhir.lain,akhir.lainN)}</td></tr>
+      <tr class="im-subhead"><td colspan="5">Aktivitas lanjutan</td></tr>
+      <tr class="im-click" onclick="this.classList.toggle('open')"><td>Penambahan tanaman<span class="pb-caret">▾</span><div class="im-desc">Tanam lagi di lahan yang sudah ditanam; luas tidak dihitung sebagai capaian.</div></td><td></td><td>${cnt(add.tanaman,'tanaman',add.luas,add.lahan)}</td><td></td><td></td></tr>
+      <tr class="im-click" onclick="this.classList.toggle('open')"><td>Penambahan pemupukan<span class="pb-caret">▾</span><div class="im-desc">Pupuk lagi di lahan yang sudah dipupuk; luas tidak dihitung sebagai capaian.</div></td><td></td><td></td><td>${cnt(act.ulang,'kali',act.ulangL,act.ulangN)}</td><td></td></tr>
+      <tr class="im-click" onclick="this.classList.toggle('open')"><td>Penambahan intervensi lainnya<span class="pb-caret">▾</span><div class="im-desc">Pemeliharaan restorasi lagi di lahan yang sudah pernah dipelihara; luas tidak dihitung sebagai capaian.</div></td><td></td><td></td><td></td><td>${cnt(act.rwU,'kali',act.rwUL,act.rwUN)}</td></tr>
+      <tr class="im-total"><td>Total aktivitas periode</td><td></td><td>${cnt(act.tan,'tanaman',act.tanL,act.tanN)}</td><td>${cnt(act.apl,'kali',act.aplL,act.aplN)}</td><td>${cnt(act.rw,'kali',act.rwL,act.rwN)}</td></tr>
     </tbody></table></div>`;
-  const bar=(o,g)=>{let x=0;return STATUS_STATES.slice(0,3).map(s=>{const w=o.reg>0?o[s.key]/o.reg*100:0,h=w>0?`<div class="pb-fill" style="left:${x}%;width:${w}%;background:${s.bg(g)}"></div>`:'';x+=w;return h;}).join('');};
+  const bar=(o,g)=>{let x=0;return STATUS_STATES.filter(s=>s.key!=='belum').map(s=>{const w=o.reg>0?o[s.key]/o.reg*100:0,h=w>0?`<div class="pb-fill" style="left:${x}%;width:${w}%;background:${s.bg(g)}"></div>`:'';x+=w;return h;}).join('');};
   const row=(key,lbl,o,g,sub)=>`<div class="pb-part${sub?' im-subrow':' im-group'}${statusOpen.has(key)?' open':''}" data-key="${key}" onclick="toggleStatus(this)">
-    <div class="pb-head"><span class="ss-lbl">${lbl}<span class="pb-caret">▾</span></span><span class="pb-vals"><b>${fmt(o.done)}</b> / ${fmt(o.reg)} ha</span></div>
+    <div class="pb-head"><span class="ss-lbl">${lbl}<span class="pb-caret">▾</span></span><span class="pb-vals"><b>${fmt(o.done+o.lain)}</b> / ${fmt(o.reg)} ha</span></div>
     <div class="pb-track im-track">${bar(o,g)}</div>
-    <div class="pb-sub">${pc(o.done,o.reg)}% ${g.verb}${o.pupukOnly>0?` &middot; ${pc(o.pupukOnly,o.reg)}% hanya pemupukan`:''}</div>
+    <div class="pb-sub">${pc(o.done+o.lain,o.reg)}% ${g.verb}${o.lain>0?` &middot; ${pc(o.lain,o.reg)}% intervensi lainnya`:''}${o.pupukOnly>0?` &middot; ${pc(o.pupukOnly,o.reg)}% hanya pemupukan`:''}</div>
     <div class="pb-detail">
       <div><span>Petani terdaftar</span><span>${fmtInt(o.petani)}</span></div>
-      <div><span>Petak ${g.verb} / terdaftar</span><span>${fmtInt(o.lahanDone)} / ${fmtInt(o.lahan)}</span></div>
+      <div><span>Petak ${g.verb} / terdaftar</span><span>${fmtInt(o.lahanDone+o.lahanLain)} / ${fmtInt(o.lahan)}</span></div>
       ${g.key==='agro'?`<div><span>Tanaman program</span><span>${fmtInt(o.tanaman)}</span></div>`:''}
-      <div><span>${cap(g.verb)} &amp; dipupuk</span><span>${fmt(o.both)} ha <span class="im-n">(${fmtInt(o.lahanBoth)} petak)</span></span></div>
-      <div><span>Hanya ${g.key==='agro'?'penanaman':'intervensi'}</span><span>${fmt(o.only)} ha <span class="im-n">(${fmtInt(o.lahanDone-o.lahanBoth)} petak)</span></span></div>
+      <div><span>Ditanam &amp; dipupuk</span><span>${fmt(o.both)} ha <span class="im-n">(${fmtInt(o.lahanBoth)} petak)</span></span></div>
+      <div><span>Hanya penanaman</span><span>${fmt(o.only)} ha <span class="im-n">(${fmtInt(o.lahanDone-o.lahanBoth)} petak)</span></span></div>
+      ${g.key==='temb'?`<div><span>Intervensi lainnya</span><span>${fmt(o.lain)} ha <span class="im-n">(${fmtInt(o.lahanLain)} petak)</span></span></div>
+      ${o.lainDetail.map(([t,d])=>`<div class="im-det-sub"><span>${esc(t)}</span><span>${fmt(d.l)} ha <span class="im-n">(${fmtInt(d.n)} petak)</span></span></div>`).join('')}`:''}
       <div><span>Hanya pemupukan</span><span>${fmt(o.pupukOnly)} ha <span class="im-n">(${fmtInt(o.lahanPupukOnly)} petak)</span></span></div>
       <div><span>Belum diintervensi</span><span>${fmt(o.belum)} ha <span class="im-n">(${fmtInt(o.lahanBelum)} petak)</span></span></div>
       ${o.lahanPupuk>0?`<div><span>Aplikasi pupuk</span><span>${fmtInt(o.aplikasi)} kali di ${fmtInt(o.lahanPupuk)} petak</span></div>`:''}
@@ -854,8 +896,8 @@ function statusCardHTML(){
     return`<div class="im-block">${row(g.key,g.label,statusStats(list,end),g,false)}
       ${g.subs.map(p=>{const l=list.filter(r=>r.prog===p);return l.length?row(p,PROG_LABEL[p],statusStats(l,end),g,true):'';}).join('')}</div>`;
   }).join('');
-  const sw=s=>STATUS_GROUPS.map(g=>`<i class="im-sw" style="background:${s.bg(g)}"></i>`).join('');
-  const lahanOf={both:all.lahanBoth,only:all.lahanDone-all.lahanBoth,pupukOnly:all.lahanPupukOnly,belum:all.lahanBelum};
+  const sw=s=>STATUS_GROUPS.filter(g=>!s.only||s.only===g.key).map(g=>`<i class="im-sw" style="background:${s.bg(g)}"></i>`).join('');
+  const lahanOf={both:all.lahanBoth,only:all.lahanDone-all.lahanBoth,lain:all.lahanLain,pupukOnly:all.lahanPupukOnly,belum:all.lahanBelum};
   return`
     <div class="card chart-card im-card">
       <div class="chart-title">Status Implementasi Lahan</div>
@@ -941,7 +983,108 @@ function drawLine(){
   hit.addEventListener('mouseleave',hide);
 }
 let lcResize;
-window.addEventListener('resize',()=>{clearTimeout(lcResize);lcResize=setTimeout(drawLine,120);});
+window.addEventListener('resize',()=>{clearTimeout(lcResize);lcResize=setTimeout(()=>{drawLine();drawDev();},120);});
+
+let dvData=null;
+const DEV_LAYERS=[
+  {key:'only',lbl:'Hanya penanaman',fill:'#8C9F8B',sw:'#8C9F8B'},
+  {key:'both',lbl:'Ditanam & dipupuk',fill:'#356760',sw:'#356760'},
+  {key:'pupukOnly',lbl:'Hanya pemupukan',fill:'url(#dvHatch)',sw:'repeating-linear-gradient(135deg,#618273 0 2px,#DCE3D6 2px 5px)'},
+  {key:'lain',lbl:'Intervensi lainnya',fill:'var(--c-temb-lt)',sw:'var(--c-temb-lt)'}
+];
+function devSeries(){
+  const base=rows.filter(r=>r.tglPartisipasi);
+  if(!base.length)return[];
+  const now=new Date(),first=new Date(Math.min(...base.map(r=>r.tglPartisipasi))),out=[];
+  for(let d=new Date(first.getFullYear(),first.getMonth(),1);d<=now;d=new Date(d.getFullYear(),d.getMonth()+1,1)){
+    const mEnd=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59),E=mEnd<now?mEnd:now;
+    const cohort=base.filter(r=>r.tglPartisipasi<=E),s=statusStats(cohort,E),typ={};
+    const put=(k,l)=>{typ[k]=(typ[k]||0)+l;};
+    cohort.forEach(r=>{
+      const l=r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
+      if(r.tglRealisasi&&r.tglRealisasi<=E)put('Penanaman',l);
+      if((r.pupukDates||[]).some(x=>x<=E))put(PUPUK_LBL,l);
+      careTypes(r,x=>x<=E).forEach(t=>put(t,l));
+    });
+    out.push({label:d.toLocaleDateString('id-ID',{month:'short',year:'2-digit'}),full:`${MN[d.getMonth()]} ${d.getFullYear()}`,
+      reg:s.reg,both:s.both,only:s.only,lain:s.lain,pupukOnly:s.pupukOnly,typ});
+  }
+  return out;
+}
+function devCardHTML(){
+  dvData=devSeries();
+  return`
+    <div class="card chart-card dv-card">
+      <div class="chart-title">Perkembangan Lahan Program</div>
+      <div class="chart-sub">Luas kumulatif per bulan sejak awal program</div>
+      <div class="lg">
+        <span class="lg-item"><i class="ln" style="background:var(--text-3)"></i>Terdaftar</span>
+        <span class="lg-item"><i class="ln" style="background:var(--text)"></i>Sudah diintervensi</span>
+        ${DEV_LAYERS.map(L=>`<span class="lg-item"><i style="background:${L.sw}"></i>${L.lbl}</span>`).join('')}
+      </div>
+      ${dvData.length?'<div class="lc dv" id="devChart"></div>':'<div class="empty">Belum ada data.</div>'}
+    </div>`;
+}
+function drawDev(){
+  const el=document.getElementById('devChart');
+  if(!el||!dvData||!dvData.length)return;
+  const W=el.clientWidth,H=el.clientHeight||280;
+  const pl=52,pr=16,pt=12,pb=24,iw=W-pl-pr,ih=H-pt-pb;
+  const sc=niceScale(Math.max(1,...dvData.map(d=>d.reg)));
+  const n=dvData.length,step=n>1?iw/(n-1):0;
+  const x=i=>pl+(n>1?i*step:iw/2),y=v=>pt+ih-(v/sc.max)*ih;
+  const line=vals=>vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  const cum=dvData.map(()=>0);
+  const layers=DEV_LAYERS.map(L=>{
+    const lo=cum.slice();
+    dvData.forEach((d,i)=>{cum[i]+=d[L.key];});
+    const back=lo.map((v,i)=>`L${x(i).toFixed(1)},${y(v).toFixed(1)}`).reverse().join('');
+    return`<path d="${line(cum)}${back}Z" fill="${L.fill}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>`;
+  }).join('');
+  const reg=dvData.map(d=>d.reg);
+  const every=Math.ceil(n/(W<480?6:12));
+  el.innerHTML=`
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik kumulatif luas terdaftar dan luas yang sudah diintervensi per status">
+      <defs><pattern id="dvHatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><rect width="5" height="5" fill="#DCE3D6"/><line x1="0" y1="0" x2="0" y2="5" stroke="#618273" stroke-width="2"/></pattern></defs>
+      ${sc.ticks.map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--border-lt)"/>
+        <text x="${pl-8}" y="${y(t)+3}" text-anchor="end" font-size="10" fill="var(--text-3)">${fmtHaShort(t)} ha</text>`).join('')}
+      ${dvData.map((d,i)=>i%every===0||i===n-1?`<text x="${x(i)}" y="${H-6}" text-anchor="${n>1&&i===n-1?'end':n>1&&i===0?'start':'middle'}" font-size="10.5" fill="var(--text-2)">${d.label}</text>`:'').join('')}
+      <path d="${line(reg)}L${x(n-1).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z" fill="var(--text-3)" opacity=".10"/>
+      ${layers}
+      <path d="${line(reg)}" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="${line(cum)}" fill="none" stroke="var(--text)" stroke-width="2" stroke-linejoin="round"/>
+      <line id="dvCross" y1="${pt}" y2="${pt+ih}" stroke="var(--text-2)" stroke-dasharray="3 3" visibility="hidden"/>
+      <circle id="dvDotR" r="4" fill="var(--text-3)" stroke="#fff" stroke-width="2" visibility="hidden"/>
+      <circle id="dvDotI" r="4" fill="var(--text)" stroke="#fff" stroke-width="2" visibility="hidden"/>
+      <rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent" id="dvHit"/>
+    </svg>
+    <div class="tt-box" id="dvTip"></div>`;
+  const hit=el.querySelector('#dvHit'),tip=el.querySelector('#dvTip'),cross=el.querySelector('#dvCross');
+  const dotR=el.querySelector('#dvDotR'),dotI=el.querySelector('#dvDotI'),marks=[cross,dotR,dotI];
+  const ORDER=['Penanaman',PUPUK_LBL];
+  const show=i=>{
+    const d=dvData[i],cx=x(i),tot=DEV_LAYERS.reduce((a,L)=>a+d[L.key],0);
+    const typ=Object.entries(d.typ).sort((a,b)=>{const ia=ORDER.indexOf(a[0]),ib=ORDER.indexOf(b[0]);return(ia<0?9:ia)-(ib<0?9:ib)||b[1]-a[1];});
+    marks.forEach(m=>m.setAttribute('visibility','visible'));
+    cross.setAttribute('x1',cx);cross.setAttribute('x2',cx);
+    dotR.setAttribute('cx',cx);dotR.setAttribute('cy',y(d.reg));
+    dotI.setAttribute('cx',cx);dotI.setAttribute('cy',y(tot));
+    tip.innerHTML=`<div class="tt-head"><strong>${d.full}</strong></div>
+      <div class="tt-row"><span><i class="sw" style="background:var(--text-3)"></i>Terdaftar</span><span>${fmt(d.reg)} ha</span></div>
+      <div class="tt-row"><span><i class="sw" style="background:var(--text)"></i>Sudah diintervensi</span><b>${fmt(tot)} ha (${d.reg>0?fmtPct(tot/d.reg*100):'0,0'}%)</b></div>
+      ${DEV_LAYERS.slice().reverse().map(L=>`<div class="tt-row"><span><i class="sw" style="background:${L.sw}"></i>${L.lbl}</span><span>${fmt(d[L.key])} ha</span></div>`).join('')}
+      ${typ.length?`<div class="tt-sep">Per jenis kegiatan</div>${typ.map(([t,v])=>`<div class="tt-row"><span>${esc(t)}</span><span>${fmt(v)} ha</span></div>`).join('')}`:''}`;
+    tip.style.display='block';
+    const left=cx+14+tip.offsetWidth>W?cx-14-tip.offsetWidth:cx+14;
+    tip.style.left=Math.max(0,left)+'px';
+  };
+  const hide=()=>{marks.forEach(m=>m.setAttribute('visibility','hidden'));tip.style.display='none';};
+  hit.addEventListener('mousemove',ev=>{
+    const bx=ev.clientX-el.getBoundingClientRect().left;
+    show(n>1?Math.max(0,Math.min(n-1,Math.round((bx-pl)/step))):0);
+  });
+  hit.addEventListener('mouseleave',hide);
+}
 
 function speciesCardHTML(s){
   const total=s.species.reduce((a,[,v])=>a+v,0);
@@ -1223,11 +1366,11 @@ function kthProgressCardHTML(){
   const end=periodEnd(),start=periodStart(),by={};
   const luasOf=r=>r.prog.startsWith('Agro')?r.luasAgro:r.luasTemb;
   const inP=d=>inPeriod(d)&&d<=end,before=d=>!inPeriod(d)&&d<=end;
-  const UL=[['ub','penanaman &amp; pemupukan'],['ut','penanaman'],['up','pemupukan']];
+  const UL=[['ub','penanaman/intervensi &amp; pemupukan'],['ut','penanaman/intervensi'],['up','pemupukan']];
   const get=k=>by[k]||(by[k]={kth:k,reg:0,regN:0,pet:new Set(),prev:0,prevN:0,now:0,nowN:0,ul:0,ulN:0,ub:0,ubN:0,ut:0,utN:0,up:0,upN:0});
   rows.forEach(r=>{
     if(!r.tglPartisipasi||r.tglPartisipasi>end)return;
-    const o=get(r.kth||NO_KTH),l=luasOf(r),pd=r.pupukDates||[],pe=r.plantEvents.map(e=>e.d);
+    const o=get(r.kth||NO_KTH),l=luasOf(r),pd=r.pupukDates||[],pe=[...r.plantEvents,...r.careEvents].map(e=>e.d);
     o.reg+=l;o.regN++;if(r.petani)o.pet.add(r.petani.toLowerCase());
     const tn=pe.some(inP),pp=pd.some(inP),tB=pe.some(before),pB=pd.some(before);
     if(tB||pB){o.prev+=l;o.prevN++;}else if(tn||pp){o.now+=l;o.nowN++;}
@@ -1396,12 +1539,14 @@ function weekPickerHtml(){
     <select class="filter-select" aria-label="Minggu" onchange="setWeekPick(this.value)">${weeks.map((w,i)=>`<option value="${i}"${i===sel?' selected':''}>${w.label} (${fmtD(w.sat,'s')}–${fmtD(w.fri,'s')})</option>`).join('')}</select>`;
 }
 
-const plantTip=(luas,petak,tan,addLuas,addPetak,addTan)=>{
+const plantTip=(luas,petak,tan,addLuas,addPetak,addTan,restore)=>{
   const v=(l,p,t)=>`${fmt(l)} ha / ${fmtInt(p)} petak${t===null?'':` / ${fmtInt(t)} tanaman`}`;
-  return`<div class="ss-tip"><div class="ss-tip-head"><strong>Rincian penanaman</strong> &middot; ${periodLabel()}</div>
-    <div class="ss-tip-row"><span>Penanaman baru</span><b>${v(luas,petak,tan)}</b></div>
-    <div class="ss-tip-row"><span>Penambahan tanaman</span><b>${v(addLuas,addPetak,addTan)}</b></div>
-    <div class="ss-tip-note">Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luas dan tanamannya tidak dihitung sebagai capaian.</div></div>`;
+  return`<div class="ss-tip"><div class="ss-tip-head"><strong>Rincian ${restore?'restorasi':'penanaman'}</strong> &middot; ${periodLabel()}</div>
+    <div class="ss-tip-row"><span>${restore?'Restorasi baru':'Penanaman baru'}</span><b>${v(luas,petak,tan)}</b></div>
+    <div class="ss-tip-row"><span>${restore?'Intervensi ulang':'Penambahan tanaman'}</span><b>${v(addLuas,addPetak,addTan)}</b></div>
+    <div class="ss-tip-note">${restore
+      ?`Intervensi ulang (penanaman atau pemeliharaan restorasi) dilakukan pada ${fmt(addLuas)} ha lahan yang sudah restored sebelumnya: luasnya tidak dihitung sebagai capaian.`
+      :`Penambahan tanaman dilakukan pada ${fmt(addLuas)} ha lahan yang sudah ditanam sebelumnya: luas dan tanamannya tidak dihitung sebagai capaian.`}</div></div>`;
 };
 function render(){
   const yq=periodMode==='yq';
@@ -1414,8 +1559,8 @@ function render(){
     +(s.pct===null?'':s.base.acc
       ?`, dengan akumulasi ${s.base.month} ${fmt(s.base.a+s.base.t)} ha atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`
       :`, atau ${fmtPct(s.pct)}% dari ${tgtTxt} sebesar ${fmt(s.target)} ha`)
-    +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah ditanami ${fmtInt(s.tanA)} pohon`
-    +(top3.length?`, dengan ${joinID(top3)} sebagai jenis yang paling banyak ditanam.`:'.');
+    +`. Lahan tersebut dikelola oleh ${fmtInt(s.petani)} petani. Sejauh ini ${fmt(s.ditanam)} ha sudah diintervensi, terdiri dari ${fmt(s.dA)} ha agroforestri yang ditanami ${fmtInt(s.tanA)} pohon dan ${fmt(s.dT)} ha lahan program reforestasi yang sudah dilakukan intervensi.`
+    +(top3.length?` Adapun tanaman ${joinID(top3)} merupakan jenis yang paling banyak ditanam.`:'');
   const page=document.getElementById('pageBody');
   page.innerHTML=`
     <div class="filter-row" style="margin-bottom:6px">
@@ -1447,7 +1592,7 @@ function render(){
         <div class="ss-div"></div>
         <div class="ss-parts">
           <div class="ss-part${s.addA?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(s.dA)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(s.petaniA)} petani &middot; ${fmtInt(s.lahanA)} petak</span><br>${fmtInt(s.tanA)} tanaman</span></div>${s.addA?plantTip(s.dA,s.lahanA,s.tanA,s.addLuasA,s.addA,s.addTanA):''}</div>
-          <div class="ss-part${s.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note ss-sub">${fmtInt(s.petaniT)} petani &middot; ${fmtInt(s.lahanT)} petak</span></div>${s.addT?plantTip(s.dT,s.lahanT,null,s.addLuasT,s.addT,null):''}</div>
+          <div class="ss-part${s.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note ss-sub">${fmtInt(s.petaniT)} petani &middot; ${fmtInt(s.lahanT)} petak</span></div>${s.addT?plantTip(s.dT,s.lahanT,null,s.addLuasT,s.addT,null,true):''}</div>
         </div>
       </div>
     </div>
@@ -1483,9 +1628,10 @@ function render(){
 
     <div class="row-head">
       <div class="row-title">Realisasi Penanaman</div>
-      <div class="row-desc">Menampilkan progres penanaman dibandingkan luas lahan terdaftar, serta jenis tanaman yang paling banyak ditanam. Lahan dihitung sudah ditanam bila telah memiliki tanggal realisasi.</div>
+      <div class="row-desc">Menampilkan progres penanaman dibandingkan luas lahan terdaftar. Lahan dihitung sudah ditanam bila tercatat penanaman di log monitoring.</div>
     </div>
     ${statusCardHTML()}
+    ${devCardHTML()}
     <div class="chart-pair even">
       ${plantingCardHTML()}
       ${speciesCardHTML(s)}
@@ -1513,6 +1659,7 @@ function render(){
     ['mouseenter','mousemove','focus'].forEach(ev=>row.addEventListener(ev,()=>placeKbTip(row)));
   });
   drawLine();
+  drawDev();
 }
 
 (async function boot(){
