@@ -867,7 +867,7 @@ function statusCardHTML(){
       <tr><td>Pendaftaran baru</td><td>${ha(fReg.reg,fReg.regN,true)}</td><td></td><td></td><td></td></tr>
       <tr><td>Penanaman</td><td></td><td>${ha(fTanam.done,fTanam.doneN,true)}</td><td></td><td></td></tr>
       <tr><td>Pemupukan</td><td></td><td></td><td>${ha(fPupuk.pupuk,fPupuk.pupukN,true)}</td><td></td></tr>
-      <tr class="im-click" onclick="toggleImRow(this)"><td>Intervensi lainnya<span class="pb-caret">▾</span><div class="im-desc">Khusus reforestasi: pemeliharaan restorasi di lahan program. Rincian per jenis; satu petak bisa tercatat di lebih dari satu jenis.</div></td><td></td><td></td><td></td><td>${ha(fLain.lain,fLain.lainN,true)}</td></tr>
+      <tr class="im-click" onclick="toggleImRow(this)"><td>Intervensi lainnya<span class="pb-caret">▾</span></td><td></td><td></td><td></td><td>${ha(fLain.lain,fLain.lainN,true)}</td></tr>
       ${fLainDet.map(([t,o])=>`<tr class="im-det"><td>${esc(t)}</td><td></td><td></td><td></td><td>${ha(o.l,o.n)}</td></tr>`).join('')}
       <tr class="im-pos im-end"><td>Per ${fmtD(end,'l')}</td><td>${ha(akhir.reg,akhir.regN)}</td><td>${ha(akhir.done,akhir.doneN)}</td><td>${ha(akhir.pupuk,akhir.pupukN)}</td><td>${ha(akhir.lain,akhir.lainN)}</td></tr>
       <tr class="im-subhead"><td colspan="5">Aktivitas lanjutan</td></tr>
