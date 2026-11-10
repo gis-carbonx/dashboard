@@ -43,8 +43,24 @@ body{display:flex;flex-direction:column}
 .dn-val{font-size:11px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
 .dn-pct{font-size:12px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
 .dn-legend{position:relative}
-.dn-legend .dn-tt{left:50%;transform:translateX(-50%);top:auto;bottom:calc(100% + 6px);min-width:250px}
-.dn-row:hover .dn-tt,.dn-row:focus .dn-tt,.dn-row.on .dn-tt{display:block}
+.donut-wrap{position:relative}
+.donut-wrap .dn-tt{right:calc(50% + 106px);top:50%;transform:translateY(-50%);min-width:250px}
+.donut-wrap .dn-tt.on{display:block}
+.donut-wrap .dn-tt::after{content:'';position:absolute;right:-6px;top:calc(50% - 5px);width:10px;height:10px;background:#fff;border-top:1px solid var(--border);border-right:1px solid var(--border);transform:rotate(45deg)}
+@media (max-width:980px){
+  .donut-wrap .dn-tt{right:auto;left:50%;top:calc(100% + 4px);transform:translateX(-50%)}
+  .donut-wrap .dn-tt::after{right:auto;left:calc(50% - 5px);top:-6px;transform:rotate(-45deg)}
+}
+.dn-row.tog{cursor:pointer}
+.dn-chev{display:inline-block;width:5px;height:5px;margin-left:6px;border-right:1.5px solid var(--text-3);border-bottom:1.5px solid var(--text-3);transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.dn-row.open .dn-chev{transform:translateY(1px) rotate(-135deg)}
+.dn-brief{display:none;margin:2px 6px 4px 24px;padding:6px 10px;border-left:2px solid var(--border-lt)}
+.dn-row.open+.dn-brief{display:block}
+.dn-brief div{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--text-2);padding:1px 0;font-variant-numeric:tabular-nums}
+.dn-brief b{color:var(--text)}
+.dn-yr{color:var(--text);font-weight:600}
+.dn-yr~.dn-yr{border-top:1px dashed var(--border-lt);margin-top:3px;padding-top:5px}
+.dn-sub{padding-left:10px;color:var(--text-3)}
 .dn-tt-total{border-top:1px solid var(--border-lt);margin-top:4px;padding-top:6px}
 .tt-box{display:none;position:absolute;z-index:5;top:calc(100% - 2px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
 .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
@@ -218,15 +234,15 @@ const PEMANFAATAN=new Set([CAT.tanam,CAT.sulam,CAT.support]);
 const isMati=cat=>cat.includes('mati');
 
 const SHOW_MATI_SEMAI=false;
-const TIPE_ORDER=['Semai','Proses','BST','Pemanfaatan','Mati'];
+const TIPE_ORDER=['Semai','Proses','BST','Distribusi','Mati'];
 const TIPE_DESC={
   Semai:'Masih di tahap semai',
   Proses:'Pembesaran',
   BST:'Stok bibit siap tanam',
-  Pemanfaatan:'Penanaman, penyulaman & support',
+  Distribusi:'Penanaman, penyulaman & support',
   Mati:SHOW_MATI_SEMAI?'Mati di semua tahap':'Mati di pembesaran & BST'
 };
-const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Pemanfaatan:'#356760',Mati:'#3A342C'};
+const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Distribusi:'#356760',Mati:'#3A342C'};
 
 const INTERVENSI=['Agroforestry','Tembawang','Enrichment','Kebun Entres','Kebun Inti','Other'];
 const IV_NONE='Tanpa Tipe Program';
@@ -250,10 +266,13 @@ function parseSheet(csv){
     const m=tanggal.match(/(\d{4})/);
     const d=tanggal.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if(!CAT_LABEL[normCat(category)])CAT_LABEL[normCat(category)]=category;
+    const id=str(pickCI(raw,keys,'Unique Seedling Code'));
+    const ts=str(pickCI(raw,keys,'Tahun Semai')).match(/^\d{4}$/);
     rows.push({
+      semaiYear:/^\d{4}-\d{2}\//.test(id)?id.slice(0,4):ts?ts[0]:'',
       year:m?m[1]:'',
       date:d?d[0]:'',
-      id:str(pickCI(raw,keys,'Unique Seedling Code')),
+      id,
       jenis:str(pickCI(raw,keys,'Jenis Tanaman')),
       intervensi:normIntervensi(pickCI(raw,keys,'Tipe Program','Tipe Intervensi')),
       category,
@@ -314,13 +333,25 @@ function flowTotals(year){
     tipe.Semai.total+=o.semai;
     tipe.Proses.total+=o.proses;
     tipe.BST.total+=o.stok;
-    tipe.Pemanfaatan.total+=o.dist;
+    tipe.Distribusi.total+=o.dist;
     tipe.Mati.total+=o.mati-(SHOW_MATI_SEMAI?0:o.c[CAT.matiSemai]||0);
     Object.entries(o.c).forEach(([k,v])=>{cat[k]=(cat[k]||0)+v;});
   });
   const g=k=>cat[k]||0;
-  tipe.Pemanfaatan.parts=[['Penanaman',g(CAT.tanam)],['Penyulaman',g(CAT.sulam)],['Support',g(CAT.support)]];
-  tipe.Mati.parts=Object.keys(cat).filter(k=>isMati(k)&&(SHOW_MATI_SEMAI||k!==CAT.matiSemai)).sort().map(k=>[CAT_LABEL[k]||k,cat[k]]);
+  tipe.Distribusi.parts=[['Penanaman',g(CAT.tanam)],['Penyulaman',g(CAT.sulam)],['Support',g(CAT.support)]];
+  const byYear={};
+  (year==='all'?rows:rows.filter(r=>r.year===year)).forEach(r=>{
+    if(!r.jenis||r.jenis==='#N/A'||!isMati(r.cat)||(!SHOW_MATI_SEMAI&&r.cat===CAT.matiSemai))return;
+    const y=r.semaiYear;
+    const o=byYear[y]||(byYear[y]={n:0,c:{}});
+    o.n+=r.jumlah;
+    o.c[r.cat]=(o.c[r.cat]||0)+r.jumlah;
+  });
+  tipe.Mati.parts=Object.keys(byYear).sort((a,b)=>(a===''?1:0)-(b===''?1:0)||a.localeCompare(b)).map(y=>[
+    y?`Semai ${y}`:'Tahun semai tidak tercatat',
+    byYear[y].n,
+    Object.keys(byYear[y].c).sort().map(k=>[CAT_LABEL[k]||k,byYear[y].c[k]])
+  ]);
   return tipe;
 }
 
@@ -339,21 +370,28 @@ function tipeDonutHTML(tipe,periode){
     acc+=len;
     return v>0?s:'';
   }).join('');
+  const tips=TIPE_ORDER.map(t=>{
+    const v=tipe[t].total;
+    const parts=tipe[t].parts;
+    return parts?`<div class="tt-box dn-tt" data-tt="${t}"><div class="tt-head"><strong>${t}</strong> &middot; ${fmtPct(total?v/total*100:0)} dari seluruh bibit</div>`
+      +(parts.length?parts.map(([lbl,n,sub])=>sub
+        ?`<div class="tt-row dn-yr"><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`+sub.map(([sl,sn])=>`<div class="tt-row dn-sub"><span>${esc(sl)}</span><span>${fmtInt(sn)}</span></div>`).join('')
+        :`<div class="tt-row"><span>${esc(lbl)}</span><span>${fmtInt(n)}</span></div>`).join('')
+        :'<div class="tt-row"><span>Tidak ada data</span></div>')
+      +`<div class="tt-row dn-tt-total"><span>Total ${t}</span><b>${fmtInt(v)} bibit</b></div></div>`:'';
+  }).join('');
   const legend=TIPE_ORDER.map(t=>{
     const v=tipe[t].total;
     const parts=tipe[t].parts;
-    const tip=parts?`<div class="tt-box dn-tt"><div class="tt-head"><strong>${t}</strong> &middot; ${fmtPct(total?v/total*100:0)} dari seluruh bibit</div>`
-      +(parts.length?parts.map(([lbl,n])=>`<div class="tt-row"><span>${esc(lbl)}</span><span>${fmtInt(n)}</span></div>`).join('')
-        :'<div class="tt-row"><span>Tidak ada data</span></div>')
-      +`<div class="tt-row dn-tt-total"><span>Total ${t}</span><b>${fmtInt(v)} bibit</b></div></div>`:'';
+    const brief=t==='Mati'&&parts&&parts.length
+      ?`<div class="dn-brief">${parts.map(([lbl,n])=>`<div><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`).join('')}</div>`:'';
     return`
-      <div class="dn-row" data-tipe="${t}" tabindex="0">
+      <div class="dn-row${brief?' tog':''}" data-tipe="${t}" tabindex="0"${brief?' aria-expanded="false"':''}>
         <i style="background:${TIPE_COLOR[t]}"></i>
-        <span class="dn-name">${t}<small>${TIPE_DESC[t]}</small></span>
+        <span class="dn-name">${t}${brief?'<span class="dn-chev"></span>':''}<small>${TIPE_DESC[t]}</small></span>
         <span class="dn-val">${fmtInt(v)}</span>
         <span class="dn-pct">${fmtPct(total?v/total*100:0)}</span>
-        ${tip}
-      </div>`;
+      </div>${brief}`;
   }).join('');
   return`
     <div class="card chart-card" id="donutCard">
@@ -365,6 +403,7 @@ function tipeDonutHTML(tipe,periode){
           <text class="donut-c1" x="95" y="95" text-anchor="middle" id="donutC1"></text>
           <text class="donut-c2" x="95" y="112" text-anchor="middle" id="donutC2"></text>
         </svg>
+        ${tips}
       </div>
       <div class="dn-legend">${legend}</div>
     </div>`;
@@ -379,13 +418,14 @@ function bindDonut(tipe){
   const on=t=>{
     svg.classList.add('hovering');
     card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.toggle('on',el.dataset.tipe===t));
+    card.querySelectorAll('[data-tt]').forEach(el=>el.classList.toggle('on',el.dataset.tt===t));
     const center=!tipe[t].parts;
     c1.textContent=center?fmtPct(total?tipe[t].total/total*100:0):'';
     c2.textContent=center?`${t} · ${fmtInt(tipe[t].total)} bibit`:'';
   };
   const off=()=>{
     svg.classList.remove('hovering');
-    card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.remove('on'));
+    card.querySelectorAll('[data-tipe],[data-tt]').forEach(el=>el.classList.remove('on'));
     c1.textContent=c2.textContent='';
   };
   card.querySelectorAll('[data-tipe]').forEach(el=>{
@@ -393,6 +433,11 @@ function bindDonut(tipe){
     el.addEventListener('focus',()=>on(el.dataset.tipe));
     el.addEventListener('mouseleave',off);
     el.addEventListener('blur',off);
+  });
+  card.querySelectorAll('.dn-row.tog').forEach(el=>{
+    const toggle=()=>{const o=el.classList.toggle('open');el.setAttribute('aria-expanded',o);};
+    el.addEventListener('click',toggle);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
   });
 }
 
