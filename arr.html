@@ -27,6 +27,8 @@ body{display:flex;flex-direction:column}
 .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap}
 .filter-select{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;outline:none;font-family:inherit}
 .filter-select:focus{border-color:var(--primary)}
+.date-range{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--text-3)}
+.date-range input[type=date]{padding:3px 10px;cursor:text}
 
 .grid-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,260px));gap:16px;margin-bottom:16px}
 .grid-row{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
@@ -402,6 +404,8 @@ function parseTargetSheet(csv){
 const QUARTERS=['1','2','3','4'];
 let currentYear='all',currentQuarter='all',periodMode='yq';
 let weekYear=new Date().getFullYear(),weekMonth=new Date().getMonth(),weekIdx=null;
+const isoDay=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+let customFrom=new Date(new Date().getFullYear(),new Date().getMonth(),1),customTo=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),23,59,59);
 
 function getWeeksInMonth(yr,mo){
   let sat=new Date(yr,mo,1);sat.setDate(sat.getDate()-((sat.getDay()+1)%7));
@@ -426,6 +430,7 @@ function inPeriod(d){
   if(periodMode==='ytd')return d.getFullYear()===now.getFullYear()&&d<=now;
   if(periodMode==='mtd')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d<=now;
   if(periodMode==='week'){const wk=getSelectedWeek();return !!wk&&d>=wk.sat&&d<=wk.fri;}
+  if(periodMode==='custom')return d>=customFrom&&d<=customTo;
   if(currentYear!=='all'&&d.getFullYear()!==+currentYear)return false;
   if(currentQuarter!=='all'&&Math.floor(d.getMonth()/3)+1!==+currentQuarter)return false;
   return true;
@@ -439,6 +444,12 @@ function targetScope(){
     const y=wk.fri.getFullYear(),m=wk.fri.getMonth();
     return{year:y,months:[m],label:`Target ${MN[m]} ${y}`};
   }
+  if(periodMode==='custom'){
+    const ym=[];
+    for(let y=customFrom.getFullYear(),m=customFrom.getMonth();y<customTo.getFullYear()||(y===customTo.getFullYear()&&m<=customTo.getMonth());m===11?(m=0,y++):m++)ym.push([y,m]);
+    const f=ym[0],l=ym[ym.length-1],nm=([y,m])=>`${MN[m].slice(0,3)} ${y}`;
+    return{ym,label:`Target ${ym.length>1?`${nm(f)}–${nm(l)}`:`${MN[f[1]]} ${f[0]}`}`};
+  }
   if(currentYear==='all')return{year:null,months:null,label:'Target sepanjang program'};
   const y=+currentYear;
   if(currentQuarter==='all')return{year:y,months:null,label:`Target ${y}`};
@@ -447,6 +458,10 @@ function targetScope(){
 }
 function getTarget(){
   const sc=targetScope();if(!sc)return null;
+  if(sc.ym){
+    const hit=sc.ym.filter(([y])=>targetData[y]);
+    return hit.length?hit.reduce((o,[y,m])=>({agro:o.agro+targetData[y].monthly[m].agro,temb:o.temb+targetData[y].monthly[m].temb}),{agro:0,temb:0}):null;
+  }
   if(sc.year===null){
     const tds=Object.values(targetData);
     return tds.length?{agro:tds.reduce((s,t)=>s+t.agro_utama,0),temb:tds.reduce((s,t)=>s+t.temb_utama,0)}:null;
@@ -465,6 +480,7 @@ function targetBase(rA,rT){
 }
 
 function compute(){
+  let dTp=0,lahanTp=0;
   let rA=0,rT=0,dA=0,dT=0,tanA=0,tanT=0,lahan=0,lahanA=0,lahanT=0,addA=0,addT=0,addTanA=0,addTanT=0,addLuasA=0,addLuasT=0;
   const petaniA=new Set(),petaniT=new Set();
   let aReg=0,aBPO=0,tReg=0,tMTL=0;
@@ -489,7 +505,7 @@ function compute(){
     const agro=r.prog.startsWith('Agro'),tan=plantsIn(r,inPeriod);
     if(inPeriod(r.tglRestore)){
       if(agro){dA+=r.luasAgro;lahanA++;tanA+=tan;}
-      else{dT+=r.luasTemb;lahanT++;tanT+=tan;}
+      else{dT+=r.luasTemb;lahanT++;tanT+=tan;if(r.tglRealisasi&&inPeriod(r.tglRealisasi)){dTp+=r.luasTemb;lahanTp++;}}
       if(r.petani&&r.jk)(agro?petaniA:petaniT).add(r.petani.toLowerCase());
     }else if(isTambahan(r)){
       if(agro){addA++;addTanA+=tan;addLuasA+=r.luasAgro;}else{addT++;addTanT+=tan;addLuasT+=r.luasTemb;}
@@ -499,7 +515,7 @@ function compute(){
   const tgt=getTarget();
   const target=tgt?tgt.agro+tgt.temb:null;
   const real=rA+rT,ditanam=dA+dT,base=targetBase(rA,rT);
-  return{tgt,target,base,real,rA,rT,ditanam,dA,dT,lahan,
+  return{tgt,target,base,real,rA,rT,ditanam,dA,dT,dTp,lahanTp,lahan,
     tanaman:tanA+tanT,tanA,tanT,lahanA,lahanT,petaniA:petaniA.size,petaniT:petaniT.size,addA,addT,addTanA,addTanT,addLuasA,addLuasT,
     sub:{aReg,aBPO,tReg,tMTL},
     subPetani:{aReg:pAR.size,aBPO:pAB.size,tReg:pTR.size,tMTL:pTM.size},
@@ -511,6 +527,18 @@ function compute(){
 function setFilter(y){currentYear=y;periodMode='yq';render();}
 function setQuarter(q){currentQuarter=q;periodMode='yq';render();}
 function setPeriod(p){periodMode=p;render();}
+function setCustom(which,v){
+  const m=(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m||+m[1]<2000||+m[1]>2100)return;
+  if(which==='from'){
+    customFrom=new Date(+m[1],+m[2]-1,+m[3]);
+    if(customFrom>customTo)customTo=new Date(+m[1],+m[2]-1,+m[3],23,59,59);
+  }else{
+    customTo=new Date(+m[1],+m[2]-1,+m[3],23,59,59);
+    if(customTo<customFrom)customFrom=new Date(+m[1],+m[2]-1,+m[3]);
+  }
+  periodMode='custom';render();
+}
+const customDays=()=>Math.round((customTo-customFrom)/864e5);
 function setWeekYear(v){weekYear=+v;weekIdx=null;render();}
 function setWeekMonth(v){weekMonth=+v;weekIdx=null;render();}
 function setWeekPick(v){weekIdx=+v;render();}
@@ -524,6 +552,7 @@ function periodLabel(){
   if(periodMode==='ytd')return`1 Januari–${fmtD(now,'l')}`;
   if(periodMode==='mtd')return`1–${fmtD(now,'l')}`;
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?`${fmtD(wk.sat,'s')}–${fmtD(wk.fri,'l')}`:'Mingguan';}
+  if(periodMode==='custom')return customFrom.getFullYear()===customTo.getFullYear()?`${fmtD(customFrom,'s')}–${fmtD(customTo,'l')}`:`${fmtD(customFrom,'l')}–${fmtD(customTo,'l')}`;
   const y=currentYear==='all'?'semua tahun':String(currentYear);
   if(currentQuarter!=='all')return`Q${currentQuarter} ${y}`;
   return currentYear==='all'?'Sepanjang waktu':`Tahun ${y}`;
@@ -548,6 +577,7 @@ function dataSpan(){
 }
 function bucketUnit(){
   if(periodMode==='mtd'||periodMode==='week')return'hari';
+  if(periodMode==='custom'){const n=customDays();return n<=62?'hari':n<=731?'bulan':n<=2190?'kuartal':'tahun';}
   if(periodMode==='yq'&&currentYear==='all'){
     const m=dataSpan().months;
     return m<=24?'bulan':m<=72?'kuartal':'tahun';
@@ -556,6 +586,20 @@ function bucketUnit(){
 }
 function timeBuckets(){
   const now=new Date(),unit=bucketUnit(),out=[];
+  if(periodMode==='custom'&&unit!=='hari'){
+    const s=customFrom,e=customTo<now?customTo:now,yy=y=>`'${String(y).slice(2)}`;
+    const clip=(a,b)=>({start:a<s?new Date(s):a,end:b>customTo?new Date(customTo):b});
+    if(unit==='tahun'){
+      for(let y=s.getFullYear();y<=e.getFullYear();y++)out.push({label:String(y),full:`Tahun ${y}`,...clip(new Date(y,0,1),new Date(y,11,31,23,59,59))});
+    }else if(unit==='kuartal'){
+      for(let y=s.getFullYear(),q=Math.floor(s.getMonth()/3);y<e.getFullYear()||(y===e.getFullYear()&&q<=Math.floor(e.getMonth()/3));q===3?(q=0,y++):q++)
+        out.push({label:`Q${q+1} ${yy(y)}`,full:`Kuartal ${q+1} ${y}`,...clip(new Date(y,q*3,1),new Date(y,q*3+3,0,23,59,59))});
+    }else{
+      for(let y=s.getFullYear(),m=s.getMonth();y<e.getFullYear()||(y===e.getFullYear()&&m<=e.getMonth());m===11?(m=0,y++):m++)
+        out.push({label:`${MN[m].slice(0,3)} ${yy(y)}`,full:`${MN[m]} ${y}`,...clip(new Date(y,m,1),new Date(y,m+1,0,23,59,59))});
+    }
+    return out;
+  }
   if(periodMode==='yq'&&currentYear==='all'){
     const s=dataSpan().start;
     if(!s)return[];
@@ -574,6 +618,7 @@ function timeBuckets(){
   if(unit==='hari'){
     let start,end;
     if(periodMode==='mtd'){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth(),now.getDate());}
+    else if(periodMode==='custom'){start=new Date(customFrom);const e=customTo<now?customTo:now;end=new Date(e.getFullYear(),e.getMonth(),e.getDate());}
     else{const wk=getSelectedWeek();if(!wk)return[];start=new Date(wk.sat);end=new Date(wk.fri.getFullYear(),wk.fri.getMonth(),wk.fri.getDate());}
     for(const d=new Date(start);d<=end;d.setDate(d.getDate()+1))
       out.push({label:fmtD(d,'s'),full:fmtD(d,'l'),start:new Date(d),end:new Date(d.getFullYear(),d.getMonth(),d.getDate(),23,59,59)});
@@ -751,6 +796,7 @@ function toggleImRow(tr){tr.classList.toggle('open');let n=tr.nextElementSibling
 function periodEnd(){
   const now=new Date();
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?wk.fri:now;}
+  if(periodMode==='custom')return customTo<now?customTo:now;
   if(periodMode!=='yq'||currentYear==='all')return now;
   const y=+currentYear,m=currentQuarter==='all'?12:+currentQuarter*3;
   const end=new Date(y,m,0,23,59,59);
@@ -818,6 +864,7 @@ function periodStart(){
   if(periodMode==='ytd')return new Date(now.getFullYear(),0,1);
   if(periodMode==='mtd')return new Date(now.getFullYear(),now.getMonth(),1);
   if(periodMode==='week'){const wk=getSelectedWeek();return wk?new Date(wk.sat.getFullYear(),wk.sat.getMonth(),wk.sat.getDate()):null;}
+  if(periodMode==='custom')return new Date(customFrom);
   if(currentYear==='all')return null;
   return new Date(+currentYear,currentQuarter==='all'?0:(+currentQuarter-1)*3,1);
 }
@@ -1581,7 +1628,13 @@ function render(){
       <button class="fpill${periodMode==='ytd'?' active':''}" onclick="setPeriod('ytd')">Year to Date</button>
       <button class="fpill${periodMode==='mtd'?' active':''}" onclick="setPeriod('mtd')">Month to Date</button>
       <button class="fpill${periodMode==='week'?' active':''}" onclick="setPeriod('week')">Mingguan</button>
+      <button class="fpill${periodMode==='custom'?' active':''}" onclick="setPeriod('custom')">Custom</button>
       ${periodMode==='week'?weekPickerHtml():''}
+      ${periodMode==='custom'?`<span class="date-range">
+        <input type="date" class="filter-select" aria-label="Dari tanggal" value="${isoDay(customFrom)}" min="2000-01-01" max="2100-12-31" onchange="setCustom('from',this.value)">
+        <span>s.d.</span>
+        <input type="date" class="filter-select" aria-label="Sampai tanggal" value="${isoDay(customTo)}" min="2000-01-01" max="2100-12-31" onchange="setCustom('to',this.value)">
+      </span>`:''}
     </div>
 
     <div class="sec-title">ARR</div>
@@ -1595,7 +1648,7 @@ function render(){
         <div class="ss-div"></div>
         <div class="ss-parts">
           <div class="ss-part${s.addA?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Planted</div><div class="ss-row"><span class="ss-val">${fmt(s.dA)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(s.petaniA)} petani &middot; ${fmtInt(s.lahanA)} petak</span><br>${fmtInt(s.tanA)} tanaman</span></div>${s.addA?plantTip(s.dA,s.lahanA,s.tanA,s.addLuasA,s.addA,s.addTanA):''}</div>
-          <div class="ss-part${s.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note ss-sub">${fmtInt(s.petaniT)} petani &middot; ${fmtInt(s.lahanT)} petak</span></div>${s.addT?plantTip(s.dT,s.lahanT,null,s.addLuasT,s.addT,null,true):''}</div>
+          <div class="ss-part${s.addT?' ss-has-tip" tabindex="0':''}"><div class="ss-lbl">Area Restored</div><div class="ss-row"><span class="ss-val">${fmt(s.dT)} ha</span><span class="ss-note"><span class="ss-sub">${fmtInt(s.petaniT)} petani &middot; ${fmtInt(s.lahanT)} petak</span><br>${fmt(s.dTp)} ha ditanam / ${fmt(s.dT-s.dTp)} ha lainnya</span></div>${s.addT?plantTip(s.dT,s.lahanT,null,s.addLuasT,s.addT,null,true):''}</div>
         </div>
       </div>
     </div>
