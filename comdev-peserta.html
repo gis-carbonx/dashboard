@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Participant Network</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow:hidden;display:flex}
+.content-row{flex:1;min-height:0;max-width:1180px;margin:0 auto;padding:24px 36px 24px;display:flex;align-items:stretch;gap:20px}
+.side-menu{align-self:flex-start}
+.page-body-inner{display:flex;flex-direction:column;min-height:0}
+#mainSection{flex:1;min-height:0;display:flex;flex-direction:column}
+
+.pp-row{flex:1;min-height:0;display:grid;grid-template-columns:290px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px}
+.pp-side{border:1px solid var(--border);border-radius:14px;background:#fff;display:flex;flex-direction:column;min-height:0}
+.pp-main{display:flex;flex-direction:column;gap:16px;min-height:0}
+.pp-tools{padding:14px 14px 10px;border-bottom:1px solid var(--border-lt);display:flex;flex-direction:column;gap:8px}
+.pp-search{width:100%;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11.5px;color:var(--text);outline:none}
+.pp-search:focus{border-color:var(--primary)}
+.km-select{width:100%;padding:5px 28px 5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239C998C' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 11px center;appearance:none;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer}
+.km-select.on{border-color:var(--primary);color:var(--primary)}
+.pp-years{display:flex;gap:6px;flex-wrap:wrap}
+.pp-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pp-count{font-size:10px;color:var(--text-3)}
+.pp-sort{display:inline-flex;align-items:center;gap:4px;border:none;background:none;border-radius:12px;padding:2px 8px;margin-right:-8px;font-size:10px;font-weight:600;color:var(--primary-md);cursor:pointer;white-space:nowrap}
+.pp-sort:hover{background:var(--primary-bg);color:var(--primary)}
+.pp-sort svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pp-list{flex:1;min-height:0;overflow-y:auto;padding:6px 8px 10px}
+.pp-li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;width:100%;border:none;background:none;text-align:left;padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--text)}
+.pp-li:hover{background:var(--primary-bg)}
+.pp-li.active{background:#ececec}
+.pp-n{font-size:11.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-s{grid-column:1;font-size:10px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-v{grid-row:1/3;grid-column:2;align-self:center;font-size:10px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pp-v b{font-size:12px;font-weight:800;color:var(--text)}
+.ld-none{font-size:11px;color:var(--text-3);padding:6px 8px}
+
+.pg-card{flex:1.5;min-height:0;display:flex;flex-direction:column;padding:18px 20px 12px}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.pg-who{flex:1;min-width:0}
+.pg-name{font-size:18px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-sub{font-size:11px;color:var(--text-2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-stats{display:grid;grid-template-columns:80px 100px 120px;gap:18px;flex-shrink:0}
+.ld-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.pg-stat-v{font-size:20px;font-weight:800;color:var(--primary);letter-spacing:-.01em;margin-top:2px;font-variant-numeric:tabular-nums}
+.pg-stat-v small{font-size:11px;font-weight:600;color:var(--text-2)}
+.pg-leg{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+.pg-lb{display:inline-flex;align-items:center;gap:6px;border:none;background:none;border-radius:20px;padding:4px 10px;margin-left:-10px;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer}
+.pg-lb+.pg-lb{margin-left:0}
+.pg-lb:hover{background:var(--primary-bg)}
+.pg-lb.active{background:#ececec;color:var(--text)}
+.pg-lb i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pg-lb b{font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.pg-wrap{flex:1;min-height:0;overflow-x:auto}
+.pg-svg{display:block;width:100%;height:100%;min-width:640px;user-select:none;cursor:grab}
+.pg-svg:active{cursor:grabbing}
+.pg-e{fill:none;stroke:#DCDACC;stroke-width:1.4;transition:opacity .15s,stroke .15s;animation:pgIn .45s ease-out backwards}
+.pg-n{cursor:pointer;transition:opacity .15s}
+.pg-j{animation:pgIn .45s ease-out backwards}
+.pg-n circle{stroke:#fff;stroke-width:2;transition:transform .15s}
+.pg-n:hover circle{transform:scale(1.15)}
+.pg-n:active{cursor:grabbing}
+.pg-p{cursor:grab}
+.pg-p:hover circle{transform:none}
+.pg-p circle{fill:#3A342C}
+.pg-svg text{font-size:11px;fill:#3A342C;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.pg-p text{font-size:12px;font-weight:800;fill:#fff;stroke:none}
+@keyframes pgIn{from{opacity:0}}
+.pg-c{fill:#9C998C;font-weight:600}
+.pg-svg.hl .pg-e:not(.on){opacity:.12}
+.pg-svg.hl .pg-n:not(.on):not(.pg-p){opacity:.28}
+.pg-svg.hl .pg-e.on{stroke:#618273}
+.pg-n.sel circle{stroke:#3A342C;stroke-width:2.5}
+.pg-empty{padding:80px 20px;text-align:center;font-size:12px;color:var(--text-3)}
+
+.tl-card{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px 20px 10px}
+.tl-list{flex:1;min-height:0;overflow-y:auto;margin-right:-8px;padding-right:8px}
+.tl-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.tl-hd small{font-size:10.5px;font-weight:500;color:var(--text-3);margin-left:6px}
+.tl-clear{border:none;background:none;font-size:11px;font-weight:600;color:var(--primary-md);cursor:pointer}
+.tl-clear:hover{color:var(--primary)}
+.tl-i{display:grid;grid-template-columns:150px minmax(0,1fr) 180px;gap:12px;align-items:baseline;padding:6px 0;border-top:1px solid var(--border-lt);font-size:11.5px}
+.tl-i:first-child{border-top:none}
+.tl-d{font-size:10.5px;font-weight:600;color:var(--text-3);font-variant-numeric:tabular-nums}
+.tl-t{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-t small{display:block;font-size:10px;font-weight:500;color:var(--text-3);overflow:hidden;text-overflow:ellipsis}
+.tl-p{font-size:11px;color:var(--text-2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+.tt-box{position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;max-width:360px;pointer-events:none;display:none}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (max-width:900px){
+  .page-scroll{overflow-y:auto;display:block}
+  .content-row{height:auto}
+  .pp-row{grid-template-columns:1fr;grid-template-rows:none}
+  .pp-side{height:340px}
+  .pg-card{flex:none}.pg-wrap{height:420px;flex:none}
+  .tl-card{flex:none;max-height:480px}
+  .pg-head{flex-direction:column}
+  .tl-i{grid-template-columns:110px minmax(0,1fr)}.tl-p{grid-column:2;text-align:left}
+}
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.pg-stats{gap:16px}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Participant Network</div>
+        <div class="hero-date" id="heroDate">Loading data...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+    <div class="content-row">
+      <nav class="side-menu">
+        <a class="side-item" href="comdev-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+        <a class="side-item active" href="comdev-peserta.html" title="Participant Network" aria-label="Participant Network"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.4 7.3 10 10.4"/><path d="M17.6 7.3 14 10.4"/><path d="M6.4 16.7 10 13.6"/><path d="M17.6 16.7 14 13.6"/></svg></a>
+      </nav>
+      <div class="page-body-inner">
+        <div id="pageBody"><div class="loading-note">Loading data...</div></div>
+        <section id="mainSection" style="display:none">
+          <div class="sec-title">Kegiatan yang Diikuti Peserta</div>
+          <div class="pp-row">
+            <aside class="pp-side">
+              <div class="pp-tools">
+                <input class="pp-search" id="ppSearch" type="search" placeholder="Cari nama atau ID peserta" autocomplete="off">
+                <select class="km-select" id="ppDesa"></select>
+                <div class="pp-years" id="ppYears"></div>
+                <div class="pp-meta"><span class="pp-count" id="ppCount"></span><button class="pp-sort" id="ppSort"></button></div>
+              </div>
+              <div class="pp-list" id="ppList"></div>
+            </aside>
+            <div class="pp-main">
+              <div class="card pg-card" id="pgCard"></div>
+              <div class="card tl-card" id="tlCard"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tt-box" id="ttBox"></div>
+
+<script src="assets/js/sheet-utils.js"></script>
+<script>
+'use strict';
+const SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c',SHEET_NAME='db-comdev-2',ACT_GID='1891592405';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const ACT_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${ACT_GID}`;
+const ACT_COL=16,OBJ_COL=8,OBJ_N=8,NO_PLACE='Lokasi tidak tercatat',LIST_MAX=150;
+const MONTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const W=900,RX0=150,RX=210;
+const OBJ_COLORS=['#4a7fc1','#c0611c','#8B7BB0','#6F9A3E','#8C9F8B','#B5872F','#A65D7B','#356760'],NO_OBJ_COLOR='#B5BBA9';
+const objColor=i=>i>=0?OBJ_COLORS[i%OBJ_COLORS.length]:NO_OBJ_COLOR;
+
+const str=v=>(v??'').toString().trim();
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isOne=v=>str(v)==='1';
+const key=s=>str(s).toLowerCase();
+const normDesa=v=>str(v).replace(/\s+/g,' ').replace(/^desa\s+/i,'');
+const DATE_LIKE=/^\d{1,2}(\s*[-–]\s*\d{1,2})?[\s\/.-]+([A-Za-z]{3,}|\d{1,2})[\s\/.-]+\d{2,4}$/;
+const trunc=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+
+const RANGE_SEP=/\s+(?:-|s\/d|sd|sampai|to)\s+|\s*–\s*/i;
+function parseTgl(v,endV){
+  const s=str(v).replace(/^(\d{1,2})-(?=\d{1,2}\s+[A-Za-z])/,'$1 - '),end2=sheetDate(str(endV));
+  const parts=s.split(RANGE_SEP);
+  if(parts.length!==2)return{tgl:sheetDate(s),end:end2&&end2>sheetDate(s)?end2:null};
+  const end=sheetDate(parts[1]);
+  if(!end)return{tgl:sheetDate(s),end:null};
+  const a=parts[0].trim(),y=end.getFullYear();
+  let start=/^\d{1,2}$/.test(a)?new Date(y,end.getMonth(),+a):sheetDate(/\d{4}/.test(a)?a:`${a} ${y}`);
+  if(start&&start>end)start.setFullYear(start.getFullYear()-1);
+  return{tgl:start||end,end:start&&end>start?end:null};
+}
+const dm=d=>`${d.getDate()} ${MONTHS[d.getMonth()]}`;
+function fmtRange(s,withYear=true){
+  if(!s.tgl)return'Tanpa tanggal';
+  const a=s.tgl,b=s.end,yr=d=>withYear?` ${d.getFullYear()}`:'';
+  if(!b)return dm(a)+yr(a);
+  if(a.getFullYear()!==b.getFullYear())return`${dm(a)} ${a.getFullYear()} – ${dm(b)} ${b.getFullYear()}`;
+  if(a.getMonth()===b.getMonth())return`${a.getDate()}–${dm(b)}${yr(b)}`;
+  return`${dm(a)} – ${dm(b)}${yr(b)}`;
+}
+
+let people=new Map(),objNames=[],sessByCode=new Map(),jenisObj=new Map(),G=null,lastHover=null;
+const S={id:null,q:'',desa:'',years:new Set(),sel:null,asc:false};
+const actsOf=p=>S.years.size?p.list.filter(s=>s.tgl&&S.years.has(s.tgl.getFullYear())):p.list;
+const yearLabel=()=>[...S.years].sort().join(" & ");
+const nOf=p=>actsOf(p).length;
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  const head=data[0]||[];
+  const codes=head.slice(ACT_COL).map(str);
+  objNames=Array.from({length:OBJ_N},(_,i)=>str(head[OBJ_COL+i])||`Tujuan ${i+1}`);
+  people=new Map();
+  data.slice(1).forEach(c=>{
+    const id=str(c[0]);
+    const L=isOne(c[6]),P=isOne(c[7]);
+    if(!id||!(str(c[5])||L||P))return;
+    const p=people.get(id)||{id,nama:str(c[5])||id,desa:normDesa(c[3]),dusun:str(c[4]),L:false,P:false,acts:new Set(),objs:new Set()};
+    p.L=p.L||L;p.P=p.P||P;
+    codes.forEach((code,i)=>{if(code&&isOne(c[ACT_COL+i]))p.acts.add(code);});
+    for(let i=0;i<OBJ_N;i++)if(isOne(c[OBJ_COL+i]))p.objs.add(i);
+    people.set(id,p);
+  });
+  return codes.filter(Boolean);
+}
+
+function parseActs(csv,codes){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true});
+  const info=new Map();
+  data.forEach(r=>{
+    const code=str(r.ID_Kode),tempat=normDesa(r.Desa);
+    if(code)info.set(code,{judul:str(r.Judul_Kegiatan)||code,tempat:DATE_LIKE.test(tempat)?'':tempat,...parseTgl(r.Tanggal,r.Tanggal_Selesai)});
+  });
+  sessByCode=new Map(codes.map(code=>{
+    const i=info.get(code)||{judul:code,tempat:'',tgl:null,end:null};
+    return[code,{code,judul:i.judul,tempat:i.tempat||NO_PLACE,tgl:i.tgl,end:i.end}];
+  }));
+  const who=new Map();
+  people.forEach(p=>{
+    p.list=[...p.acts].map(c=>sessByCode.get(c)).filter(Boolean);
+    p.list.forEach(s=>{const k=key(s.judul);if(!who.has(k))who.set(k,new Set());who.get(k).add(p);});
+  });
+  jenisObj=new Map([...who].map(([k,ps])=>{
+    const c=new Array(OBJ_N).fill(0);
+    ps.forEach(p=>p.objs.forEach(i=>c[i]++));
+    const m=Math.max(...c);
+    return[k,m?c.indexOf(m):-1];
+  }));
+}
+
+function graphData(p){
+  const jm=new Map();
+  const list=actsOf(p);
+  list.forEach(s=>{
+    const k=key(s.judul);
+    const j=jm.get(k)||{k,name:s.judul,obj:jenisObj.get(k)??-1,items:[]};
+    j.items.push(s);jm.set(k,j);
+  });
+  const om=new Map();
+  jm.forEach(j=>{
+    const o=om.get(j.obj)||{obj:j.obj,name:j.obj<0?'Tanpa tujuan':objNames[j.obj],jen:[],n:0};
+    o.jen.push(j);o.n+=j.items.length;om.set(j.obj,o);
+  });
+  const objs=[...om.values()].sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name));
+  objs.forEach((o,i)=>{o.i=i;o.jen.sort((a,b)=>b.items.length-a.items.length||a.name.localeCompare(b.name));});
+  const jen=objs.flatMap(o=>o.jen);
+  jen.forEach((j,i)=>{j.i=i;j.o=objs.find(o=>o.obj===j.obj).i;});
+  return{p,list,objs,jen};
+}
+
+function layout(g){
+  const n=g.jen.length,nr=Math.ceil(n/2),nl=n-nr;
+  const ry=Math.max(110,(nr-1)*17);
+  const span=c=>Math.min(ry,(c-1)*17);
+  const xAt=(y,side)=>side*(RX0+(RX-RX0)*Math.sqrt(Math.max(0,1-(y/(ry+24))**2)));
+  g.jen.forEach((j,i)=>{
+    const right=i<nr,c=right?nr:nl,k=right?i:i-nr,sp=span(c);
+    const y=c>1?(right?-sp+2*sp*k/(c-1):sp-2*sp*k/(c-1)):0;
+    j.x0=xAt(y,right?1:-1);j.y0=y;j.x=j.x0;j.y=j.y0;j.vx=0;j.vy=0;j.fx=null;j.fy=null;
+    j.r=Math.min(11,5+Math.sqrt(j.items.length)*1.8);
+  });
+  g.H=Math.round(ry*2+80);
+}
+
+const f1=v=>v.toFixed(1);
+const edgePath=(a,b)=>{const mx=f1((a.x+b.x)/2);return`M${f1(a.x)},${f1(a.y)} C${mx},${f1(a.y)} ${mx},${f1(b.y)} ${f1(b.x)},${f1(b.y)}`;};
+
+function graphSVG(g){
+  layout(g);
+  const p=g.p,P={x:0,y:0};
+  const initials=p.nama.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const edges=g.jen.map(j=>`<path class="pg-e" data-o="${j.o}" data-j="${j.i}" d="${edgePath(P,j)}"/>`).join('');
+  const jn=g.jen.map(j=>{
+    const s=j.x>=0?1:-1;
+    return`<g class="pg-n pg-j" data-o="${j.o}" data-j="${j.i}" transform="translate(${f1(j.x)},${f1(j.y)})">
+      <circle r="${f1(j.r)}" style="fill:${objColor(j.obj)}"/>
+      <text x="${f1(s*(j.r+7))}" dy=".35em" text-anchor="${s>0?'start':'end'}">${esc(trunc(j.name,30))}<tspan class="pg-c"> ${j.items.length}×</tspan></text>
+    </g>`;
+  }).join('');
+  return`<svg class="pg-svg" id="pgSvg" viewBox="0 0 ${W} ${g.H}"><rect width="${W}" height="${g.H}" fill="transparent" data-bg="1"/>
+    <g transform="translate(${W/2},${g.H/2})"><g class="pg-zi">${edges}${jn}
+      <g class="pg-n pg-p" data-p="1"><circle r="21"/><text text-anchor="middle" dy=".36em">${esc(initials)}</text></g>
+    </g></g></svg>`;
+}
+
+let sim=null;
+function startSim(g){
+  if(sim)sim.stop();
+  const svg=d3.select('#pgSvg'),zi=svg.select('.pg-zi');
+  const P={x:0,y:0,x0:0,y0:0,r:21,isP:true};
+  const nodes=[P,...g.jen];
+  const links=g.jen.map(j=>({source:P,target:j}));
+  const eSel=zi.selectAll('.pg-e').data(g.jen),nSel=zi.selectAll('.pg-j').data(g.jen),pSel=zi.select('.pg-p').datum(P);
+  nSel.each(function(j){j.tw=this.querySelector('text').getComputedTextLength();});
+  const hw=W/2-8,hh=g.H/2-6;
+  const clamp=(v,a)=>Math.max(-a,Math.min(a,v));
+  const tick=()=>{
+    P.x=clamp(P.x,hw-30);P.y=clamp(P.y,hh-24);
+    g.jen.forEach(j=>{
+      const out=j.r+7+j.tw;
+      j.x=j.x>=P.x?Math.max(-hw+j.r,Math.min(hw-out,j.x)):Math.min(hw-j.r,Math.max(-hw+out,j.x));
+      j.y=clamp(j.y,hh-j.r);
+    });
+    eSel.attr('d',j=>edgePath(P,j));
+    nSel.attr('transform',j=>`translate(${f1(j.x)},${f1(j.y)})`).select('text')
+      .attr('x',j=>f1((j.x>=P.x?1:-1)*(j.r+7))).attr('text-anchor',j=>j.x>=P.x?'start':'end');
+    pSel.attr('transform',`translate(${f1(P.x)},${f1(P.y)})`);
+  };
+  sim=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).distance(l=>Math.hypot(l.target.x0,l.target.y0)).strength(.25))
+    .force('charge',d3.forceManyBody().strength(-90).distanceMax(220))
+    .force('collide',d3.forceCollide(d=>d.r+5).strength(.8))
+    .force('x',d3.forceX(d=>d.x0).strength(d=>d.isP?.3:.07))
+    .force('y',d3.forceY(d=>d.y0).strength(d=>d.isP?.3:.07))
+    .alpha(.25).alphaDecay(.03).on('tick',tick);
+  const drag=d3.drag()
+    .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;tt.style.display='none';})
+    .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+    .on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;});
+  nSel.call(drag);pSel.call(drag);
+  svg.call(d3.zoom().scaleExtent([.5,3])
+    .filter(e=>e.type==='wheel'?(e.ctrlKey||e.metaKey):!e.button&&!e.target.closest('.pg-n'))
+    .on('zoom',e=>zi.attr('transform',e.transform)))
+    .on('dblclick.zoom',null)
+    .style('touch-action','pan-y');
+}
+
+function jkLabel(p){return p.L?'Laki-laki':p.P?'Perempuan':'';}
+
+function renderGraph(){
+  const card=document.getElementById('pgCard'),p=people.get(S.id);
+  if(!p){card.innerHTML='<div class="pg-empty">Pilih peserta dari daftar.</div>';G=null;renderTimeline();return;}
+  const sub=[p.desa||'Desa tidak tercatat',p.dusun&&`Dusun ${p.dusun}`,jkLabel(p),`ID ${p.id}`].filter(Boolean).map(esc).join(' / ');
+  const list=actsOf(p);
+  if(!list.length){
+    card.innerHTML=`<div class="pg-head"><div class="pg-who"><div class="pg-name">${esc(p.nama)}</div><div class="pg-sub">${sub}</div></div></div><div class="pg-empty">${S.years.size?`Tidak ada kegiatan pada tahun ${yearLabel()}.`:'Belum tercatat mengikuti kegiatan.'}</div>`;
+    G=null;renderTimeline();return;
+  }
+  G=graphData(p);
+  const dated=list.filter(s=>s.tgl).map(s=>s.tgl.getFullYear());
+  const yrs=dated.length?(Math.min(...dated)===Math.max(...dated)?`${Math.min(...dated)}`:`${Math.min(...dated)}–${Math.max(...dated)}`):'–';
+  const stat=(l,v)=>`<div><div class="ld-lbl">${l}</div><div class="pg-stat-v">${v}</div></div>`;
+  card.innerHTML=`<div class="pg-head">
+      <div class="pg-who"><div class="pg-name" title="${esc(p.nama)}">${esc(p.nama)}</div><div class="pg-sub">${sub}</div></div>
+      <div class="pg-stats">${stat('Kegiatan',fmtInt(list.length))}${stat('Jenis kegiatan',fmtInt(G.jen.length))}${stat('Tahun',yrs)}</div>
+    </div>
+    <div class="pg-leg">${G.objs.map(o=>`<button class="pg-lb" data-leg="${o.i}"><i style="background:${objColor(o.obj)}"></i>${esc(o.name)}<b>${fmtInt(o.n)}</b></button>`).join('')}</div>
+    <div class="pg-wrap">${graphSVG(G)}</div>`;
+  startSim(G);
+  applyMark(S.sel);
+  renderTimeline();
+}
+
+function applyMark(m){
+  const svg=document.getElementById('pgSvg');
+  if(!svg)return;
+  svg.classList.toggle('hl',!!m);
+  svg.querySelectorAll('[data-o]').forEach(el=>{
+    const hit=!!m&&+el.dataset.o===m.o&&(m.j===null||el.dataset.j===undefined||+el.dataset.j===m.j);
+    el.classList.toggle('on',hit);
+  });
+  const s=S.sel;
+  svg.querySelectorAll('.pg-j').forEach(el=>el.classList.toggle('sel',!!s&&s.j!==null&&+el.dataset.j===s.j));
+  document.querySelectorAll('[data-leg]').forEach(b=>b.classList.toggle('active',!!s&&s.j===null&&+b.dataset.leg===s.o));
+}
+
+function selItems(){
+  if(!G)return[];
+  const s=S.sel;
+  if(!s)return G.list;
+  return s.j!==null?G.jen[s.j].items:G.objs[s.o].jen.flatMap(j=>j.items);
+}
+
+function renderTimeline(){
+  const el=document.getElementById('tlCard');
+  if(!G){el.style.display='none';return;}
+  el.style.display='';
+  const s=S.sel,items=[...selItems()].sort((a,b)=>(b.tgl||0)-(a.tgl||0));
+  const label=!s?'Semua kegiatan':s.j!==null?G.jen[s.j].name:G.objs[s.o].name;
+  el.innerHTML=`<div class="tl-hd"><div class="chart-title">Riwayat Kegiatan<small>${esc(label)} / ${fmtInt(items.length)} kegiatan</small></div>${s?'<button class="tl-clear" data-clear="1">Tampilkan semua</button>':''}</div>
+    <div class="tl-list">${items.map(x=>{
+      const o=jenisObj.get(key(x.judul));
+      return`<div class="tl-i"><span class="tl-d">${fmtRange(x)}</span><span class="tl-t" title="${esc(x.judul)}">${esc(x.judul)}<small>${esc(o>=0?objNames[o]:'Tanpa tujuan')}</small></span><span class="tl-p" title="${esc(x.tempat)}">${esc(x.tempat)}</span></div>`;
+    }).join('')}</div>`;
+}
+
+function filteredPeople(){
+  const q=key(S.q);
+  return[...people.values()].filter(p=>nOf(p)&&(!S.desa||key(p.desa)===S.desa)&&(!q||key(p.nama).includes(q)||key(p.id).includes(q)))
+    .sort((a,b)=>(S.asc?nOf(a)-nOf(b):nOf(b)-nOf(a))||a.nama.localeCompare(b.nama));
+}
+
+function renderList(){
+  const all=filteredPeople();
+  document.getElementById('ppCount').textContent=`${fmtInt(all.length)} peserta mengikuti kegiatan${S.years.size?` ${yearLabel()}`:''}`;
+  document.getElementById('ppList').innerHTML=all.length
+    ?all.slice(0,LIST_MAX).map(p=>`<button class="pp-li${p.id===S.id?' active':''}" data-pid="${esc(p.id)}">
+        <span class="pp-n">${esc(p.nama)}</span>
+        <span class="pp-v"><b>${fmtInt(nOf(p))}</b> kegiatan</span>
+        <span class="pp-s">${esc(p.desa||'Desa tidak tercatat')}</span>
+      </button>`).join('')+(all.length>LIST_MAX?`<div class="ld-none">+${fmtInt(all.length-LIST_MAX)} peserta lainnya, persempit pencarian.</div>`:'')
+    :'<div class="ld-none">Tidak ada peserta yang cocok.</div>';
+  document.getElementById('ppDesa').classList.toggle('on',!!S.desa);
+  document.getElementById('ppSort').innerHTML=`${S.asc?'Paling sedikit':'Paling banyak'}<svg viewBox="0 0 24 24"><path d="M8 4v16"/><path d="m4 ${S.asc?'8 4-4 4 4':'16 4 4 4-4'}"/><path d="M14 6h6"/><path d="M14 12h4"/><path d="M14 18h2"/></svg>`;
+}
+
+function selectPerson(id){
+  S.id=id;S.sel=null;lastHover=null;
+  history.replaceState(null,'','#'+encodeURIComponent(id));
+  document.querySelectorAll('.pp-li').forEach(b=>b.classList.toggle('active',b.dataset.pid===id));
+  renderGraph();
+}
+
+function fillDesa(){
+  const m=new Map();
+  people.forEach(p=>{if(p.desa&&nOf(p)){const k=key(p.desa),o=m.get(k)||{name:p.desa,n:0};o.n++;m.set(k,o);}});
+  if(S.desa&&!m.has(S.desa))S.desa='';
+  const sel=document.getElementById('ppDesa');
+  sel.innerHTML='<option value="">Semua desa</option>'
+    +[...m].sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<option value="${esc(k)}">${esc(o.name)} (${fmtInt(o.n)})</option>`).join('');
+  sel.value=S.desa;
+}
+
+function renderYears(){
+  const yrs=[...new Set([...sessByCode.values()].filter(s=>s.tgl).map(s=>s.tgl.getFullYear()))].sort();
+  document.getElementById('ppYears').innerHTML=['',...yrs].map(y=>`<button class="fpill${(y?S.years.has(y):!S.years.size)?' active':''}" data-year="${y}">${y||'Semua'}</button>`).join('');
+}
+
+function initControls(){
+  renderYears();
+  fillDesa();
+  document.getElementById('ppYears').addEventListener('click',e=>{
+    const b=e.target.closest('[data-year]');
+    if(!b)return;
+    const y=+b.dataset.year;
+    if(!y){if(!S.years.size)return;S.years.clear();}
+    else if(S.years.has(y))S.years.delete(y);
+    else S.years.add(y);
+    S.sel=null;lastHover=null;
+    renderYears();fillDesa();renderList();renderGraph();
+    document.getElementById('ppList').scrollTop=0;
+  });
+  document.getElementById('ppDesa').addEventListener('change',e=>{S.desa=e.target.value;renderList();});
+  document.getElementById('ppSearch').addEventListener('input',e=>{S.q=e.target.value;renderList();});
+  document.getElementById('ppSort').addEventListener('click',()=>{S.asc=!S.asc;renderList();document.getElementById('ppList').scrollTop=0;});
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('[data-pid]');
+  if(li){selectPerson(li.dataset.pid);return;}
+  if(e.target.closest('[data-clear]')){S.sel=null;applyMark(null);renderTimeline();return;}
+  const n=e.target.closest('.pg-n[data-o],[data-leg]');
+  if(n){
+    const m=n.dataset.leg!==undefined?{o:+n.dataset.leg,j:null}:{o:+n.dataset.o,j:+n.dataset.j};
+    S.sel=S.sel&&S.sel.o===m.o&&S.sel.j===m.j?null:m;
+    applyMark(S.sel);renderTimeline();return;
+  }
+  if(e.target.closest('[data-bg],.pg-p')&&S.sel){S.sel=null;applyMark(null);renderTimeline();}
+});
+
+function tipFor(t){
+  if(!G)return'';
+  const n=t.closest('.pg-n');
+  if(!n)return'';
+  if(n.dataset.p){
+    const p=G.p;
+    return`<div class="tt-head"><strong>${esc(p.nama)}</strong> / ${fmtInt(G.list.length)} kegiatan</div>`
+      +G.objs.map(o=>`<div class="tt-row"><span>${esc(o.name)}</span><span>${fmtInt(o.n)}</span></div>`).join('');
+  }
+  const j=G.jen[+n.dataset.j],items=[...j.items].sort((a,b)=>(a.tgl||0)-(b.tgl||0));
+  return`<div class="tt-head"><strong>${esc(j.name)}</strong> / ${fmtInt(items.length)} kegiatan</div>
+    <div class="tt-row"><span>${esc(G.objs[j.o].name)}</span><span></span></div>`
+    +items.slice(0,8).map(s=>`<div class="tt-row"><span>${fmtRange(s)}</span><span>${esc(s.tempat)}</span></div>`).join('')
+    +(items.length>8?`<div class="tt-row"><span>+${items.length-8} lainnya</span><span></span></div>`:'');
+}
+
+const tt=document.getElementById('ttBox');
+document.addEventListener('mousemove',e=>{
+  const n=e.target.closest?e.target.closest('.pg-n[data-o]'):null;
+  const lg=n?null:(e.target.closest?e.target.closest('[data-leg]'):null);
+  const hk=n?`j${n.dataset.j}`:lg?`o${lg.dataset.leg}`:'';
+  if(hk!==lastHover){lastHover=hk;applyMark(n?{o:+n.dataset.o,j:+n.dataset.j}:lg?{o:+lg.dataset.leg,j:null}:S.sel);}
+  const html=tipFor(e.target);
+  if(!html){tt.style.display='none';return;}
+  tt.innerHTML=html;
+  tt.style.display='block';
+  tt.style.left=Math.min(window.innerWidth-tt.offsetWidth-8,e.clientX+14)+'px';
+  tt.style.top=Math.max(8,e.clientY-tt.offsetHeight-12)+'px';
+});
+
+(async function boot(){
+  document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  try{
+    const getText=async u=>{const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();};
+    const [pCsv,aCsv]=await Promise.all([getText(CSV_URL),getText(ACT_URL)]);
+    const codes=parseSheet(pCsv);
+    parseActs(aCsv,codes);
+    document.getElementById('pageBody').style.display='none';
+    document.getElementById('mainSection').style.display='';
+    initControls();
+    const fromHash=decodeURIComponent(location.hash.slice(1));
+    const first=people.has(fromHash)?fromHash:(filteredPeople()[0]||{}).id;
+    S.id=first||null;
+    renderList();
+    renderGraph();
+  }catch(err){
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>
