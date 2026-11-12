@@ -382,9 +382,6 @@ function objHTML(){
 
 function renderSummary(){
   const s=computeStats();
-  const benef=[...people.values()].filter(p=>p.obj.size);
-  const multi=benef.filter(p=>p.obj.size>1).length;
-  const j=tally(new Set([...people.values()].filter(p=>p.acts.size).map(p=>p.id)));
   const jenis=new Set(sessions.map(x=>key(x.judul))).size;
   const lokasi=new Set(sessions.filter(x=>x.tempat!==NO_PLACE).map(x=>key(x.tempat))).size;
   document.getElementById('pageBody').innerHTML=`
@@ -394,16 +391,6 @@ function renderSummary(){
         <div class="card-lbl">Masyarakat Terdampak Proyek</div>
         <div class="card-val-lg">${fmtInt(s.total)}</div>
         <div class="card-sub-pct">${fmtInt(s.L)} laki-laki<br>${fmtInt(s.P)} perempuan</div>
-      </div>
-      <div class="card">
-        <div class="card-lbl">Penerima Manfaat</div>
-        <div class="card-val-lg">${fmtInt(benef.length)}</div>
-        <div class="card-sub-pct">${pct(benef.length,s.total)}% masyarakat terdampak<br>${fmtInt(multi)} orang di lebih dari satu tujuan</div>
-      </div>
-      <div class="card">
-        <div class="card-lbl">Masyarakat Mengikuti Kegiatan</div>
-        <div class="card-val-lg">${fmtInt(j.n)}</div>
-        <div class="card-sub-pct">${fmtInt(j.L)} laki-laki<br>${fmtInt(j.P)} perempuan</div>
       </div>
       <div class="card">
         <div class="card-lbl">Kegiatan</div>
