@@ -398,19 +398,18 @@ function objHTML(){
 function renderSummary(){
   const s=computeStats();
   const jenis=new Set(sessions.map(x=>key(x.judul))).size;
-  const lokasi=new Set(sessions.flatMap(x=>x.places).filter(t=>t!==NO_PLACE).map(key)).size;
   document.getElementById('pageBody').innerHTML=`
     <div class="sec-title">Summary</div>
     <div class="kpi-grid c4">
       <div class="card">
         <div class="card-lbl">Masyarakat Terdampak Proyek</div>
         <div class="card-val-lg">${fmtInt(s.total)}</div>
-        <div class="card-sub-pct">${fmtInt(s.L)} laki-laki<br>${fmtInt(s.P)} perempuan</div>
+        <div class="card-sub-pct">${fmtInt(s.L)} laki-laki / ${fmtInt(s.P)} perempuan</div>
       </div>
       <div class="card">
         <div class="card-lbl">Kegiatan</div>
         <div class="card-val-lg">${fmtInt(sessions.length)}</div>
-        <div class="card-sub-pct">${fmtInt(jenis)} jenis kegiatan<br>di ${fmtInt(lokasi)} lokasi</div>
+        <div class="card-sub-pct">${fmtInt(jenis)} jenis kegiatan</div>
       </div>
     </div>
     <div class="sec-title sec-gap">Masyarakat dan Manfaat</div>
