@@ -247,6 +247,7 @@ const pct=(a,b)=>b?(a/b*100).toLocaleString('id-ID',{maximumFractionDigits:a/b<.
 
 const DESA_MIN=10;
 const PROJECT_ZONE=['Raut Muara','Nekan','Mawang Muda','Sekendal','Thang Raya','Engkahan','Engkangin','Kenaman','Sungai Ilai','Sepangah'];
+const ALL_PLACES='semua desa';
 const inZone=name=>PROJECT_ZONE.some(z=>z.toLowerCase()===name.toLowerCase());
 const JK_COLORS={L:'#356760',P:'#B5BBA9'};
 const normDesa=v=>str(v).replace(/\s+/g,' ').replace(/^desa\s+/i,'');
@@ -288,7 +289,8 @@ function buildSessions(){
   people.forEach(p=>p.acts.forEach(c=>ids.get(c)?.add(p.id)));
   sessions=codes.map(code=>{
     const i=actInfo.get(code)||{judul:code,tempat:'',tgl:null,end:null};
-    return{code,judul:i.judul,tempat:i.tempat||NO_PLACE,tgl:i.tgl,end:i.end,ids:ids.get(code)};
+    const tempat=i.tempat||NO_PLACE;
+    return{code,judul:i.judul,tempat,places:key(tempat)===ALL_PLACES?PROJECT_ZONE:[tempat],tgl:i.tgl,end:i.end,ids:ids.get(code)};
   });
 }
 
@@ -396,7 +398,7 @@ function objHTML(){
 function renderSummary(){
   const s=computeStats();
   const jenis=new Set(sessions.map(x=>key(x.judul))).size;
-  const lokasi=new Set(sessions.filter(x=>x.tempat!==NO_PLACE).map(x=>key(x.tempat))).size;
+  const lokasi=new Set(sessions.flatMap(x=>x.places).filter(t=>t!==NO_PLACE).map(key)).size;
   document.getElementById('pageBody').innerHTML=`
     <div class="sec-title">Summary</div>
     <div class="kpi-grid c4">
@@ -437,12 +439,12 @@ const filtered=()=>objSessions().filter(s=>!F.jenis||s.judul===F.jenis);
 
 function groupBy(list,field){
   const m=new Map();
-  list.forEach(s=>{
-    const k=key(s[field]);
-    const g=m.get(k)||{name:s[field],items:[],ids:new Set()};
+  list.forEach(s=>(field==='tempat'?s.places:[s[field]]).forEach(v=>{
+    const k=key(v);
+    const g=m.get(k)||{name:v,items:[],ids:new Set()};
     g.items.push(s);s.ids.forEach(i=>g.ids.add(i));
     m.set(k,g);
-  });
+  }));
   return m;
 }
 
@@ -604,7 +606,7 @@ function renderPanel(){
 function renderMonths(){
   const el=document.getElementById('kmMonths');
   const dated=filtered().filter(s=>s.tgl);
-  const scope=F.desa===null?dated:dated.filter(s=>key(s.tempat)===key(F.desa));
+  const scope=F.desa===null?dated:dated.filter(s=>s.places.some(t=>key(t)===key(F.desa)));
   document.getElementById('monthTitle').innerHTML=F.desa===null?'Kegiatan per Bulan':`Kegiatan per Bulan (${esc(F.desa)})`;
   if(!dated.length){el.innerHTML='<div class="ld-none">Tidak ada kegiatan bertanggal pada filter ini.</div>';monthBuckets=[];return;}
   const mk=d=>d.getFullYear()*12+d.getMonth();
