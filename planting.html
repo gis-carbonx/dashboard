@@ -363,7 +363,7 @@ body{display:flex;flex-direction:column}
   <div id="yearPickerWrap" style="display:none;align-items:center;gap:6px">
     <select class="filter-select" id="fYear" onchange="applyFilter()"></select>
   </div>
-  <div class="filter-info" id="filterInfo">Memuat...</div>
+  <div class="filter-info" id="filterInfo">Loading data...</div>
 </div>
 
 <div class="stats-bar">
@@ -463,7 +463,7 @@ body{display:flex;flex-direction:column}
           <div class="sb-count" id="kthCount">—</div>
         </div>
       </div>
-      <div class="kth-scroll" id="kthList"><div class="empty-state">Memuat data...</div></div>
+      <div class="kth-scroll" id="kthList"><div class="empty-state">Loading data...</div></div>
       <div class="sb-bottom-inner">
         <div class="sb-sec">
           <div class="sec-ttl">Kontrol Layer</div>
@@ -1152,13 +1152,13 @@ async function getJSON(u){const r=await fetchWithTimeout(u);if(!r.ok)throw Error
 
 (async function boot(){
   try{
-    setLoad('Memuat data spreadsheet...');
+    setLoad('Loading data...');
     const [csvTxt,tgtTxt,logTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(ACTIVITY_LOG_URL).catch(()=>'')]);
     parseSheet(csvTxt);
     parseLog(logTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     populateYearDropdowns();
-    setLoad('Memuat GeoJSON...');
+    setLoad('Loading data...');
     const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
     setLoad('Merender peta...');
     renderCMI(cmiJ);renderAgro(agroJ);

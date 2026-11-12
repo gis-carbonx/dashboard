@@ -221,7 +221,7 @@
 
       <h2 class="section-title">Prediksi Cuaca BMKG</h2>
       <div class="chart-card">
-        <div class="forecast-scroll" id="forecastList"><div class="loading-msg">Memuat prakiraan&hellip;</div></div>
+        <div class="forecast-scroll" id="forecastList"><div class="loading-msg">Loading data&hellip;</div></div>
         <div class="source-note">Sumber: <a href="https://www.bmkg.go.id/cuaca/prakiraan-cuaca/61.03.07.2001" target="_blank" rel="noopener">BMKG</a>, prakiraan cuaca per 3 jam Desa Balai Karangan, Kecamatan Sekayam, Kabupaten Sanggau.</div>
       </div>
 
@@ -281,7 +281,7 @@
           </div>
         </div>
         <div class="chart-wrap"><canvas id="aqChart"></canvas></div>
-        <div class="loading-msg" id="aqChartMsg">Memuat data kualitas udara&hellip;</div>
+        <div class="loading-msg" id="aqChartMsg">Loading data&hellip;</div>
       </div>
       <p class="note" id="aqNote"></p>
       </section>
@@ -401,7 +401,7 @@ async function loadLayer(key){
   const L_=LAYERS[key];
   if(rvCoverage&&!L_.rv)map.removeLayer(rvCoverage);
   const token=++loadToken;
-  setStatus('Memuat citra…');
+  setStatus('Loading data…');
   try{
     const f=await fetchFrames(key);
     if(token!==loadToken)return;
@@ -596,7 +596,7 @@ function showAqFrame(i){
   document.getElementById('aqTimeLabel').innerHTML=`${fmtWIB(t,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} WIB<small>${isPast?'analisis model':'prakiraan'}</small>`;
 }
 async function loadAqMap(){
-  setAqStatus('Memuat peta PM2.5…');
+  setAqStatus('Loading data…');
   const step=AQ_STEP_H*3600e3,now=Date.now();
   const start=Math.floor((now-AQ_HOURS_BACK*3600e3)/step)*step,end=now+AQ_HOURS_AHEAD*3600e3;
   const cands=[];for(let t=start;t<=end;t+=step)cands.push(new Date(t));
@@ -604,7 +604,7 @@ async function loadAqMap(){
   async function worker(){
     while(next<cands.length){
       const k=next++;ok[k]=await preloadImage(aqImageUrl(cands[k]));
-      setAqStatus(`Memuat peta PM2.5… ${++done}/${cands.length}`);
+      setAqStatus(`Loading data… ${++done}/${cands.length}`);
     }
   }
   await Promise.all(Array.from({length:6},worker));
@@ -633,7 +633,7 @@ document.getElementById('aqOpacityInput').addEventListener('input',e=>{aqOpacity
 
 aqMap.on('click',async e=>{
   const {lat,lng}=e.latlng;
-  const pop=L.popup().setLatLng(e.latlng).setContent('<span style="font-size:11px">Memuat…</span>').openOn(aqMap);
+  const pop=L.popup().setLatLng(e.latlng).setContent('<span style="font-size:11px">Loading data…</span>').openOn(aqMap);
   try{
     const j=await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&current=pm2_5,us_aqi&timezone=Asia%2FJakarta`)).json();
     const c=j.current,cat=aqiCat(c.us_aqi);

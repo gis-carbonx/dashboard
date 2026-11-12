@@ -337,7 +337,7 @@ function filtered(){
     &&(confFilter==='all'||r.conf===confFilter)
     &&(coverFilter==='all'||(r.inside&&(coverFilter==='forest')===(r.cover==='Forest'))));
 }
-const emptyMsg=()=>rows.length?'Tidak ada alert pada filter ini.':loadState==='error'?'Data alert gagal dimuat.':'Memuat data…';
+const emptyMsg=()=>rows.length?'Tidak ada alert pada filter ini.':loadState==='error'?'Data alert gagal dimuat.':'Loading data…';
 
 function renderFilters(){
   const yq=periodMode==='yq';
@@ -354,7 +354,7 @@ function renderFilters(){
     <div class="filter-row"><span class="filter-lbl">Filter</span>
       ${pill(yq&&currentYear==='all',"setYear('all')",'All')}
       ${years.map(y=>pill(yq&&currentYear===String(y),`setYear('${y}')`,y)).join('')}
-      ${loadState==='older'?'<span class="filter-loading">memuat tahun sebelumnya…</span>':''}
+      ${loadState==='older'?'<span class="filter-loading">loading data…</span>':''}
     </div>
     <div class="filter-row"><span class="filter-lbl">Quarter</span>
       ${pill(yq&&currentQuarter==='all',"setQuarter('all')",'All')}

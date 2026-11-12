@@ -404,7 +404,7 @@ body{display:flex;flex-direction:column}
   <div id="yearPickerWrap" style="display:none;align-items:center;gap:6px">
     <select class="filter-select" id="fYear" onchange="applyFilter()"></select>
   </div>
-  <div class="filter-info" id="filterInfo">Memuat...</div>
+  <div class="filter-info" id="filterInfo">Loading data...</div>
 </div>
 
 <div class="stats-bar">
@@ -500,7 +500,7 @@ body{display:flex;flex-direction:column}
           <div class="sb-count" id="kthCount">—</div>
         </div>
       </div>
-      <div class="kth-scroll" id="kthList"><div class="empty-state">Memuat data...</div></div>
+      <div class="kth-scroll" id="kthList"><div class="empty-state">Loading data...</div></div>
       <div class="sb-bottom-inner">
         <div class="sb-sec">
           <div class="sec-ttl">Kontrol Layer</div>
@@ -668,7 +668,7 @@ body{display:flex;flex-direction:column}
     <div class="modal-body-scroll">
       <table class="cp-tbl"><thead id="cpThead"></thead><tbody id="cpTbody"></tbody></table>
       <div class="no-results" id="cpNoResults" style="display:none">Tidak ada hasil</div>
-      <div class="empty-state" id="cpEmpty">Memuat data...</div>
+      <div class="empty-state" id="cpEmpty">Loading data...</div>
     </div>
   </div>
 </div>
@@ -1110,13 +1110,13 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+"
 // ── BOOT ──
 (async function boot(){
   try{
-    setLoad('Memuat data spreadsheet...');
+    setLoad('Loading data...');
     const [csvTxt,tgtTxt,fuTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>'')]);
     parseSheet(csvTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(fuTxt)parseFollowUp(fuTxt);
     populateYearDropdowns();
-    setLoad('Memuat GeoJSON...');
+    setLoad('Loading data...');
     const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
     setLoad('Merender peta...');
     renderCMI(cmiJ);renderAgro(agroJ);

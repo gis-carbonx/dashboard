@@ -110,11 +110,11 @@ body{display:flex;flex-direction:column}
     <div class="hero-inner">
       <div>
         <div class="hero-title">Daftar Peserta Program</div>
-        <div class="hero-date" id="heroDate">Memuat tanggal...</div>
+        <div class="hero-date" id="heroDate">Loading data...</div>
       </div>
     </div>
   </div>
-  <div class="page-body" id="pageBody"><div class="loading-note">Memuat data peserta...</div></div>
+  <div class="page-body" id="pageBody"><div class="loading-note">Loading data...</div></div>
 </div>
 
 <script>
@@ -437,7 +437,7 @@ function ensureMap(){
 let prevActive=null;
 async function showOnMap(id){
   const note=document.getElementById('mapNote');
-  note.style.display='flex';note.textContent='Memuat peta...';
+  note.style.display='flex';note.textContent='Loading data...';
   await ensureMap();
   setTimeout(()=>{
     if(id!==activeId)return;

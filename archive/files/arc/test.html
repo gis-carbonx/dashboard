@@ -437,7 +437,7 @@ h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
   <div id="yearPickerWrap" style="display:none;align-items:center;gap:6px">
     <select class="filter-select" id="fYear" onchange="applyFilter()"></select>
   </div>
-  <div class="filter-info" id="filterInfo">Memuat...</div>
+  <div class="filter-info" id="filterInfo">Loading data...</div>
   </div>
 </div>
 
@@ -620,7 +620,7 @@ h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
         <div class="sb-count" id="kthCount">—</div>
       </div>
     </div>
-    <div class="kth-scroll" id="kthList"><div class="empty-state">Memuat data...</div></div>
+    <div class="kth-scroll" id="kthList"><div class="empty-state">Loading data...</div></div>
   </div>
 
   <div class="panel kth-table-panel">
@@ -632,7 +632,7 @@ h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
     <div class="kth-table-scroll">
       <table class="kth-tbl">
         <thead><tr><th>No</th><th>KTH</th><th>Desa</th><th>Petak</th><th>Agroforestri (ha)</th><th>Tembawang (ha)</th></tr></thead>
-        <tbody id="kthTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Memuat data...</td></tr></tbody>
+        <tbody id="kthTableBody"><tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Loading data...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -732,7 +732,7 @@ h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif;font-weight:600}
     <div class="modal-body-scroll">
       <table class="cp-tbl"><thead id="cpThead"></thead><tbody id="cpTbody"></tbody></table>
       <div class="no-results" id="cpNoResults" style="display:none">Tidak ada hasil</div>
-      <div class="empty-state" id="cpEmpty">Memuat data...</div>
+      <div class="empty-state" id="cpEmpty">Loading data...</div>
     </div>
   </div>
 </div>
@@ -1174,13 +1174,13 @@ async function getJSON(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+"
 // ── BOOT ──
 (async function boot(){
   try{
-    setLoad('Memuat data spreadsheet...');
+    setLoad('Loading data...');
     const [csvTxt,tgtTxt,fuTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(FU_URL).catch(()=>'')]);
     parseSheet(csvTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(fuTxt)parseFollowUp(fuTxt);
     populateYearDropdowns();
-    setLoad('Memuat GeoJSON...');
+    setLoad('Loading data...');
     const [agroJ,cmiJ]=await Promise.all([getJSON('assets/json/agro.json'+CACHE_BUST),getJSON('assets/json/CMI.json'+CACHE_BUST)]);
     setLoad('Merender peta...');
     renderCMI(cmiJ);renderAgro(agroJ);
