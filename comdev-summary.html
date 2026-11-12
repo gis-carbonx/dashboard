@@ -45,9 +45,6 @@ details[open] .ds-caret{transform:rotate(90deg)}
 .ds-val b{font-size:12px;font-weight:800;color:var(--text)}
 
 .ob{margin-top:16px}
-.ob-sum{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:11.5px;color:var(--text-2);margin:0 0 14px;font-variant-numeric:tabular-nums}
-.ob-sum b{font-size:13px;font-weight:800;color:var(--text)}
-.ob-sum i{font-style:normal;font-weight:700;color:var(--primary)}
 .hm-wrap{overflow-x:auto}
 .hm{display:grid;grid-template-columns:130px repeat(7,minmax(62px,1fr)) 14px minmax(62px,1fr);gap:3px;min-width:700px;font-variant-numeric:tabular-nums}
 .hm-x{justify-self:center;width:0;border-left:1px dashed var(--border)}
@@ -180,10 +177,11 @@ details[open] .ds-caret{transform:rotate(90deg)}
       <div class="page-body-inner">
         <div id="pageBody"><div class="loading-note">Loading data...</div></div>
         <section id="actSection" style="display:none">
-          <div class="sec-title sec-gap">Sebaran per Desa Tempat Kegiatan</div>
+          <div class="sec-title sec-gap">Data Sebaran</div>
           <div class="filters">
+            <div class="filter-row"><span class="filter-lbl">Tujuan</span><select class="km-select" id="objSel"></select></div>
             <div class="filter-row"><span class="filter-lbl">Jenis</span><select class="km-select" id="jenisSel"></select></div>
-            <div class="filter-row"><span class="filter-lbl">Warna</span>
+            <div class="filter-row"><span class="filter-lbl">Sebaran</span>
               <button class="fpill active" data-metric="kegiatan">Jumlah kegiatan</button>
               <button class="fpill" data-metric="peserta">Peserta unik</button>
             </div>
@@ -222,7 +220,27 @@ const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
 const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isOne=v=>str(v)==='1';
 const key=s=>str(s).toLowerCase();
-const fmtTgl=d=>d?d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'Tanpa tanggal';
+const RANGE_SEP=/\s+(?:-|s\/d|sd|sampai|to)\s+|\s*–\s*/i;
+function parseTgl(v,endV){
+  const s=str(v).replace(/^(\d{1,2})-(?=\d{1,2}\s+[A-Za-z])/,'$1 - '),end2=sheetDate(str(endV));
+  const parts=s.split(RANGE_SEP);
+  if(parts.length!==2)return{tgl:sheetDate(s),end:end2&&end2>sheetDate(s)?end2:null};
+  const end=sheetDate(parts[1]);
+  if(!end)return{tgl:sheetDate(s),end:null};
+  const a=parts[0].trim(),y=end.getFullYear();
+  let start=/^\d{1,2}$/.test(a)?new Date(y,end.getMonth(),+a):sheetDate(/\d{4}/.test(a)?a:`${a} ${y}`);
+  if(start&&start>end)start.setFullYear(start.getFullYear()-1);
+  return{tgl:start||end,end:start&&end>start?end:null};
+}
+const dm=d=>`${d.getDate()} ${MONTHS[d.getMonth()]}`;
+function fmtRange(s,withYear=true){
+  if(!s.tgl)return'Tanpa tanggal';
+  const a=s.tgl,b=s.end,yr=d=>withYear?` ${d.getFullYear()}`:'';
+  if(!b)return dm(a)+yr(a);
+  if(a.getFullYear()!==b.getFullYear())return`${dm(a)} ${a.getFullYear()} – ${dm(b)} ${b.getFullYear()}`;
+  if(a.getMonth()===b.getMonth())return`${a.getDate()}–${dm(b)}${yr(b)}`;
+  return`${dm(a)} – ${dm(b)}${yr(b)}`;
+}
 const pct=(a,b)=>b?(a/b*100).toLocaleString('id-ID',{maximumFractionDigits:a/b<.1?1:0}):'0';
 
 const DESA_MIN=10;
@@ -258,7 +276,7 @@ function parseActs(csv){
   data.forEach(r=>{
     const code=str(r.ID_Kode);
     const tempat=normDesa(r.Desa);
-    if(code)actInfo.set(code,{judul:str(r.Judul_Kegiatan)||code,tempat:DATE_LIKE.test(tempat)?'':tempat,tgl:sheetDate(r.Tanggal)});
+    if(code)actInfo.set(code,{judul:str(r.Judul_Kegiatan)||code,tempat:DATE_LIKE.test(tempat)?'':tempat,...parseTgl(r.Tanggal,r.Tanggal_Selesai)});
   });
 }
 
@@ -267,8 +285,8 @@ function buildSessions(){
   const ids=new Map(codes.map(c=>[c,new Set()]));
   people.forEach(p=>p.acts.forEach(c=>ids.get(c)?.add(p.id)));
   sessions=codes.map(code=>{
-    const i=actInfo.get(code)||{judul:code,tempat:'',tgl:null};
-    return{code,judul:i.judul,tempat:i.tempat||NO_PLACE,tgl:i.tgl,ids:ids.get(code)};
+    const i=actInfo.get(code)||{judul:code,tempat:'',tgl:null,end:null};
+    return{code,judul:i.judul,tempat:i.tempat||NO_PLACE,tgl:i.tgl,end:i.end,ids:ids.get(code)};
   });
 }
 
@@ -337,8 +355,6 @@ const objSet=(list,i)=>new Set(list.filter(p=>p.obj.has(i)).map(p=>p.id));
 
 function objHTML(){
   const all=[...people.values()],total=people.size;
-  const groupOf=idx=>tally(new Set(all.filter(p=>idx.some(i=>p.obj.has(i))).map(p=>p.id)));
-  const cb=groupOf([0,1,2,3,4,5,6]),arr=groupOf([7]);
   objTotals=objNames.map((name,i)=>({name,...tally(objSet(all,i))}));
   const byDesa=new Map();
   people.forEach(p=>{
@@ -366,11 +382,6 @@ function objHTML(){
     <div class="ds-head">
       <div class="chart-title">Project Objective for Community Benefits</div>
       <div class="hm-leg"><span>1</span><span class="lg-ramp"></span><span>${fmtInt(max)}</span></div>
-    </div>
-    <div class="ob-sum">
-      <span>Community Benefits <b>${fmtInt(cb.n)}</b> orang (<i>${pct(cb.n,total)}%</i>)</span>
-      <span>Masyarakat terdampak <b>${fmtInt(total)}</b> orang</span>
-      <span style="margin-left:auto">ARR <b>${fmtInt(arr.n)}</b> orang (<i>${pct(arr.n,total)}%</i>)</span>
     </div>
     <div class="hm-wrap"><div class="hm">
       <div class="hm-tl">Total penerima<br>% masyarakat terdampak<br>L / P</div>${objTotals.map(bar).join('')}
@@ -404,9 +415,23 @@ function renderSummary(){
 }
 
 let kmap=null,layers=new Map(),lastMax=1,monthBuckets=[],hoverLine=null,selLine=null;
-const F={jenis:'',metric:'kegiatan',desa:null};
+const F={jenis:'',obj:'',metric:'kegiatan',desa:null};
 
-const filtered=()=>sessions.filter(s=>!F.jenis||s.judul===F.jenis);
+let jenisObj=new Map();
+
+function buildJenisObj(){
+  jenisObj=new Map();
+  groupBy(sessions,'judul').forEach((g,k)=>{
+    const c=new Array(OBJ_N).fill(0);
+    g.ids.forEach(id=>people.get(id).obj.forEach(i=>c[i]++));
+    const max=Math.max(...c);
+    jenisObj.set(k,max?c.indexOf(max):-1);
+  });
+}
+
+const objSessions=()=>F.obj===''?sessions:sessions.filter(s=>jenisObj.get(key(s.judul))===+F.obj);
+
+const filtered=()=>objSessions().filter(s=>!F.jenis||s.judul===F.jenis);
 
 function groupBy(list,field){
   const m=new Map();
@@ -443,12 +468,11 @@ function badgeIcon(name,v,k){
 function tipHTML(name){
   const g=groupBy(filtered(),'tempat').get(key(name));
   if(!g)return`<div class="tt-head"><strong>${esc(name)}</strong></div><div class="tt-row"><span>Belum ada kegiatan</span><span></span></div>`;
-  const t=tally(g.ids),last=[...g.items].filter(s=>s.tgl).sort((a,b)=>b.tgl-a.tgl)[0];
+  const t=tally(g.ids);
   return`<div class="tt-head"><strong>${esc(name)}</strong> (${fmtInt(g.items.length)} kegiatan)</div>
     <div class="tt-row"><span>Peserta unik</span><span>${fmtInt(t.n)}</span></div>
     <div class="tt-row"><span>Laki-laki / perempuan</span><span>${fmtInt(t.L)} / ${fmtInt(t.P)}</span></div>
-    <div class="tt-row"><span>Jenis kegiatan</span><span>${fmtInt(groupBy(g.items,'judul').size)}</span></div>
-    ${last?`<div class="tt-row"><span>Terakhir ${fmtTgl(last.tgl)}</span><span></span></div>`:''}`;
+    <div class="tt-row"><span>Jenis kegiatan</span><span>${fmtInt(groupBy(g.items,'judul').size)}</span></div>`;
 }
 
 function initMap(desaJ,cmiJ){
@@ -543,7 +567,7 @@ function renderOverview(){
     .sort((a,b)=>(a.name===NO_PLACE)-(b.name===NO_PLACE)||b.v-a.v);
   return`<div class="km-sticky"><div class="ld-title">Semua lokasi</div>
     ${statsBlock(list,ids)}</div>
-    <div class="ld-sec"><div class="ld-sec-hd">Desa project zone<small>${mapped.filter(r=>r.v).length} dari ${mapped.length} desa</small></div>${listRows(mapped,'desa',null)}</div>
+    <div class="ld-sec"><div class="ld-sec-hd">Desa project zone<small>${mapped.filter(r=>r.v).length} dari ${mapped.length} desa</small></div>${mapped.some(r=>r.v)?listRows(mapped.filter(r=>r.v),'desa',null):'<div class="ld-none">Belum ada kegiatan pada filter ini.</div>'}</div>
     ${other.length?`<div class="ld-sec"><div class="ld-sec-hd">Lokasi lain</div>${listRows(other,'desa',null)}</div>`:''}`;
 }
 
@@ -562,7 +586,7 @@ function renderDesa(){
     <div class="ld-sec"><div class="ld-sec-hd">Desa asal peserta</div>${originRows(g.ids)}</div>
     <div class="ld-sec"><div class="ld-sec-hd">Riwayat kegiatan<small>peserta</small></div>
       <div class="km-tl">${tl.map(s=>`<div class="km-tl-i">
-        <span class="km-tl-d">${fmtTgl(s.tgl)}</span>
+        <span class="km-tl-d">${fmtRange(s)}</span>
         <span class="km-tl-t" title="${esc(s.judul)}">${esc(s.judul)}</span>
         <span class="km-tl-v"><b>${fmtInt(s.ids.size)}</b></span>
       </div>`).join('')}</div>
@@ -599,6 +623,8 @@ function renderActs(){
   document.querySelectorAll('[data-metric]').forEach(b=>b.classList.toggle('active',b.dataset.metric===F.metric));
   const sel=document.getElementById('jenisSel');
   sel.value=F.jenis;sel.classList.toggle('on',!!F.jenis);
+  const os=document.getElementById('objSel');
+  os.value=F.obj;os.classList.toggle('on',F.obj!=='');
   updateMap();renderPanel();renderMonths();
 }
 
@@ -607,10 +633,20 @@ function selectDesa(name){
   renderActs();
 }
 
-function initFilters(){
-  const jenis=[...groupBy(sessions,'judul').values()].sort((a,b)=>a.name.localeCompare(b.name));
+function fillJenis(){
+  const jenis=[...groupBy(objSessions(),'judul').values()].sort((a,b)=>a.name.localeCompare(b.name));
+  if(F.jenis&&!jenis.some(j=>j.name===F.jenis))F.jenis='';
   document.getElementById('jenisSel').innerHTML=`<option value="">Semua jenis kegiatan</option>`
     +jenis.map(j=>`<option value="${esc(j.name)}">${esc(j.name)} (${j.items.length})</option>`).join('');
+}
+
+function initFilters(){
+  buildJenisObj();
+  const nAct=i=>sessions.filter(s=>jenisObj.get(key(s.judul))===i).length;
+  document.getElementById('objSel').innerHTML=`<option value="">Semua Project Objective</option>`
+    +objNames.map((n,i)=>`<option value="${i}">${esc(n)} (${fmtInt(nAct(i))} kegiatan)</option>`).join('');
+  document.getElementById('objSel').addEventListener('change',e=>{F.obj=e.target.value;fillJenis();renderActs();});
+  fillJenis();
   document.getElementById('jenisSel').addEventListener('change',e=>{F.jenis=e.target.value;renderActs();});
 }
 
@@ -635,7 +671,7 @@ function tipFor(t){
   if(!b||!b.items.length)return'';
   const items=[...b.items].sort((x,y)=>x.tgl-y.tgl);
   return`<div class="tt-head"><strong>${MONTHS[b.m%12]} ${Math.floor(b.m/12)}</strong> (${items.length} kegiatan)</div>`
-    +items.slice(0,8).map(s=>`<div class="tt-row"><span>${esc(s.judul)} / ${esc(s.tempat)} (${s.tgl.getDate()} ${MONTHS[s.tgl.getMonth()]})</span><span>${fmtInt(s.ids.size)}</span></div>`).join('')
+    +items.slice(0,8).map(s=>`<div class="tt-row"><span>${esc(s.judul)} / ${esc(s.tempat)} (${fmtRange(s,false)})</span><span>${fmtInt(s.ids.size)}</span></div>`).join('')
     +(items.length>8?`<div class="tt-row"><span>+${items.length-8} lainnya</span><span>${fmtInt(items.slice(8).reduce((a,s)=>a+s.ids.size,0))}</span></div>`:'');
 }
 
