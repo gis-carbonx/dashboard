@@ -78,6 +78,10 @@ body{display:flex;flex-direction:column}
 .pg-p text{font-size:12px;font-weight:800;fill:#fff;stroke:none}
 @keyframes pgIn{from{opacity:0}}
 .pg-c{fill:#9C998C;font-weight:600}
+.pg-d{animation:pgIn .45s ease-out backwards}
+.pg-d circle{stroke-width:1.5}
+.pg-d text{font-size:10.5px;fill:#6B675C}
+.pg-e.pg-ek{stroke-width:1.1}
 .pg-svg.hl .pg-e:not(.on){opacity:.12}
 .pg-svg.hl .pg-n:not(.on):not(.pg-p){opacity:.28}
 .pg-svg.hl .pg-e.on{stroke:#618273}
@@ -286,16 +290,39 @@ function graphData(p){
   return{p,list,objs,jen};
 }
 
+const SLOT=17,GAP=10,DX=118;
 function layout(g){
-  const n=g.jen.length,nr=Math.ceil(n/2),nl=n-nr;
-  const ry=Math.max(110,(nr-1)*17);
-  const span=c=>Math.min(ry,(c-1)*17);
+  g.jen.forEach(j=>{
+    const m=new Map();
+    [...j.items].sort((a,b)=>(a.tgl||0)-(b.tgl||0)).forEach(s=>{
+      const label=fmtRange(s),d=m.get(label)||{label,items:[]};
+      d.items.push(s);m.set(label,d);
+    });
+    j.kids=m.size>1?[...m.values()]:[];
+    j.w=Math.max(1,j.kids.length);
+  });
+  const tot=g.jen.reduce((a,j)=>a+j.w,0),sides=[[],[]];
+  let acc=0;
+  g.jen.forEach(j=>{sides[acc<tot/2?0:1].push(j);acc+=j.w;});
+  const hOf=l=>l.reduce((a,j)=>a+j.w*SLOT,0)+Math.max(0,l.length-1)*GAP;
+  const ry=Math.max(110,Math.max(...sides.map(hOf))/2);
   const xAt=(y,side)=>side*(RX0+(RX-RX0)*Math.sqrt(Math.max(0,1-(y/(ry+24))**2)));
-  g.jen.forEach((j,i)=>{
-    const right=i<nr,c=right?nr:nl,k=right?i:i-nr,sp=span(c);
-    const y=c>1?(right?-sp+2*sp*k/(c-1):sp-2*sp*k/(c-1)):0;
-    j.x0=xAt(y,right?1:-1);j.y0=y;j.x=j.x0;j.y=j.y0;j.vx=0;j.vy=0;j.fx=null;j.fy=null;
-    j.r=Math.min(11,5+Math.sqrt(j.items.length)*1.8);
+  const init=(n,x,y)=>{n.x0=x;n.y0=y;n.x=x;n.y=y;n.vx=0;n.vy=0;n.fx=null;n.fy=null;};
+  g.kids=[];
+  sides.forEach((l,si)=>{
+    const side=si?-1:1;
+    let top=-hOf(l)/2;
+    l.forEach(j=>{
+      const y=top+j.w*SLOT/2;
+      init(j,xAt(y,side),y);
+      j.r=Math.min(11,5+Math.sqrt(j.items.length)*1.8);
+      j.kids.forEach((k,i)=>{
+        init(k,j.x0+side*DX,top+SLOT*(i+.5));
+        k.r=4;k.kid=true;k.j=j;k.ki=i;
+        g.kids.push(k);
+      });
+      top+=j.w*SLOT+GAP;
+    });
   });
   g.H=Math.round(ry*2+80);
 }
@@ -307,16 +334,25 @@ function graphSVG(g){
   layout(g);
   const p=g.p,P={x:0,y:0};
   const initials=p.nama.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-  const edges=g.jen.map(j=>`<path class="pg-e" data-o="${j.o}" data-j="${j.i}" d="${edgePath(P,j)}"/>`).join('');
+  const edges=g.jen.map(j=>`<path class="pg-e" data-o="${j.o}" data-j="${j.i}" d="${edgePath(P,j)}"/>`).join('')
+    +g.kids.map(k=>`<path class="pg-e pg-ek" data-o="${k.j.o}" data-j="${k.j.i}" d="${edgePath(k.j,k)}"/>`).join('');
   const jn=g.jen.map(j=>{
     const s=j.x>=0?1:-1;
+    const lbl=`${esc(trunc(j.name,30))}<tspan class="pg-c"> ${j.items.length}×</tspan>`;
     return`<g class="pg-n pg-j" data-o="${j.o}" data-j="${j.i}" transform="translate(${f1(j.x)},${f1(j.y)})">
       <circle r="${f1(j.r)}" style="fill:${objColor(j.obj)}"/>
-      <text x="${f1(s*(j.r+7))}" dy=".35em" text-anchor="${s>0?'start':'end'}">${esc(trunc(j.name,30))}<tspan class="pg-c"> ${j.items.length}×</tspan></text>
+      ${j.kids.length?`<text y="${f1(-j.r-6)}" text-anchor="middle">${lbl}</text>`:`<text x="${f1(s*(j.r+7))}" dy=".35em" text-anchor="${s>0?'start':'end'}">${lbl}</text>`}
+    </g>`;
+  }).join('');
+  const kn=g.kids.map(k=>{
+    const s=k.x>=0?1:-1;
+    return`<g class="pg-n pg-d" data-o="${k.j.o}" data-j="${k.j.i}" data-k="${k.ki}" transform="translate(${f1(k.x)},${f1(k.y)})">
+      <circle r="${k.r}" style="fill:${objColor(k.j.obj)}"/>
+      <text x="${f1(s*(k.r+6))}" dy=".35em" text-anchor="${s>0?'start':'end'}">${esc(k.label)}${k.items.length>1?`<tspan class="pg-c"> ${k.items.length}×</tspan>`:''}</text>
     </g>`;
   }).join('');
   return`<svg class="pg-svg" id="pgSvg" viewBox="0 0 ${W} ${g.H}"><rect width="${W}" height="${g.H}" fill="transparent" data-bg="1"/>
-    <g transform="translate(${W/2},${g.H/2})"><g class="pg-zi">${edges}${jn}
+    <g transform="translate(${W/2},${g.H/2})"><g class="pg-zi">${edges}${kn}${jn}
       <g class="pg-n pg-p" data-p="1"><circle r="21"/><text text-anchor="middle" dy=".36em">${esc(initials)}</text></g>
     </g></g></svg>`;
 }
@@ -326,36 +362,46 @@ function startSim(g){
   if(sim)sim.stop();
   const svg=d3.select('#pgSvg'),zi=svg.select('.pg-zi');
   const P={x:0,y:0,x0:0,y0:0,r:21,isP:true};
-  const nodes=[P,...g.jen];
-  const links=g.jen.map(j=>({source:P,target:j}));
-  const eSel=zi.selectAll('.pg-e').data(g.jen),nSel=zi.selectAll('.pg-j').data(g.jen),pSel=zi.select('.pg-p').datum(P);
+  const nodes=[P,...g.jen,...g.kids];
+  const links=[...g.jen.map(j=>({source:P,target:j})),...g.kids.map(k=>({source:k.j,target:k}))];
+  const eSel=zi.selectAll('.pg-e:not(.pg-ek)').data(g.jen),ekSel=zi.selectAll('.pg-ek').data(g.kids);
+  const nSel=zi.selectAll('.pg-j').data(g.jen),kSel=zi.selectAll('.pg-d').data(g.kids),pSel=zi.select('.pg-p').datum(P);
   nSel.each(function(j){j.tw=this.querySelector('text').getComputedTextLength();});
+  kSel.each(function(k){k.tw=this.querySelector('text').getComputedTextLength();});
   const hw=W/2-8,hh=g.H/2-6;
   const clamp=(v,a)=>Math.max(-a,Math.min(a,v));
+  const side=(n,o)=>{
+    const out=n.r+7+n.tw;
+    n.x=n.x>=o.x?Math.max(-hw+n.r,Math.min(hw-out,n.x)):Math.min(hw-n.r,Math.max(-hw+out,n.x));
+    n.y=clamp(n.y,hh-n.r);
+  };
   const tick=()=>{
     P.x=clamp(P.x,hw-30);P.y=clamp(P.y,hh-24);
     g.jen.forEach(j=>{
-      const out=j.r+7+j.tw;
-      j.x=j.x>=P.x?Math.max(-hw+j.r,Math.min(hw-out,j.x)):Math.min(hw-j.r,Math.max(-hw+out,j.x));
-      j.y=clamp(j.y,hh-j.r);
+      if(j.kids.length){j.x=clamp(j.x,hw-j.tw/2);j.y=Math.max(-hh+j.r+18,Math.min(hh-j.r,j.y));}
+      else side(j,P);
     });
+    g.kids.forEach(k=>side(k,k.j));
     eSel.attr('d',j=>edgePath(P,j));
-    nSel.attr('transform',j=>`translate(${f1(j.x)},${f1(j.y)})`).select('text')
+    ekSel.attr('d',k=>edgePath(k.j,k));
+    nSel.attr('transform',j=>`translate(${f1(j.x)},${f1(j.y)})`).filter(j=>!j.kids.length).select('text')
       .attr('x',j=>f1((j.x>=P.x?1:-1)*(j.r+7))).attr('text-anchor',j=>j.x>=P.x?'start':'end');
+    kSel.attr('transform',k=>`translate(${f1(k.x)},${f1(k.y)})`).select('text')
+      .attr('x',k=>f1((k.x>=k.j.x?1:-1)*(k.r+6))).attr('text-anchor',k=>k.x>=k.j.x?'start':'end');
     pSel.attr('transform',`translate(${f1(P.x)},${f1(P.y)})`);
   };
   sim=d3.forceSimulation(nodes)
-    .force('link',d3.forceLink(links).distance(l=>Math.hypot(l.target.x0,l.target.y0)).strength(.25))
-    .force('charge',d3.forceManyBody().strength(-90).distanceMax(220))
-    .force('collide',d3.forceCollide(d=>d.r+5).strength(.8))
-    .force('x',d3.forceX(d=>d.x0).strength(d=>d.isP?.3:.07))
-    .force('y',d3.forceY(d=>d.y0).strength(d=>d.isP?.3:.07))
+    .force('link',d3.forceLink(links).distance(l=>Math.hypot(l.target.x0-l.source.x0,l.target.y0-l.source.y0)).strength(l=>l.target.kid?.5:.25))
+    .force('charge',d3.forceManyBody().strength(d=>d.kid?-14:-90).distanceMax(220))
+    .force('collide',d3.forceCollide(d=>d.kid?7:d.r+5).strength(.8))
+    .force('x',d3.forceX(d=>d.x0).strength(d=>d.isP?.3:d.kid?.12:.07))
+    .force('y',d3.forceY(d=>d.y0).strength(d=>d.isP?.3:d.kid?.12:.07))
     .alpha(.25).alphaDecay(.03).on('tick',tick);
   const drag=d3.drag()
     .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;tt.style.display='none';})
     .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
     .on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;});
-  nSel.call(drag);pSel.call(drag);
+  nSel.call(drag);kSel.call(drag);pSel.call(drag);
   svg.call(d3.zoom().scaleExtent([.5,3])
     .filter(e=>e.type==='wheel'?(e.ctrlKey||e.metaKey):!e.button&&!e.target.closest('.pg-n'))
     .on('zoom',e=>zi.attr('transform',e.transform)))
@@ -504,6 +550,11 @@ function tipFor(t){
     const p=G.p;
     return`<div class="tt-head"><strong>${esc(p.nama)}</strong> / ${fmtInt(G.list.length)} kegiatan</div>`
       +G.objs.map(o=>`<div class="tt-row"><span>${esc(o.name)}</span><span>${fmtInt(o.n)}</span></div>`).join('');
+  }
+  if(n.dataset.k!==undefined){
+    const j=G.jen[+n.dataset.j],k=j.kids[+n.dataset.k];
+    return`<div class="tt-head"><strong>${esc(k.label)}</strong> / ${esc(j.name)}</div>`
+      +k.items.map(s=>`<div class="tt-row"><span>${esc(s.tempat)}</span><span></span></div>`).join('');
   }
   const j=G.jen[+n.dataset.j],items=[...j.items].sort((a,b)=>(a.tgl||0)-(b.tgl||0));
   return`<div class="tt-head"><strong>${esc(j.name)}</strong> / ${fmtInt(items.length)} kegiatan</div>

@@ -302,7 +302,18 @@
 
 <script>
 const CT_SHEET_ID='1Zkm82R3ct1HY1ov_HL35M9qEJudKPCkf0wGSNGxwdQ4';
-const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=414415821`;
+const CT_SHEET_URL=`https://docs.google.com/spreadsheets/d/${CT_SHEET_ID}/export?format=csv&gid=2019080698`;
+const CT_COLS={
+  batch:['Batch'],site:['Site'],lat:['Latitude','Lat'],lon:['Longitude','Lon','Long'],
+  unit:['CameraID','Camera ID','Unit ID','UnitID'],date:['Date'],cls:['Class'],species:['Species'],
+  local:['Local name','Local_name','Nama lokal'],iucn:['IUCN_status','IUCN status','IUCN'],indep:['Independency','Independent','Indep']
+};
+function headerCols(head,spec){
+  const n=s=>(s||'').toString().trim().toLowerCase().replace(/[_\s]+/g,' ');
+  const keys=head.map(n),idx={};
+  for(const k in spec)idx[k]=spec[k].map(n).map(w=>keys.indexOf(w)).find(i=>i>=0)??-1;
+  return(r,k)=>idx[k]<0?'':(r[idx[k]]??'');
+}
 const BIO_SHEET_ID='1NJPa0nnULKqlihlkZo7J9M6gALi71LZ2_cs-0qz8SuI';
 const BIO_SHEET_URL=`https://docs.google.com/spreadsheets/d/${BIO_SHEET_ID}/export?format=csv&gid=2033661649`;
 const GRID_URL='./assets/json/Grid.json';
@@ -600,10 +611,11 @@ async function loadAll(){
   patrolRows=patrolYearRaw.flat().map(r=>({date:parseDateStr(r[1]),petak:parsePetak(r[5])}))
     .filter(r=>r.date&&r.petak.length);
 
+  const ct=headerCols(ctRaw[0]||[],CT_COLS);
   ctRows=ctRaw.slice(1).map(r=>({
-    Latitude:parseFloat(r[7]),Longitude:parseFloat(r[8]),UnitID:r[9]||'',Date:parseDateStr(r[10]),
-    Class:r[13]||'',Species:(r[14]||'').trim(),LocalName:r[15]||'',IUCN:r[16]||'',
-    Indep:Math.max(0,parseInt(r[17])||0),Source:'cameratrap'
+    Latitude:parseFloat(ct(r,'lat')),Longitude:parseFloat(ct(r,'lon')),UnitID:ct(r,'unit'),Date:parseDateStr(ct(r,'date')),
+    Class:ct(r,'cls'),Species:ct(r,'species').trim(),LocalName:ct(r,'local'),IUCN:ct(r,'iucn').trim(),
+    Indep:Math.max(0,parseInt(ct(r,'indep'))||0),Source:'cameratrap'
   })).filter(r=>r.Species&&!isNaN(r.Latitude)&&!isNaN(r.Longitude));
 
   bioRows=bioRaw.slice(1).map(r=>({
@@ -641,11 +653,11 @@ async function loadAll(){
   allCt=ctRows;allBio=bioRows;allHunting=huntingRecords;
   const normSp=s=>(s||'').trim().toLowerCase();
   keySpeciesRows=[
-    ...ctRaw.slice(1).map(r=>({unit:(r[9]||'').trim(),date:parseDateStr(r[10]),species:normSp(r[14]),indep:Math.max(0,parseInt(r[17])||0)})),
+    ...ctRaw.slice(1).map(r=>({unit:ct(r,'unit').trim(),date:parseDateStr(ct(r,'date')),species:normSp(ct(r,'species')),indep:Math.max(0,parseInt(ct(r,'indep'))||0)})),
     ...bioRaw.slice(1).map(r=>({unit:(r[0]||'').trim(),date:parseDateStr(r[7]),species:normSp(r[10]),indep:1}))
   ].filter(r=>r.unit&&r.date&&r.species);
-  ctDeployments=buildDeployments(ctRaw.slice(1).map(r=>({id:normUnitId(r[9]),name:normUnitId(r[9]),batch:(r[2]||'').trim(),
-    site:(r[6]||'').trim(),date:parseDateStr(r[10])})));
+  ctDeployments=buildDeployments(ctRaw.slice(1).map(r=>({id:normUnitId(ct(r,'unit')),name:normUnitId(ct(r,'unit')),batch:ct(r,'batch').trim(),
+    site:ct(r,'site').trim(),date:parseDateStr(ct(r,'date'))})));
   bioDeployments=buildDeployments(bioRaw.slice(1).map(r=>({id:normUnitId(r[0]),name:(r[0]||'').trim(),batch:(r[1]||'').trim(),
     site:(r[3]||'').trim()?`grid ${(r[3]||'').trim()}`:'',date:parseDateStr(r[7])})));
   buildApexPredatorSpecies();
