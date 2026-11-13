@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Engagement | Sanggala Corridor Project</title>
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js" defer></script>
+  <script src="https://unpkg.com/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <style>
+    :root{
+      --color-cream:#FFFAF3;
+      --color-sand:#DCDACC;
+      --color-sage:#B5BBA9;
+      --color-moss:#8C9F8B;
+      --color-fern:#618273;
+      --color-pine:#356760;
+      --color-delta:#f97316;
+      --color-fire:#c2703f;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',sans-serif;background:#FFFAF3}
+    body{display:flex;flex-direction:column}
+
+    .site-navbar{
+      flex-shrink:0;
+      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+      padding:12px 32px;background-color:var(--color-cream);
+      border-bottom:1px solid var(--color-sand);font-family:'Libre Franklin',sans-serif;
+    }
+    .site-navbar-brand{display:flex;align-items:center;gap:10px;justify-self:start}
+    .site-navbar-brand img{width:28px;height:28px;object-fit:contain}
+    .site-navbar-brand span{font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--color-pine)}
+    .site-navbar-menu{display:flex;gap:32px;justify-self:center}
+    .site-navbar-menu a{text-decoration:none;color:var(--color-fern);font-size:13px;font-weight:500}
+    .site-navbar-menu a:hover,.site-navbar-menu a.active{color:var(--color-pine)}
+    .site-navbar-spacer{justify-self:end}
+    @media (max-width:768px){
+      .site-navbar{grid-template-columns:auto auto;padding:10px 16px}
+      .site-navbar-menu{gap:14px;justify-self:end}
+      .site-navbar-spacer{display:none}
+    }
+
+    .dashboard-frame{
+      flex:1;min-height:0;
+      margin:0 28px 28px 28px;border:1px solid var(--color-sand);border-radius:0;overflow:hidden;
+      box-shadow:0 6px 22px rgba(0,0,0,.08);background:#fff;
+      display:flex;flex-direction:column;
+    }
+
+    .ce-header{background:#3A342C;border-bottom:1px solid #4a4238;padding:14px 0;flex-shrink:0}
+    .ce-header-inner{
+      max-width:1180px;margin:0 auto;padding:0 36px;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
+    }
+    .ce-header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.2px}
+    .ce-header-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+
+    .ce-scroll{flex:1;min-height:0;overflow-y:auto}
+    .ce-content{max-width:1180px;margin:0 auto;padding:28px 36px 48px}
+    .section-title{font-size:15px;font-weight:700;color:#3A342C;margin:28px 0 14px}
+
+    .year-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+    .year-filter-label{font-size:12px;font-weight:600;color:#6A665B}
+    .year-filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+    .year-chip{
+      padding:6px 16px;border-radius:20px;border:1px solid var(--color-sand);
+      background:var(--color-cream);color:#3A342C;font-size:12px;font-weight:600;
+      cursor:pointer;transition:background .15s,color .15s;font-family:'Libre Franklin',sans-serif;
+    }
+    .year-chip:hover:not(:disabled){background:var(--color-sage)}
+    .year-chip.active{background:var(--color-pine);border-color:var(--color-pine);color:#fff}
+    .year-chip:disabled{opacity:.45;cursor:not-allowed}
+
+    .beneficiary-row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;align-items:stretch}
+    .stat-card{background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:22px 24px;flex:0 0 320px}
+    .chart-panel{
+      background:#fff;border:1px solid var(--color-sand);border-radius:14px;padding:20px 22px;
+      flex:1;min-width:340px;display:flex;flex-direction:column;
+    }
+    .chart-panel-canvas-wrap{position:relative;flex:1;min-height:220px;margin-top:6px}
+    @media (max-width:760px){
+      .stat-card{flex:1 1 100%}
+    }
+    .stat-label{font-size:12px;color:#6A665B;font-weight:600;margin-bottom:16px}
+    .stat-value-row{display:flex;align-items:center;gap:22px}
+    .stat-value{font-size:36px;font-weight:800;color:var(--color-pine);line-height:1}
+    .stat-value-suffix{font-size:19px;font-weight:600;color:#9C998C;margin-left:3px}
+    .stat-sub-plain{font-size:11px;color:#6A665B;line-height:1.5;max-width:150px}
+    .stat-breakdown{display:flex;gap:18px;margin-top:16px;padding-top:16px;border-top:1px solid var(--color-sand)}
+    .stat-breakdown-item{display:flex;align-items:center;gap:7px}
+    .stat-breakdown-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .stat-breakdown-text{font-size:12px;color:#3A342C}
+    .stat-breakdown-text b{color:var(--color-pine);font-size:13px}
+
+    .illegal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:8px}
+    .illegal-card{
+      background:#fff;border:1px solid var(--color-sand);border-radius:12px;padding:14px 14px;
+      min-width:0;
+    }
+    .illegal-label{font-size:10.5px;color:#6A665B;font-weight:600;margin-bottom:10px;line-height:1.35}
+    .illegal-value{font-size:24px;font-weight:800;color:var(--color-pine);line-height:1;margin-bottom:6px}
+    .illegal-sub{font-size:10px;color:#6A665B;line-height:1.4}
+    @media (max-width:900px){.illegal-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:560px){.illegal-grid{grid-template-columns:repeat(2,1fr)}}
+
+    .ce-note{font-size:11px;color:#9C998C;line-height:1.6;margin-top:22px}
+
+    .loading-msg{padding:60px 32px;text-align:center;color:#9C998C;font-size:13px}
+  </style>
+</head>
+<body>
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="ce-header">
+    <div class="ce-header-inner">
+      <div>
+        <div class="ce-header-title">Community Engagement</div>
+        <div class="ce-header-date" id="ceTodayDate">–</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ce-scroll" id="ceContent">
+    <div class="loading-msg" id="ceLoading">Loading community engagement data…</div>
+
+    <div class="ce-content" id="ceContentBody" style="display:none">
+
+      <div class="year-filter-bar">
+        <span class="year-filter-label">Year Filter</span>
+        <div class="year-filter-chips" id="yearFilterChips">
+          <button type="button" class="year-chip active" data-year="all">All</button>
+          <button type="button" class="year-chip" data-year="2025" disabled title="Pemecahan data per tahun belum tersedia di sumber data">2025</button>
+          <button type="button" class="year-chip" data-year="2026" disabled title="Pemecahan data per tahun belum tersedia di sumber data">2026</button>
+        </div>
+      </div>
+
+      <div class="beneficiary-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Beneficiaries</div>
+          <div class="stat-value-row">
+            <span class="stat-value" id="statTotalBeneficiaries">–</span>
+            <span class="stat-sub-plain">people reached across all community engagement activities</span>
+          </div>
+          <div class="stat-breakdown">
+            <div class="stat-breakdown-item">
+              <span class="stat-breakdown-text"><b id="statMale">–</b> Laki-laki</span>
+            </div>
+            <div class="stat-breakdown-item">
+              <span class="stat-breakdown-text"><b id="statFemale">–</b> Perempuan</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="stat-label">Participants by Village</div>
+          <div class="chart-panel-canvas-wrap">
+            <canvas id="desaChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Project Objective for Community Benefits</div>
+
+      <div class="illegal-grid" id="objectiveGrid">
+        <div class="illegal-card">
+          <div class="illegal-label">Increased Access to Water</div>
+          <div class="illegal-value" id="statWater">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label">Increased Access to Health</div>
+          <div class="illegal-value" id="statHealth">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label">Increased Access to Education</div>
+          <div class="illegal-value" id="statEducation">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label">Increased Alternative Livelihood</div>
+          <div class="illegal-value" id="statLivelihood">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label">Protection of HCV 6</div>
+          <div class="illegal-value" id="statHcv6">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+        <div class="illegal-card">
+          <div class="illegal-label">Enhanced Capacity of Communities</div>
+          <div class="illegal-value" id="statCapacity">–</div>
+          <div class="illegal-sub">people</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const COMDEV_SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c';
+const COMDEV_BASE_URL=`https://docs.google.com/spreadsheets/d/${COMDEV_SHEET_ID}/export?format=csv&gid=0`;
+const COMDEV_SUMMARY_URL=`${COMDEV_BASE_URL}&range=A1:R2`;
+const COMDEV_INDIVIDUALS_URL=`${COMDEV_BASE_URL}&range=A5:H2337`; 
+const COL={D:3,F:5,G:6,H:7,M:12,N:13,O:14,P:15,Q:16,R:17};
+
+let desaChartInstance=null;
+
+function fmtNumberID(n){
+  const v=parseFloat(n);
+  return isNaN(v)?'0':v.toLocaleString('id-ID',{maximumFractionDigits:0});
+}
+function fmtDateID(d){return d?d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'–';}
+
+function fetchCsv(url){
+  return new Promise((resolve)=>{
+    Papa.parse(url,{download:true,header:false,skipEmptyLines:true,
+      complete:(res)=>resolve(res.data||[]),
+      error:(err)=>{console.error('CSV load error:',url,err);resolve([]);}
+    });
+  }).catch(e=>{console.error('Unexpected CSV failure:',url,e);return [];});
+}
+
+async function loadAll(){
+  document.getElementById('ceTodayDate').textContent=fmtDateID(new Date());
+
+  const [summaryRows,individualRows]=await Promise.all([
+    fetchCsv(COMDEV_SUMMARY_URL),
+    fetchCsv(COMDEV_INDIVIDUALS_URL)
+  ]);
+  const row1=summaryRows[0]||[];
+  const row2=summaryRows[1]||[];
+
+  const totalBeneficiaries=row1[COL.G];
+  const male=row2[COL.G];
+  const female=row2[COL.H];
+
+  const water=row1[COL.M];
+  const health=row1[COL.N];
+  const education=row1[COL.O];
+  const livelihood=row1[COL.P];
+  const hcv6=row1[COL.Q];
+  const capacity=row1[COL.R];
+
+  document.getElementById('statTotalBeneficiaries').textContent=fmtNumberID(totalBeneficiaries);
+  document.getElementById('statMale').textContent=fmtNumberID(male);
+  document.getElementById('statFemale').textContent=fmtNumberID(female);
+
+  document.getElementById('statWater').textContent=fmtNumberID(water);
+  document.getElementById('statHealth').textContent=fmtNumberID(health);
+  document.getElementById('statEducation').textContent=fmtNumberID(education);
+  document.getElementById('statLivelihood').textContent=fmtNumberID(livelihood);
+  document.getElementById('statHcv6').textContent=fmtNumberID(hcv6);
+  document.getElementById('statCapacity').textContent=fmtNumberID(capacity);
+
+  renderDesaChart(individualRows);
+
+  document.getElementById('ceLoading').style.display='none';
+  document.getElementById('ceContentBody').style.display='block';
+}
+
+function renderDesaChart(rows){
+  const counts={};
+
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i];
+    if(!r)continue;
+    const desa=(r[COL.D]||'').toString().trim();
+    const nama=(r[COL.F]||'').toString().trim();
+    if(!desa||!nama)continue; 
+    if(!counts[desa])counts[desa]={male:0,female:0,total:0};
+    const isMale=(r[COL.G]||'').toString().trim()!=='';
+    const isFemale=(r[COL.H]||'').toString().trim()!=='';
+    if(isMale)counts[desa].male++;
+    if(isFemale)counts[desa].female++;
+    counts[desa].total++;
+  }
+
+  const desaNames=Object.keys(counts).sort((a,b)=>counts[b].total-counts[a].total);
+  const maleData=desaNames.map(d=>counts[d].male);
+  const femaleData=desaNames.map(d=>counts[d].female);
+
+  const wrap=document.querySelector('.chart-panel-canvas-wrap');
+  const neededHeight=Math.max(220,desaNames.length*30);
+  wrap.style.height=neededHeight+'px';
+
+  const ctx=document.getElementById('desaChart').getContext('2d');
+  if(desaChartInstance)desaChartInstance.destroy();
+  desaChartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:desaNames,
+      datasets:[
+        {label:'Laki-laki',data:maleData,backgroundColor:'#618273',borderRadius:3,maxBarThickness:16},
+        {label:'Perempuan',data:femaleData,backgroundColor:'#DCAE7D',borderRadius:3,maxBarThickness:16}
+      ]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',align:'end',labels:{font:{family:"'Libre Franklin',sans-serif",size:11},boxWidth:12,color:'#3A342C'}},
+        tooltip:{bodyFont:{family:"'Libre Franklin',sans-serif"},titleFont:{family:"'Libre Franklin',sans-serif"}}
+      },
+      scales:{
+        x:{stacked:true,beginAtZero:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10},color:'#6A665B'},grid:{color:'#f3f4f6'}},
+        y:{stacked:true,ticks:{font:{family:"'Libre Franklin',sans-serif",size:10.5},color:'#3A342C'},grid:{display:false}}
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded',loadAll);
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

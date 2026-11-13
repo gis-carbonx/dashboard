@@ -286,9 +286,8 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
+const CSV_URL=ARR_URL;
+const TARGET_URL=ARR_TARGET_URL;
 
 const str=v=>(v??'').toString().trim();
 const num=v=>sheetNum(v);
@@ -341,8 +340,6 @@ const fmtDate=s=>{const d=parseDate(s);return d?d.toLocaleDateString('id-ID',{da
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   rows=[];
-  const plantCols=[];
-  (data.length?Object.keys(data[0]):[]).forEach(h=>{const m=h.match(/^P-\s*(.+)$/i);if(m)plantCols.push({header:h,name:m[1].trim()});});
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||'');if(!id)return;
     const keys=Object.keys(raw);
@@ -356,7 +353,6 @@ function parseSheet(csv){
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog)return;
     const tglTanam=parseDate(tglRealisasi);
-    const plantEvents=tglTanam?plantCols.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
     const nominalStages={},stages={};
     INS_STAGES.forEach((s,i)=>{
       nominalStages[s.key]=num(colV(raw,keys,['Nominal_T'+(i+1)],28+i));
@@ -368,7 +364,7 @@ function parseSheet(csv){
     rows.push({id,kth,petani,jk,prog,
       desa:str(raw['Desa']||''),dusun:str(colV(raw,keys,['dusun'],44)),
       tglPartisipasi:parseDate(tglPartisipasi),tglRealisasi:tglTanam,
-      luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,plantEvents,careEvents:[],tglRestore:tglTanam,
+      luasAgroAT,luasTembAU,aReg,aBPO,tReg,tMTL,plantEvents:[],careEvents:[],tglRestore:tglTanam,
       luasAgro,luasTemb,luas:luasAgro+luasTemb,
       nominalStages,stages,
       pupukPadat:num(colV(raw,keys,['PupukPadat','Pupuk_Padat'],39)),
@@ -1722,7 +1718,7 @@ function render(){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
     const [csvTxt,tgtTxt,logTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(ACTIVITY_LOG_URL).catch(()=>'')]);
-    parseSheet(csvTxt);
+    parseSheet(arrSummaryCsv(csvTxt));
     parseLog(logTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     const ys=new Set();

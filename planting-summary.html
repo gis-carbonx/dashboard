@@ -155,10 +155,9 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
 const CACHE_BUST='?v='+Date.now();
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
+const CSV_URL=ARR_URL;
+const TARGET_URL=ARR_TARGET_URL;
 
 const str=v=>(v??'').toString().trim();
 const num=v=>sheetNum(v);
@@ -211,13 +210,6 @@ async function getText(u){const r=await fetch(u);if(!r.ok)throw Error(r.status+'
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  const plantCols=[],existCols=[];
-  (data.length?Object.keys(data[0]):[]).forEach(h=>{
-    let m=h.match(/^P-\s*(.+)$/i);
-    if(m){plantCols.push({header:h,name:m[1].trim()});return;}
-    m=h.match(/^E-\s*(.+)$/i);
-    if(m)existCols.push({header:h,name:m[1].trim()});
-  });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
     const kth=str(raw['KTH']||raw['C']||''),tipe=str(raw['Tipe']||raw['E']||'');
@@ -227,24 +219,21 @@ function parseSheet(csv){
     const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||raw['L']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||raw['M']||0);
     const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||raw['N']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||raw['O']||0);
     const keys=Object.keys(raw);
-    const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTemb=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
     const tglTanam=parseDate(tglRealisasi);
-    const plantEvents=tglTanam?plantCols.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
-    const existingPlants=existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi:tglTanam,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,plantEvents,existingPlants,pupukDates:[]};
+    sheetMap[id]={id,kth,petani,jk,tglPartisipasi,tglRealisasi:tglTanam,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasENL,luasENP,prog,plantEvents:[],existingPlants:[],pupukDates:[]};
   });
 }
 function parseLog(csv){
   const log=parseActivityLog(csv);
-  Object.values(sheetMap).forEach(r=>{r.pupukDates=log.pupuk[r.id.toUpperCase()]||[];});
+  Object.values(sheetMap).forEach(r=>{const k=r.id.toUpperCase();r.pupukDates=log.pupuk[k]||[];r.existingPlants=log.ada[k]||[];});
   if(!log.hasTanam)return;
   Object.values(sheetMap).forEach(r=>{
     r.plantEvents=log.tanam[r.id.toUpperCase()]||[];
@@ -944,7 +933,7 @@ function renderProgres(){
       getText(NURSERY_URL).catch(e=>{console.warn('Gagal memuat data nursery',e);return'';}),
       getText(ACTIVITY_LOG_URL).catch(()=>'')
     ]);
-    parseSheet(csvTxt);
+    parseSheet(arrSummaryCsv(csvTxt));
     parseLog(logTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     if(nurTxt)parseNursery(nurTxt);

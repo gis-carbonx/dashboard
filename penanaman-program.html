@@ -178,9 +178,8 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY';
 const CACHE_BUST='?v='+Date.now();
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const CSV_URL=ARR_URL;
 const AGRO_JSON_URL='assets/json/agro.json'+CACHE_BUST;
 const MON_CAT={
   Planting:{label:'Penanaman',color:'#1a6b3a'},
@@ -265,39 +264,24 @@ function colV(raw,keys,names,idx){
 }
 
 
-let EXISTING_PLANT_COLS=[],PLANTED_PLANT_COLS=[];
-
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  const headerKeys=data.length?Object.keys(data[0]):[];
-  EXISTING_PLANT_COLS=[];PLANTED_PLANT_COLS=[];
-  headerKeys.forEach(h=>{
-    let m=h.match(/^E-\s*(.+)$/i);
-    if(m){EXISTING_PLANT_COLS.push({header:h,name:m[1].trim()});return;}
-    m=h.match(/^P-\s*(.+)$/i);
-    if(m)PLANTED_PLANT_COLS.push({header:h,name:m[1].trim()});
-  });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
     const kth=str(raw['KTH']||raw['C']||''),tipe=str(raw['Tipe']||raw['E']||'');
     const petani=str(raw['Petani']||raw['F']||''),desa=str(raw['Desa']||raw['H']||'');
     const jk=str(raw['Jenis Kelamin']||raw['Jenis_Kelamin']||raw['G']||'');
     const tglPartisipasi=str(raw['Tgl_Partisipasi']||raw['Tgl Partisipasi']||raw['J']||'');
-    const tglRealisasi=str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']||raw['K']||'');
     const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||raw['L']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||raw['M']||0);
     const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||raw['N']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||raw['O']||0);
     const keys=Object.keys(raw);
-    const k=i=>keys[i]?str(raw[keys[i]]):'';
     const luasAgro=num(colV(raw,keys,['luas_agro','Luas_Agro'],45));
     const luasTemb=num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
-    const existingPlants=EXISTING_PLANT_COLS.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0);
-    const tglTanam=parseDate(tglRealisasi);
-    const plantEvents=tglTanam?PLANTED_PLANT_COLS.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog)return;
     const _luasAgro=luasAgro>0?luasAgro:aReg+aBPO;
     const _luasTemb=luasTemb>0?luasTemb:tReg+tMTL;
-    sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,existingPlants,plantEvents,careEvents:[]};
+    sheetMap[id]={id,kth,desa,petani,jk,tglPartisipasi,luasAgro:_luasAgro,luasTemb:_luasTemb,prog,existingPlants:[],plantEvents:[],careEvents:[]};
   });
 }
 function parseTanam(csv){
@@ -305,7 +289,8 @@ function parseTanam(csv){
   Object.values(sheetMap).forEach(r=>{
     const k=monKey(r.id);
     r.careEvents=PROG[r.prog].group==='temb'?(log.rawat[k]||[]):[];
-    if(log.hasTanam)r.plantEvents=log.tanam[k]||[];
+    r.existingPlants=log.ada[k]||[];
+    r.plantEvents=log.tanam[k]||[];
   });
 }
 const sumPlants=ev=>ev.reduce((a,e)=>a+e.n,0);
@@ -879,7 +864,7 @@ function fitExploreRow(){
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
     const monTxt=getText(ACTIVITY_LOG_URL).catch(e=>{console.warn('Gagal memuat data monitoring:',e);return'';});
     const [csvTxt,monCsv]=await Promise.all([getText(CSV_URL),monTxt,loadGeoJSON()]);
-    parseSheet(csvTxt);
+    parseSheet(arrSummaryCsv(csvTxt));
     if(monCsv){parseMonitoring(monCsv);parseTanam(monCsv);}
     setupFilterOptions();
     renderPage();

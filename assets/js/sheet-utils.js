@@ -76,15 +76,84 @@
     return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ").replace(/(^|\s)\S/g, function (c) { return c.toUpperCase(); });
   }
 
+  const ARR_SHEET_ID = "1CwnGELzoAz98rcVjrCPGoAu2FljK8FYKs3PEMf0OnFU";
+  const ARR_URL = "https://docs.google.com/spreadsheets/d/" + ARR_SHEET_ID + "/export?format=csv&gid=739311476";
+  const ARR_TARGET_URL = "https://docs.google.com/spreadsheets/d/" + ARR_SHEET_ID + "/gviz/tq?tqx=out:csv&gid=1012937013";
+  const ARR_FIELDS = ["No", "Grid", "KTH", "Luas", "Tipe", "Petani", "Jenis Kelamin", "Desa", "ID_Petak", "Tgl_Partisipasi", "Tgl_Realisasi",
+    "Agro_Reg", "Agro_BPO", "Temb_Reg", "Temb_MTL", "link"];
+  const ARR_STAGES = 11;
+  for (let i = 1; i <= ARR_STAGES; i++) ARR_FIELDS.push("Insentif_T" + i);
+  for (let i = 1; i <= ARR_STAGES; i++) ARR_FIELDS.push("Nominal_T" + i);
+  ARR_FIELDS.push("PupukPadat", "PupukCair", "tanggal_bpo", "insentifMTL", "tanggal_mtl", "dusun", "luas_agro", "luas_temb", "ENL", "ENP");
+  const TIPE = { AGR: "Agroforestri", TBW: "Tembawang" };
+
+  function arrSummaryRows(csv) {
+    const grid = Papa.parse(csv || "", { header: false, skipEmptyLines: true }).data;
+    if (!grid.length) return [];
+    const head = grid[0].map(function (h) { return String(h == null ? "" : h).replace(/\s+/g, " ").trim().toLowerCase(); });
+    const all = function (test) {
+      const out = [];
+      head.forEach(function (h, i) { if (typeof test === "string" ? h === test : test.test(h)) out.push(i); });
+      return out;
+    };
+    const at = function (test, nth) { const a = all(test); return a.length > (nth || 0) ? a[nth || 0] : -1; };
+    const c = {
+      no: at("no"), grid: at("kompartemen"), kth: at("nama kth"), kode: at("kode intervensi"), luas: at("luas (ha)"),
+      petani: at("nama petani"), l: at("l"), p: at("p"), desa: at("desa"), dusun: at("dusun"), id: at("kode petak"),
+      part: at(/^kerjasama partisipasi/), real: at(/^realisasi tanam awal/),
+      luasAgro: at("agr", 0), luasTemb: at("tbw", 0), enl: at("enl"), enp: at("enp"),
+      aReg: at("agr", 1), aBPO: at("bpo", 0), tReg: at("tbw", 1), tMTL: at("mtl", 0),
+      padat: at(/^kebutuhan pupuk padat/), cair: at(/^kebutuhan pupuk cair/), tglBPO: at(/^tanggal distribusi/),
+      mtl: at(/^kebutuhan insentive mtl/), tglMTL: at(/^tanggal penyerahan/), link: at("link")
+    };
+    const paid = all("paid");
+    const rows = [];
+    grid.slice(1).forEach(function (r) {
+      const v = function (i) { return i < 0 || r[i] == null ? "" : String(r[i]).trim(); };
+      const id = v(c.id);
+      if (!id) return;
+      const kode = v(c.kode).toUpperCase();
+      const o = {
+        "No": v(c.no), "Grid": v(c.grid), "KTH": v(c.kth), "Luas": v(c.luas), "Tipe": TIPE[kode] || kode, "Petani": v(c.petani),
+        "Jenis Kelamin": sheetNum(v(c.l)) > 0 ? "Laki-laki" : sheetNum(v(c.p)) > 0 ? "Perempuan" : "",
+        "Desa": v(c.desa), "ID_Petak": id, "Tgl_Partisipasi": v(c.part), "Tgl_Realisasi": v(c.real),
+        "Agro_Reg": v(c.aReg), "Agro_BPO": v(c.aBPO), "Temb_Reg": v(c.tReg), "Temb_MTL": v(c.tMTL), "link": v(c.link),
+        "PupukPadat": v(c.padat), "PupukCair": v(c.cair), "tanggal_bpo": v(c.tglBPO), "insentifMTL": v(c.mtl), "tanggal_mtl": v(c.tglMTL),
+        "dusun": v(c.dusun), "luas_agro": v(c.luasAgro), "luas_temb": v(c.luasTemb), "ENL": v(c.enl), "ENP": v(c.enp)
+      };
+      for (let i = 0; i < ARR_STAGES; i++) {
+        o["Insentif_T" + (i + 1)] = i < paid.length ? v(paid[i]) : "";
+        o["Nominal_T" + (i + 1)] = i < paid.length ? v(paid[i] + 2) : "";
+      }
+      rows.push(o);
+    });
+    return rows;
+  }
+
+  function arrSummaryCsv(csv) {
+    return Papa.unparse({ fields: ARR_FIELDS, data: arrSummaryRows(csv).map(function (o) { return ARR_FIELDS.map(function (f) { return o[f]; }); }) });
+  }
+
   function parseActivityLog(csv) {
-    const pupuk = {}, tanam = {}, rawat = {};
-    if (!csv) return { pupuk: pupuk, tanam: tanam, rawat: rawat, hasTanam: false };
+    const pupuk = {}, tanam = {}, rawat = {}, ada = {};
+    if (!csv) return { pupuk: pupuk, tanam: tanam, rawat: rawat, ada: ada, hasTanam: false };
     const data = Papa.parse(csv, { header: true, skipEmptyLines: true, transformHeader: function (h) { return h.trim(); } }).data;
     data.forEach(function (raw) {
       const cat = String(raw["Activities Category"] || "").trim().toLowerCase();
       const id = String(raw["Kode Petak"] || "").trim().toUpperCase();
+      if (!id || id === "#N/A") return;
+      if (String(raw["Tipe Intervensi"] || "").trim().toLowerCase() === "tanaman existing") {
+        const n = Math.max(0, sheetNum(raw["Jumlah"]));
+        const name = plantName(raw["Jenis Tanaman"]);
+        if (n > 0 && name) {
+          const list = ada[id] || (ada[id] = []);
+          const hit = list.find(function (x) { return x.name === name; });
+          if (hit) hit.count += n; else list.push({ name: name, count: n });
+        }
+        return;
+      }
       const d = sheetDate(raw["Tanggal"], "dmy");
-      if (!id || id === "#N/A" || !d) return;
+      if (!d) return;
       if (cat === "pemupukan") (pupuk[id] || (pupuk[id] = [])).push(d);
       else if (cat === "planting" && String(raw["Tipe Intervensi"] || "").trim().toLowerCase() === "penanaman") {
         const n = Math.max(0, sheetNum(raw["Jumlah"]));
@@ -97,9 +166,14 @@
     Object.keys(pupuk).forEach(function (k) { pupuk[k].sort(function (a, b) { return a - b; }); });
     Object.keys(tanam).forEach(function (k) { tanam[k].sort(function (a, b) { return a.d - b.d; }); });
     Object.keys(rawat).forEach(function (k) { rawat[k].sort(function (a, b) { return a.d - b.d; }); });
-    return { pupuk: pupuk, tanam: tanam, rawat: rawat, hasTanam: Object.keys(tanam).length > 0 };
+    Object.keys(ada).forEach(function (k) { ada[k].sort(function (a, b) { return b.count - a.count; }); });
+    return { pupuk: pupuk, tanam: tanam, rawat: rawat, ada: ada, hasTanam: Object.keys(tanam).length > 0 };
   }
 
+  window.ARR_URL = ARR_URL;
+  window.ARR_TARGET_URL = ARR_TARGET_URL;
+  window.arrSummaryRows = arrSummaryRows;
+  window.arrSummaryCsv = arrSummaryCsv;
   window.ACTIVITY_LOG_URL = LOG_URL;
   window.parseActivityLog = parseActivityLog;
   window.sheetDate = sheetDate;

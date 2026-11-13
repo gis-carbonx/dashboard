@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Community Engagement</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/ctrl-zoom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+.sec-gap{margin-top:36px}
+
+.ds-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.ds-leg{display:flex;gap:14px;font-size:10px;color:var(--text-2)}
+.ds-leg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ds-leg i{width:10px;height:10px;border-radius:2px}
+.ds-grp+.ds-grp{margin-top:14px}
+.ds-grp-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid var(--border-lt)}
+.ds-grp-lbl{font-size:12px;font-weight:700;color:var(--text)}
+summary.ds-grp-hd{list-style:none;cursor:pointer;border-radius:6px;padding:4px 6px 6px;margin:0 -6px 4px}
+summary.ds-grp-hd::-webkit-details-marker{display:none}
+summary.ds-grp-hd:hover{background:var(--primary-bg)}
+details.ds-grp:not([open])>summary.ds-grp-hd{border-bottom-color:transparent;margin-bottom:0}
+.ds-caret{display:inline-block;width:12px;font-size:10px;color:var(--text-3);transition:transform .15s}
+details[open] .ds-caret{transform:rotate(90deg)}
+.ds-grp-lbl small{font-size:10.5px;font-weight:500;color:var(--text-3);margin-left:6px}
+.ds-row{display:grid;grid-template-columns:150px minmax(0,1fr) 134px;align-items:center;gap:12px;padding:4px 0}
+.ds-lbl{font-size:11.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ds-track{display:flex;height:14px;border-radius:3px;overflow:hidden}
+.ds-track span{height:100%;flex-shrink:0}
+.ds-track span+span{border-left:1px solid #fff}
+.ds-val{display:grid;grid-template-columns:38px 46px 42px;justify-content:end;justify-items:end;align-items:baseline;gap:4px;font-size:10.5px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ds-grp-hd .ds-val{flex-shrink:0;width:134px}
+.ds-val b{font-size:12px;font-weight:800;color:var(--text)}
+
+.ob{margin-top:16px}
+.hm-wrap{overflow-x:auto}
+.hm{display:grid;grid-template-columns:130px repeat(7,minmax(62px,1fr)) 14px minmax(62px,1fr);gap:3px;min-width:700px;font-variant-numeric:tabular-nums}
+.hm-x{justify-self:center;width:0;border-left:1px dashed var(--border)}
+.hm-tl{display:flex;align-items:flex-end;font-size:9.5px;color:var(--text-3);line-height:1.4;padding-bottom:2px}
+.hm-bar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:1px;padding:4px 0 8px;line-height:1.3;cursor:default;border-bottom:1px solid var(--border);border-radius:6px 6px 0 0}
+.hm-bar:hover{background:var(--primary-bg)}
+.hm-bar b{font-size:15px;font-weight:800;color:var(--text)}
+.hm-pc{font-size:10.5px;font-weight:700;color:var(--primary)}
+.hm-lp{font-size:10px;color:var(--text-2)}
+.hm-h{display:flex;align-items:flex-start;justify-content:center;text-align:center;font-size:10.5px;font-weight:700;color:var(--text-2);line-height:1.3;padding:6px 2px 8px}
+.hm-r{display:flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-r.out{color:var(--text-2);font-weight:500}
+.hm-c{height:30px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:default}
+.hm-c.z{background:#f6f4ef;color:var(--text-3);font-weight:500}
+.hm-c:not(.z):hover{outline:2px solid var(--dark);outline-offset:-2px}
+.hm-sep{grid-column:1/-1;height:1px;background:var(--border-lt);margin:3px 0}
+.hm-leg{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-2)}
+.hm-leg .lg-ramp{width:90px}
+
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.filters{margin-bottom:20px}
+.km-select{padding:4px 28px 4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239C998C' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 11px center;appearance:none;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer;max-width:340px}
+.km-select.on{border-color:var(--primary);color:var(--primary)}
+.km-row{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.km-map-wrap{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:500px;background:#fff;display:flex;flex-direction:column}
+#kmMap{flex:1;min-height:0;width:100%;background:var(--border-lt)}
+#kmMap .leaflet-interactive:focus{outline:none}
+.lg-ramp{height:8px;border-radius:2px;background:linear-gradient(90deg,#DCDACC,#B5BBA9,#8C9F8B,#618273,#356760)}
+.km-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:rgba(255,255,255,.92);border-radius:10px;padding:7px 10px;font-size:10.5px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums}
+.km-legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.lg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.lg-line{width:16px;border-top:2px solid #356760;flex-shrink:0}
+.km-badge-wrap{background:none;border:none}
+.km-badge{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;background:#fff;border:1px solid var(--border);border-radius:20px;padding:3px 4px 3px 9px;font-size:10.5px;font-weight:600;color:var(--text);box-shadow:var(--shadow-sm)}
+.km-badge b{min-width:20px;height:18px;padding:0 6px;border-radius:9px;background:var(--primary);color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.km-badge.zero{color:var(--text-3)}
+.km-badge.zero b{background:var(--border-lt);color:var(--text-3)}
+.km-badge.sel{background:var(--dark);border-color:var(--dark);color:#fff}
+.km-badge.sel b{background:#fff;color:var(--dark)}
+.leaflet-tooltip.km-tt{background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;color:var(--text);font-family:'Libre Franklin',system-ui,sans-serif;min-width:190px}
+.leaflet-tooltip.km-tt::before{display:none}
+
+.lahan-detail{border:1px solid var(--border);border-radius:14px;padding:16px;height:500px;overflow-y:auto;background:#fff}
+.km-sticky{position:sticky;top:-16px;z-index:2;background:#fff;margin:-16px -16px 0;padding:16px 16px 4px;border-bottom:1px solid var(--border-lt)}
+.km-sticky+.ld-sec{border-top:none}
+.km-back{border:none;background:none;font-size:11px;font-weight:600;color:var(--primary-md);cursor:pointer;padding:0;margin-bottom:8px}
+.km-back:hover{color:var(--primary)}
+.ld-title{font-size:16px;font-weight:800;color:var(--text)}
+.ld-prog{font-size:11px;color:var(--text-2);margin-top:3px}
+.km-li.ro{cursor:default}
+.km-li.ro:hover{background:none}
+.km-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin:14px 0 6px}
+.ld-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.km-stat-v{font-size:20px;font-weight:800;color:var(--primary);letter-spacing:-.01em;margin-top:2px;font-variant-numeric:tabular-nums}
+.km-stat-s{font-size:10.5px;font-weight:500;color:var(--text-2);margin-top:2px}
+.ld-sec{border-top:1px solid var(--border-lt);padding-top:10px;margin-top:12px}
+.ld-sec-hd{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;font-weight:700;color:var(--text);margin-bottom:6px}
+.ld-sec-hd small{font-size:10px;font-weight:500;color:var(--text-3)}
+.ld-none{font-size:11px;color:var(--text-3);padding:4px 0}
+.km-li{display:grid;grid-template-columns:minmax(0,1fr) 64px 78px;align-items:center;gap:10px;border:none;background:none;text-align:left;padding:5px 6px;margin:0 -6px;width:calc(100% + 12px);border-radius:6px;cursor:pointer;font-size:11.5px;color:var(--text)}
+.km-li:hover{background:var(--primary-bg)}
+.km-li.active{background:#ececec}
+.km-li-n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.km-li-bar{height:8px;border-radius:2px;background:var(--border-lt);overflow:hidden}
+.km-li-bar i{display:block;height:100%;background:var(--primary)}
+.km-li-v{font-size:10.5px;color:var(--text-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.km-li-v b{font-size:12px;font-weight:800;color:var(--text)}
+.km-tl{position:relative;padding-left:14px}
+.km-tl::before{content:'';position:absolute;left:3px;top:6px;bottom:6px;width:1px;background:var(--border)}
+.km-tl-i{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:5px 0}
+.km-tl-i::before{content:'';position:absolute;left:-14px;top:10px;width:7px;height:7px;border-radius:50%;background:var(--primary)}
+.km-tl-d{grid-column:1/-1;font-size:10px;font-weight:600;color:var(--text-3)}
+.km-tl-t{font-size:11.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.km-tl-v{font-size:10.5px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.km-tl-v b{font-size:11.5px;font-weight:800;color:var(--text)}
+
+#monthTitle{margin-bottom:16px}
+.km-mgrid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);column-gap:3px}
+.km-mcol{position:relative;display:flex;flex-direction:column;align-items:stretch;cursor:default;min-width:0}
+.km-mcol.ys::before{content:'';position:absolute;left:-2px;top:0;height:136px;border-left:1px dashed var(--border)}
+.km-mplot{height:136px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--border)}
+.km-mval{font-size:10px;font-weight:700;color:var(--text);margin-bottom:3px;font-variant-numeric:tabular-nums}
+.km-mbar{width:72%;max-width:24px;background:var(--primary);border-radius:3px 3px 0 0}
+.km-mbar.nil{height:2px;background:var(--border-lt);border-radius:0}
+.km-mcol:hover .km-mbar:not(.nil){background:var(--primary-md)}
+.km-mcol:hover .km-mplot{background:var(--primary-bg)}
+.km-mlbl{font-size:9.5px;color:var(--text-3);margin-top:5px;line-height:1.35;white-space:nowrap;height:26px;overflow:visible;padding-left:1px}
+.km-mlbl b{display:block;font-weight:700;color:var(--text-2)}
+
+.tt-box{position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;max-width:340px;pointer-events:none;display:none}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+.tt-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (max-width:900px){.km-row{grid-template-columns:1fr}.km-map-wrap{height:400px}.lahan-detail{height:auto;max-height:520px}}
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.ds-row{grid-template-columns:120px minmax(0,1fr)}.ds-row .ds-val{grid-column:2;justify-content:start}.ds-head{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Community Engagement</div>
+        <div class="hero-date" id="heroDate">Loading data...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+    <div class="content-row">
+      <nav class="side-menu">
+          <a class="side-item active" href="comdev-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+          <a class="side-item" href="comdev-peserta.html" title="Participant Network" aria-label="Participant Network"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.4 7.3 10 10.4"/><path d="M17.6 7.3 14 10.4"/><path d="M6.4 16.7 10 13.6"/><path d="M17.6 16.7 14 13.6"/></svg></a>
+      </nav>
+      <div class="page-body-inner">
+        <div id="pageBody"><div class="loading-note">Loading data...</div></div>
+        <section id="actSection" style="display:none">
+          <div class="sec-title sec-gap">Data Sebaran</div>
+          <div class="filters">
+            <div class="filter-row"><span class="filter-lbl">Tujuan</span><select class="km-select" id="objSel"></select></div>
+            <div class="filter-row"><span class="filter-lbl">Jenis</span><select class="km-select" id="jenisSel"></select></div>
+            <div class="filter-row"><span class="filter-lbl">Sebaran</span>
+              <button class="fpill active" data-metric="kegiatan">Jumlah kegiatan</button>
+              <button class="fpill" data-metric="peserta">Peserta unik</button>
+            </div>
+          </div>
+          <div class="km-row">
+            <div class="km-map-wrap">
+              <div id="kmMap"></div>
+              <div class="km-legend" id="kmLegend"></div>
+            </div>
+            <div class="lahan-detail" id="kmPanel"></div>
+          </div>
+          <div class="card chart-card">
+            <div class="chart-title" id="monthTitle">Kegiatan per Bulan</div>
+            <div class="km-months" id="kmMonths"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tt-box" id="ttBox"></div>
+
+<script src="assets/js/sheet-utils.js"></script>
+<script>
+'use strict';
+const SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c',SHEET_NAME='db-comdev-2',ACT_GID='1891592405';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const ACT_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${ACT_GID}`;
+const ACT_COL=16,OBJ_COL=8,OBJ_N=8,NO_PLACE='Lokasi tidak tercatat';
+const RAMP=['#DCDACC','#B5BBA9','#8C9F8B','#618273','#356760'];
+const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
+const MONTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+const str=v=>(v??'').toString().trim();
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isOne=v=>str(v)==='1';
+const key=s=>str(s).toLowerCase();
+const RANGE_SEP=/\s+(?:-|s\/d|sd|sampai|to)\s+|\s*–\s*/i;
+function parseTgl(v,endV){
+  const s=str(v).replace(/^(\d{1,2})-(?=\d{1,2}\s+[A-Za-z])/,'$1 - '),end2=sheetDate(str(endV));
+  const parts=s.split(RANGE_SEP);
+  if(parts.length!==2)return{tgl:sheetDate(s),end:end2&&end2>sheetDate(s)?end2:null};
+  const end=sheetDate(parts[1]);
+  if(!end)return{tgl:sheetDate(s),end:null};
+  const a=parts[0].trim(),y=end.getFullYear();
+  let start=/^\d{1,2}$/.test(a)?new Date(y,end.getMonth(),+a):sheetDate(/\d{4}/.test(a)?a:`${a} ${y}`);
+  if(start&&start>end)start.setFullYear(start.getFullYear()-1);
+  return{tgl:start||end,end:start&&end>start?end:null};
+}
+const dm=d=>`${d.getDate()} ${MONTHS[d.getMonth()]}`;
+function fmtRange(s,withYear=true){
+  if(!s.tgl)return'Tanpa tanggal';
+  const a=s.tgl,b=s.end,yr=d=>withYear?` ${d.getFullYear()}`:'';
+  if(!b)return dm(a)+yr(a);
+  if(a.getFullYear()!==b.getFullYear())return`${dm(a)} ${a.getFullYear()} – ${dm(b)} ${b.getFullYear()}`;
+  if(a.getMonth()===b.getMonth())return`${a.getDate()}–${dm(b)}${yr(b)}`;
+  return`${dm(a)} – ${dm(b)}${yr(b)}`;
+}
+const pct=(a,b)=>b?(a/b*100).toLocaleString('id-ID',{maximumFractionDigits:a/b<.1?1:0}):'0';
+
+const DESA_MIN=10;
+const PROJECT_ZONE=['Raut Muara','Nekan','Mawang Muda','Sekendal','Thang Raya','Engkahan','Engkangin','Kenaman','Sungai Ilai','Sepangah'];
+const ALL_PLACES='semua desa';
+const inZone=name=>PROJECT_ZONE.some(z=>z.toLowerCase()===name.toLowerCase());
+const JK_COLORS={L:'#356760',P:'#B5BBA9'};
+const normDesa=v=>str(v).replace(/\s+/g,' ').replace(/^desa\s+/i,'');
+const DATE_LIKE=/^\d{1,2}(\s*[-–]\s*\d{1,2})?[\s\/.-]+([A-Za-z]{3,}|\d{1,2})[\s\/.-]+\d{2,4}$/;
+
+let people=new Map(),actCodes=[],actInfo=new Map(),objNames=[],hmCells=[],objTotals=[],sessions=[];
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  people=new Map();
+  const head=data[0]||[];
+  actCodes=head.slice(ACT_COL).map(str);
+  objNames=Array.from({length:OBJ_N},(_,i)=>str(head[OBJ_COL+i])||`Tujuan ${i+1}`);
+  data.slice(1).forEach(c=>{
+    const id=str(c[0]);
+    const L=isOne(c[6]),P=isOne(c[7]);
+    if(!id||!(str(c[5])||L||P))return;
+    const p=people.get(id)||{id,nama:str(c[5]),desa:normDesa(c[3]),L:false,P:false,acts:new Set(),obj:new Set()};
+    p.L=p.L||L;p.P=p.P||P;
+    actCodes.forEach((code,i)=>{if(code&&isOne(c[ACT_COL+i]))p.acts.add(code);});
+    for(let i=0;i<OBJ_N;i++)if(isOne(c[OBJ_COL+i]))p.obj.add(i);
+    people.set(id,p);
+  });
+}
+
+function parseActs(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true});
+  actInfo=new Map();
+  data.forEach(r=>{
+    const code=str(r.ID_Kode);
+    const tempat=normDesa(r.Desa);
+    if(code)actInfo.set(code,{judul:str(r.Judul_Kegiatan)||code,tempat:DATE_LIKE.test(tempat)?'':tempat,...parseTgl(r.Tanggal,r.Tanggal_Selesai)});
+  });
+}
+
+function buildSessions(){
+  const codes=actCodes.filter(Boolean);
+  const ids=new Map(codes.map(c=>[c,new Set()]));
+  people.forEach(p=>p.acts.forEach(c=>ids.get(c)?.add(p.id)));
+  sessions=codes.map(code=>{
+    const i=actInfo.get(code)||{judul:code,tempat:'',tgl:null,end:null};
+    const tempat=i.tempat||NO_PLACE;
+    return{code,judul:i.judul,tempat,places:key(tempat)===ALL_PLACES?PROJECT_ZONE:[tempat],tgl:i.tgl,end:i.end,ids:ids.get(code)};
+  });
+}
+
+function tally(ids){
+  let L=0,P=0;
+  ids.forEach(id=>{const p=people.get(id);if(p.L)L++;else if(p.P)P++;});
+  return{n:ids.size,L,P};
+}
+
+function computeStats(){
+  let L=0,P=0;
+  people.forEach(p=>{if(p.L)L++;else if(p.P)P++;});
+  return{total:people.size,L,P};
+}
+
+function computeDesa(){
+  const m=new Map();
+  people.forEach(p=>{
+    const k=p.desa.toLowerCase();
+    const o=m.get(k)||{name:p.desa||'Tidak tercatat',n:0,L:0,P:0};
+    o.n++;if(p.L)o.L++;else if(p.P)o.P++;
+    m.set(k,o);
+  });
+  const sum=(list,name)=>list.reduce((a,o)=>(a.n+=o.n,a.L+=o.L,a.P+=o.P,a),{name,n:0,L:0,P:0});
+  const all=[...m.values()].sort((a,b)=>b.n-a.n);
+  const zone=all.filter(o=>inZone(o.name));
+  const out=all.filter(o=>!inZone(o.name));
+  const blank=out.find(o=>o.name==='Tidak tercatat');
+  const outMain=out.filter(o=>o.n>=DESA_MIN&&o!==blank);
+  const rest=out.filter(o=>o.n<DESA_MIN&&o!==blank);
+  if(rest.length)outMain.push(sum(rest,`Lainnya (${rest.length} lokasi)`));
+  if(blank)outMain.push(blank);
+  return[{...sum(zone,'Project Zone'),rows:zone,desa:zone.length},{...sum(out,'Di luar Project Zone'),rows:outMain,desa:out.length-(blank?1:0)}];
+}
+
+function barHTML(o,max){
+  const w=o.n?Math.sqrt(o.n/max)*100:0;
+  const seg=k=>o[k]?`<span style="width:${w*o[k]/o.n}%;background:${JK_COLORS[k]}"></span>`:'';
+  return`<div class="ds-track">${seg('L')}${seg('P')}</div>`;
+}
+const groupMax=rows=>Math.max(...rows.map(o=>o.n),1);
+
+function desaHTML(){
+  const groups=computeDesa();
+  const val=o=>`<div class="ds-val"><b>${fmtInt(o.n)}</b><span>${fmtInt(o.L)} L</span><span>${fmtInt(o.P)} P</span></div>`;
+  return`<div class="card chart-card">
+    <div class="ds-head">
+      <div class="chart-title">Sebaran per Desa Penerima Manfaat</div>
+      <div class="ds-leg"><span><i style="background:${JK_COLORS.L}"></i>Laki-laki</span><span><i style="background:${JK_COLORS.P}"></i>Perempuan</span></div>
+    </div>
+    ${groups.filter(g=>g.n).map((g,i)=>{
+      const hd=`<span class="ds-grp-lbl">${i?'<span class="ds-caret">▸</span>':''}${esc(g.name)}<small>${fmtInt(g.desa)} ${i?'desa/lokasi':'desa'}</small></span>${val(g)}`;
+      const max=groupMax(g.rows);
+      const rows=g.rows.map(o=>`<div class="ds-row">
+        <div class="ds-lbl" title="${esc(o.name)}">${esc(o.name)}</div>
+        ${barHTML(o,max)}
+        ${val(o)}
+      </div>`).join('');
+      return i?`<details class="ds-grp"><summary class="ds-grp-hd">${hd}</summary>${rows}</details>`
+        :`<div class="ds-grp"><div class="ds-grp-hd">${hd}</div>${rows}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+const objSet=(list,i)=>new Set(list.filter(p=>p.obj.has(i)).map(p=>p.id));
+
+function objHTML(){
+  const all=[...people.values()],total=people.size;
+  objTotals=objNames.map((name,i)=>({name,...tally(objSet(all,i))}));
+  const byDesa=new Map();
+  people.forEach(p=>{
+    const k=inZone(p.desa)?p.desa.toLowerCase():'__out';
+    const o=byDesa.get(k)||{name:k==='__out'?'Di luar Project Zone':p.desa,out:k==='__out',list:[]};
+    o.list.push(p);byDesa.set(k,o);
+  });
+  const rows=[...byDesa.values()].sort((a,b)=>a.out-b.out||b.list.length-a.list.length);
+  hmCells=[];
+  const cells=rows.map(r=>objNames.map((_,i)=>{
+    const t=tally(objSet(r.list,i));
+    hmCells.push({desa:r.name,obj:objNames[i],...t});
+    return{...t,idx:hmCells.length-1};
+  }));
+  const max=Math.max(1,...cells.flat().map(t=>t.n));
+  const step=n=>Math.min(4,Math.round(Math.sqrt(n/max)*4));
+  const gap=i=>i===OBJ_N-1?'<div class="hm-x"></div>':'';
+  const bar=(o,i)=>`${gap(i)}<div class="hm-bar" data-hmt="${i}">
+      <b>${fmtInt(o.n)}</b><span class="hm-pc">${pct(o.n,total)}%</span><span class="hm-lp">${fmtInt(o.L)} / ${fmtInt(o.P)}</span>
+    </div>`;
+  const cell=(t,i)=>`${gap(i)}${t.n
+    ?`<div class="hm-c" data-hm="${t.idx}" style="background:${RAMP[step(t.n)]};color:${step(t.n)>=3?'#fff':'var(--text)'}">${fmtInt(t.n)}</div>`
+    :'<div class="hm-c z">–</div>'}`;
+  return`<div class="card chart-card ob">
+    <div class="ds-head">
+      <div class="chart-title">Project Objective for Community Benefits</div>
+      <div class="hm-leg"><span>1</span><span class="lg-ramp"></span><span>${fmtInt(max)}</span></div>
+    </div>
+    <div class="hm-wrap"><div class="hm">
+      <div class="hm-tl">Total penerima<br>% masyarakat terdampak<br>L / P</div>${objTotals.map(bar).join('')}
+      <div class="hm-tl">Desa asal</div>${objNames.map((n,i)=>`${gap(i)}<div class="hm-h">${esc(n)}</div>`).join('')}
+      ${rows.map((r,ri)=>`${r.out?'<div class="hm-sep"></div>':''}<div class="hm-r${r.out?' out':''}" title="${esc(r.name)}">${esc(r.name)}</div>${cells[ri].map(cell).join('')}`).join('')}
+    </div></div>
+  </div>`;
+}
+
+function renderSummary(){
+  const s=computeStats();
+  const jenis=new Set(sessions.map(x=>key(x.judul))).size;
+  document.getElementById('pageBody').innerHTML=`
+    <div class="sec-title">Summary</div>
+    <div class="kpi-grid c4">
+      <div class="card">
+        <div class="card-lbl">Masyarakat Terdampak Proyek</div>
+        <div class="card-val-lg">${fmtInt(s.total)}</div>
+        <div class="card-sub-pct">${fmtInt(s.L)} laki-laki / ${fmtInt(s.P)} perempuan</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Kegiatan</div>
+        <div class="card-val-lg">${fmtInt(sessions.length)}</div>
+        <div class="card-sub-pct">${fmtInt(jenis)} jenis kegiatan</div>
+      </div>
+    </div>
+    <div class="sec-title sec-gap">Masyarakat dan Manfaat</div>
+    ${desaHTML()}
+    ${objHTML()}`;
+}
+
+let kmap=null,layers=new Map(),lastMax=1,monthBuckets=[],hoverLine=null,selLine=null;
+const F={jenis:'',obj:'',metric:'kegiatan',desa:null};
+
+let jenisObj=new Map();
+
+function buildJenisObj(){
+  jenisObj=new Map();
+  groupBy(sessions,'judul').forEach((g,k)=>{
+    const c=new Array(OBJ_N).fill(0);
+    g.ids.forEach(id=>people.get(id).obj.forEach(i=>c[i]++));
+    const max=Math.max(...c);
+    jenisObj.set(k,max?c.indexOf(max):-1);
+  });
+}
+
+const objSessions=()=>F.obj===''?sessions:sessions.filter(s=>jenisObj.get(key(s.judul))===+F.obj);
+
+const filtered=()=>objSessions().filter(s=>!F.jenis||s.judul===F.jenis);
+
+function groupBy(list,field){
+  const m=new Map();
+  list.forEach(s=>(field==='tempat'?s.places:[s[field]]).forEach(v=>{
+    const k=key(v);
+    const g=m.get(k)||{name:v,items:[],ids:new Set()};
+    g.items.push(s);s.ids.forEach(i=>g.ids.add(i));
+    m.set(k,g);
+  }));
+  return m;
+}
+
+const metricVal=g=>g?(F.metric==='kegiatan'?g.items.length:g.ids.size):0;
+const unit=()=>F.metric==='kegiatan'?'kegiatan':'peserta';
+const fillFor=(v,max)=>v?RAMP[stepOf(v,max)]:'#f3f3f3';
+const isSel=k=>F.desa!==null&&key(F.desa)===k;
+const polyStyle=v=>({fillColor:fillFor(v,lastMax),fillOpacity:.88,color:'#fff',weight:1.2,opacity:1});
+const outline=f=>L.geoJSON(f,{pane:'hl',interactive:false,style:()=>({color:'#3A342C',weight:2.6,fill:false,opacity:1})});
+
+function ringCentroid(r){
+  let a=0,x=0,y=0;
+  for(let i=0,j=r.length-1;i<r.length;j=i++){
+    const f=r[j][0]*r[i][1]-r[i][0]*r[j][1];
+    a+=f;x+=(r[j][0]+r[i][0])*f;y+=(r[j][1]+r[i][1])*f;
+  }
+  return a?[y/(3*a),x/(3*a)]:[r[0][1],r[0][0]];
+}
+
+function badgeIcon(name,v,k){
+  const cls=['km-badge',v?'':'zero',isSel(k)?'sel':''].filter(Boolean).join(' ');
+  return L.divIcon({className:'km-badge-wrap',iconSize:[0,0],html:`<div class="${cls}">${esc(name)}<b>${fmtInt(v)}</b></div>`});
+}
+
+function tipHTML(name){
+  const g=groupBy(filtered(),'tempat').get(key(name));
+  if(!g)return`<div class="tt-head"><strong>${esc(name)}</strong></div><div class="tt-row"><span>Belum ada kegiatan</span><span></span></div>`;
+  const t=tally(g.ids);
+  return`<div class="tt-head"><strong>${esc(name)}</strong> (${fmtInt(g.items.length)} kegiatan)</div>
+    <div class="tt-row"><span>Peserta unik</span><span>${fmtInt(t.n)}</span></div>
+    <div class="tt-row"><span>Laki-laki / perempuan</span><span>${fmtInt(t.L)} / ${fmtInt(t.P)}</span></div>
+    <div class="tt-row"><span>Jenis kegiatan</span><span>${fmtInt(groupBy(g.items,'judul').size)}</span></div>`;
+}
+
+function initMap(desaJ,cmiJ){
+  kmap=L.map('kmMap',{zoomControl:true,attributionControl:false,scrollWheelZoom:true});
+  kmap.createPane('labels');kmap.getPane('labels').style.zIndex=450;kmap.getPane('labels').style.pointerEvents='none';
+  kmap.createPane('hl');kmap.getPane('hl').style.zIndex=430;kmap.getPane('hl').style.pointerEvents='none';
+  L.tileLayer(`${ESRI}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,maxZoom:18}).addTo(kmap);
+  L.tileLayer(`${ESRI}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,{maxNativeZoom:16,maxZoom:18,pane:'labels'}).addTo(kmap);
+  const group=L.featureGroup().addTo(kmap);
+  desaJ.features.forEach(f=>{
+    const name=normDesa(f.properties.NAMOBJ),k=key(name);
+    const geom=f.geometry;
+    const ring=geom.type==='Polygon'?geom.coordinates[0]:geom.coordinates.map(p=>p[0]).sort((a,b)=>b.length-a.length)[0];
+    const poly=L.geoJSON(f,{style:()=>polyStyle(0)}).addTo(group);
+    const badge=L.marker(ringCentroid(ring),{icon:badgeIcon(name,0,k),interactive:false,keyboard:false}).addTo(kmap);
+    const o={name,poly,badge,f,v:0};
+    poly.bindTooltip(()=>tipHTML(name),{sticky:true,direction:'top',offset:[0,-12],className:'km-tt',opacity:1});
+    poly.on('mouseover',()=>{if(hoverLine)hoverLine.remove();hoverLine=outline(f).addTo(kmap);});
+    poly.on('mouseout',()=>{if(hoverLine){hoverLine.remove();hoverLine=null;}poly.closeTooltip();});
+    poly.on('click',()=>selectDesa(name));
+    layers.set(k,o);
+  });
+  if(cmiJ){
+    L.geoJSON(cmiJ,{interactive:false,style:()=>({color:'#fff',weight:2.5,fill:false,opacity:1})}).addTo(kmap);
+    L.geoJSON(cmiJ,{interactive:false,style:()=>({color:'#356760',weight:1.5,fill:false,opacity:1})}).addTo(kmap);
+  }
+  const b=group.getBounds();
+  if(b.isValid())kmap.fitBounds(b,{padding:[24,24]});
+}
+
+function updateMap(){
+  const stats=groupBy(filtered(),'tempat');
+  lastMax=Math.max(1,...[...layers.keys()].map(k=>metricVal(stats.get(k))));
+  layers.forEach((o,k)=>{
+    o.v=metricVal(stats.get(k));
+    o.poly.setStyle(polyStyle(o.v));
+    o.badge.setIcon(badgeIcon(o.name,o.v,k));
+  });
+  if(selLine){selLine.remove();selLine=null;}
+  const sel=F.desa!==null&&layers.get(key(F.desa));
+  if(sel)selLine=outline(sel.f).addTo(kmap);
+  document.getElementById('kmLegend').innerHTML=legendHTML();
+}
+
+const stepOf=(v,max)=>Math.min(4,Math.round(Math.sqrt(v/max)*4));
+
+function legendHTML(){
+  const cls=[];
+  for(let v=1;v<=lastMax;v++){
+    const s=stepOf(v,lastMax),c=cls[cls.length-1];
+    if(c&&c.s===s)c.hi=v;else cls.push({s,lo:v,hi:v});
+  }
+  const rng=c=>c.lo===c.hi?fmtInt(c.lo):`${fmtInt(c.lo)}–${fmtInt(c.hi)}`;
+  return[...cls].reverse().map(c=>`<span><i class="lg-sq" style="background:${RAMP[c.s]}"></i>${rng(c)} ${unit()}</span>`).join('')
+    +`<span><i class="lg-sq" style="background:#f3f3f3"></i>Belum ada kegiatan</span><span><i class="lg-line"></i>Batas area</span>`;
+}
+
+const statBox=(l,v,s)=>`<div><div class="ld-lbl">${l}</div><div class="km-stat-v">${v}</div>${s?`<div class="km-stat-s">${s}</div>`:''}</div>`;
+
+function listRows(rows,attr,activeKey){
+  const max=Math.max(1,...rows.map(r=>r.v));
+  const tag=attr?'button':'div';
+  return rows.map(r=>`<${tag} class="km-li${attr?'':' ro'}${activeKey===key(r.name)?' active':''}"${attr?` data-${attr}="${esc(r.name)}"`:''} title="${esc(r.name)}">
+    <span class="km-li-n">${esc(r.name)}</span>
+    <span class="km-li-bar"><i style="width:${r.v/max*100}%"></i></span>
+    <span class="km-li-v"><b>${fmtInt(r.v)}</b> ${r.u}</span>
+  </${tag}>`).join('');
+}
+
+function originRows(ids){
+  const m=new Map();
+  ids.forEach(id=>{
+    const d=people.get(id).desa,name=inZone(d)?d:'Di luar Project Zone',k=key(name);
+    const o=m.get(k)||{name,v:0,u:'orang'};o.v++;m.set(k,o);
+  });
+  return listRows([...m.values()].sort((a,b)=>(a.name==='Di luar Project Zone')-(b.name==='Di luar Project Zone')||b.v-a.v),null,null);
+}
+
+function statsBlock(items,ids){
+  const t=tally(ids);
+  return`<div class="km-stats">
+    ${statBox('Kegiatan',fmtInt(items.length),`${fmtInt(groupBy(items,'judul').size)} jenis kegiatan`)}
+    ${statBox('Peserta unik',fmtInt(t.n),`${fmtInt(t.L)} laki-laki / ${fmtInt(t.P)} perempuan`)}
+  </div>`;
+}
+
+function renderOverview(){
+  const list=filtered(),stats=groupBy(list,'tempat');
+  const ids=new Set();list.forEach(s=>s.ids.forEach(i=>ids.add(i)));
+  const mapped=[...layers.entries()].map(([k,o])=>({name:o.name,v:metricVal(stats.get(k)),u:unit()})).sort((a,b)=>b.v-a.v||a.name.localeCompare(b.name));
+  const other=[...stats.entries()].filter(([k])=>!layers.has(k)).map(([,g])=>({name:g.name,v:metricVal(g),u:unit()}))
+    .sort((a,b)=>(a.name===NO_PLACE)-(b.name===NO_PLACE)||b.v-a.v);
+  return`<div class="km-sticky"><div class="ld-title">Semua lokasi</div>
+    ${statsBlock(list,ids)}</div>
+    <div class="ld-sec"><div class="ld-sec-hd">Desa project zone<small>${mapped.filter(r=>r.v).length} dari ${mapped.length} desa</small></div>${mapped.some(r=>r.v)?listRows(mapped.filter(r=>r.v),'desa',null):'<div class="ld-none">Belum ada kegiatan pada filter ini.</div>'}</div>
+    ${other.length?`<div class="ld-sec"><div class="ld-sec-hd">Lokasi lain</div>${listRows(other,'desa',null)}</div>`:''}`;
+}
+
+function renderDesa(){
+  const k=key(F.desa),inMap=layers.has(k);
+  const name=inMap?layers.get(k).name:F.desa;
+  const g=groupBy(filtered(),'tempat').get(k);
+  const head=body=>`<div class="km-sticky"><button class="km-back" data-back="1">‹ Semua lokasi</button>
+    <div class="ld-title">${esc(name)}</div>
+    <div class="ld-prog">${inMap?'Tempat kegiatan (desa project zone)':'Tempat kegiatan'}</div>${body}</div>`;
+  if(!g)return head('')+`<div class="ld-sec"><div class="ld-none">Belum ada kegiatan pada filter ini.</div></div>`;
+  const jenis=[...groupBy(g.items,'judul').values()].map(j=>({name:j.name,v:j.items.length,u:'kegiatan'})).sort((a,b)=>b.v-a.v||a.name.localeCompare(b.name));
+  const tl=[...g.items].sort((a,b)=>(b.tgl||0)-(a.tgl||0));
+  return head(statsBlock(g.items,g.ids))+`
+    <div class="ld-sec"><div class="ld-sec-hd">Jenis kegiatan</div>${listRows(jenis,'jenis',F.jenis?key(F.jenis):null)}</div>
+    <div class="ld-sec"><div class="ld-sec-hd">Desa asal peserta</div>${originRows(g.ids)}</div>
+    <div class="ld-sec"><div class="ld-sec-hd">Riwayat kegiatan<small>peserta</small></div>
+      <div class="km-tl">${tl.map(s=>`<div class="km-tl-i">
+        <span class="km-tl-d">${fmtRange(s)}</span>
+        <span class="km-tl-t" title="${esc(s.judul)}">${esc(s.judul)}</span>
+        <span class="km-tl-v"><b>${fmtInt(s.ids.size)}</b></span>
+      </div>`).join('')}</div>
+    </div>`;
+}
+
+function renderPanel(){
+  const el=document.getElementById('kmPanel');
+  el.innerHTML=F.desa===null?renderOverview():renderDesa();
+  el.scrollTop=0;
+}
+
+function renderMonths(){
+  const el=document.getElementById('kmMonths');
+  const dated=filtered().filter(s=>s.tgl);
+  const scope=F.desa===null?dated:dated.filter(s=>s.places.some(t=>key(t)===key(F.desa)));
+  document.getElementById('monthTitle').innerHTML=F.desa===null?'Kegiatan per Bulan':`Kegiatan per Bulan (${esc(F.desa)})`;
+  if(!dated.length){el.innerHTML='<div class="ld-none">Tidak ada kegiatan bertanggal pada filter ini.</div>';monthBuckets=[];return;}
+  const mk=d=>d.getFullYear()*12+d.getMonth();
+  const lo=Math.min(...dated.map(s=>mk(s.tgl))),hi=Math.max(...dated.map(s=>mk(s.tgl)));
+  monthBuckets=Array.from({length:hi-lo+1},(_,i)=>({m:lo+i,items:[]}));
+  scope.forEach(s=>monthBuckets[mk(s.tgl)-lo].items.push(s));
+  const max=Math.max(1,...monthBuckets.map(b=>b.items.length));
+  el.innerHTML=`<div class="km-mgrid">${monthBuckets.map((b,i)=>{
+    const n=b.items.length,mo=b.m%12,yr=Math.floor(b.m/12);
+    return`<div class="km-mcol${mo===0&&i>0?' ys':''}" data-mi="${i}">
+      <div class="km-mplot">${n?`<div class="km-mval">${n}</div><div class="km-mbar" style="height:${Math.max(3,n/max*112)}px"></div>`:'<div class="km-mbar nil"></div>'}</div>
+      <div class="km-mlbl">${mo%3===0?MONTHS[mo]:''}${i===0||mo===0?`<b>${yr}</b>`:''}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderActs(){
+  document.querySelectorAll('[data-metric]').forEach(b=>b.classList.toggle('active',b.dataset.metric===F.metric));
+  const sel=document.getElementById('jenisSel');
+  sel.value=F.jenis;sel.classList.toggle('on',!!F.jenis);
+  const os=document.getElementById('objSel');
+  os.value=F.obj;os.classList.toggle('on',F.obj!=='');
+  updateMap();renderPanel();renderMonths();
+}
+
+function selectDesa(name){
+  F.desa=F.desa!==null&&key(F.desa)===key(name)?null:name;
+  renderActs();
+}
+
+function fillJenis(){
+  const jenis=[...groupBy(objSessions(),'judul').values()].sort((a,b)=>a.name.localeCompare(b.name));
+  if(F.jenis&&!jenis.some(j=>j.name===F.jenis))F.jenis='';
+  document.getElementById('jenisSel').innerHTML=`<option value="">Semua jenis kegiatan</option>`
+    +jenis.map(j=>`<option value="${esc(j.name)}">${esc(j.name)} (${j.items.length})</option>`).join('');
+}
+
+function initFilters(){
+  buildJenisObj();
+  const nAct=i=>sessions.filter(s=>jenisObj.get(key(s.judul))===i).length;
+  document.getElementById('objSel').innerHTML=`<option value="">Semua Project Objective</option>`
+    +objNames.map((n,i)=>`<option value="${i}">${esc(n)} (${fmtInt(nAct(i))} kegiatan)</option>`).join('');
+  document.getElementById('objSel').addEventListener('change',e=>{F.obj=e.target.value;fillJenis();renderActs();});
+  fillJenis();
+  document.getElementById('jenisSel').addEventListener('change',e=>{F.jenis=e.target.value;renderActs();});
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-metric],[data-desa],[data-jenis],[data-back]');
+  if(!t)return;
+  if(t.dataset.metric){F.metric=t.dataset.metric;renderActs();}
+  else if(t.dataset.desa){selectDesa(t.dataset.desa);}
+  else if(t.dataset.jenis){F.jenis=F.jenis===t.dataset.jenis?'':t.dataset.jenis;renderActs();}
+  else if(t.dataset.back){F.desa=null;renderActs();}
+});
+
+function tipFor(t){
+  const h=t.closest('[data-hm],[data-hmt]');
+  if(h){
+    const d=h.dataset.hmt!==undefined?{...objTotals[+h.dataset.hmt],desa:'Semua desa'}:hmCells[+h.dataset.hm];
+    return d&&`<div class="tt-head"><strong>${esc(d.desa)}</strong> / ${esc(d.obj||d.name)}</div>
+      <div class="tt-row"><span>Penerima manfaat</span><span>${fmtInt(d.n)}</span></div>
+      <div class="tt-row"><span>Laki-laki / perempuan</span><span>${fmtInt(d.L)} / ${fmtInt(d.P)}</span></div>`;
+  }
+  const col=t.closest('.km-mcol'),b=col&&monthBuckets[+col.dataset.mi];
+  if(!b||!b.items.length)return'';
+  const items=[...b.items].sort((x,y)=>x.tgl-y.tgl);
+  return`<div class="tt-head"><strong>${MONTHS[b.m%12]} ${Math.floor(b.m/12)}</strong> (${items.length} kegiatan)</div>`
+    +items.slice(0,8).map(s=>`<div class="tt-row"><span>${esc(s.judul)} / ${esc(s.tempat)} (${fmtRange(s,false)})</span><span>${fmtInt(s.ids.size)}</span></div>`).join('')
+    +(items.length>8?`<div class="tt-row"><span>+${items.length-8} lainnya</span><span>${fmtInt(items.slice(8).reduce((a,s)=>a+s.ids.size,0))}</span></div>`:'');
+}
+
+const tt=document.getElementById('ttBox');
+document.addEventListener('mousemove',e=>{
+  const html=tipFor(e.target);
+  if(!html){tt.style.display='none';return;}
+  tt.innerHTML=html;
+  tt.style.display='block';
+  tt.style.left=Math.min(window.innerWidth-tt.offsetWidth-8,e.clientX+14)+'px';
+  tt.style.top=Math.max(8,e.clientY-tt.offsetHeight-12)+'px';
+});
+
+(async function boot(){
+  document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  try{
+    const getText=async u=>{const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();};
+    const getJSON=async u=>{const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.json();};
+    const [pCsv,aCsv,desaJ,cmiJ]=await Promise.all([getText(CSV_URL),getText(ACT_URL),getJSON('assets/json/desa.json'),getJSON('assets/json/CMI.json').catch(()=>null)]);
+    parseSheet(pCsv);
+    parseActs(aCsv);
+    buildSessions();
+    renderSummary();
+    document.getElementById('actSection').style.display='';
+    initMap(desaJ,cmiJ);
+    initFilters();
+    renderActs();
+  }catch(err){
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

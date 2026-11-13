@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard | Sanggala Corridor Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1180px;margin:0 auto;padding:28px 36px 48px;display:flex;align-items:flex-start;gap:20px}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{position:relative;display:flex;flex-direction:column;transition:box-shadow .15s}
+.card:hover{box-shadow:var(--shadow-md)}
+.card.dev{background:transparent;border-style:dashed}
+.card.dev:hover{box-shadow:none}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.status{flex-shrink:0;font-size:11px;color:var(--text-3);line-height:1.6;white-space:nowrap}
+.status.aktif{color:var(--primary)}
+.card-title{font-size:14.5px;font-weight:700;color:var(--text);text-decoration:none;line-height:1.3}
+a.card-title::after{content:"";position:absolute;inset:0;border-radius:14px}
+.card.dev .card-title{color:var(--text-2)}
+.card-desc{font-size:12px;color:var(--text-2);line-height:1.6;margin-top:6px}
+.sub-links{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-lt)}
+.sub-links .fpill{text-decoration:none}
+
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.card-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Daftar Dashboard</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <div class="page-body-inner">
+          <div class="card-grid" id="cards"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SECTIONS=[
+  {title:'Illegal Activities Monitoring',items:[
+    {title:'Fire and Forest Patrol Protection',href:'patrol-summary.html',
+      desc:'Menampilkan kegiatan yang berhubungan dengan perlindungan hutan di area proyek koridor sanggala',
+      sub:[['Patrol Detail','patrol.html'],['Fire Alert','monitoring-fire-event.html'],['Perbandingan','pantauan-titik-api.html'],['Satellite Tracker','satellite-tracker.html'],['Land Clearing Alert','dist-alert.html'],
+        ['Community Fire Management','community-fire-management.html'],['Weather','weather.html']]}
+  ]},
+  {title:'Biodiversity Monitoring',items:[
+    {title:'Biodiversity Monitoring',href:'biodiversity-summary.html',
+      desc:'Menampilkan kegiatan monitoring biodiversitas yang ada di proyek koridor sanggala',
+      sub:[['Species Distribution','species-distribution.html'],['Camera Trap','cameratrap-monitoring.html'],['Bioacoustic','bioacoustic-monitoring.html']]}
+  ]},
+  {title:'Project Implementation',items:[
+    {title:'Planting Monitoring',href:'planting.html',
+      desc:'Menampilkan data implementasi kegiatan penanaman ARR dan disekitarnya di area proyek koridor sanggala',
+      sub:[['ARR','arr.html'],['Nursery','nursery.html'],['Monitoring','penanaman-program.html'],['KTH','kth.html']]},
+    {title:'Planting Summary',href:'planting-summary.html',hidden:true,
+      desc:'Luas lahan program, peserta, penanaman, dan stok bibit nursery.'},
+    {title:'Daftar Peserta Program',href:'daftar-peserta-program.html',
+      desc:'Daftar lahan peserta agroforestri dan reforestasi beserta peta dan rincian tanamannya.'},
+    {title:'Community Engagement',href:'comdev-summary.html',hidden:true,desc:'Kegiatan pelibatan masyarakat di area proyek.'},
+    {title:'Worker Database',href:'hse.html',desc:'Basis data pekerja proyek.',
+      sub:[['HSE Dashboard','hse.html']]}
+  ]},
+  {title:'Health, Safety & Environment',items:[
+    {title:'Monitoring Manhours & Insiden HSE',href:'hse.html',hidden:true,
+      desc:'Manhours, manpower, LTI free manhours, ringkasan insiden, dan register insiden beserta investigasinya.'}
+  ]}
+];
+
+SECTIONS.forEach(s=>{s.items=s.items.filter(d=>!d.hidden);});
+
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const STATUS={aktif:'Aktif',dev:'Dalam pengembangan'};
+
+function cardHTML(d){
+  const sub=(d.sub||[]).map(([t,h])=>`<a class="fpill" href="${h}">${esc(t)}</a>`).join('');
+  const st=d.dev?'dev':(d.status||'aktif');
+  return`
+    <div class="card${d.dev?' dev':''}">
+      <div class="card-head">
+        ${d.dev?`<span class="card-title">${esc(d.title)}</span>`:`<a class="card-title" href="${d.href}">${esc(d.title)}</a>`}
+        <span class="status ${st}">${esc(STATUS[st]||st)}</span>
+      </div>
+      <div class="card-desc">${esc(d.desc)}</div>
+      ${sub?`<div class="sub-links">${sub}</div>`:''}
+    </div>`;
+}
+
+const all=SECTIONS.flatMap(s=>s.items);
+document.getElementById('cards').innerHTML=all.map(cardHTML).join('');
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

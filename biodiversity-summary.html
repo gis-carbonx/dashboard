@@ -181,6 +181,7 @@
     <div class="content-row">
       <nav class="side-menu">
         <a class="side-item active" href="biodiversity-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+        <a class="side-item" href="species-distribution.html" title="Species Distribution" aria-label="Species Distribution"><svg viewBox="0 0 24 24"><circle cx="6" cy="6.5" r="2.3"/><circle cx="18" cy="8" r="2.3"/><circle cx="9" cy="18" r="2.3"/><path d="M8.3 6.8l7.4.9"/><path d="M6.6 8.7l1.8 7.1"/><path d="M16.5 9.8l-5.9 6.4"/></svg></a>
         <a class="side-item" href="cameratrap-monitoring.html" title="Camera Trap" aria-label="Camera Trap"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></svg></a>
         <a class="side-item" href="bioacoustic-monitoring.html" title="Bioacoustic" aria-label="Bioacoustic"><svg viewBox="0 0 24 24"><path d="M3 12h2"/><path d="M7 8v8"/><path d="M11 5v14"/><path d="M15 9v6"/><path d="M19 7v10"/><path d="M21 12h0"/></svg></a>      </nav>
       <div class="page-body-inner">
@@ -613,7 +614,7 @@ async function loadAll(){
 
   const ct=headerCols(ctRaw[0]||[],CT_COLS);
   ctRows=ctRaw.slice(1).map(r=>({
-    Latitude:parseFloat(ct(r,'lat')),Longitude:parseFloat(ct(r,'lon')),UnitID:ct(r,'unit'),Date:parseDateStr(ct(r,'date')),
+    Latitude:parseFloat(ct(r,'lat')),Longitude:parseFloat(ct(r,'lon')),UnitID:ct(r,'unit').trim(),Date:parseDateStr(ct(r,'date')),
     Class:ct(r,'cls'),Species:ct(r,'species').trim(),LocalName:ct(r,'local'),IUCN:ct(r,'iucn').trim(),
     Indep:Math.max(0,parseInt(ct(r,'indep'))||0),Source:'cameratrap'
   })).filter(r=>r.Species&&!isNaN(r.Latitude)&&!isNaN(r.Longitude));

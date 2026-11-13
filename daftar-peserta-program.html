@@ -120,8 +120,7 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY';
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const CSV_URL=ARR_URL;
 const CACHE_BUST='?v='+Date.now();
 
 const str=v=>(v??'').toString().trim();
@@ -173,11 +172,6 @@ function setPill(key,val,btn){
 
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
-  const plantCols=[],existCols=[];
-  (data.length?Object.keys(data[0]):[]).forEach(h=>{
-    let m=h.match(/^P-\s*(.+)$/i);if(m){plantCols.push({header:h,name:m[1].trim()});return;}
-    m=h.match(/^E-\s*(.+)$/i);if(m)existCols.push({header:h,name:m[1].trim()});
-  });
   rows=[];byId={};
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||'');if(!id)return;
@@ -196,8 +190,7 @@ function parseSheet(csv){
       tglPartisipasi,tanamDates:[parseDate(raw['Tgl_Realisasi']||raw['Tgl Realisasi'])].filter(Boolean),
       pupukDates:[],careEvents:[],
       luas:group==='agro'?(luasAgro>0?luasAgro:aReg+aBPO):(luasTemb>0?luasTemb:tReg+tMTL),
-      planted:plantCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0),
-      existing:existCols.map(c=>({name:c.name,count:num(raw[c.header])})).filter(p=>p.count>0)};
+      planted:[],existing:[]};
     rows.push(r);byId[id]=r;
   });
 }
@@ -207,6 +200,7 @@ function parseLog(csv){
     const k=r.id.toUpperCase();
     r.pupukDates=log.pupuk[k]||[];
     r.careEvents=r.group==='temb'?(log.rawat[k]||[]):[];
+    r.existing=log.ada[k]||[];
     if(!log.hasTanam)return;
     const ev=log.tanam[k]||[];
     r.tanamDates=[...new Set(ev.map(e=>+e.d))].map(t=>new Date(t));
@@ -458,7 +452,7 @@ async function showOnMap(id){
   try{
     document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
     const [csvTxt,logTxt]=await Promise.all([getText(CSV_URL),getText(ACTIVITY_LOG_URL).catch(()=>'')]);
-    parseSheet(csvTxt);
+    parseSheet(arrSummaryCsv(csvTxt));
     parseLog(logTxt);
     render();
   }catch(err){

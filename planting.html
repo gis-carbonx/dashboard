@@ -195,9 +195,6 @@ body{display:flex;flex-direction:column}
 .d-val.mono{font-family:'Libre Franklin',monospace;font-size:10px;color:var(--primary-md)}
 .d-luas{font-size:23px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1}
 .d-luas-unit{font-size:11px;font-weight:500;color:var(--text-2);margin-left:3px}
-.d-carbon-block{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
-.d-carbon-val{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
-.d-carbon-lbl{font-size:9px;font-weight:600;color:var(--text-2);margin-top:2px;line-height:1.3}
 .modal-overlay{position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-hd-green{padding:14px 20px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .modal-close-btn{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center}
@@ -816,10 +813,9 @@ body{display:flex;flex-direction:column}
 
 <script>
 'use strict';
-const SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac',SHEET_NAME='ARR_SUMMARY',TARGET_NAME='TARGET_CAPAIAN';
 const CACHE_BUST='?v='+Date.now();
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-const TARGET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TARGET_NAME)}`;
+const CSV_URL=ARR_URL;
+const TARGET_URL=ARR_TARGET_URL;
 const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 const PROG={
@@ -842,7 +838,6 @@ const INS_STAGES=[
 ];
 
 let sheetMap={},featureMap={},kthMaster={},kthBounds={},targetData={},_rawRows=[];
-let PLANTED_PLANT_COLS=[];
 let currentKTH=null,currentPreset='ytd',filterYear=null,filterMonth=null,selectedLahanId=null;
 let insRawData=[],insActiveYear='all',insFilteredRows=[];
 let grafikChart=null,grafikTab='bulanan',bmOpen=false;
@@ -1154,7 +1149,7 @@ async function getJSON(u){const r=await fetchWithTimeout(u);if(!r.ok)throw Error
   try{
     setLoad('Loading data...');
     const [csvTxt,tgtTxt,logTxt]=await Promise.all([getText(CSV_URL),getText(TARGET_URL).catch(()=>''),getText(ACTIVITY_LOG_URL).catch(()=>'')]);
-    parseSheet(csvTxt);
+    parseSheet(arrSummaryCsv(csvTxt));
     parseLog(logTxt);
     if(tgtTxt)parseTargetSheet(tgtTxt);
     populateYearDropdowns();
@@ -1188,12 +1183,6 @@ function colV(raw,keys,names,idx){
 function parseSheet(csv){
   const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
   _rawRows=data;
-  PLANTED_PLANT_COLS=[];
-  const headerKeys0=data.length?Object.keys(data[0]):[];
-  headerKeys0.forEach(h=>{
-    const m=h.match(/^P-\s*(.+)$/i);
-    if(m)PLANTED_PLANT_COLS.push({header:h,name:m[1].trim()});
-  });
   data.forEach(raw=>{
     const id=str(raw['ID_Petak']||raw['id_petak']||raw['ID Petak']||raw['I']||'');if(!id)return;
     const kth=str(raw['KTH']||raw['C']||''),grid=str(raw['Grid']||raw['B']||''),tipe=str(raw['Tipe']||raw['E']||'');
@@ -1202,7 +1191,6 @@ function parseSheet(csv){
     const tglRealisasi=str(raw['Tgl_Realisasi']||raw['Tgl Realisasi']||raw['K']||'');
     const aReg=num(raw['Agro_Reg']||raw['Agro Reg']||raw['L']||0),aBPO=num(raw['Agro_BPO']||raw['Agro BPO']||raw['M']||0);
     const tReg=num(raw['Temb_Reg']||raw['Temb Reg']||raw['N']||0),tMTL=num(raw['Temb_MTL']||raw['Temb MTL']||raw['O']||0);
-    const tanamanKarbon=num(raw['Total_Tanaman_Karbon']||raw['Total Tanaman Karbon']||raw['P']||0);
     const link=str(raw['Link']||raw['link']||raw['Q']||'');
     const keys=Object.keys(raw);
     const nom=n=>num(colV(raw,keys,['Nominal_T'+n],27+n));
@@ -1220,14 +1208,12 @@ function parseSheet(csv){
     const luasTemb  =num(colV(raw,keys,['luas_temb','Luas_Temb'],46));
     const luasENL=num(pickCI(raw,keys,'ENL'));
     const luasENP=num(pickCI(raw,keys,'ENP'));
-    const tglTanam=parseDate(tglRealisasi);
-    const plantEvents=tglTanam?PLANTED_PLANT_COLS.map(c=>({d:tglTanam,name:c.name,n:num(raw[c.header])})).filter(e=>e.n>0):[];
     const prog=resolveProgram(aReg,aBPO,tReg,tMTL,tipe);
     if(!prog&&luasENL<=0&&luasENP<=0)return;
     const _luasAgro = luasAgro>0 ? luasAgro : aReg+aBPO;
     const _luasTemb = luasTemb>0 ? luasTemb : tReg+tMTL;
     const luasAgroAT=luasAgro,luasTembAU=luasTemb;
-    sheetMap[id]={id,kth,grid,luas:_luasAgro+_luasTemb,tipe,petani,jk,desa,dusun,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasAgroAT,luasTembAU,luasENL,luasENP,tanamanKarbon,link,prog,nominalStages,pupukCair,pupukPadat,tglBPO,insentifMTL,tglMTL,plantEvents};
+    sheetMap[id]={id,kth,grid,luas:_luasAgro+_luasTemb,tipe,petani,jk,desa,dusun,tglPartisipasi,tglRealisasi,aReg,aBPO,tReg,tMTL,luasAgro:_luasAgro,luasTemb:_luasTemb,luasAgroAT,luasTembAU,luasENL,luasENP,link,prog,nominalStages,pupukCair,pupukPadat,tglBPO,insentifMTL,tglMTL,plantEvents:[]};
   });
 }
 function parseLog(csv){
@@ -1501,13 +1487,12 @@ function showDetail(id){
   bi.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${st.dot};flex-shrink:0;margin-right:4px"></span>${esc(st.label)}`;
   const tP=fmtDate(row.tglPartisipasi),tR=fmtDate(row.tglRealisasi);
   const ds=tP||tR?`<div class="d-block"><div class="d-block-ttl">Tanggal</div>${tP?`<div class="d-row"><span class="d-lbl">Partisipasi</span><span class="d-val">${tP}</span></div>`:''} ${tR?`<div class="d-row"><span class="d-lbl">Realisasi</span><span class="d-val">${tR}</span></div>`:''}</div>`:'';
-  const cb=row.tanamanKarbon>0?`<div class="d-block"><div class="d-block-ttl">Tanaman Karbon</div><div class="d-carbon-block"><div class="d-carbon-val">${fmtInt(row.tanamanKarbon)}</div><div class="d-carbon-lbl">Jumlah Tanaman Sekuritas Carbon</div></div></div>`:'';
   const pd=[row.aReg>0?`<div class="d-row"><span class="d-lbl">Agro Reguler</span><span class="d-val">${fmt(row.aReg)} ha</span></div>`:'',row.aBPO>0?`<div class="d-row"><span class="d-lbl">Agro BPO</span><span class="d-val">${fmt(row.aBPO)} ha</span></div>`:'',row.tReg>0?`<div class="d-row"><span class="d-lbl">Reforestasi</span><span class="d-val">${fmt(row.tReg)} ha</span></div>`:'',row.tMTL>0?`<div class="d-row"><span class="d-lbl">Temb. MTL</span><span class="d-val">${fmt(row.tMTL)} ha</span></div>`:'' ].filter(Boolean).join('');
   const enr=(row.luasENP>0||row.luasENL>0)?`<div class="d-block"><div class="d-block-ttl">Program Enrichment</div>${row.luasENP>0?`<div class="d-row"><span class="d-lbl">ENP (Protected Area)</span><span class="d-val">${fmt(row.luasENP)} ha</span></div>`:''}${row.luasENL>0?`<div class="d-row"><span class="d-lbl">ENL (Logged Over Area)</span><span class="d-val">${fmt(row.luasENL)} ha</span></div>`:''}</div>`:'';
   const lk=row.link?`<div class="d-block"><div class="d-block-ttl">Dokumen</div><div class="d-row"><span class="d-lbl">Link</span><a href="${esc(row.link)}" target="_blank" style="font-size:11px;font-weight:600;color:var(--primary-md);text-decoration:none">Buka Dokumen ↗</a></div></div>`:'';
   document.getElementById('detailContent').innerHTML=`
     <div class="d-block"><div class="d-block-ttl">Luas Lahan</div><div style="padding:5px 0"><span class="d-luas">${fmt(row.luas)}</span><span class="d-luas-unit">ha</span></div></div>
-    ${cb}${ds}
+    ${ds}
     <div class="d-block"><div class="d-block-ttl">Petani</div><div class="d-row"><span class="d-lbl">Nama</span><span class="d-val">${esc(row.petani)||'—'}</span></div><div class="d-row"><span class="d-lbl">Jenis Kelamin</span><span class="d-val">${esc(row.jk||'—')}</span></div></div>
     <div class="d-block"><div class="d-block-ttl">Lokasi</div><div class="d-row"><span class="d-lbl">KTH</span><span class="d-val">${esc(row.kth)||'—'}</span></div><div class="d-row"><span class="d-lbl">Desa</span><span class="d-val">${esc(row.desa)||'—'}</span></div>${row.grid?`<div class="d-row"><span class="d-lbl">Grid</span><span class="d-val mono">${esc(row.grid)}</span></div>`:''}</div>
     ${pd?`<div class="d-block"><div class="d-block-ttl">Rincian Program</div>${pd}</div>`:''}${enr}${lk}`;

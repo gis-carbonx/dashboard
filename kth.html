@@ -134,8 +134,7 @@ const SHEET_ID='1_8jR1z131_-9k3QVbsaGFRn8MY2JPPiEAgWOZliKo_k';
 const NEWS_GID=0,PENGURUS_GID=859770829;
 const NEWS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${NEWS_GID}`;
 const PENGURUS_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PENGURUS_GID}`;
-const ARR_SHEET_ID='1-LHCIUy1iD154WczY4Da_-iRaILtvL0mOW4gRW6YQac';
-const PESERTA_URL=`https://docs.google.com/spreadsheets/d/${ARR_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ARR_SUMMARY`;
+const PESERTA_URL=ARR_URL;
 
 const str=v=>(v??'').toString().trim();
 const fmtInt=v=>(+v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -391,7 +390,7 @@ document.addEventListener('keydown',e=>{
     const [newsTxt,pengurusTxt,pesertaTxt]=await Promise.all([getText(NEWS_URL),getText(PENGURUS_URL),getText(PESERTA_URL).catch(()=>'')]);
     parseNews(newsTxt);
     parsePengurus(pengurusTxt);
-    if(pesertaTxt)parsePeserta(pesertaTxt);
+    if(pesertaTxt)parsePeserta(arrSummaryCsv(pesertaTxt));
     render();
   }catch(err){
     console.error('LOAD ERROR:',err);
