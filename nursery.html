@@ -419,7 +419,7 @@ function tipeDonutHTML(tipe,periode){
     // rincian di legend sama dengan pop up: asal semai (bila ada) lalu proses tempat bibit mati
     const brief=isMatiKey(t)&&parts&&parts.length
       ?`<div class="dn-brief">${parts.map(([lbl,n,sub])=>sub
-        ?`<div class="dn-yr"><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`+sub.map(([sl,sn])=>`<div class="dn-sub"><span>${esc(sl)}</span><span>${fmtInt(sn)}</span></div>`).join('')
+        ?`<div class="dn-yr"><span>${esc(lbl)}</span></div>`+sub.map(([sl,sn])=>`<div class="dn-sub"><span>${esc(sl)}</span><span>${fmtInt(sn)}</span></div>`).join('')
         :`<div><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`).join('')}</div>`:'';
     return`
       <div class="dn-row${brief?' tog':''}" data-tipe="${t}" tabindex="0"${brief?' aria-expanded="false"':''}>
