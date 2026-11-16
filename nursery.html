@@ -56,11 +56,15 @@ body{display:flex;flex-direction:column}
 .dn-row.open .dn-chev{transform:translateY(1px) rotate(-135deg)}
 .dn-brief{display:none;margin:2px 6px 4px 24px;padding:6px 10px;border-left:2px solid var(--border-lt)}
 .dn-row.open+.dn-brief{display:block}
+/* saat rincian Mati dibuka, sembunyikan keterangan kecil di tiap baris agar legend tetap ringkas */
+.dn-legend:has(.dn-row.open) .dn-name small{display:none}
 .dn-brief div{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--text-2);padding:1px 0;font-variant-numeric:tabular-nums}
 .dn-brief b{color:var(--text)}
 .dn-yr{color:var(--text);font-weight:600}
 .dn-yr~.dn-yr{border-top:1px dashed var(--border-lt);margin-top:3px;padding-top:5px}
 .dn-sub{padding-left:10px;color:var(--text-3)}
+.dn-brief .dn-yr{color:var(--text);font-weight:600}
+.dn-brief .dn-sub{padding-left:10px;color:var(--text-3)}
 .dn-tt-total{border-top:1px solid var(--border-lt);margin-top:4px;padding-top:6px}
 .tt-box{display:none;position:absolute;z-index:5;top:calc(100% - 2px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;pointer-events:none}
 .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
@@ -234,7 +238,6 @@ const PEMANFAATAN=new Set([CAT.tanam,CAT.sulam,CAT.support]);
 const isMati=cat=>cat.includes('mati');
 
 const SHOW_MATI_SEMAI=false;
-const TIPE_ORDER=['Semai','Proses','BST','Distribusi','Mati'];
 const TIPE_DESC={
   Semai:'Masih di tahap semai',
   Proses:'Pembesaran',
@@ -242,7 +245,16 @@ const TIPE_DESC={
   Distribusi:'Penanaman, penyulaman & support',
   Mati:SHOW_MATI_SEMAI?'Mati di semua tahap':'Mati di pembesaran & BST'
 };
-const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Distribusi:'#356760',Mati:'#3A342C'};
+const TIPE_COLOR={Semai:'#618273',Proses:'#DCDACC',BST:'#8C9F8B',Distribusi:'#356760',Mati:'#3A342C',MatiNow:'#3A342C',MatiPrev:'#9C998C'};
+// Mati dipecah dua mengikuti filter tahun: asal semai tahun filter (MatiNow) vs asal semai tahun sebelumnya (MatiPrev).
+// Pada filter "All" tidak ada tahun acuan, jadi Mati tetap satu (dengan rincian per tahun semai).
+const isMatiKey=t=>t.startsWith('Mati');
+function tipeMeta(t,year){
+  const desc=TIPE_DESC.Mati;
+  if(t==='MatiNow')return{label:'Mati semai tahun berjalan',desc};
+  if(t==='MatiPrev')return{label:'Mati semai tahun sebelumnya',desc};
+  return{label:t,desc:TIPE_DESC[t]};
+}
 
 const INTERVENSI=['Agroforestry','Tembawang','Enrichment','Kebun Entres','Kebun Inti','Other'];
 const IV_NONE='Tanpa Tipe Program';
@@ -326,42 +338,61 @@ function stockAsOf(year){
 }
 
 function flowTotals(year){
-  const tipe={};
-  TIPE_ORDER.forEach(t=>tipe[t]={total:0});
+  const split=year!=='all';
+  const order=['Semai','Proses','BST','Distribusi',...(split?['MatiNow','MatiPrev']:['Mati'])];
+  const tipe={order,year};
+  order.forEach(t=>tipe[t]={total:0});
   const cat={};
   flowByJenis(year).forEach(o=>{
     tipe.Semai.total+=o.semai;
     tipe.Proses.total+=o.proses;
     tipe.BST.total+=o.stok;
     tipe.Distribusi.total+=o.dist;
-    tipe.Mati.total+=o.mati-(SHOW_MATI_SEMAI?0:o.c[CAT.matiSemai]||0);
     Object.entries(o.c).forEach(([k,v])=>{cat[k]=(cat[k]||0)+v;});
   });
   const g=k=>cat[k]||0;
   tipe.Distribusi.parts=[['Penanaman',g(CAT.tanam)],['Penyulaman',g(CAT.sulam)],['Support',g(CAT.support)]];
+  // kelompokkan bibit mati menurut tahun semai asalnya, lalu menurut proses tempat matinya
   const byYear={};
-  (year==='all'?rows:rows.filter(r=>r.year===year)).forEach(r=>{
+  (split?rows.filter(r=>r.year===year):rows).forEach(r=>{
     if(!r.jenis||r.jenis==='#N/A'||!isMati(r.cat)||(!SHOW_MATI_SEMAI&&r.cat===CAT.matiSemai))return;
     const y=r.semaiYear;
     const o=byYear[y]||(byYear[y]={n:0,c:{}});
     o.n+=r.jumlah;
     o.c[r.cat]=(o.c[r.cat]||0)+r.jumlah;
   });
-  tipe.Mati.parts=Object.keys(byYear).sort((a,b)=>(a===''?1:0)-(b===''?1:0)||a.localeCompare(b)).map(y=>[
+  const lblOf=k=>CAT_LABEL[k]||k;
+  const yearParts=ys=>ys.sort((a,b)=>(a===''?1:0)-(b===''?1:0)||a.localeCompare(b)).map(y=>[
     y?`Semai ${y}`:'Tahun semai tidak tercatat',
     byYear[y].n,
-    Object.keys(byYear[y].c).sort().map(k=>[CAT_LABEL[k]||k,byYear[y].c[k]])
+    Object.keys(byYear[y].c).sort().map(k=>[lblOf(k),byYear[y].c[k]])
   ]);
+  const sum=ys=>ys.reduce((a,y)=>a+byYear[y].n,0);
+  const years=Object.keys(byYear);
+  if(!split){
+    tipe.Mati.parts=yearParts(years);
+    tipe.Mati.total=sum(years);
+  }else{
+    const nowYears=years.filter(y=>y===year),prevYears=years.filter(y=>y!==year);
+    // tahun ini: langsung rincian proses (tanpa sub-judul tahun)
+    const proc={};
+    nowYears.forEach(y=>Object.entries(byYear[y].c).forEach(([k,v])=>{proc[k]=(proc[k]||0)+v;}));
+    tipe.MatiNow.parts=Object.keys(proc).sort().map(k=>[lblOf(k),proc[k]]);
+    tipe.MatiNow.total=sum(nowYears);
+    // tahun sebelumnya: per tahun semai, lalu proses
+    tipe.MatiPrev.parts=yearParts(prevYears);
+    tipe.MatiPrev.total=sum(prevYears);
+  }
   return tipe;
 }
 
 const fmtPct=v=>v>0&&v<0.05?'<0,1%':v.toFixed(1).replace('.',',')+'%';
 
 function tipeDonutHTML(tipe,periode){
-  const total=TIPE_ORDER.reduce((a,t)=>a+tipe[t].total,0);
+  const total=tipe.order.reduce((a,t)=>a+tipe[t].total,0);
   const R=70,C=2*Math.PI*R,GAP=2;
   let acc=0;
-  const segs=TIPE_ORDER.map(t=>{
+  const segs=tipe.order.map(t=>{
     const v=tipe[t].total;
     const len=total?v/total*C:0;
     const draw=Math.max(0,len-(len>GAP*2?GAP:0));
@@ -370,25 +401,30 @@ function tipeDonutHTML(tipe,periode){
     acc+=len;
     return v>0?s:'';
   }).join('');
-  const tips=TIPE_ORDER.map(t=>{
+  const tips=tipe.order.map(t=>{
     const v=tipe[t].total;
     const parts=tipe[t].parts;
-    return parts?`<div class="tt-box dn-tt" data-tt="${t}"><div class="tt-head"><strong>${t}</strong> &middot; ${fmtPct(total?v/total*100:0)} dari seluruh bibit</div>`
+    const meta=tipeMeta(t,tipe.year);
+    return parts?`<div class="tt-box dn-tt" data-tt="${t}"><div class="tt-head"><strong>${esc(meta.label)}</strong> &middot; ${fmtPct(total?v/total*100:0)} dari seluruh bibit</div>`
       +(parts.length?parts.map(([lbl,n,sub])=>sub
         ?`<div class="tt-row dn-yr"><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`+sub.map(([sl,sn])=>`<div class="tt-row dn-sub"><span>${esc(sl)}</span><span>${fmtInt(sn)}</span></div>`).join('')
         :`<div class="tt-row"><span>${esc(lbl)}</span><span>${fmtInt(n)}</span></div>`).join('')
         :'<div class="tt-row"><span>Tidak ada data</span></div>')
-      +`<div class="tt-row dn-tt-total"><span>Total ${t}</span><b>${fmtInt(v)} bibit</b></div></div>`:'';
+      +`<div class="tt-row dn-tt-total"><span>Total ${esc(meta.label)}</span><b>${fmtInt(v)} bibit</b></div></div>`:'';
   }).join('');
-  const legend=TIPE_ORDER.map(t=>{
+  const legend=tipe.order.map(t=>{
     const v=tipe[t].total;
     const parts=tipe[t].parts;
-    const brief=t==='Mati'&&parts&&parts.length
-      ?`<div class="dn-brief">${parts.map(([lbl,n])=>`<div><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`).join('')}</div>`:'';
+    const meta=tipeMeta(t,tipe.year);
+    // rincian di legend sama dengan pop up: asal semai (bila ada) lalu proses tempat bibit mati
+    const brief=isMatiKey(t)&&parts&&parts.length
+      ?`<div class="dn-brief">${parts.map(([lbl,n,sub])=>sub
+        ?`<div class="dn-yr"><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`+sub.map(([sl,sn])=>`<div class="dn-sub"><span>${esc(sl)}</span><span>${fmtInt(sn)}</span></div>`).join('')
+        :`<div><span>${esc(lbl)}</span><b>${fmtInt(n)}</b></div>`).join('')}</div>`:'';
     return`
       <div class="dn-row${brief?' tog':''}" data-tipe="${t}" tabindex="0"${brief?' aria-expanded="false"':''}>
         <i style="background:${TIPE_COLOR[t]}"></i>
-        <span class="dn-name">${t}${brief?'<span class="dn-chev"></span>':''}<small>${TIPE_DESC[t]}</small></span>
+        <span class="dn-name">${esc(meta.label)}${brief?'<span class="dn-chev"></span>':''}<small>${meta.desc}</small></span>
         <span class="dn-val">${fmtInt(v)}</span>
         <span class="dn-pct">${fmtPct(total?v/total*100:0)}</span>
       </div>${brief}`;
@@ -414,14 +450,14 @@ function bindDonut(tipe){
   if(!card)return;
   const svg=card.querySelector('.donut');
   const c1=card.querySelector('#donutC1'),c2=card.querySelector('#donutC2');
-  const total=TIPE_ORDER.reduce((a,t)=>a+tipe[t].total,0);
+  const total=tipe.order.reduce((a,t)=>a+tipe[t].total,0);
   const on=t=>{
     svg.classList.add('hovering');
     card.querySelectorAll('[data-tipe]').forEach(el=>el.classList.toggle('on',el.dataset.tipe===t));
     card.querySelectorAll('[data-tt]').forEach(el=>el.classList.toggle('on',el.dataset.tt===t));
     const center=!tipe[t].parts;
     c1.textContent=center?fmtPct(total?tipe[t].total/total*100:0):'';
-    c2.textContent=center?`${t} · ${fmtInt(tipe[t].total)} bibit`:'';
+    c2.textContent=center?`${tipeMeta(t,tipe.year).label} · ${fmtInt(tipe[t].total)} bibit`:'';
   };
   const off=()=>{
     svg.classList.remove('hovering');
