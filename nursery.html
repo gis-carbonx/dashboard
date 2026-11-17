@@ -159,8 +159,11 @@ body{display:flex;flex-direction:column}
 .bt-search{flex:1;min-width:180px;max-width:280px;font:inherit;font-size:12px;color:var(--text);padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;outline:none}
 .bt-search:focus{border-color:var(--primary)}
 .bt-scroll{overflow-x:auto}
-.bt-table{min-width:640px}
-.bt-head,.bt-row{display:grid;grid-template-columns:190px minmax(160px,1fr) 70px 56px;gap:12px;align-items:center}
+.bt-table{min-width:820px}
+.bt-head,.bt-row{display:grid;grid-template-columns:190px 66px repeat(5,minmax(72px,1fr)) 58px;gap:6px;align-items:center}
+.bt-head .bt-sortbtn.c{justify-self:center;text-align:center;line-height:1.25}
+.bt-hm{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.bt-hm.z{color:var(--text-3);font-weight:400}
 .bt-head{padding:0 6px 6px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3)}
 .bt-sortbtn{justify-self:end;display:inline-flex;align-items:center;gap:4px;padding:0;border:none;background:none;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:pointer}
 .bt-sortbtn:hover,.bt-sortbtn.on{color:var(--text)}
@@ -177,8 +180,6 @@ body{display:flex;flex-direction:column}
 .bt-id small{display:block;font-size:10px;font-weight:500;color:var(--text-3);padding-left:16px;margin-top:1px}
 .bt-chev{display:inline-block;width:10px;margin-right:6px;font-size:12px;color:var(--text-2);transition:transform .15s}
 .bt-group.open .bt-chev{transform:rotate(90deg)}
-.bt-bar{display:flex;gap:2px;height:14px;border-radius:3px;overflow:hidden;background:var(--border-lt)}
-.bt-bar i{min-width:2px}
 .bt-n,.bt-p{font-size:12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--text-2)}
 .bt-p{font-weight:700;color:var(--text)}
 .bt-detail{display:none;padding:10px 10px 14px 28px;border-bottom:1px solid var(--border-lt);background:#FBFAF6}
@@ -873,7 +874,9 @@ function batchFlow(year){
     const mati=b.mSemai+b.mPemb+b.mBst,sisa=Math.min(alive.get(b.id)||0,Math.max(0,b.semai-mati));
     b.ev.sort((x,y)=>x.date.localeCompare(y.date));
     const sr=b.pemb>0?Math.min(100,Math.max(0,1-(b.mPemb+b.mBst)/b.pemb)*100):null;
-    return{...b,mati,sisa,sr,keluar:Math.max(0,b.semai-mati-sisa)};
+    const o={...b,mati,sisa,sr,keluar:Math.max(0,b.semai-mati-sisa)};
+    BT_SEGS.forEach(s=>{o['p_'+s.key]=o[s.key]/o.semai*100;});
+    return o;
   });
 }
 function batchTableHTML(year){
@@ -891,7 +894,7 @@ function batchTableHTML(year){
         <div class="bt-sk-head"><div class="bt-sk-title" id="btSkTitle"></div><button type="button" class="bt-sk-all" id="btSkAll" hidden>Tampilkan semua batch</button></div>
         <div class="bt-sk-scroll" id="btSankey"></div>
       </div>      <div class="bt-scroll"><div class="bt-table">
-        <div class="bt-head" id="btHead"><span>Batch</span><span>Alur bibit</span><button type="button" class="bt-sortbtn" data-sort="semai">Semai<i></i></button><button type="button" class="bt-sortbtn" data-sort="sr" title="Survival rate sejak masuk pembesaran">SR<i></i></button></div>
+        <div class="bt-head" id="btHead"><span>Batch</span><button type="button" class="bt-sortbtn" data-sort="semai">Semai<i></i></button>${BT_SEGS.map(s=>`<button type="button" class="bt-sortbtn c" data-sort="p_${s.key}" title="${s.label}, persen dari jumlah semai">${s.label}<i></i></button>`).join('')}<button type="button" class="bt-sortbtn" data-sort="sr" title="Survival rate sejak masuk pembesaran">SR<i></i></button></div>
         <div class="bt-clip" id="btClip"><div class="bt-list" id="btList"></div></div>
       </div></div>
       <button type="button" class="more-btn" id="btMore"></button>
@@ -965,19 +968,24 @@ function drawBatchList(){
   if(!list.length){el.innerHTML='<div class="bt-empty">Tidak ada batch yang cocok.</div>';return;}
   el.innerHTML=list.map(b=>{
     const y=+b.id.slice(0,4),m=+b.id.slice(5,7);
-    const bar=BT_SEGS.filter(s=>b[s.key]>0).map(s=>`<i style="flex:${b[s.key]} 0 0;background:${s.color}" title="${s.label}: ${fmtInt(b[s.key])} (${fmtPct(b[s.key]/b.semai*100)})"></i>`).join('');
-    const ev=b.ev.map(r=>{
+    const cells=BT_SEGS.map(s=>{
+      const p=b['p_'+s.key],tip=`${s.label}: ${fmtInt(b[s.key])} bibit (${fmtPct(p)})`;
+      if(!(b[s.key]>0))return`<span class="bt-hm z" title="${tip}">–</span>`;
+      const bg=mixHex('#FFFFFF',s.color,.12+.88*Math.sqrt(Math.min(100,p)/100));
+      return`<span class="bt-hm" style="background:${bg};color:${isDark(bg)?'#fff':'#3A342C'}" title="${tip}">${p>0&&p<1?'&lt;1':Math.round(p)}%</span>`;
+    }).join('');
+    const ev=b.ev.filter(r=>r.jumlah>0).map(r=>{
       const mt=isMati(r.cat)?' class="mt"':'';
       const dt=r.date?`${+r.date.slice(8,10)} ${BT_MONTH[+r.date.slice(5,7)-1]} ${r.date.slice(0,4)}`:'–';
-      return`<span>${dt}</span><span${mt}>${esc(r.category)}</span><span class="n"${mt}>${r.jumlah?fmtInt(r.jumlah):'–'}</span><span>${esc(r.graft)}</span>`;
+      return`<span>${dt}</span><span${mt}>${esc(r.category)}</span><span class="n"${mt}>${fmtInt(r.jumlah)}</span><span>${esc(r.graft)}</span>`;
     }).join('');
     const open=openBatch.has(b.id);
     return`
       <div class="bt-group${open?' open':''}${b.id===sankeyId?' sk':''}">
         <button type="button" class="bt-row" data-bt="${esc(b.id)}" aria-expanded="${open}">
           <span class="bt-id"><span class="bt-chev">&#9656;</span>${esc(b.id)}<small>${esc(b.jenis||'–')} &middot; semai ${BT_MONTH[m-1]||''} ${y}</small></span>
-          <span class="bt-bar">${bar}</span>
           <span class="bt-n">${fmtInt(b.semai)}</span>
+          ${cells}
           <span class="bt-p">${b.sr==null?'–':fmtPct(b.sr)}</span>
         </button>
         <div class="bt-detail">
