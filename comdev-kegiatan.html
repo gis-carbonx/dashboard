@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Activity Explorer</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow:hidden;display:flex;scrollbar-gutter:stable}
+.content-row{flex:1;min-height:0;max-width:1180px;margin:0 auto;padding:28px 36px 24px;display:flex;align-items:stretch;gap:20px}
+.side-menu{align-self:flex-start}
+.page-body-inner{display:flex;flex-direction:column;min-height:0;flex:1;min-width:0}
+#mainSection{flex:1;min-height:0;display:flex;flex-direction:column}
+
+.kg-row{flex:1;min-height:0;display:grid;grid-template-columns:290px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px}
+.pp-side{border:1px solid var(--border);border-radius:14px;background:#fff;display:flex;flex-direction:column;min-height:0}
+.kg-main{min-height:0;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,.8fr) minmax(0,1.1fr) minmax(0,1.1fr);gap:16px}
+.kg-main>.kg-wide{grid-column:1/-1}
+.kg-main>.kg-solo{grid-column:1/-1;grid-row:1/-1}
+.kg-fill{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.kg-scroll{flex:1;min-height:0;overflow-y:auto;margin-right:-8px;padding-right:8px}
+.pp-tools{padding:14px 14px 10px;border-bottom:1px solid var(--border-lt);display:flex;flex-direction:column;gap:8px}
+.pp-search{width:100%;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11.5px;color:var(--text);outline:none}
+.pp-search:focus{border-color:var(--primary)}
+.km-select{width:100%;padding:5px 28px 5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239C998C' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 11px center;appearance:none;font-size:10.5px;font-weight:600;color:var(--text-2);cursor:pointer}
+.km-select.on{border-color:var(--primary);color:var(--primary)}
+.pp-years{display:flex;gap:6px;flex-wrap:wrap}
+.pp-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pp-count{font-size:10px;color:var(--text-3)}
+.pp-sort{display:inline-flex;align-items:center;gap:4px;border:none;background:none;border-radius:12px;padding:2px 8px;margin-right:-8px;font-size:10px;font-weight:600;color:var(--primary-md);cursor:pointer;white-space:nowrap}
+.pp-sort:hover{background:var(--primary-bg);color:var(--primary)}
+.pp-sort svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pp-list{flex:1;min-height:0;overflow-y:auto;padding:6px 8px 10px}
+.pp-li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;width:100%;border:none;background:none;text-align:left;padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--text)}
+.pp-li:hover{background:var(--primary-bg)}
+.pp-li.active{background:#ececec}
+.pp-n{font-size:11.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-s{grid-column:1;font-size:10px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-v{grid-row:1/3;grid-column:2;align-self:center;font-size:10px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pp-v b{font-size:12px;font-weight:800;color:var(--text)}
+.ld-none{font-size:11px;color:var(--text-3);padding:6px 8px}
+
+.kg-card{padding:16px 20px 14px}
+.kg-head{display:flex;justify-content:space-between;align-items:center;gap:16px;height:49px}
+.kg-name{flex:1;min-width:0;font-size:18px;font-weight:800;color:var(--text);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.kg-sub{font-size:11px;color:var(--text-2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kg-stats{display:grid;grid-template-columns:repeat(4,auto);gap:22px;flex-shrink:0}
+.ld-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.kg-stat-v{font-size:20px;font-weight:800;color:var(--primary);letter-spacing:-.01em;margin-top:2px;font-variant-numeric:tabular-nums}
+.kg-dt{color:var(--primary-md);font-weight:700}
+.kg-clear{border:none;background:none;font-size:11px;font-weight:600;color:var(--primary-md);cursor:pointer}
+.kg-clear:hover{color:var(--primary)}
+
+.kg-hd{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:10px;flex-shrink:0}
+.kg-hd small{font-size:10.5px;font-weight:500;color:var(--text-3);margin-left:6px}
+
+.ss-i{display:grid;grid-template-columns:minmax(0,1fr) 52px 72px;gap:14px;align-items:center;width:100%;border:none;border-top:1px solid var(--border-lt);background:none;text-align:left;padding:6px 8px;cursor:pointer;font-size:11.5px;color:var(--text)}
+.kg-scroll .ss-i:first-child{border-top:none}
+.ss-w{min-width:0;display:flex;flex-direction:column;gap:1px}
+.ss-i:hover{background:var(--primary-bg)}
+.ss-i.active{background:#ececec}
+.ss-i.hd{cursor:default;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding-top:0;border-top:none;margin-right:8px;width:auto}
+.ss-i.hd:hover{background:none}
+.ss-d{font-size:11.5px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.ss-t{font-size:10.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss-n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.ss-jk{display:flex;height:8px;border-radius:2px;overflow:hidden;background:var(--border-lt)}
+
+.jk-bar{display:flex;height:26px;border-radius:4px;overflow:hidden;margin:6px 0 10px}
+.jk-bar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:700;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+.jk-leg{display:flex;flex-direction:column;gap:5px}
+.jk-r{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:11.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.jk-r i{width:10px;height:10px;border-radius:2px}
+.jk-r b{color:var(--text);font-weight:700;text-align:right}
+.jk-r span:last-child{width:40px;text-align:right;color:var(--text-3);font-size:10.5px}
+
+.ss-d[title]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss-p{display:block;font-size:10px;font-weight:500;color:var(--text-3)}
+.ds-leg{display:flex;gap:14px;font-size:10.5px;color:var(--text-2)}
+.ds-leg span{display:inline-flex;align-items:center;gap:5px}
+.ds-leg i{width:10px;height:10px;border-radius:2px}
+
+.pl-i{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 80px 70px 90px;gap:12px;align-items:center;padding:6px 8px;border-top:1px solid var(--border-lt);font-size:11.5px;color:var(--text);text-decoration:none}
+.pl-i:first-child{border-top:none}
+.pl-i.hd{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);border-top:none;padding-top:0;margin-right:8px;flex-shrink:0}
+.pl-n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-s{color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.pl-c{text-align:right;font-variant-numeric:tabular-nums}
+.kg-empty{padding:80px 20px;text-align:center;font-size:12px;color:var(--text-3)}
+
+.tt-box{position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;max-width:360px;pointer-events:none;display:none}
+.tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.tt-head strong{color:var(--text);font-weight:700}
+.tt-row{display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--text-2);padding:2px 0;font-variant-numeric:tabular-nums}
+
+@media (max-width:900px){
+  .page-scroll{overflow-y:auto;display:block}
+  .content-row{height:auto}
+  .kg-row{grid-template-columns:1fr;grid-template-rows:none}
+  .pp-side{height:340px}
+  .kg-main{overflow:visible;grid-template-columns:1fr;grid-template-rows:none}
+  .kg-main>.kg-fill{height:340px}
+  .kg-main>.kg-solo{grid-row:auto}
+  .kg-head{flex-direction:column;align-items:flex-start;height:auto}  .pl-i{grid-template-columns:minmax(0,1fr) 70px 60px}.pl-i>:nth-child(2),.pl-i>:nth-child(5){display:none}}
+@media (max-width:768px){.content-row{padding:20px 16px 40px}.kg-stats{grid-template-columns:repeat(2,auto);gap:14px 22px}}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html">Activities</a>
+    <a href="list.html" class="active">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Activity Explorer</div>
+        <div class="hero-date" id="heroDate">Loading data...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+    <div class="content-row">
+      <nav class="side-menu">
+        <a class="side-item" href="comdev-summary.html" title="Main Page" aria-label="Main Page"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5a1 1 0 0 0 1 1h3v-6h3v6h3a1 1 0 0 0 1-1V10"/></svg></a>
+        <a class="side-item active" href="comdev-kegiatan.html" title="Activity Explorer" aria-label="Activity Explorer"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 15v2"/><path d="M12 11v6"/><path d="M16 8v9"/></svg></a>
+        <a class="side-item" href="comdev-peserta.html" title="Participant Network" aria-label="Participant Network"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.4 7.3 10 10.4"/><path d="M17.6 7.3 14 10.4"/><path d="M6.4 16.7 10 13.6"/><path d="M17.6 16.7 14 13.6"/></svg></a>
+      </nav>
+      <div class="page-body-inner">
+        <div id="pageBody"><div class="loading-note">Loading data...</div></div>
+        <section id="mainSection" style="display:none">
+          <div class="sec-title">Statistik Peserta per Kegiatan</div>
+          <div class="kg-row">
+            <aside class="pp-side">
+              <div class="pp-tools">
+                <input class="pp-search" id="kgSearch" type="search" placeholder="Cari kegiatan" autocomplete="off">
+                <select class="km-select" id="kgObj"></select>
+                <div class="pp-years" id="kgYears"></div>
+                <div class="pp-meta"><span class="pp-count" id="kgCount"></span><button class="pp-sort" id="kgSort"></button></div>
+              </div>
+              <div class="pp-list" id="kgList"></div>
+            </aside>
+            <div class="kg-main" id="kgMain"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tt-box" id="ttBox"></div>
+
+<script src="assets/js/sheet-utils.js"></script>
+<script>
+'use strict';
+const SHEET_ID='1GB64g8bGV_IFjXcpRL7bu4lj9FtgRLKcUXqpNMzg50c',SHEET_NAME='db-comdev-2',ACT_GID='1891592405';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const ACT_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${ACT_GID}`;
+const ACT_COL=16,OBJ_COL=8,OBJ_N=8,NO_PLACE='Lokasi tidak tercatat',NO_DESA='Desa tidak tercatat',PL_MAX=300;
+const MONTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const JK={L:'#356760',P:'#B5BBA9',U:'#DCDACC'};
+const JK_LBL={L:'Laki-laki',P:'Perempuan',U:'Tidak tercatat'};
+
+const str=v=>(v??'').toString().trim();
+const fmtInt=v=>(+v||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const pct=(a,b)=>b?Math.round(a/b*100)+'%':'–';
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isOne=v=>str(v)==='1';
+const key=s=>str(s).toLowerCase();
+const normDesa=v=>str(v).replace(/\s+/g,' ').replace(/^desa\s+/i,'');
+const DATE_LIKE=/^\d{1,2}(\s*[-–]\s*\d{1,2})?[\s\/.-]+([A-Za-z]{3,}|\d{1,2})[\s\/.-]+\d{2,4}$/;
+
+const RANGE_SEP=/\s+(?:-|s\/d|sd|sampai|to)\s+|\s*–\s*/i;
+function parseTgl(v,endV){
+  const s=str(v).replace(/^(\d{1,2})-(?=\d{1,2}\s+[A-Za-z])/,'$1 - '),end2=sheetDate(str(endV));
+  const parts=s.split(RANGE_SEP);
+  if(parts.length!==2)return{tgl:sheetDate(s),end:end2&&end2>sheetDate(s)?end2:null};
+  const end=sheetDate(parts[1]);
+  if(!end)return{tgl:sheetDate(s),end:null};
+  const a=parts[0].trim(),y=end.getFullYear();
+  let start=/^\d{1,2}$/.test(a)?new Date(y,end.getMonth(),+a):sheetDate(/\d{4}/.test(a)?a:`${a} ${y}`);
+  if(start&&start>end)start.setFullYear(start.getFullYear()-1);
+  return{tgl:start||end,end:start&&end>start?end:null};
+}
+const dm=d=>`${d.getDate()} ${MONTHS[d.getMonth()]}`;
+function fmtRange(s){
+  if(!s.tgl)return'Tanpa tanggal';
+  const a=s.tgl,b=s.end;
+  if(!b)return`${dm(a)} ${a.getFullYear()}`;
+  if(a.getFullYear()!==b.getFullYear())return`${dm(a)} ${a.getFullYear()} – ${dm(b)} ${b.getFullYear()}`;
+  if(a.getMonth()===b.getMonth())return`${a.getDate()}–${dm(b)} ${b.getFullYear()}`;
+  return`${dm(a)} – ${dm(b)} ${b.getFullYear()}`;
+}
+const fmtMonth=d=>`${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
+let people=new Map(),objNames=[],sessByCode=new Map(),groups=[];
+const S={g:null,q:'',obj:'',years:new Set(),asc:false,sess:null,desa:null};
+const jkOf=p=>p.L?'L':p.P?'P':'U';
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:false,skipEmptyLines:true});
+  const head=data[0]||[];
+  const codes=head.slice(ACT_COL).map(str);
+  objNames=Array.from({length:OBJ_N},(_,i)=>str(head[OBJ_COL+i])||`Tujuan ${i+1}`);
+  people=new Map();
+  data.slice(1).forEach(c=>{
+    const id=str(c[0]);
+    const L=isOne(c[6]),P=isOne(c[7]);
+    if(!id||!(str(c[5])||L||P))return;
+    const p=people.get(id)||{id,nama:str(c[5])||id,desa:normDesa(c[3]),dusun:str(c[4]),kec:str(c[2]),L:false,P:false,acts:new Set(),objs:new Set()};
+    p.L=p.L||L;p.P=p.P||P;
+    codes.forEach((code,i)=>{if(code&&isOne(c[ACT_COL+i]))p.acts.add(code);});
+    for(let i=0;i<OBJ_N;i++)if(isOne(c[OBJ_COL+i]))p.objs.add(i);
+    people.set(id,p);
+  });
+  return codes.filter(Boolean);
+}
+
+function parseActs(csv,codes){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true});
+  const info=new Map();
+  data.forEach(r=>{
+    const code=str(r.ID_Kode),tempat=normDesa(r.Desa);
+    if(code)info.set(code,{judul:str(r.Judul_Kegiatan)||code,tempat:DATE_LIKE.test(tempat)?'':tempat,...parseTgl(r.Tanggal,r.Tanggal_Selesai)});
+  });
+  sessByCode=new Map(codes.map(code=>{
+    const i=info.get(code)||{judul:code,tempat:'',tgl:null,end:null};
+    return[code,{code,judul:i.judul,tempat:i.tempat||NO_PLACE,tgl:i.tgl,end:i.end,ps:[]}];
+  }));
+  people.forEach(p=>{
+    p.list=[...p.acts].map(c=>sessByCode.get(c)).filter(Boolean);
+    p.list.forEach(s=>s.ps.push(p));
+  });
+  const gm=new Map();
+  sessByCode.forEach(s=>{
+    const k=key(s.judul),g=gm.get(k)||{k,name:s.judul,sess:[]};
+    g.sess.push(s);gm.set(k,g);
+  });
+  groups=[...gm.values()];
+  groups.forEach(g=>{
+    g.sess.sort((a,b)=>(b.tgl||0)-(a.tgl||0));
+    const c=new Array(OBJ_N).fill(0),seen=new Set();
+    g.sess.forEach(s=>s.ps.forEach(p=>{if(seen.has(p))return;seen.add(p);p.objs.forEach(i=>c[i]++);}));
+    const m=Math.max(...c);
+    g.obj=m?c.indexOf(m):-1;
+  });
+}
+
+const visSess=g=>S.years.size?g.sess.filter(s=>s.tgl&&S.years.has(s.tgl.getFullYear())):g.sess;
+const uniqOf=list=>{const m=new Set();list.forEach(s=>s.ps.forEach(p=>m.add(p)));return m.size;};
+
+function stats(list){
+  const sel=new Set(list),u=new Map();
+  list.forEach(s=>s.ps.forEach(p=>{const o=u.get(p.id)||{p,n:0,min:null};o.n++;if(s.tgl&&(!o.min||s.tgl<o.min))o.min=s.tgl;u.set(p.id,o);}));
+  const jk={L:0,P:0,U:0},desa=new Map(),freq=[0,0,0];
+  let fresh=0,other=0;
+  u.forEach(o=>{
+    const p=o.p,j=jkOf(p);
+    jk[j]++;
+    const dk=key(p.desa)||'~',d=desa.get(dk)||{k:dk,name:p.desa||NO_DESA,kec:new Map(),L:0,P:0,U:0,n:0};
+    d[j]++;d.n++;if(p.kec)d.kec.set(p.kec,(d.kec.get(p.kec)||0)+1);desa.set(dk,d);
+    freq[Math.min(2,o.n-1)]++;
+    if(p.list.some(s=>!sel.has(s)))other++;
+    if(!p.list.some(s=>!sel.has(s)&&s.tgl&&o.min&&s.tgl<o.min))fresh++;
+  });
+  const att=list.reduce((a,s)=>a+s.ps.length,0);
+  const ds=[...desa.values()].sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name));
+  ds.forEach(d=>{d.kecName=[...d.kec].sort((a,b)=>b[1]-a[1]).map(x=>x[0])[0]||'';});
+  return{u,n:u.size,jk,desa:ds,freq,fresh,other,att};
+}
+
+function filteredGroups(){
+  const q=key(S.q);
+  return groups.map(g=>({g,vs:visSess(g)}))
+    .filter(({g,vs})=>vs.length&&(S.obj===''||String(g.obj)===S.obj)&&(!q||key(g.name).includes(q)||g.sess.some(s=>key(s.code).includes(q))))
+    .map(o=>({...o,n:uniqOf(o.vs)}))
+    .sort((a,b)=>(S.asc?a.n-b.n:b.n-a.n)||a.g.name.localeCompare(b.g.name));
+}
+
+function renderList(){
+  const all=filteredGroups();
+  document.getElementById('kgCount').textContent=`${fmtInt(all.length)} kegiatan${S.years.size?` ${[...S.years].sort().join(' & ')}`:''}`;
+  document.getElementById('kgList').innerHTML=all.length
+    ?all.map(({g,vs,n})=>{
+      const d=vs.filter(s=>s.tgl).map(s=>s.tgl),last=d.length?new Date(Math.max(...d)):null;
+      return`<button class="pp-li${g.k===S.g?' active':''}" data-g="${esc(g.k)}">
+        <span class="pp-n" title="${esc(g.name)}">${esc(g.name)}</span>
+        <span class="pp-v"><b>${fmtInt(n)}</b> peserta</span>
+        <span class="pp-s">${fmtInt(vs.length)} sesi${last?` · terakhir ${fmtMonth(last)}`:''}</span>
+      </button>`;}).join('')
+    :'<div class="ld-none">Tidak ada kegiatan yang cocok.</div>';
+  document.getElementById('kgObj').classList.toggle('on',S.obj!=='');
+  document.getElementById('kgSort').innerHTML=`${S.asc?'Peserta paling sedikit':'Peserta paling banyak'}<svg viewBox="0 0 24 24"><path d="M8 4v16"/><path d="m4 ${S.asc?'8 4-4 4 4':'16 4 4 4-4'}"/><path d="M14 6h6"/><path d="M14 12h4"/><path d="M14 18h2"/></svg>`;
+}
+
+const jkSeg=(jk,n,label)=>['L','P','U'].filter(k=>jk[k]).map(k=>`<i style="width:${jk[k]/n*100}%;background:${JK[k]}"${label?'':` title="${JK_LBL[k]} ${fmtInt(jk[k])}"`}>${label&&jk[k]/n>=.08?pct(jk[k],n):''}</i>`).join('');
+
+function renderMain(){
+  const el=document.getElementById('kgMain'),g=groups.find(x=>x.k===S.g);
+  el.st=null;
+  if(!g){el.innerHTML='<div class="card kg-card kg-solo"><div class="kg-empty">Pilih kegiatan dari daftar.</div></div>';return;}
+  const vs=visSess(g);
+  if(!vs.length){el.innerHTML=`<div class="card kg-card kg-solo"><div class="kg-name">${esc(g.name)}</div><div class="kg-empty">Tidak ada sesi pada tahun yang dipilih.</div></div>`;return;}
+  const ss=S.sess?vs.filter(s=>s.code===S.sess):vs;
+  if(!ss.length){S.sess=null;return renderMain();}
+  const st=stats(ss);
+  const dated=vs.filter(s=>s.tgl).map(s=>s.tgl);
+  const range=dated.length?(()=>{const a=new Date(Math.min(...dated)),b=new Date(Math.max(...dated));return fmtMonth(a)===fmtMonth(b)?fmtMonth(a):`${fmtMonth(a)} – ${fmtMonth(b)}`;})():'Tanpa tanggal';
+  const places=[...new Set(vs.map(s=>s.tempat))];
+  const cur=S.sess&&vs.find(s=>s.code===S.sess);
+  const sub=[g.obj>=0?objNames[g.obj]:'Lainnya',cur?fmtRange(cur):range,cur?cur.tempat:places.length>3?`${places.length} lokasi`:places.join(', ')].map(esc).join(' - ');
+  const stat=(l,v)=>`<div><div class="ld-lbl">${l}</div><div class="kg-stat-v">${v}</div></div>`;
+  const title=cur?`${g.name} - ${fmtRange(cur)}`:g.name;
+
+  const head=`<div class="card kg-card kg-wide"><div class="kg-head">
+      <div class="kg-name" title="${esc(title)}">${esc(g.name)}${cur?`<span class="kg-dt"> - ${esc(fmtRange(cur))}</span>`:''}</div>
+      <div class="kg-stats">${stat('Peserta unik',fmtInt(st.n))}${stat('Sesi',fmtInt(ss.length))}${stat('Kehadiran',fmtInt(st.att))}${stat('Desa asal',fmtInt(st.desa.filter(d=>d.k!=='~').length))}</div>
+    </div><div class="kg-sub" title="${sub}">${sub}</div></div>`;
+
+  const sessCard=`<div class="card kg-card kg-fill"><div class="kg-hd"><div class="chart-title">Sesi</div>${S.sess?'<button class="kg-clear" data-sess="">Semua sesi</button>':''}</div>
+    <div class="ss-i hd"><span>Tanggal / Lokasi</span><span class="ss-n">Peserta</span><span>L / P</span></div>
+    <div class="kg-scroll">${vs.map(s=>{const jk={L:0,P:0,U:0};s.ps.forEach(p=>jk[jkOf(p)]++);
+      return`<button class="ss-i${s.code===S.sess?' active':''}" data-sess="${esc(s.code)}" data-tip="s:${esc(s.code)}"><span class="ss-w"><span class="ss-d">${fmtRange(s)}</span><span class="ss-t" title="${esc(s.tempat)}">${esc(s.tempat)}</span></span><span class="ss-n">${fmtInt(s.ps.length)}</span><span class="ss-jk">${s.ps.length?jkSeg(jk,s.ps.length):''}</span></button>`;}).join('')}</div></div>`;
+
+  const jkCard=`<div class="card kg-card kg-fill"><div class="chart-title">Jenis Kelamin</div>
+    <div class="jk-bar">${st.n?jkSeg(st.jk,st.n,true):''}</div>
+    <div class="jk-leg">${['L','P','U'].filter(k=>k!=='U'||st.jk.U).map(k=>`<div class="jk-r"><i style="background:${JK[k]}"></i><span>${JK_LBL[k]}</span><b>${fmtInt(st.jk[k])}</b><span>${pct(st.jk[k],st.n)}</span></div>`).join('')}</div></div>`;
+
+  const row=(c,l,v)=>`<div class="jk-r"><i style="background:${c}"></i><span>${l}</span><b>${fmtInt(v)}</b><span>${pct(v,st.n)}</span></div>`;
+  const enCard=`<div class="card kg-card kg-fill"><div class="chart-title">Keterlibatan Peserta</div>
+    <div class="jk-bar">${st.n?`<i style="width:${st.fresh/st.n*100}%;background:#8C9F8B">${st.fresh/st.n>=.08?pct(st.fresh,st.n):''}</i><i style="width:${(st.n-st.fresh)/st.n*100}%;background:#C9B9A4">${(st.n-st.fresh)/st.n>=.08?pct(st.n-st.fresh,st.n):''}</i>`:''}</div>
+    <div class="kg-scroll"><div class="jk-leg">${row('#8C9F8B','Pertama kali ikut kegiatan',st.fresh)}${row('#C9B9A4','Pernah ikut kegiatan sebelumnya',st.n-st.fresh)}
+      ${row('transparent','Juga ikut kegiatan lain',st.other)}${row('transparent','Hadir di lebih dari 1 sesi',st.freq[1]+st.freq[2])}</div></div></div>`;
+
+  const dsCard=`<div class="card kg-card kg-fill"><div class="kg-hd"><div class="chart-title">Asal Desa</div>
+      <div class="ds-leg"><span><i style="background:${JK.L}"></i>Laki-laki</span><span><i style="background:${JK.P}"></i>Perempuan</span></div></div>
+    <div class="ss-i hd"><span>Desa / Kecamatan</span><span class="ss-n">Peserta</span><span>L / P</span></div>
+    <div class="kg-scroll">${st.desa.map(d=>`<button class="ss-i ds-r${d.k===S.desa?' active':''}" data-desa="${esc(d.k)}" data-tip="d:${esc(d.k)}">
+      <span class="ss-w"><span class="ss-d" title="${esc(d.name)}">${esc(d.name)}</span><span class="ss-t">${d.kecName?`Kec. ${esc(d.kecName)}`:'Kecamatan tidak tercatat'}</span></span>
+      <span class="ss-n">${fmtInt(d.n)}<small class="ss-p">${pct(d.n,st.n)}</small></span>
+      <span class="ss-jk">${jkSeg(d,d.n)}</span></button>`).join('')}</div></div>`;
+
+  el.innerHTML=head+jkCard+enCard+sessCard+dsCard+`<div class="card kg-card kg-fill kg-wide" id="plCard"></div>`;
+  el.st=st;
+  renderPeople();
+}
+
+function renderPeople(){
+  const card=document.getElementById('plCard'),st=document.getElementById('kgMain').st;
+  if(!card||!st)return;
+  const dsel=S.desa&&st.desa.find(d=>d.k===S.desa);
+  if(S.desa&&!dsel)S.desa=null;
+  const rows=[...st.u.values()].filter(o=>!S.desa||(key(o.p.desa)||'~')===S.desa)
+    .sort((a,b)=>b.n-a.n||b.p.list.length-a.p.list.length||a.p.nama.localeCompare(b.p.nama));
+  card.innerHTML=`<div class="kg-hd"><div class="chart-title">Daftar Peserta${dsel?`<small>${esc(dsel.name)}</small>`:''}</div>
+    ${S.desa?'<button class="kg-clear" data-desa="">Semua desa</button>':''}</div>
+    <div class="pl-i hd"><span>Nama</span><span>Desa / Dusun</span><span>Jenis kelamin</span><span class="pl-c">Sesi hadir</span><span class="pl-c">Total kegiatan</span></div>
+    <div class="kg-scroll">${rows.slice(0,PL_MAX).map(o=>`<div class="pl-i">
+      <span class="pl-n">${esc(o.p.nama)}</span><span class="pl-s">${esc([o.p.desa||NO_DESA,o.p.dusun].filter(Boolean).join(' / '))}</span>
+      <span class="pl-s">${JK_LBL[jkOf(o.p)]}</span><span class="pl-c">${fmtInt(o.n)}</span><span class="pl-c">${fmtInt(o.p.list.length)}</span></div>`).join('')}
+    ${rows.length>PL_MAX?`<div class="ld-none">+${fmtInt(rows.length-PL_MAX)} peserta lainnya, persempit pencarian.</div>`:''}
+    ${rows.length?'':'<div class="ld-none">Tidak ada peserta yang cocok.</div>'}</div>`;}
+
+function selectGroup(k){
+  S.g=k;S.sess=null;S.desa=null;
+  history.replaceState(null,'','#'+encodeURIComponent(k));
+  document.querySelectorAll('.pp-li').forEach(b=>b.classList.toggle('active',b.dataset.g===k));
+  renderMain();
+}
+
+function renderYears(){
+  const yrs=[...new Set([...sessByCode.values()].filter(s=>s.tgl).map(s=>s.tgl.getFullYear()))].sort();
+  document.getElementById('kgYears').innerHTML=['',...yrs].map(y=>`<button class="fpill${(y?S.years.has(y):!S.years.size)?' active':''}" data-year="${y}">${y||'Semua'}</button>`).join('');
+}
+
+function initControls(){
+  renderYears();
+  const c=new Array(OBJ_N).fill(0);let none=0;
+  groups.forEach(g=>g.obj>=0?c[g.obj]++:none++);
+  document.getElementById('kgObj').innerHTML='<option value="">Semua tujuan</option>'
+    +objNames.map((n,i)=>c[i]?`<option value="${i}">${esc(n)} (${c[i]})</option>`:'').join('')
+    +(none?`<option value="-1">Lainnya (${none})</option>`:'');
+  document.getElementById('kgYears').addEventListener('click',e=>{
+    const b=e.target.closest('[data-year]');
+    if(!b)return;
+    const y=+b.dataset.year;
+    if(!y){if(!S.years.size)return;S.years.clear();}
+    else if(S.years.has(y))S.years.delete(y);
+    else S.years.add(y);
+    S.sess=null;S.desa=null;
+    renderYears();renderList();renderMain();
+  });
+  document.getElementById('kgObj').addEventListener('change',e=>{S.obj=e.target.value;renderList();});
+  document.getElementById('kgSearch').addEventListener('input',e=>{S.q=e.target.value;renderList();});
+  document.getElementById('kgSort').addEventListener('click',()=>{S.asc=!S.asc;renderList();document.getElementById('kgList').scrollTop=0;});}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('[data-g]');
+  if(li){selectGroup(li.dataset.g);return;}
+  const s=e.target.closest('[data-sess]');
+  if(s){const v=s.dataset.sess||null;S.sess=S.sess===v?null:v;S.desa=null;renderMain();return;}
+  const d=e.target.closest('[data-desa]');
+  if(d){const v=d.dataset.desa||null;S.desa=S.desa===v?null:v;document.querySelectorAll('.ds-r').forEach(b=>b.classList.toggle('active',b.dataset.desa===S.desa));renderPeople();}
+});
+
+const tt=document.getElementById('ttBox');
+function tipFor(t){
+  const el=t.closest?t.closest('[data-tip]'):null;
+  if(!el)return'';
+  const [kind,id]=[el.dataset.tip.slice(0,1),el.dataset.tip.slice(2)];
+  const li=(a,b)=>`<div class="tt-row"><span>${a}</span><span>${b}</span></div>`;
+  if(kind==='s'){
+    const s=sessByCode.get(id);if(!s)return'';
+    const jk={L:0,P:0,U:0},ds=new Map();
+    s.ps.forEach(p=>{jk[jkOf(p)]++;const n=p.desa||NO_DESA;ds.set(n,(ds.get(n)||0)+1);});
+    return`<div class="tt-head"><strong>${esc(fmtRange(s))}</strong> · ${esc(s.tempat)}</div>`
+      +li('Peserta',fmtInt(s.ps.length))+li('Laki-laki / perempuan',`${fmtInt(jk.L)} / ${fmtInt(jk.P)}`)
+      +[...ds].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,v])=>li(esc(n),fmtInt(v))).join('')
+      +li('Kode',esc(s.code));
+  }
+  const st=document.getElementById('kgMain').st,d=st&&st.desa.find(x=>x.k===id);
+  if(!d)return'';
+  return`<div class="tt-head"><strong>${esc(d.name)}</strong>${d.kecName?` · Kec. ${esc(d.kecName)}`:''}</div>`
+    +li('Peserta',`${fmtInt(d.n)} (${pct(d.n,st.n)})`)+li('Laki-laki',fmtInt(d.L))+li('Perempuan',fmtInt(d.P))+(d.U?li('Tidak tercatat',fmtInt(d.U)):'');
+}
+document.addEventListener('mousemove',e=>{
+  const html=tipFor(e.target);
+  if(!html){tt.style.display='none';return;}
+  tt.innerHTML=html;
+  tt.style.display='block';
+  tt.style.left=Math.min(window.innerWidth-tt.offsetWidth-8,e.clientX+14)+'px';
+  tt.style.top=Math.max(8,e.clientY-tt.offsetHeight-12)+'px';
+});
+
+(async function boot(){
+  document.getElementById('heroDate').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  try{
+    const getText=async u=>{const r=await fetch(u);if(!r.ok)throw Error(r.status+' '+u);return r.text();};
+    const [pCsv,aCsv]=await Promise.all([getText(CSV_URL),getText(ACT_URL)]);
+    const codes=parseSheet(pCsv);
+    parseActs(aCsv,codes);
+    document.getElementById('pageBody').style.display='none';
+    document.getElementById('mainSection').style.display='';
+    initControls();
+    const fromHash=decodeURIComponent(location.hash.slice(1));
+    S.g=groups.some(g=>g.k===fromHash)?fromHash:((filteredGroups()[0]||{}).g||{}).k||null;
+    renderList();
+    renderMain();
+  }catch(err){
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">⚠ Gagal memuat data: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>
