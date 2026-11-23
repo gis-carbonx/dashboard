@@ -170,18 +170,21 @@
     .dp-md{font-size:10px;color:var(--text-3);margin-top:1px;min-height:14px;font-variant-numeric:tabular-nums}
     .dp-md b{font-weight:800;color:var(--text-2)}
     .dp-body{display:flex;gap:8px;margin-top:2px}
-    .dp-rl{position:relative;width:58px;flex-shrink:0;font-size:10px;font-weight:600;color:var(--text-3);text-align:right;line-height:1.1}
-    .dp-rl span{position:absolute;right:0;transform:translateY(-50%)}
+    .dp-rl{position:relative;width:96px;flex-shrink:0;font-size:10px;font-weight:600;color:var(--text-3);text-align:right;line-height:1.1}
+    .dp-rl span{position:absolute;right:0;max-width:100%;transform:translateY(-50%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dp-rl span.sp{font-style:italic}
+    .dp-md .mdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 3px 0 1px}
+    .dp-note{font-size:9.5px;font-style:italic;color:var(--text-3);margin-top:1px}
+    .dp-div{position:absolute;left:-6px;right:-6px;border-top:1px solid #DCDACC}
+    .dp-band{position:absolute;height:16px;margin-top:-8px;min-width:4px;border-radius:4px;z-index:0}
     .dp-grid>.dp-panel:nth-child(even) .dp-rl{display:none}
     @media (max-width:640px){.dp-grid>.dp-panel .dp-rl{display:block}}
     .dp-plot{position:relative;flex:1;min-width:0;margin:0 6px}
     .dp-plot .gl{position:absolute;top:0;bottom:18px;border-left:1px solid #EDE7D8}
     .dp-plot .tk{position:absolute;bottom:0;transform:translateX(-50%);font-size:9.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
     .dp-dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;box-shadow:0 0 0 1.5px #fff;cursor:pointer;z-index:1}
-    .dp-dot.no{background:#B5BBA9}
     .dp-dot.sel,.dp-dot:hover{box-shadow:0 0 0 1.5px #fff,0 0 0 3px #3A342C;z-index:3}
-    .dp-med{position:absolute;width:3px;height:22px;margin:-11px 0 0 -1.5px;border-radius:1px;z-index:2;pointer-events:none}
-    .dp-lbl{position:absolute;transform:translateX(-50%);font-size:9px;font-weight:600;color:var(--text-2);white-space:nowrap;pointer-events:none}
+    .dp-med{position:absolute;width:3px;height:18px;margin:-9px 0 0 -1.5px;border-radius:1px;background:#3A342C;z-index:2}
     .cal-card{margin-top:16px;padding:16px 18px}
     .cal-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)}
     .cal-leg i{width:10px;height:10px;border-radius:2px;margin-left:6px}
@@ -585,64 +588,64 @@ function niceTicks(lo,hi,n){
   return t;
 }
 const median=a=>{if(!a.length)return null;const b=a.slice().sort((x,y)=>x-y),h=b.length>>1;return b.length%2?b[h]:(b[h-1]+b[h])/2;};
+const shortSp=n=>{const w=n.trim().split(/\s+/);return w.length>1?w[0][0]+'. '+w.slice(1).join(' '):n;};
+const quant=(b,p)=>{const i=(b.length-1)*p,l=Math.floor(i),u=Math.min(l+1,b.length-1);return b[l]+(b[u]-b[l])*(i-l);};
+const jit=k=>{let h=0;for(const c of k)h=(h*31+c.charCodeAt(0))|0;return(h>>>0)%9-4;};
+function lowVar(vals){
+  if(vals.length<3)return false;
+  const b=vals.slice().sort((x,y)=>x-y),cnt=new Map();
+  b.forEach(v=>{const r=Math.round(v);cnt.set(r,(cnt.get(r)||0)+1);});
+  return Math.max(...cnt.values())/b.length>=.6||quant(b,.75)-quant(b,.25)<=(b[b.length-1]-b[0])*.02;
+}
+let siteTips=[];
 function renderSiteCard(){
   const card=document.getElementById('siteCard');
   if(!sites.length){card.style.display='none';return;}
   card.style.display='';
-  const sp=spPinned()?N.sp[pin.i]:null,selK=pin?(pin.t==='s'?N.st[pin.i].k:pin.s||null):null;
-  const pc=sp?IUCN_COLORS[sp.iucn]||'#356760':'#356760',eff=stationEffort();
-  const active=sites.filter(s=>(eff.get(s.k)||new Set()).size);
-  const det=sp?active.filter(s=>sp.st.has(s.k)):[],no=sp?active.filter(s=>!sp.st.has(s.k)):active;
-  document.getElementById('siteLbl').innerHTML=sp?`Where <em>${esc(sp.name)}</em> was detected`:'Habitat at camera stations';
-  document.getElementById('siteLeg').innerHTML=sp
-    ?`<span><i style="background:${pc}"></i>Detected</span><span><i style="background:#B5BBA9"></i>Not detected</span><span><i class="md" style="background:#3A342C"></i>Median</span>`
-    :`<span><i style="background:#B5BBA9"></i>Station</span><span><i class="md" style="background:#3A342C"></i>Median</span>`;
-  const RY=sp?[52,90]:[30],H=RY[RY.length-1]+34;
-  const rows=sp?[{lbl:'Detected',list:det,cls:'det',mc:pc},{lbl:'Not detected',list:no,cls:'no',mc:'#3A342C'}]:[{lbl:'All stations',list:no,cls:'no',mc:'#3A342C'}];
-  document.getElementById('siteDots').innerHTML=SITE_COLS.map(o=>{
-    const vals=sites.map(s=>s.v[o.f]).filter(v=>v!=null);
-    if(!vals.length)return'';
+  const pinSp=spPinned()?N.sp[pin.i]:null,selK=pin?(pin.t==='s'?N.st[pin.i].k:pin.s||null):null,eff=stationEffort();
+  const detK=new Set(N.st.map(s=>s.k));
+  const active=sites.filter(s=>(eff.get(s.k)||new Set()).size||detK.has(s.k));
+  const rows=[{lbl:'All stations',name:'All stations',short:'all',list:active,col:'#B5BBA9',all:true}];
+  const spList=pinSp?active.filter(s=>pinSp.st.has(s.k)):[];
+  if(spList.length)rows.push({lbl:esc(shortSp(pinSp.name)),full:esc(pinSp.name),name:`<i>${esc(pinSp.name)}</i>`,short:`<em>${esc(shortSp(pinSp.name))}</em>`,list:spList,col:IUCN_COLORS[pinSp.iucn]||'#356760'});
+  document.getElementById('siteLeg').innerHTML=rows.map(r=>`<span><i style="background:${r.col}"></i>${r.name} (${r.list.length})</span>`).join('')
+    +`<span><i class="md" style="background:#3A342C"></i>Median</span>`;
+  const RY=rows.map((r,i)=>i?48+(i-1)*26:16),DIV=32,H=RY[RY.length-1]+32;
+  siteTips=[];
+  const tip=h=>(siteTips.push(h),siteTips.length-1);
+  const panels=SITE_COLS.map(o=>{const vals=sites.map(s=>s.v[o.f]).filter(v=>v!=null);return{o,vals,low:lowVar(vals)};})
+    .filter(x=>x.vals.length).sort((a,b)=>a.low-b.low);
+  document.getElementById('siteDots').innerHTML=panels.map(({o,vals,low})=>{
     const t=niceTicks(Math.min(...vals),Math.max(...vals),4),x0=t[0],x1=t[t.length-1],P=v=>(x1>x0?(v-x0)/(x1-x0)*100:50);
+    const fv=v=>`${fmtV(v)} ${o.u}`;
     const grid=t.map(v=>`<i class="gl" style="left:${P(v).toFixed(2)}%"></i><span class="tk" style="left:${P(v).toFixed(2)}%">${fmtV(v)}</span>`).join('');
+    const meds=[];
     const body=rows.map((r,ri)=>{
-      const y=RY[ri],list=r.list.filter(s=>s.v[o.f]!=null).sort((a,b)=>a.v[o.f]-b.v[o.f]);
-      const groups=[];
-      list.forEach(s=>{const g=groups[groups.length-1];if(g&&P(s.v[o.f])-P(g[0].v[o.f])<2.5)g.push(s);else groups.push([s]);});
-      const dots=groups.map(g=>{
-        const step=g.length>1?Math.min(7,22/(g.length-1)):0;
-        return g.map((s,i)=>`<b class="dp-dot ${r.cls}${s.k===selK?' sel':''}" data-k="${esc(s.k)}" style="left:${P(s.v[o.f]).toFixed(2)}%;top:${f1(y+(i-(g.length-1)/2)*step)}px${r.cls==='det'?`;background:${pc}`:''}"></b>`).join('');
-      }).join('');
-      let lbls='';
-      if(r.cls==='det'){
-        const lv=[];
-        lbls=groups.map(g=>{
-          const x=P(g[0].v[o.f]),txt=g.map(s=>esc(s.unit)).join(' '),w=txt.length*1.8;
-          let l=0;
-          while(lv.some(q=>q.l===l&&Math.abs(q.x-x)<(q.w+w)/2+2))l++;
-          lv.push({x,l,w});
-          const top=y-(g.length>1?Math.min(7,22/(g.length-1))*(g.length-1)/2:0)-10-l*11;
-          return`<span class="dp-lbl" style="left:${x.toFixed(2)}%;top:${f1(top-9)}px">${txt}</span>`;
-        }).join('');
+      const y=RY[ri],list=r.list.filter(s=>s.v[o.f]!=null),b=list.map(s=>s.v[o.f]).sort((x,z)=>x-z);
+      if(!b.length){meds.push(null);return'';}
+      const md=median(b);
+      meds.push(md);
+      let band='';
+      if(!r.all&&b.length>=3){
+        const q1=quant(b,.25),q3=quant(b,.75);
+        band=`<i class="dp-band" data-tip="${tip(`<div class="tt-head"><strong>${r.name}</strong> · ${o.lbl}</div><div class="tt-row"><span>Q1–Q3</span><b>${fmtV(q1)}–${fv(q3)}</b></div><div class="tt-row"><span>Stations</span><b>${b.length}</b></div>`)}" style="left:${P(q1).toFixed(2)}%;width:${(P(q3)-P(q1)).toFixed(2)}%;top:${y}px;background:${r.col}26"></i>`;
       }
-      const md=median(list.map(s=>s.v[o.f]));
-      return dots+lbls+(md!=null?`<i class="dp-med" style="left:${P(md).toFixed(2)}%;top:${y}px;background:${r.mc}"></i>`:'');
+      const dots=list.map(s=>`<b class="dp-dot${s.k===selK?' sel':''}" data-k="${esc(s.k)}" data-tip="${tip(`<div class="tt-head"><strong>${esc(s.unit)}</strong> ${esc(s.site)}</div><div class="tt-row"><span>${o.lbl}</span><b>${fv(s.v[o.f])}</b></div>`+(r.all?'':`<div class="tt-row"><span>${r.name}</span><b>detected</b></div>`))}" style="left:${P(s.v[o.f]).toFixed(2)}%;top:${y+jit(s.k)}px;background:${r.col}"></b>`).join('');
+      const tick=`<i class="dp-med" data-tip="${tip(`<div class="tt-head"><strong>${r.name}</strong> · ${o.lbl}</div><div class="tt-row"><span>Median</span><b>${fv(md)}</b></div><div class="tt-row"><span>Stations</span><b>${b.length}</b></div>`)}" style="left:${P(md).toFixed(2)}%;top:${y}px"></i>`;
+      return band+dots+tick;
     }).join('');
-    const md=median((sp?det:no).map(s=>s.v[o.f]).filter(v=>v!=null)),sub=md!=null?`Median <b>${fmtV(md)}</b> ${o.u}`:'';
-    const rl=`<div class="dp-rl" style="height:${H}px">${rows.map((r,ri)=>`<span style="top:${RY[ri]}px">${r.lbl}</span>`).join('')}</div>`;
-    return`<div class="dp-panel"><div class="dp-t">${o.lbl} (${o.u})</div><div class="dp-src">Source: ${o.src}</div><div class="dp-md">${sub}</div>`
-      +`<div class="dp-body">${rl}<div class="dp-plot" style="height:${H}px">${grid}${body}</div></div></div>`;
+    const sub=rows.map((r,ri)=>meds[ri]==null?'':(r.all?'':`<i class="mdot" style="background:${r.col}"></i>`)+`${r.short} <b>${fmtV(meds[ri])}</b>`).filter(Boolean).join(' · ');
+    const rl=`<div class="dp-rl" style="height:${H}px">${rows.map((r,ri)=>`<span class="${r.all?'':'sp'}" style="top:${RY[ri]}px"${r.full?` title="${r.full}"`:''}>${r.lbl}</span>`).join('')}</div>`;
+    return`<div class="dp-panel"><div class="dp-t">${o.lbl} (${o.u})</div><div class="dp-src">Source: ${o.src}</div>`
+      +`<div class="dp-md">${sub?`Median (${o.u}): ${sub}`:''}</div>`
+      +(low?'<div class="dp-note">Low variation across stations — limited power to separate species.</div>':'')
+      +`<div class="dp-body">${rl}<div class="dp-plot" style="height:${H}px">${grid}${rows.length>1?`<i class="dp-div" style="top:${DIV}px"></i>`:''}${body}</div></div></div>`;
   }).join('');
 }
 (function initSiteEvents(){
   const el=document.getElementById('siteDots');
-  const ptip=k=>{
-    const s0=sites.find(s=>s.k===k),sp=spPinned()?N.sp[pin.i]:null;
-    return`<div class="tt-head"><strong>${esc(s0.unit)}</strong> ${esc(s0.site)}</div>`
-      +SITE_COLS.map(o=>`<div class="tt-row"><span>${o.lbl}</span><b>${fmtV(s0.v[o.f])} ${o.u}</b></div>`).join('')
-      +(sp?`<div class="tt-row"><span><em>${esc(sp.name)}</em></span><b>${sp.st.has(k)?'Detected':'Not detected'}</b></div>`:'');
-  };
-  el.addEventListener('mouseover',e=>{const d=e.target.closest('.dp-dot');if(d&&N)showTip(ptip(d.dataset.k),e);});
-  el.addEventListener('mousemove',e=>{if(e.target.closest('.dp-dot'))moveTip(e);else hideTip();});
+  el.addEventListener('mouseover',e=>{const d=e.target.closest('[data-tip]');if(d&&siteTips[+d.dataset.tip])showTip(siteTips[+d.dataset.tip],e);});
+  el.addEventListener('mousemove',e=>{if(e.target.closest('[data-tip]'))moveTip(e);else hideTip();});
   el.addEventListener('mouseleave',hideTip);
   el.addEventListener('click',e=>{
     const d=e.target.closest('.dp-dot');
