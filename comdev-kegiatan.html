@@ -333,7 +333,7 @@ function renderMain(){
 
   const head=`<div class="card kg-card kg-wide"><div class="kg-head">
       <div class="kg-name" title="${esc(title)}">${esc(g.name)}${cur?`<span class="kg-dt"> - ${esc(fmtRange(cur))}</span>`:''}</div>
-      <div class="kg-stats">${stat('Peserta unik',fmtInt(st.n))}${stat('Sesi',fmtInt(ss.length))}${stat('Kehadiran',fmtInt(st.att))}${stat('Desa asal',fmtInt(st.desa.filter(d=>d.k!=='~').length))}</div>
+      <div class="kg-stats">${stat('Peserta unik',fmtInt(st.n))}${stat('Sesi',fmtInt(ss.length))}${stat('Kehadiran',fmtInt(st.att))}${stat('Desa',fmtInt(st.desa.filter(d=>d.k!=='~').length))}</div>
     </div><div class="kg-sub" title="${sub}">${sub}</div></div>`;
 
   const sessCard=`<div class="card kg-card kg-fill"><div class="kg-hd"><div class="chart-title">Sesi</div>${S.sess?'<button class="kg-clear" data-sess="">Semua sesi</button>':''}</div>
@@ -351,7 +351,7 @@ function renderMain(){
     <div class="kg-scroll"><div class="jk-leg">${row('#8C9F8B','Pertama kali ikut kegiatan',st.fresh)}${row('#C9B9A4','Pernah ikut kegiatan sebelumnya',st.n-st.fresh)}
       ${row('transparent','Juga ikut kegiatan lain',st.other)}${row('transparent','Hadir di lebih dari 1 sesi',st.freq[1]+st.freq[2])}</div></div></div>`;
 
-  const dsCard=`<div class="card kg-card kg-fill"><div class="kg-hd"><div class="chart-title">Asal Desa</div>
+  const dsCard=`<div class="card kg-card kg-fill"><div class="kg-hd"><div class="chart-title">Desa</div>
       <div class="ds-leg"><span><i style="background:${JK.L}"></i>Laki-laki</span><span><i style="background:${JK.P}"></i>Perempuan</span></div></div>
     <div class="ss-i hd"><span>Desa / Kecamatan</span><span class="ss-n">Peserta</span><span>L / P</span></div>
     <div class="kg-scroll">${st.desa.map(d=>`<button class="ss-i ds-r${d.k===S.desa?' active':''}" data-desa="${esc(d.k)}" data-tip="d:${esc(d.k)}">
