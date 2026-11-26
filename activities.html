@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Project Activities</title>
+<link rel="icon" type="image/png" href="assets/icons/favicon.png?v=2">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="assets/js/sheet-utils.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Libre Franklin',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+.page-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.content-row{max-width:1000px;margin:0 auto;padding:28px 36px 64px}
+
+.tl-intro{font-size:12px;color:var(--text-2);line-height:1.6;max-width:68ch;margin:6px 0 32px}
+
+.tl-year{display:grid;grid-template-columns:120px minmax(0,1fr)}
+.tl-ylbl{position:sticky;top:20px;align-self:start;font-size:30px;font-weight:800;color:var(--primary);letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums}
+.tl-body{position:relative;padding:0 0 30px 36px;min-width:0}
+.tl-body::before{content:'';position:absolute;left:9px;top:8px;bottom:0;width:2px;background:var(--border)}
+.tl-year:last-child .tl-body{padding-bottom:0}
+.tl-year:last-child .tl-body::before{bottom:auto;height:calc(100% - 20px)}
+
+.tl-month{position:relative;padding-bottom:26px}
+.tl-month::before{content:'';position:absolute;left:-33px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--primary);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--primary)}
+.tl-mlbl{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;line-height:16px}
+
+.tl-item{padding:0 0 18px}
+.tl-item+.tl-item{padding-top:18px;border-top:1px solid var(--border-lt)}
+.tl-when{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:11px;font-weight:600;color:var(--primary-md);font-variant-numeric:tabular-nums;margin-bottom:5px}
+.tl-tag{font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--primary);border:1px solid var(--primary-lt);border-radius:20px;padding:2px 8px}
+.tl-title{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.45;max-width:68ch;text-wrap:pretty}
+.tl-text{font-size:12px;color:var(--text-2);line-height:1.6;max-width:68ch;margin-top:5px}
+.tl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tl-chip{font-size:11px;font-weight:600;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
+.tl-chip span{font-weight:500;color:var(--text-3);font-variant-numeric:tabular-nums}
+
+@media (max-width:640px){
+  .content-row{padding:20px 16px 48px}
+  .tl-year{grid-template-columns:1fr}
+  .tl-ylbl{top:0;z-index:2;background:var(--bg);padding:10px 0;font-size:22px;display:flex;align-items:baseline;gap:10px}
+  .tl-body{padding-top:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="site-navbar">
+  <div class="site-navbar-brand">
+    <img src="assets/logo/Sanggala_color.png" alt="Logo Sanggala Corridor Project">
+    <span>SANGGALA CORRIDOR PROJECT</span>
+  </div>
+  <nav class="site-navbar-menu">
+    <a href="/dashboard/">Home</a>
+    <a href="activities.html" class="active">Activities</a>
+    <a href="list.html">Dashboard</a>
+  </nav>
+  <div class="site-navbar-spacer"></div>
+</header>
+
+<div class="dashboard-frame">
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Project Activities</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="page-scroll">
+      <div class="content-row">
+        <div class="page-body-inner" id="pageBody"><div class="loading-note">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SHEET_ID='1bYs81WPqoUr4j_2Rvp80uLxy4_qpt7k-ZFxf4tJ23_A';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MON_FULL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const str=v=>(v??'').toString().trim();
+const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDay=d=>`${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`;
+const fmtWhen=w=>w.prec==='day'?fmtDay(w.d):`${MON[w.d.getMonth()]} ${w.d.getFullYear()}`;
+
+function parseWhen(v){
+  const s=str(v);
+  if(!s)return null;
+  if(/^(onwards|ongoing|present)$/i.test(s))return{open:true};
+  const d=sheetDate(s,'dmy');
+  if(d)return{d,prec:'day'};
+  const m=sheetDate(`1 ${s}`,'dmy');
+  return m?{d:m,prec:'month'}:null;
+}
+
+function parseText(txt){
+  const lines=str(txt).split(/\r?\n/).map(str).filter(Boolean);
+  const paras=[],chips=[];
+  lines.forEach(l=>{
+    if(/^[•\-–]\s*/.test(l)){
+      const t=l.replace(/^[•\-–]\s*/,'');
+      const m=t.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      const d=m?sheetDate(m[2],'dmy'):null;
+      chips.push({name:m?m[1]:t,date:d?fmtDay(d):m?m[2]:''});
+    }else paras.push(l);
+  });
+  let title=paras.shift()||'';
+  const rest=[];
+  const sm=title.match(/^(.{20,}?[.!?])\s+(.+)$/);
+  if(sm){title=sm[1];rest.push(sm[2]);}
+  title=title.replace(/:$/,'');
+  return{title,text:rest.concat(paras).join(' '),chips};
+}
+
+function parseSheet(csv){
+  const {data}=Papa.parse(csv,{header:true,skipEmptyLines:true,transformHeader:h=>h.trim()});
+  return data.map((raw,i)=>{
+    const keys=Object.keys(raw);
+    const k=re=>keys.find(x=>re.test(x));
+    const start=parseWhen(raw[k(/^start/i)]);
+    const text=raw[k(/milestone|activit|description/i)];
+    if(!start||!start.d||!str(text))return null;
+    return{i,start,end:parseWhen(raw[k(/^end/i)]),...parseText(text)};
+  }).filter(Boolean).sort((a,b)=>a.start.d-b.start.d||a.i-b.i);
+}
+
+function itemHTML(it){
+  const end=it.end;
+  const when=end?end.open?`${fmtWhen(it.start)} – present`:`${fmtWhen(it.start)} – ${fmtWhen(end)}`:fmtWhen(it.start);
+  return`
+    <div class="tl-item">
+      <div class="tl-when"><span>${esc(when)}</span>${end&&end.open?'<span class="tl-tag">Ongoing</span>':''}</div>
+      <div class="tl-title">${esc(it.title)}</div>
+      ${it.text?`<div class="tl-text">${esc(it.text)}</div>`:''}
+      ${it.chips.length?`<div class="tl-chips">${it.chips.map(c=>`<span class="tl-chip">${esc(c.name)}${c.date?` <span>${esc(c.date)}</span>`:''}</span>`).join('')}</div>`:''}
+    </div>`;
+}
+
+function render(items){
+  const years=new Map();
+  items.forEach(it=>{
+    const y=it.start.d.getFullYear(),m=it.start.d.getMonth();
+    if(!years.has(y))years.set(y,new Map());
+    const ym=years.get(y);
+    if(!ym.has(m))ym.set(m,[]);
+    ym.get(m).push(it);
+  });
+  const html=[...years].map(([y,months])=>`
+      <section class="tl-year">
+        <div class="tl-ylbl">${y}</div>
+        <div class="tl-body">${[...months].map(([m,list])=>`
+          <div class="tl-month">
+            <div class="tl-mlbl">${MON_FULL[m]}</div>
+            ${list.map(itemHTML).join('')}
+          </div>`).join('')}
+        </div>
+      </section>`).join('');
+  document.getElementById('pageBody').innerHTML=`
+    <div class="sec-title">Milestones in Project Implementation</div>
+    <div class="tl-intro">Key steps in the Sanggala Corridor Project since the change of ownership of PT CMI in March 2023. This timeline covers Monitoring Report 1 only, which ends on 31 December 2025; milestones after that date will be added with the next monitoring report. Entries are listed in order of their start date.</div>
+    <div class="tl">${html}</div>`;
+}
+
+(async function boot(){
+  try{
+    const r=await fetch(CSV_URL);
+    if(!r.ok)throw Error(`${r.status} ${CSV_URL}`);
+    const items=parseSheet(await r.text());
+    if(!items.length)throw Error('No milestones found in the sheet.');
+    render(items);
+  }catch(err){
+    document.getElementById('pageBody').innerHTML=`<div class="loading-note">Could not load the milestones: ${esc(String(err?.message||err))}</div>`;
+  }
+})();
+</script>
+<script src="auth-guard.js"></script>
+</body>
+</html>

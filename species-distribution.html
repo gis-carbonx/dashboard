@@ -174,7 +174,10 @@
     .dp-rl span{position:absolute;right:0;max-width:100%;transform:translateY(-50%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dp-rl span.sp{font-style:italic}
     .dp-md .mdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 3px 0 1px}
-    .dp-note{font-size:9.5px;font-style:italic;color:var(--text-3);margin-top:1px}
+    .dp-note{font-size:9.5px;font-style:italic;color:var(--text-3);margin-top:4px}
+    .site-leg span{white-space:nowrap}
+    .site-leg em{font-style:italic}
+    .dp-md{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dp-div{position:absolute;left:-6px;right:-6px;border-top:1px solid #DCDACC}
     .dp-band{position:absolute;height:16px;margin-top:-8px;min-width:4px;border-radius:4px;z-index:0}
     .dp-grid>.dp-panel:nth-child(even) .dp-rl{display:none}
@@ -185,6 +188,33 @@
     .dp-dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;box-shadow:0 0 0 1.5px #fff;cursor:pointer;z-index:1}
     .dp-dot.sel,.dp-dot:hover{box-shadow:0 0 0 1.5px #fff,0 0 0 3px #3A342C;z-index:3}
     .dp-med{position:absolute;width:3px;height:18px;margin:-9px 0 0 -1.5px;border-radius:1px;background:#3A342C;z-index:2}
+    .wf-card{margin-top:16px;padding:16px 18px}
+    .wf-card .card-head{align-items:center}
+    .wf-row{display:flex;align-items:flex-start;gap:24px;margin-top:10px}
+    .wf-wrap{flex:1;min-width:0;overflow-x:auto}
+    .wf-leg{flex:0 0 220px;display:flex;flex-direction:column;font-size:11px;color:var(--text-2)}
+    .wf-box{flex:1;display:flex;flex-direction:column;gap:7px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;overflow:hidden}
+    .wf-box span{display:flex;align-items:center;gap:8px;line-height:1.3;white-space:nowrap}
+    .wf-box svg.sw{width:12px;height:12px;flex-shrink:0}
+    .wf-box span.clk{cursor:pointer}
+    .wf-box span.clk:hover{color:var(--text)}
+    .wf-box span.off{opacity:.35}
+    .wf-box em{font-style:italic;overflow:hidden;text-overflow:ellipsis}
+    @media (max-width:760px){.wf-row{flex-direction:column}.wf-leg{flex-basis:auto;width:100%;height:auto!important}}
+    .wf-svg{display:block;margin:0 auto;user-select:none}
+    .wf-svg text{font-size:10px;fill:#6A665B}
+    .wf-svg .ax{font-size:9.5px;fill:#9C998C}
+    .wf-svg .tot{font-size:9.5px;font-weight:700;fill:#3A342C}
+    .wf-svg .blk{font-size:12px;font-weight:700;fill:#3A342C}
+    .wf-svg .gl{stroke:#EDE7D8;stroke-width:1}
+    .wf-svg rect.c{cursor:pointer}
+    .wf-svg rect.c:hover{stroke:#3A342C;stroke-width:1.2}
+    .wf-svg .mk{pointer-events:none}
+    .wf-svg .fade{opacity:.18}
+    .wf-svg .blkg{cursor:pointer}
+    .wf-svg .blkg .hit{fill:transparent}
+    .wf-svg .blkg:hover .blk,.wf-svg .blkg.on .blk{fill:#356760}
+    .wf-svg .blkg.on .hit{fill:#f3f3f3}
     .cal-card{margin-top:16px;padding:16px 18px}
     .cal-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)}
     .cal-leg i{width:10px;height:10px;border-radius:2px;margin-left:6px}
@@ -205,19 +235,26 @@
     .cal-yrs .fpill{padding:3px 10px}
     .cal-grid i.nc,.cal-leg i.nc{background:transparent;box-shadow:inset 0 0 0 1px #DCDACC}
     .cal-pop{position:fixed;z-index:1001;display:none;width:min(440px,calc(100vw - 16px));max-height:320px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:12px 14px;scrollbar-width:thin}
-    .cal-det-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
-    .cal-det-hd b{font-size:12.5px;font-weight:800;color:var(--text)}
+    .cal-det-hd{margin-bottom:8px}
+    .cal-det-hd b{display:block;font-size:12.5px;font-weight:700;color:var(--text)}
     .cal-det-hd span{font-size:10.5px;color:var(--text-3)}
-    .cal-det-r{display:grid;grid-template-columns:48px minmax(0,1.4fr) minmax(0,1fr) 40px;gap:12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-lt);font-size:11.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
-    .cal-det-r:last-child{border-bottom:none}
-    .cal-det-r .t{font-weight:700;color:var(--text)}
-    .cal-det-r .sp{display:flex;align-items:center;gap:6px;min-width:0}
-    .cal-det-r .sp i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .cal-det-r .sp em{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cal-det-r .sp small{font-size:10.5px;color:var(--text-3);white-space:nowrap}
-    .cal-det-r .st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cal-det-r .st b{color:var(--text);font-weight:700;margin-right:4px}
-    .cal-det-r .n{text-align:right;color:var(--text-3)}
+    .cal-dep{height:7px;position:relative;cursor:pointer}
+    .cal-dep.first{margin-top:4px}
+    .cal-dep::before{content:'';position:absolute;left:1px;right:1px;top:2px;height:3px;border-radius:2px;background:#618273}
+    .cal-dep:hover::before,.cal-dep.on::before{background:#3A342C}
+    .cal-leg i.dep{width:16px;height:3px;border-radius:2px;background:#618273}
+    .cal-cams{padding:8px 0;border-top:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt);font-size:11px;line-height:1.5}
+    .cal-cams>span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3);margin-bottom:2px}
+    .cal-cams p{margin:0;color:var(--text-3)}
+    .cal-cams p .hit{color:var(--text);font-weight:600}
+    .cal-cams:last-child{border-bottom:none;padding-bottom:0}
+    .cal-det-r{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border-lt);font-size:11.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+    .cal-det-r:last-child{border-bottom:none;padding-bottom:0}
+    .cal-det-r .t{color:var(--text-3)}
+    .cal-det-r .sp{min-width:0;color:var(--text-3)}
+    .cal-det-r .sp em{color:var(--text)}
+    .cal-det-r .sp small{display:block;font-size:10.5px;color:var(--text-3)}
+    .cal-det-r .st{text-align:right;white-space:nowrap;color:var(--text-2)}
     .tt-box{position:fixed;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:10px 12px;min-width:200px;max-width:340px;pointer-events:none;display:none}
     .tt-head{font-size:11.5px;color:var(--text-2);margin-bottom:6px}
     .tt-head strong{color:var(--text);font-weight:700}
@@ -293,11 +330,21 @@
             </div>
             <div class="dp-grid" id="siteDots"></div>
           </div>
+          <div class="card wf-card">
+            <div class="card-head">
+              <div class="card-lbl">Detections by block</div>
+              <div class="cal-yrs" id="wfModes"></div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-wrap" id="wfBody"></div>
+              <div class="wf-leg" id="wfLeg"></div>
+            </div>
+          </div>
           <div class="card cal-card">
             <div class="card-head">
               <div class="card-lbl" id="calLbl">Daily detections</div>
               <div class="cal-yrs" id="calYrs"></div>
-              <div class="cal-leg"><i class="nc"></i>no camera<i style="background:#EDE7D8"></i>0<i style="background:#B5BBA9"></i>1<i style="background:#8C9F8B"></i>2–3<i style="background:#618273"></i>4–6<i style="background:#356760"></i>7+</div>
+              <div class="cal-leg"><i class="nc"></i>no camera<i style="background:#EDE7D8"></i>0<i style="background:#B5BBA9"></i>1<i style="background:#8C9F8B"></i>2–3<i style="background:#618273"></i>4–6<i style="background:#356760"></i>7+<i class="dep"></i>deployment</div>
             </div>
             <div class="cal-sum" id="calSum"></div>
             <div id="calBody"></div>
@@ -325,7 +372,7 @@ const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
 const CT_COLS={
   site:['Site'],lat:['Latitude','Lat'],lon:['Longitude','Lon','Long'],
   unit:['CameraID','Camera ID','Unit ID','UnitID'],date:['Date'],start:['Start Date','Start'],end:['End Date','End'],time:['Time'],count:['Count'],species:['Species'],
-  local:['Local name','Local_name','Nama lokal'],iucn:['IUCN_status','IUCN status','IUCN'],indep:['Independency','Independent','Indep']
+  local:['Local name','Local_name','Nama lokal'],cls:['Class','Kelas'],iucn:['IUCN_status','IUCN status','IUCN'],indep:['Independency','Independent','Indep']
 };
 const IUCN_COLORS={LC:'#22c55e',NT:'#84cc16',VU:'#f59e0b',EN:'#f97316',CR:'#ef4444',EW:'#7c3aed',EX:'#000',DD:'#9C998C',NE:'#cbd5e1'};
 const IUCN_FULL={LC:'Least Concern',NT:'Near Threatened',VU:'Vulnerable',EN:'Endangered',CR:'Critically Endangered',EW:'Extinct in the Wild',EX:'Extinct',DD:'Data Deficient',NE:'Not Evaluated'};
@@ -351,7 +398,7 @@ function parseRows(data){
   return data.slice(1).map(r=>({
     unit:c(r,'unit'),site:c(r,'site'),lat:parseFloat(c(r,'lat')),lon:parseFloat(c(r,'lon')),date:sheetDate(c(r,'date'),'dmy'),start:sheetDate(c(r,'start'),'dmy'),end:sheetDate(c(r,'end'),'dmy'),
     time:c(r,'time').replace(/^(\d{1,2}):(\d{2}).*$/,(x,h,m)=>h.padStart(2,'0')+':'+m),count:parseInt(c(r,'count'))||null,
-    species:c(r,'species'),local:c(r,'local'),iucn:c(r,'iucn').toUpperCase(),indep:Math.max(0,parseInt(c(r,'indep'))||0)
+    species:c(r,'species'),local:c(r,'local'),cls:c(r,'cls'),iucn:c(r,'iucn').toUpperCase(),indep:Math.max(0,parseInt(c(r,'indep'))||0)
   })).filter(r=>r.unit&&!isNaN(r.lat)&&!isNaN(r.lon));
 }
 const matches=d=>{
@@ -607,10 +654,17 @@ function renderSiteCard(){
   const active=sites.filter(s=>(eff.get(s.k)||new Set()).size||detK.has(s.k));
   const rows=[{lbl:'All stations',name:'All stations',short:'all',list:active,col:'#B5BBA9',all:true}];
   const spList=pinSp?active.filter(s=>pinSp.st.has(s.k)):[];
-  if(spList.length)rows.push({lbl:esc(shortSp(pinSp.name)),full:esc(pinSp.name),name:`<i>${esc(pinSp.name)}</i>`,short:`<em>${esc(shortSp(pinSp.name))}</em>`,list:spList,col:IUCN_COLORS[pinSp.iucn]||'#356760'});
+  if(spList.length)rows.push({lbl:esc(shortSp(pinSp.name)),full:esc(pinSp.name),name:`<em>${esc(pinSp.name)}</em>`,short:`<em>${esc(shortSp(pinSp.name))}</em>`,list:spList,col:IUCN_COLORS[pinSp.iucn]||'#356760'});
+  else if(!pinSp&&wfMode!=='species'&&wfSel!=null){
+    const recs=allRows.filter(r=>r.indep>0&&isScientificName(r.species)&&matches(r.date));
+    const {key,cats}=wfScheme(recs,0),cat=cats.find(c=>c.k===wfSel);
+    const ks=new Set(recs.filter(r=>key(r)===wfSel).map(r=>r.unit+'|'+r.site));
+    const list=active.filter(s=>ks.has(s.k));
+    if(cat&&list.length)rows.push({lbl:esc(cat.lbl),full:esc(cat.lbl),name:esc(cat.lbl),short:esc(cat.lbl),list,col:cat.col,cat:true});
+  }
   document.getElementById('siteLeg').innerHTML=rows.map(r=>`<span><i style="background:${r.col}"></i>${r.name} (${r.list.length})</span>`).join('')
     +`<span><i class="md" style="background:#3A342C"></i>Median</span>`;
-  const RY=rows.map((r,i)=>i?48+(i-1)*26:16),DIV=32,H=RY[RY.length-1]+32;
+  const RY=rows.length>1?[16,48]:[32],DIV=32,H=80;
   siteTips=[];
   const tip=h=>(siteTips.push(h),siteTips.length-1);
   const panels=SITE_COLS.map(o=>{const vals=sites.map(s=>s.v[o.f]).filter(v=>v!=null);return{o,vals,low:lowVar(vals)};})
@@ -635,11 +689,11 @@ function renderSiteCard(){
       return band+dots+tick;
     }).join('');
     const sub=rows.map((r,ri)=>meds[ri]==null?'':(r.all?'':`<i class="mdot" style="background:${r.col}"></i>`)+`${r.short} <b>${fmtV(meds[ri])}</b>`).filter(Boolean).join(' · ');
-    const rl=`<div class="dp-rl" style="height:${H}px">${rows.map((r,ri)=>`<span class="${r.all?'':'sp'}" style="top:${RY[ri]}px"${r.full?` title="${r.full}"`:''}>${r.lbl}</span>`).join('')}</div>`;
+    const rl=`<div class="dp-rl" style="height:${H}px">${rows.map((r,ri)=>`<span class="${r.all||r.cat?'':'sp'}" style="top:${RY[ri]}px"${r.full?` title="${r.full}"`:''}>${r.lbl}</span>`).join('')}</div>`;
     return`<div class="dp-panel"><div class="dp-t">${o.lbl} (${o.u})</div><div class="dp-src">Source: ${o.src}</div>`
       +`<div class="dp-md">${sub?`Median (${o.u}): ${sub}`:''}</div>`
-      +(low?'<div class="dp-note">Low variation across stations — limited power to separate species.</div>':'')
-      +`<div class="dp-body">${rl}<div class="dp-plot" style="height:${H}px">${grid}${rows.length>1?`<i class="dp-div" style="top:${DIV}px"></i>`:''}${body}</div></div></div>`;
+      +`<div class="dp-body">${rl}<div class="dp-plot" style="height:${H}px">${grid}${rows.length>1?`<i class="dp-div" style="top:${DIV}px"></i>`:''}${body}</div></div>`
+      +(low?'<div class="dp-note">Low variation across stations — limited power to separate species.</div>':'')+`</div>`;
   }).join('');
 }
 (function initSiteEvents(){
@@ -689,24 +743,183 @@ function dailyCalendar(s,rows){
     +`<div class="sp-cal-leg"><span>${activeDays<span?`camera active ${activeDays} of ${span} days`:''}</span>`
     +`<span class="sw"><i style="background:#EDE7D8"></i>none<i style="background:#8C9F8B"></i>1<i style="background:#618273"></i>2<i style="background:#356760"></i>3+</span></div>`;
 }
-let detRows=[],allDeps=[],calStart=null,calYears=new Set([new Date().getFullYear()]),calDay=null,calByDay=new Map();
+let detRows=[],allDeps=[],calDeps=[],calGroups=[],calRows=[],calStart=null,calYears=new Set([new Date().getFullYear()]),calDay=null,calByDay=new Map();
 function prepDaily(){
   detRows=allRows.filter(r=>r.indep>0&&r.date&&isScientificName(r.species));
   const m=new Map();
-  allRows.forEach(r=>{if(r.start&&r.end&&r.end>=r.start){const k=r.unit+'|'+r.site;m.set(k+'|'+ +r.start+'|'+ +r.end,{k,start:r.start,end:r.end});}});
+  allRows.forEach(r=>{if(r.start&&r.end&&r.end>=r.start){const k=r.unit+'|'+r.site;m.set(k+'|'+ +r.start+'|'+ +r.end,{k,unit:r.unit,site:r.site,lat:r.lat,lon:r.lon,start:r.start,end:r.end});}});
   allDeps=[...m.values()];
   const ds=[...allDeps.map(d=>+d.start),...detRows.map(r=>+r.date)];
   calStart=ds.length?new Date(Math.min(...ds)):null;
 }
+const WF_PAL=['#b07cc6','#e8907e','#f2c9ae','#d6cf62','#899a2a','#a6d2c4','#0c7a7e','#0b3b56','#4f7a77','#7d5ba6','#c25b4e','#e3a857','#5e8f4f','#6aa5c8','#a67c52','#d98fb0'];
+const WF_LEG_ROW=21.5;
+const CLASS_MAP={mamalia:'Mammals',mammalia:'Mammals',aves:'Birds',reptilia:'Reptiles',amphibia:'Amphibians',insecta:'Insects'};
+const CLASS_COL={Mammals:'#0c7a7e',Birds:'#e8907e',Reptiles:'#f2c9ae',Amphibians:'#d6cf62',Insects:'#b07cc6'};
+const WF_MODES={iucn:'IUCN status',class:'Class',species:'Species'};
+const WF_S=9,WF_GAP=48,WF_L=44,WF_T=18,WF_B=44;
+let wfMode='iucn',wfSel=null,wfBlk=null,wfData=null,blocks=[];
+const blockCache=new Map();
+function inRing(x,y,ring){
+  let ins=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const [xi,yi]=ring[i],[xj,yj]=ring[j];
+    if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)ins=!ins;
+  }
+  return ins;
+}
+function blockOf(r){
+  const k=r.unit+'|'+r.site;
+  if(!blockCache.has(k)){
+    const b=blocks.find(b=>b.polys.some(p=>inRing(r.lon,r.lat,p[0])&&!p.slice(1).some(h=>inRing(r.lon,r.lat,h))));
+    blockCache.set(k,b?b.name:'Outside blocks');
+  }
+  return blockCache.get(k);
+}
+function wfMark(m,x,y,fill){
+  let h=fill.replace('#','');
+  if(h.length===3)h=h.split('').map(d=>d+d).join('');
+  const lum=(0.299*parseInt(h.slice(0,2),16)+0.587*parseInt(h.slice(2,4),16)+0.114*parseInt(h.slice(4,6),16))/255;
+  const c=lum>.72?'#6A665B':'#fff',a=`stroke="${c}" stroke-width="1.2" stroke-linecap="round" fill="none"`,cx=x+4,cy=y+4;
+  switch(m){
+    case 1:return`<circle class="mk" cx="${cx}" cy="${cy}" r="1.5" fill="${c}"/>`;
+    case 2:return`<path class="mk" d="M${x+1.8} ${y+6.2}L${x+6.2} ${y+1.8}" ${a}/>`;
+    case 3:return`<path class="mk" d="M${x+1.8} ${cy}H${x+6.2}" ${a}/>`;
+    case 4:return`<path class="mk" d="M${x+2} ${y+2}L${x+6} ${y+6}M${x+6} ${y+2}L${x+2} ${y+6}" ${a}/>`;
+    case 5:return`<path class="mk" d="M${cx} ${y+1.8}V${y+6.2}" ${a}/>`;
+    case 6:return`<circle class="mk" cx="${cx}" cy="${cy}" r="2" ${a}/>`;
+    case 7:return`<path class="mk" d="M${cx} ${y+1.8}V${y+6.2}M${x+1.8} ${cy}H${x+6.2}" ${a}/>`;
+    default:return'';
+  }
+}
+function wfScheme(rows,nTop){
+  if(wfMode==='iucn'){
+    const order=['EX','EW','CR','EN','VU','NT','LC','DD','NE'];
+    return{key:r=>order.includes(r.iucn)?r.iucn:'',cats:[...order.map(c=>({k:c,lbl:IUCN_FULL[c],col:IUCN_COLORS[c]})),{k:'',lbl:'No status',col:'#DCDACC'}]};
+  }
+  if(wfMode==='class'){
+    return{key:r=>CLASS_MAP[r.cls.toLowerCase()]||'',cats:[...Object.keys(CLASS_COL).map(k=>({k,lbl:k,col:CLASS_COL[k]})),{k:'',lbl:'Unidentified class',col:'#DCDACC'}]};
+  }
+  const tot=new Map(),name=new Map();
+  rows.forEach(r=>{const k=r.species.toLowerCase();tot.set(k,(tot.get(k)||0)+r.indep);name.set(k,r.species);});
+  const all=[...tot.entries()].sort((a,b)=>b[1]-a[1]);
+  const top=all.slice(0,all.length<=nTop+1?all.length:nTop).map(e=>e[0]);
+  return{key:r=>{const k=r.species.toLowerCase();return top.includes(k)?k:'';},
+    cats:[...top.map((k,i)=>({k,lbl:name.get(k),col:WF_PAL[i],it:true})),{k:'',lbl:'Other species',col:'#DCDACC'}]};
+}
+function renderWaffle(){
+  const body=document.getElementById('wfBody');
+  document.getElementById('wfModes').innerHTML=Object.keys(WF_MODES).map(m=>`<button type="button" class="fpill${wfMode===m?' active':''}" data-wm="${m}">${WF_MODES[m]}</button>`).join('');
+  const rows=allRows.filter(r=>r.indep>0&&isScientificName(r.species)&&matches(r.date));
+  if(!rows.length){wfData=null;wfBlk=null;const lg=document.getElementById('wfLeg');lg.innerHTML='';lg.style.height='';body.innerHTML='<div class="nw-empty">No camera trap detections in this period.</div>';return;}
+  const blkTot=new Map();
+  rows.forEach(r=>{const b=blockOf(r);blkTot.set(b,(blkTot.get(b)||0)+r.indep);});
+  const maxN=Math.max(...blkTot.values()),ticks=niceTicks(0,maxN,4),maxT=ticks[ticks.length-1];
+  const WF_W=Math.max(6,Math.ceil(Math.sqrt(maxN/1.2))),base=WF_T+Math.ceil(maxT/WF_W)*WF_S,H=base+WF_B;
+  const nTop=Math.min(WF_PAL.length,Math.max(4,Math.floor((H-22)/WF_LEG_ROW)-1));
+  const {key,cats}=wfScheme(rows,nTop),ci=new Map(cats.map((c,i)=>[c.k,i])),byBlock=new Map();
+  rows.forEach(r=>{
+    const s=blockOf(r);
+    let o=byBlock.get(s);
+    if(!o)byBlock.set(s,o={site:s,n:0,keys:new Set(),cells:[]});
+    o.keys.add(r.unit+'|'+r.site);
+    for(let k=0;k<r.indep;k++)o.cells.push({g:ci.get(key(r)),sp:r.species});
+    o.n+=r.indep;
+  });
+  const outside=s=>s==='Outside blocks'?1:0;
+  const cols=[...byBlock.values()].sort((a,b)=>outside(a.site)-outside(b.site)||a.site.localeCompare(b.site,undefined,{numeric:true}));
+  cols.forEach(o=>o.cells.sort((a,b)=>a.g-b.g||a.sp.localeCompare(b.sp)));
+  const used=new Set(cols.flatMap(o=>o.cells.map(c=>c.g)));
+  if(wfBlk!=null&&!cols.some(o=>o.site===wfBlk))wfBlk=null;
+  wfData={cols,cats};
+  const leg=document.getElementById('wfLeg');
+  leg.style.height=H+'px';
+  let mi=0;
+  cats.forEach((c,i)=>{if(used.has(i)){c.mk=mi%8;mi++;}});
+  const pinSp=spPinned()?N.sp[pin.i].k:null,selSt=pin&&pin.t==='s'?N.st[pin.i].k:null;
+  const byCat=wfMode!=='species';
+  if(byCat&&wfSel!=null&&(pinSp||!cats.some((c,i)=>c.k===wfSel&&used.has(i))))wfSel=null;
+  const hiKey=byCat?wfSel:pinSp;
+  const isHi=(c,cell)=>byCat?c.k===wfSel:cell?cell.sp.toLowerCase()===pinSp:c.k===pinSp;
+  leg.innerHTML=`<div class="wf-box">${cats.map((c,i)=>used.has(i)?`<span data-g="${i}" class="${hiKey!=null&&!isHi(c)?'off':''}${c.k===''&&!byCat?'':' clk'}"><svg class="sw" viewBox="0 0 8 8"><rect width="8" height="8" rx="1" fill="${c.col}"/>${wfMark(c.mk,0,0,c.col)}</svg>${c.it?`<em>${esc(c.lbl)}</em>`:esc(c.lbl)}</span>`:'').join('')}</div>`;
+  const colW=WF_W*WF_S,W=WF_L+cols.length*(colW+WF_GAP)-WF_GAP+10;
+  const Y=v=>base-v/WF_W*WF_S;
+  const axis=ticks.map(v=>`<line class="gl" x1="${WF_L-4}" x2="${W}" y1="${f1(Y(v))}" y2="${f1(Y(v))}"/><text class="ax" x="${WF_L-8}" y="${f1(Y(v))}" dy=".35em" text-anchor="end">${v}</text>`).join('');
+  const bars=cols.map((o,j)=>{
+    const x0=WF_L+j*(colW+WF_GAP),cx=x0+colW/2,blkOff=wfBlk!=null&&o.site!==wfBlk,stOff=blkOff||!!selSt&&!o.keys.has(selSt);
+    const cells=o.cells.map((c,i)=>{
+      const cat=cats[c.g],fade=blkOff||(hiKey!=null?!isHi(cat,c):stOff);
+      const x=x0+(i%WF_W)*WF_S,y=base-(Math.floor(i/WF_W)+1)*WF_S+1;
+      return`<g${fade?' class="fade"':''}><rect class="c" data-j="${j}" data-i="${i}" x="${x}" y="${y}" width="${WF_S-1}" height="${WF_S-1}" rx="1" fill="${cat.col}"/>${wfMark(cat.mk,x,y,cat.col)}</g>`;
+    }).join('');
+    return cells+`<text class="tot" x="${cx}" y="${base-Math.ceil(o.n/WF_W)*WF_S-5}" text-anchor="middle">${o.n}</text>`
+      +`<g class="blkg${stOff?' fade':''}${wfBlk===o.site?' on':''}" data-b="${j}"><rect class="hit" x="${x0-WF_GAP/2+2}" y="${base+4}" width="${colW+WF_GAP-4}" height="${WF_B-6}"/><text class="blk" x="${cx}" y="${base+18}" text-anchor="middle">${esc(o.site)}</text>`
+      +`<text class="ax" x="${cx}" y="${base+32}" text-anchor="middle">${o.keys.size} station${o.keys.size===1?'':'s'}</text></g>`;
+  }).join('');
+  body.innerHTML=`<svg class="wf-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${axis}${bars}</svg>`;
+}
+(function initWaffleEvents(){
+  const body=document.getElementById('wfBody');
+  const cell=e=>{const r=e.target.closest('rect.c');return r&&wfData?{o:wfData.cols[+r.dataset.j],c:wfData.cols[+r.dataset.j].cells[+r.dataset.i]}:null;};
+  body.addEventListener('mouseover',e=>{
+    const x=cell(e);
+    if(!x)return;
+    const {o,c}=x,cat=wfData.cats[c.g],inCat=o.cells.filter(z=>z.g===c.g),nCat=inCat.length;
+    const head=`<div class="tt-head"><strong>${esc(o.site)}</strong> · ${o.n} record${o.n===1?'':'s'}</div>`;
+    if(wfMode!=='species'){
+      const nSp=new Set(inCat.map(z=>z.sp.toLowerCase())).size;
+      showTip(head+`<div class="tt-row"><span>${esc(cat.lbl)}</span><b>${nCat} (${Math.round(nCat/o.n*100)}%)</b></div>`
+        +`<div class="tt-row"><span>Species</span><b>${nSp}</b></div>`,e);
+      return;
+    }
+    const nSp=o.cells.filter(z=>z.sp===c.sp).length;
+    showTip(head+(cat.it?'':`<div class="tt-row"><span>${esc(cat.lbl)}</span><b>${nCat}</b></div>`)
+      +`<div class="tt-row"><span><i>${esc(c.sp)}</i></span><b>${nSp}</b></div>`,e);
+  });
+  body.addEventListener('mousemove',e=>{if(e.target.closest('rect.c'))moveTip(e);else hideTip();});
+  body.addEventListener('mouseleave',hideTip);
+  const pick=(g,sp)=>{
+    if(!wfData)return;
+    hideTip();
+    if(wfMode!=='species'){
+      const k=wfData.cats[g].k;
+      wfSel=wfSel===k?null:k;
+      if(spPinned()){pin=null;applyMark(null);renderPanel();}
+      else renderDailyCard();
+      return;
+    }
+    const key=sp||wfData.cats[g].k;
+    const i=N?N.sp.findIndex(p=>p.k===key.toLowerCase()):-1;
+    if(i>=0)togglePin({t:'p',i});
+  };
+  body.addEventListener('click',e=>{
+    const x=cell(e);
+    if(x){pick(x.c.g,x.c.sp);return;}
+    const b=e.target.closest('[data-b]');
+    if(!b||!wfData)return;
+    const s=wfData.cols[+b.dataset.b].site;
+    wfBlk=wfBlk===s?null:s;
+    hideTip();
+    renderDailyCard();
+  });
+  document.getElementById('wfLeg').addEventListener('click',e=>{const s=e.target.closest('[data-g].clk');if(s)pick(+s.dataset.g);});
+  document.getElementById('wfModes').addEventListener('click',e=>{
+    const b=e.target.closest('[data-wm]');
+    if(b){wfMode=b.dataset.wm;wfSel=null;renderDailyCard();}
+  });
+})();
 function renderDailyCard(){
-  if(N)renderSiteCard();
+  if(N){renderSiteCard();renderWaffle();}
   const body=document.getElementById('calBody');
   if(!body||!calStart)return;
   const spKey=pin&&pin.t==='p'?N.sp[pin.i].k:null;
   const stKey=pin?(pin.t==='s'?N.st[pin.i].k:pin.s||null):null;
   const st=stKey?[...N.st,...N.idle].find(x=>x.k===stKey):null;
-  const rows=detRows.filter(r=>(!spKey||r.species.toLowerCase()===spKey)&&(!stKey||r.unit+'|'+r.site===stKey));
-  const deps=allDeps.filter(d=>!stKey||d.k===stKey);
+  const catSel=wfMode!=='species'&&wfSel!=null&&wfData?wfData.cats.find(c=>c.k===wfSel):null;
+  const catKey=catSel?wfScheme(detRows,0).key:null;
+  const rows=detRows.filter(r=>(!spKey||r.species.toLowerCase()===spKey)&&(!stKey||r.unit+'|'+r.site===stKey)&&(!catSel||catKey(r)===wfSel)&&(wfBlk==null||blockOf(r)===wfBlk));
+  const deps=allDeps.filter(d=>(!stKey||d.k===stKey)&&(wfBlk==null||blockOf(d)===wfBlk));
+  calDeps=deps;
   calByDay=new Map();
   rows.forEach(r=>{const k=dayKey(r.date);if(!calByDay.has(k))calByDay.set(k,[]);calByDay.get(k).push(r);});
   const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
@@ -715,6 +928,7 @@ function renderDailyCard(){
   document.getElementById('calYrs').innerHTML=allYears.slice().reverse().map(y=>`<button type="button" class="fpill${calYears.has(y)?' active':''}" data-cy="${y}">${y}</button>`).join('');
   const lvl=n=>n>=7?'#356760':n>=4?'#618273':n>=2?'#8C9F8B':'#B5BBA9';
   let html='',detDays=0,recs=0,lo=null,hi=null;
+  calGroups=[];calRows=rows;
   for(const y of allYears){
     if(!calYears.has(y))continue;
     const jan1=new Date(y,0,1),first=new Date(y,0,1-((jan1.getDay()+6)%7));
@@ -724,17 +938,34 @@ function renderDailyCard(){
       if(d.getDate()===1)labels.push(`<span style="grid-column:${w+1}">${d.toLocaleDateString('en-GB',{month:'short'})}</span>`);
       const pos=`grid-column:${w+1};grid-row:${dow+2}`;
       if(d<calStart||d>today){cells.push(`<i class="out" style="${pos}"></i>`);continue;}
-      const k=dayKey(d),n=(calByDay.get(k)||[]).length,on=deps.some(x=>d>=x.start&&d<=x.end);
+      const k=dayKey(d),n=(calByDay.get(k)||[]).length,nCam=new Set(deps.filter(x=>d>=x.start&&d<=x.end).map(x=>x.k)).size,on=nCam>0;
       if(!lo)lo=new Date(d);
       hi=new Date(d);
       if(n){detDays++;recs+=n;}
       const cls=[n||on?'':'nc',calDay===k?'sel':''].filter(Boolean).join(' ');
-      cells.push(`<i${n?` data-d="${k}"`:''}${cls?` class="${cls}"`:''} style="${pos}${n||on?`;background:${n?lvl(n):'#EDE7D8'}`:''}" title="${fmtShort(d)}${n?` · ${n} record${n===1?'':'s'}`:on?' · no detection':' · no camera active'}"></i>`);
+      cells.push(`<i${n||on?` data-d="${k}"`:''}${cls?` class="${cls}"`:''} style="${pos}${n||on?`;background:${n?lvl(n):'#EDE7D8'}`:''}" title="${fmtShort(d)} · ${n?`${n} record${n===1?'':'s'}`:on?'no detection':'no camera active'}${on?` · ${nCam} camera${nCam===1?'':'s'} active`:''}"></i>`);
     }
-    html+=`<div class="cal-year"><div class="cal-y">${y}</div><div class="cal-grid">${labels.join('')}${cells.join('')}</div></div>`;
+    const yEnd=Math.min(+new Date(y,11,31),+today),yStart=Math.max(+jan1,+calStart),groups=new Map();
+    deps.forEach(x=>{
+      if(+x.end<yStart||+x.start>yEnd)return;
+      const k=+x.start+'|'+ +x.end;
+      let g=groups.get(k);
+      if(!g)groups.set(k,g={start:x.start,end:x.end,s:Math.max(+x.start,yStart),e:Math.min(+x.end,yEnd),cams:new Map()});
+      g.cams.set(x.k,x);
+    });
+    const wk=t=>Math.floor(Math.round((t-first)/864e5)/7),lanes=[],lines=[];
+    [...groups.values()].sort((a,b)=>a.s-b.s||b.e-a.e).forEach(g=>{
+      const ws=wk(g.s),we=wk(g.e);
+      let l=lanes.findIndex(v=>v<ws);
+      if(l<0){l=lanes.length;lanes.push(0);}
+      lanes[l]=we;
+      lines.push(`<b class="cal-dep${l===0?' first':''}" data-g="${calGroups.length}" style="grid-column:${ws+1}/${we+2};grid-row:${9+l}"></b>`);
+      calGroups.push(g);
+    });
+    html+=`<div class="cal-year"><div class="cal-y">${y}</div><div class="cal-grid">${labels.join('')}${cells.join('')}${lines.join('')}</div></div>`;
   }
   body.innerHTML=html;
-  document.getElementById('calLbl').innerHTML='Daily detections'+(spKey?` · <em>${esc(N.sp[pin.i].name)}</em>`:'')+(st?` · ${esc(st.unit)}${st.site?` ${esc(st.site)}`:''}`:'');
+  document.getElementById('calLbl').innerHTML='Daily detections'+(spKey?` · <em>${esc(N.sp[pin.i].name)}</em>`:'')+(catSel?` · ${esc(catSel.lbl)}`:'')+(wfBlk!=null&&!st?` · ${esc(wfBlk)}`:'')+(st?` · ${esc(st.unit)}${st.site?` ${esc(st.site)}`:''}`:'');
   document.getElementById('calSum').textContent=lo?`${fmtShort(lo)} – ${fmtShort(hi)} · ${recs} record${recs===1?'':'s'} on ${detDays} day${detDays===1?'':'s'}`:'';
   closeCalPop();
 }
@@ -742,19 +973,27 @@ function closeCalPop(){
   calDay=null;
   document.getElementById('calPop').style.display='none';
   document.querySelectorAll('#calBody i.sel').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('#calBody .cal-dep.on').forEach(x=>x.classList.remove('on'));
 }
 function openCalPop(cell){
-  const list=calByDay.get(calDay),el=document.getElementById('calPop');
-  if(!list){closeCalPop();return;}
-  const rows=list.slice().sort((a,b)=>a.time.localeCompare(b.time));
-  const nSp=new Set(rows.map(r=>r.species.toLowerCase())).size,nSt=new Set(rows.map(r=>r.unit+'|'+r.site)).size;
-  el.innerHTML=`<div class="cal-det-hd"><b>${rows[0].date.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</b>`
-    +`<span>${rows.length} record${rows.length===1?'':'s'} · ${nSp} species · ${nSt} station${nSt===1?'':'s'}</span></div>`
+  const el=document.getElementById('calPop'),[y,m,dd]=calDay.split('-').map(Number),day=new Date(y,m-1,dd);
+  const rows=(calByDay.get(calDay)||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+  const hits=new Map();
+  rows.forEach(r=>{const k=r.unit+'|'+r.site;hits.set(k,(hits.get(k)||0)+1);});
+  const cams=new Map();
+  calDeps.forEach(x=>{if(day>=x.start&&day<=x.end)cams.set(x.k,{unit:x.unit,site:x.site});});
+  rows.forEach(r=>{const k=r.unit+'|'+r.site;if(!cams.has(k))cams.set(k,{unit:r.unit,site:r.site});});
+  if(!cams.size){closeCalPop();return;}
+  const camList=[...cams.entries()].sort((a,b)=>(hits.get(b[0])||0)-(hits.get(a[0])||0)||a[1].unit.localeCompare(b[1].unit,undefined,{numeric:true})||a[1].site.localeCompare(b[1].site,undefined,{numeric:true}));
+  const nSp=new Set(rows.map(r=>r.species.toLowerCase())).size;
+  el.innerHTML=`<div class="cal-det-hd"><b>${day.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</b>`
+    +`<span>${rows.length?`${rows.length} record${rows.length===1?'':'s'} · ${nSp} species`:'No detection'}</span></div>`
+    +`<div class="cal-cams"><span>${cams.size} camera${cams.size===1?'':'s'} active</span><p>${camList.map(([k,c])=>`<span${hits.has(k)?' class="hit"':''}>${esc(c.unit)} ${esc(c.site)}</span>`).join(', ')}</p></div>`
     +rows.map(r=>`<div class="cal-det-r"><span class="t">${r.time||'–'}</span>`
-      +`<span class="sp"><i style="background:${IUCN_COLORS[r.iucn]||'#9C998C'}" title="${IUCN_FULL[r.iucn]||''}"></i><em>${esc(r.species)}</em>${r.local?`<small>${esc(r.local)}</small>`:''}</span>`
-      +`<span class="st"><b>${esc(r.unit)}</b>${esc(r.site)}</span>`
-      +`<span class="n">${r.count>1?`×${r.count}`:''}</span></div>`).join('');
+      +`<span class="sp"><em>${esc(r.species)}</em>${r.count>1?` ×${r.count}`:''}${r.local?`<small>${esc(r.local)}</small>`:''}</span>`
+      +`<span class="st">${esc(r.unit)} ${esc(r.site)}</span></div>`).join('');
   el.style.display='block';el.scrollTop=0;
+  document.querySelectorAll('#calBody .cal-dep').forEach(b=>{const g=calGroups[+b.dataset.g];b.classList.toggle('on',+day>=+g.start&&+day<=+g.end);});
   const c=cell.getBoundingClientRect(),pw=el.offsetWidth,ph=el.offsetHeight;
   const left=Math.max(8,Math.min(window.innerWidth-pw-8,c.left+c.width/2-pw/2));
   const top=c.bottom+8+ph<=window.innerHeight-8?c.bottom+8:Math.max(8,c.top-ph-8);
@@ -768,7 +1007,31 @@ function openCalPop(cell){
     if(calYears.has(y)){if(calYears.size>1)calYears.delete(y);}else calYears.add(y);
     renderDailyCard();
   });
-  document.getElementById('calBody').addEventListener('click',e=>{
+  const calB=document.getElementById('calBody');
+  calB.addEventListener('mouseover',e=>{
+    const b=e.target.closest('.cal-dep');
+    if(!b)return;
+    const g=calGroups[+b.dataset.g],days=Math.round((g.end-g.start)/864e5)+1;
+    const cams=[...g.cams.values()].sort((a,b)=>a.unit.localeCompare(b.unit,undefined,{numeric:true})||a.site.localeCompare(b.site,undefined,{numeric:true}));
+    const hit=new Map();
+    calRows.forEach(r=>{const k=r.unit+'|'+r.site;if(g.cams.has(k)&&r.date>=g.start&&r.date<=g.end)hit.set(k,(hit.get(k)||0)+1);});
+    const nRec=[...hit.values()].reduce((a,b)=>a+b,0);
+    if(cams.length===1){
+      const x=cams[0];
+      showTip(`<div class="tt-head"><strong>${esc(x.unit)} ${esc(x.site)}</strong> (${days} days)</div>`
+        +`<div class="tt-row"><span>Deployed</span><b>${fmtShort(g.start)} – ${fmtShort(g.end)}</b></div>`
+        +`<div class="tt-row"><span>Records</span><b>${nRec}</b></div>`,e);
+      return;
+    }
+    showTip(`<div class="tt-head"><strong>${fmtShort(g.start)} – ${fmtShort(g.end)}</strong> (${days} days)</div>`
+      +`<div class="tt-row"><span>Cameras</span><b>${cams.length}</b></div>`
+      +`<div class="tt-row"><span>Records</span><b>${nRec}</b></div>`
+      +cams.slice(0,8).map(x=>`<div class="tt-row"><span>${esc(x.unit)} ${esc(x.site)}</span><b>${hit.get(x.k)||0}</b></div>`).join('')
+      +(cams.length>8?`<div class="tt-row"><span>+${cams.length-8} more</span></div>`:''),e);
+  });
+  calB.addEventListener('mousemove',e=>{if(e.target.closest('.cal-dep'))moveTip(e);else hideTip();});
+  calB.addEventListener('mouseleave',hideTip);
+  calB.addEventListener('click',e=>{
     const c=e.target.closest('[data-d]');
     if(!c)return;
     e.stopPropagation();
@@ -993,6 +1256,10 @@ function hideTip(){tt.style.display='none';}
     ]);
     allRows=parseRows(Papa.parse(csv,{header:false,skipEmptyLines:true}).data);
     sites=siteCsv?parseSites(siteCsv):[];
+    blocks=(boundary&&boundary.features||[]).filter(f=>f.geometry).map(f=>({
+      name:String(f.properties&&f.properties.Name||'Block').replace(/^CMI\s+/i,''),
+      polys:f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]
+    }));
     const dates=allRows.map(r=>r.date).filter(Boolean);
     years=[...new Set(dates.map(d=>d.getFullYear()))].sort((a,b)=>a-b);
     document.getElementById('lastUpdated').textContent=dates.length?fmtDate(new Date(Math.max(...dates))):'–';

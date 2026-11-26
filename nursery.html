@@ -198,6 +198,15 @@ body{display:flex;flex-direction:column}
 .bt-sk text .v{font-weight:700}
 .bt-sk text .p{fill:#9C998C;font-size:10.5px}
 .bt-group.sk .bt-row{box-shadow:inset 3px 0 0 var(--primary)}
+.bt-kgroup>.bt-row{border-bottom:1px solid var(--border)}
+.bt-kgroup>.bt-row:hover,.bt-kgroup>.bt-row:focus-visible{background:var(--primary-bg)}
+.bt-kgroup>.bt-row .bt-id{font-size:12.5px}
+.bt-kgroup>.bt-row .bt-n{font-weight:700;color:var(--text)}
+.bt-kgroup.open>.bt-row .bt-chev{transform:rotate(90deg)}
+.bt-kgroup.sk>.bt-row{box-shadow:inset 3px 0 0 var(--primary)}
+.bt-kbody{display:none}
+.bt-kgroup.open>.bt-kbody{display:block}
+.bt-kbody .bt-id{padding-left:16px}
 .bt-ev{display:grid;grid-template-columns:86px minmax(0,1fr) 70px minmax(0,1fr);gap:2px 12px;font-size:11px;color:var(--text-2);font-variant-numeric:tabular-nums}
 .bt-ev .h{font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3);padding-bottom:3px;border-bottom:1px solid var(--border-lt)}
 .bt-ev .n{text-align:right}
@@ -350,7 +359,7 @@ function computeStats(year){
   const jenisSet=new Set();
   list.forEach(r=>{
     if(r.cat===CAT.semai)semai+=r.jumlah;
-    if(r.cat.startsWith('pembesaran'))pemb+=r.jumlah;
+    if(r.cat===CAT.pemb)pemb+=r.jumlah;
     if(PEMANFAATAN.has(r.cat))pemanfaatan+=r.jumlah;
     if(r.jenis&&r.jenis!=='#N/A')jenisSet.add(r.jenis.toLowerCase());
   });
@@ -861,10 +870,12 @@ function batchFlow(year){
   const by={};
   rows.forEach(r=>{
     if(!validId(r.id)||!inCohort(r,year))return;
-    const b=by[r.id]||(by[r.id]={id:r.id,jenis:'',semai:0,pemb:0,mSemai:0,mPemb:0,mBst:0,ev:[]});
+    const b=by[r.id]||(by[r.id]={id:r.id,jenis:'',semai:0,pemb:0,pReg:0,bReg:0,mSemai:0,mPemb:0,mBst:0,ev:[]});
     if(!b.jenis&&r.jenis&&r.jenis!=='#N/A')b.jenis=r.jenis;
     if(r.cat===CAT.semai)b.semai+=r.jumlah;
     if(r.cat.startsWith('pembesaran'))b.pemb+=r.jumlah;
+    if(r.cat===CAT.pemb)b.pReg+=r.jumlah;
+    if(r.cat===CAT.bst)b.bReg+=r.jumlah;
     if(r.cat===CAT.matiSemai)b.mSemai+=r.jumlah;
     if(r.cat===CAT.matiPemb)b.mPemb+=r.jumlah;
     if(r.cat===CAT.matiBst)b.mBst+=r.jumlah;
@@ -874,7 +885,9 @@ function batchFlow(year){
     const mati=b.mSemai+b.mPemb+b.mBst,sisa=Math.min(alive.get(b.id)||0,Math.max(0,b.semai-mati));
     b.ev.sort((x,y)=>x.date.localeCompare(y.date));
     const sr=b.pemb>0?Math.min(100,Math.max(0,1-(b.mPemb+b.mBst)/b.pemb)*100):null;
-    const o={...b,mati,sisa,sr,keluar:Math.max(0,b.semai-mati-sisa)};
+    const sSemai=Math.min(sisa,Math.max(0,b.semai-b.mSemai-b.pReg));
+    const sPemb=Math.min(sisa-sSemai,Math.max(0,b.pReg-b.mPemb-b.bReg));
+    const o={...b,mati,sisa,sr,sSemai,sPemb,sBst:sisa-sSemai-sPemb,keluar:Math.max(0,b.semai-mati-sisa)};
     BT_SEGS.forEach(s=>{o['p_'+s.key]=o[s.key]/o.semai*100;});
     return o;
   });
@@ -900,38 +913,51 @@ function batchTableHTML(year){
       <button type="button" class="more-btn" id="btMore"></button>
     </div>`;
 }
-let sankeyId=null;
+let sankeyId=null,sankeyGrp=null;
+const openGrp=new Set();
+const KOMODITAS=['Kakao','Alpukat','MPTS'];
+const komoditasOf=j=>{const k=str(j).toLowerCase();return k==='kakao'?'Kakao':k==='alpukat'?'Alpukat':'MPTS';};
 function batchFiltered(){
   const q=batchQ.toLowerCase();
-  return batchData.filter(b=>!q||b.id.toLowerCase().includes(q)||b.jenis.toLowerCase().includes(q));
+  return batchData.filter(b=>!q||b.id.toLowerCase().includes(q)||b.jenis.toLowerCase().includes(q)||komoditasOf(b.jenis).toLowerCase().includes(q));
+}
+function batchAgg(grp,list){
+  const o={grp,n:list.length,semai:0,pemb:0};
+  BT_SEGS.forEach(s=>{o[s.key]=0;});
+  list.forEach(b=>{o.semai+=b.semai;o.pemb+=b.pemb;BT_SEGS.forEach(s=>{o[s.key]+=b[s.key];});});
+  BT_SEGS.forEach(s=>{o['p_'+s.key]=o.semai?o[s.key]/o.semai*100:0;});
+  o.sr=o.pemb>0?Math.min(100,Math.max(0,1-(o.mPemb+o.mBst)/o.pemb)*100):null;
+  return o;
 }
 function drawSankey(){
   const el=document.getElementById('btSankey');
   if(!el)return;
   const sel=sankeyId?batchData.find(b=>b.id===sankeyId):null;
-  const list=sel?[sel]:batchFiltered();
-  const t={S:0,mSemai:0,mPemb:0,mBst:0,keluar:0,sisa:0};
-  list.forEach(b=>{t.S+=b.semai;t.mSemai+=b.mSemai;t.mPemb+=b.mPemb;t.mBst+=b.mBst;t.keluar+=b.keluar;t.sisa+=b.sisa;});
+  const grpList=!sel&&sankeyGrp?batchFiltered().filter(b=>komoditasOf(b.jenis)===sankeyGrp):null;
+  const list=sel?[sel]:grpList||batchFiltered();
+  const t={S:0,mSemai:0,mPemb:0,mBst:0,keluar:0,sSemai:0,sPemb:0,sBst:0};
+  list.forEach(b=>{t.S+=b.semai;t.mSemai+=b.mSemai;t.mPemb+=b.mPemb;t.mBst+=b.mBst;t.keluar+=b.keluar;t.sSemai+=b.sSemai;t.sPemb+=b.sPemb;t.sBst+=b.sBst;});
   document.getElementById('btSkTitle').innerHTML=sel
     ?`Batch ${esc(sel.id)}<small>${esc(sel.jenis||'–')}</small>`
+    :grpList?`${esc(sankeyGrp)}<small>${fmtInt(grpList.length)} batch</small>`
     :batchQ?'Batch yang cocok dengan pencarian':'Gabungan semua batch';
-  document.getElementById('btSkAll').hidden=!sel;
+  document.getElementById('btSkAll').hidden=!sel&&!grpList;
   if(!t.S){el.innerHTML='<div class="bt-empty">Tidak ada data.</div>';return;}
-  const P=t.S-t.mSemai,B=P-t.mPemb;
+  const B=t.keluar+t.sBst+t.mBst,P=B+t.mPemb+t.sPemb;
   const W=Math.max(640,Math.floor(el.clientWidth)||900),H=250,nw=12,gap=18,top=14,X=[0,1,2,3].map(i=>Math.round(i*(W-nw)/3));
   const k=(H-top-8-2*gap)/t.S,hv=v=>v>0?Math.max(2,v*k):0;
   const cols=[
     [{id:'S',lbl:'Semai',v:t.S,c:'#618273'}],
-    [{id:'P',lbl:'Pembesaran',v:P,c:'#8C9F8B'},{id:'mS',lbl:'Mati semai',v:t.mSemai,c:BT_SEGS[0].color}],
-    [{id:'B',lbl:'BST',v:B,c:'#618273'},{id:'mP',lbl:'Mati pembesaran',v:t.mPemb,c:BT_SEGS[1].color}],
-    [{id:'K',lbl:'Distribusi',v:t.keluar,c:BT_SEGS[3].color},{id:'Si',lbl:'Masih di nursery',v:t.sisa,c:BT_SEGS[4].color},{id:'mB',lbl:'Mati BST',v:t.mBst,c:BT_SEGS[2].color}]
+    [{id:'P',lbl:'Pembesaran',v:P,c:'#8C9F8B'},{id:'sS',lbl:'Masih semai',v:t.sSemai,c:BT_SEGS[4].color},{id:'mS',lbl:'Mati semai',v:t.mSemai,c:BT_SEGS[0].color}],
+    [{id:'B',lbl:'BST',v:B,c:'#618273'},{id:'sP',lbl:'Masih pembesaran',v:t.sPemb,c:BT_SEGS[4].color},{id:'mP',lbl:'Mati pembesaran',v:t.mPemb,c:BT_SEGS[1].color}],
+    [{id:'K',lbl:'Distribusi',v:t.keluar,c:BT_SEGS[3].color},{id:'Si',lbl:'Stok BST di nursery',v:t.sBst,c:BT_SEGS[4].color},{id:'mB',lbl:'Mati BST',v:t.mBst,c:BT_SEGS[2].color}]
   ];
   const N={};
   cols.forEach((col,ci)=>{
     let y=top;
     col.forEach(n=>{if(!(n.v>0))return;Object.assign(n,{x:X[ci],y,h:hv(n.v),o:0,i:0});N[n.id]=n;y+=n.h+gap;});
   });
-  const links=[['S','P'],['S','mS'],['P','B'],['P','mP'],['B','K'],['B','Si'],['B','mB']];
+  const links=[['S','P'],['S','sS'],['S','mS'],['P','B'],['P','sP'],['P','mP'],['B','K'],['B','Si'],['B','mB']];
   const pct=v=>fmtPct(v/t.S*100);
   const paths=links.filter(([a,b])=>N[a]&&N[b]).map(([a,b])=>{
     const s=N[a],d=N[b],h=d.h,x0=s.x+nw,x1=d.x,xm=(x0+x1)/2,sy=s.y+s.o,ty=d.y+d.i;
@@ -944,36 +970,53 @@ function drawSankey(){
 }
 let skResizeTimer;
 window.addEventListener('resize',()=>{clearTimeout(skResizeTimer);skResizeTimer=setTimeout(drawSankey,120);});
-function batchClip(n){
+function batchClip(n,total){
   const many=n>4,btn=document.getElementById('btMore');
   document.getElementById('btClip').classList.toggle('clipped',many&&!batchListOpen);
   btn.style.display=many?'':'none';
-  btn.textContent=batchListOpen?'Tampilkan lebih sedikit':`Tampilkan semua (${fmtInt(n)} batch)`;
+  btn.textContent=batchListOpen?'Tampilkan lebih sedikit':`Tampilkan semua (${fmtInt(total)} batch)`;
+}
+function batchCells(b){
+  return BT_SEGS.map(s=>{
+    const p=b['p_'+s.key],tip=`${s.label}: ${fmtInt(b[s.key])} bibit (${fmtPct(p)})`;
+    if(!(b[s.key]>0))return`<span class="bt-hm z" title="${tip}">–</span>`;
+    const bg=mixHex('#FFFFFF',s.color,.12+.88*Math.sqrt(Math.min(100,p)/100));
+    return`<span class="bt-hm" style="background:${bg};color:${isDark(bg)?'#fff':'#3A342C'}" title="${tip}">${p>0&&p<1?'&lt;1':Math.round(p)}%</span>`;
+  }).join('');
 }
 function drawBatchList(){
   const el=document.getElementById('btList');
   if(!el)return;
   const list=batchFiltered();
   const k=batchSort.key,dir=batchSort.asc?1:-1;
-  list.sort((a,b)=>{
-    if(k){
-      const x=a[k],y=b[k];
-      if(x==null||y==null){if(x!=y)return x==null?1:-1;}
-      else if(x!==y)return(x-y)*dir;
-    }
-    return b.id.localeCompare(a.id);
-  });
+  const byKey=(a,b)=>{
+    if(!k)return 0;
+    const x=a[k],y=b[k];
+    if(x==null||y==null)return x==y?0:x==null?1:-1;
+    return(x-y)*dir;
+  };
+  list.sort((a,b)=>byKey(a,b)||b.id.localeCompare(a.id));
   document.querySelectorAll('#btHead .bt-sortbtn').forEach(s=>{const on=s.dataset.sort===k;s.classList.toggle('on',on);s.classList.toggle('asc',on&&batchSort.asc);});
-  batchClip(list.length);
-  if(!list.length){el.innerHTML='<div class="bt-empty">Tidak ada batch yang cocok.</div>';return;}
-  el.innerHTML=list.map(b=>{
+  if(!list.length){batchClip(0,0);el.innerHTML='<div class="bt-empty">Tidak ada batch yang cocok.</div>';return;}
+  const groups=KOMODITAS.map(g=>({...batchAgg(g,list.filter(b=>komoditasOf(b.jenis)===g)),items:list.filter(b=>komoditasOf(b.jenis)===g)}))
+    .filter(g=>g.n)
+    .sort((a,b)=>byKey(a,b)||KOMODITAS.indexOf(a.grp)-KOMODITAS.indexOf(b.grp));
+  const isOpen=g=>!!batchQ||openGrp.has(g);
+  batchClip(groups.reduce((a,g)=>a+1+(isOpen(g.grp)?g.n:0),0),list.length);
+  el.innerHTML=groups.map(g=>`
+    <div class="bt-kgroup${isOpen(g.grp)?' open':''}${g.grp===sankeyGrp&&!sankeyId?' sk':''}" data-grp="${g.grp}">
+      <button type="button" class="bt-row" data-grp="${g.grp}" aria-expanded="${isOpen(g.grp)}">
+        <span class="bt-id"><span class="bt-chev">&#9656;</span>${g.grp}<small>${fmtInt(g.n)} batch${g.grp==='MPTS'?' &middot; jenis lainnya':''}</small></span>
+        <span class="bt-n">${fmtInt(g.semai)}</span>
+        ${batchCells(g)}
+        <span class="bt-p">${g.sr==null?'–':fmtPct(g.sr)}</span>
+      </button>
+      <div class="bt-kbody">${g.items.map(batchRowHTML).join('')}</div>
+    </div>`).join('');
+}
+function batchRowHTML(b){
     const y=+b.id.slice(0,4),m=+b.id.slice(5,7);
-    const cells=BT_SEGS.map(s=>{
-      const p=b['p_'+s.key],tip=`${s.label}: ${fmtInt(b[s.key])} bibit (${fmtPct(p)})`;
-      if(!(b[s.key]>0))return`<span class="bt-hm z" title="${tip}">–</span>`;
-      const bg=mixHex('#FFFFFF',s.color,.12+.88*Math.sqrt(Math.min(100,p)/100));
-      return`<span class="bt-hm" style="background:${bg};color:${isDark(bg)?'#fff':'#3A342C'}" title="${tip}">${p>0&&p<1?'&lt;1':Math.round(p)}%</span>`;
-    }).join('');
+    const cells=batchCells(b);
     const ev=b.ev.filter(r=>r.jumlah>0).map(r=>{
       const mt=isMati(r.cat)?' class="mt"':'';
       const dt=r.date?`${+r.date.slice(8,10)} ${BT_MONTH[+r.date.slice(5,7)-1]} ${r.date.slice(0,4)}`:'–';
@@ -992,7 +1035,6 @@ function drawBatchList(){
           <div class="bt-ev"><span class="h">Tanggal</span><span class="h">Kegiatan</span><span class="h n">Jumlah</span><span class="h">Grafting code</span>${ev}</div>
         </div>
       </div>`;
-  }).join('');
 }
 
 function render(){
@@ -1072,7 +1114,10 @@ function render(){
   if(sankeyId&&!batchData.some(b=>b.id===sankeyId))sankeyId=null;
   drawBatchList();
   drawSankey();
-  const markSk=()=>document.querySelectorAll('#btList .bt-group').forEach(g=>g.classList.toggle('sk',g.querySelector('[data-bt]').dataset.bt===sankeyId));
+  const markSk=()=>{
+    document.querySelectorAll('#btList .bt-group').forEach(g=>g.classList.toggle('sk',g.querySelector('[data-bt]').dataset.bt===sankeyId));
+    document.querySelectorAll('#btList .bt-kgroup').forEach(g=>g.classList.toggle('sk',!sankeyId&&g.dataset.grp===sankeyGrp));
+  };
   document.getElementById('btSearch').addEventListener('input',e=>{batchQ=e.target.value.trim();drawBatchList();drawSankey();});
   document.getElementById('btHead').addEventListener('click',e=>{
     const s=e.target.closest('[data-sort]');
@@ -1082,8 +1127,19 @@ function render(){
     drawBatchList();
   });
   document.getElementById('btMore').addEventListener('click',()=>{batchListOpen=!batchListOpen;drawBatchList();});
-  document.getElementById('btSkAll').addEventListener('click',()=>{sankeyId=null;markSk();drawSankey();});
+  document.getElementById('btSkAll').addEventListener('click',()=>{sankeyId=null;sankeyGrp=null;markSk();drawSankey();});
   document.getElementById('btList').addEventListener('click',e=>{
+    const gr=e.target.closest('.bt-row[data-grp]');
+    if(gr){
+      const g=gr.dataset.grp,o=!gr.parentElement.classList.contains('open');
+      if(o)openGrp.add(g);else openGrp.delete(g);
+      sankeyId=null;
+      sankeyGrp=o||batchQ?g:sankeyGrp===g?null:sankeyGrp;
+      if(o&&!batchListOpen)batchListOpen=true;
+      drawBatchList();
+      drawSankey();
+      return;
+    }
     const b=e.target.closest('.bt-row[data-bt]');
     if(!b)return;
     const id=b.dataset.bt,o=!openBatch.has(id);
@@ -1091,7 +1147,7 @@ function render(){
     b.parentElement.classList.toggle('open',o);
     b.setAttribute('aria-expanded',o);
     sankeyId=o?id:sankeyId===id?null:sankeyId;
-    if(o&&!batchListOpen){batchListOpen=true;batchClip(batchFiltered().length);}
+    if(o&&!batchListOpen){batchListOpen=true;drawBatchList();}
     markSk();
     drawSankey();
   });

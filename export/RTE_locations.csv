@@ -1,0 +1,62 @@
+﻿Method,StationID,Grid,Site,Latitude,Longitude,Class,Species,LocalName,IUCN,Detections,FirstDate,LastDate,Batches
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Aves,Argusianus argus,Kuau Raja,VU,2,2025-12-06,2025-12-08,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Aves,Berenicornis comatus,White-crowned hornbill,EN,1,2025-12-06,2025-12-06,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,10,2025-12-05,2025-12-08,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Aves,Chloropsis sonnerati,Greater Green Leafbird,EN,1,2025-12-05,2025-12-05,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Mamalia,Hylobates sp,Gibbon,EN,2,2025-12-08,2025-12-10,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 1,J11,,0.748889,110.213111,Aves,Rhinoplax vigil,Helmeted Hornbill,EN,1,2025-12-10,2025-12-10,Dec25_Alat1
+Bioacoustic,Bioacoustics Alat 2,H9,,0.71711,110.18946,Aves,Argusianus argus,Kuau Raja,VU,3,2025-12-07,2025-12-15,Dec25_Alat2
+Bioacoustic,Bioacoustics Alat 2,H9,,0.71711,110.18946,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,1,2025-12-16,2025-12-16,Dec25_Alat2
+Bioacoustic,Bioacoustics Alat 2,H9,,0.71711,110.18946,Mamalia,Hylobates sp,Gibbon,EN,1,2025-12-16,2025-12-16,Dec25_Alat2
+Camera Trap,CT01,N13,Sungai Sasi,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,24,2025-05-27,2025-09-18,Apr25 - Sep25
+Camera Trap,CT01,N13,Sungai Sasi,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,9,2025-06-03,2025-09-17,Apr25 - Sep25
+Camera Trap,CT01,N13,Sungai Sasi,0.828442,110.248528,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2,2025-06-02,2025-07-21,Apr25 - Sep25
+Camera Trap,CT03,I10,Rimba Dait Bawah,0.734644,110.202735,Aves,Argusianus argus,Kuau Raja,VU,2,2025-12-08,2026-02-04,Dec25 - Mar26
+Camera Trap,CT03,I10,Rimba Dait Bawah,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,28,2025-12-10,2026-02-28,Dec25 - Mar26
+Camera Trap,CT03,I10,Rimba Dait Bawah,0.734644,110.202735,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,1,2026-02-17,2026-02-17,Dec25 - Mar26
+Camera Trap,CT05,L15,Bukit Onah,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,6,2025-06-06,2025-09-09,Apr25 - Sep25
+Camera Trap,CT05,L15,Bukit Onah,0.786472,110.294118,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,1,2025-07-17,2025-07-17,Apr25 - Sep25
+Camera Trap,CT07,H9,Sungai Biru Atas,0.717115,110.189454,Aves,Argusianus argus,Kuau Raja,VU,1,2026-01-19,2026-01-19,Dec25 - Mar26
+Camera Trap,CT07,L18,Bukit Sebauh,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,3,2025-05-10,2025-06-29,Apr25 - Sep25
+Camera Trap,CT07,H9,Sungai Biru Atas,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,16,2025-12-19,2026-03-01,Dec25 - Mar26
+Camera Trap,CT07,L18,Bukit Sebauh,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,5,2025-05-24,2025-06-25,Apr25 - Sep25
+Camera Trap,CT09,J11,Bukit Gentis,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,15,2025-12-12,2026-02-20,Dec25 - Mar26
+Camera Trap,CT09,J11,Bukit Gentis,0.748881,110.213122,Mamalia,Manis javanica,Trenggiling,CR,1,2026-01-04,2026-01-04,Dec25 - Mar26
+Camera Trap,CT09,J11,Bukit Gentis,0.748881,110.213122,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2,2026-01-09,2026-02-04,Dec25 - Mar26
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,6,2025-07-24,2025-07-27,Apr25 - Dec25; Jun25 - Dec25
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Mamalia,Helarctos malayanus,Beruang Madu,VU,1,2025-07-07,2025-07-07,Apr25 - Dec25
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,4,2025-06-16,2025-12-01,Jun25 - Dec25
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Mamalia,Manis javanica,Trenggiling,CR,1,2025-06-17,2025-06-17,Jun25 - Dec25
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Aves,Rollulus rouloul,Puyuh Sengayan,VU,1,2025-09-16,2025-09-16,Jun25 - Dec25
+Camera Trap,CT10,G12,Bukit Sebawak Malam,0.700816,110.244342,Mamalia,Sus barbatus,Babi Jenggot,VU,2,2025-07-31,2025-08-21,Apr25 - Dec25; Jun25 - Dec25
+Camera Trap,CT13,J10,Rimba Dait,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,11,2025-06-07,2025-10-04,Apr25 - Dec25
+Camera Trap,CT13,J10,Rimba Dait,0.75884,110.192267,Mamalia,Catopuma badia,Kucing Merah,EN,1,2025-07-09,2025-07-09,Apr25 - Dec25
+Camera Trap,CT13,J10,Rimba Dait,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,12,2025-06-22,2025-12-01,Apr25 - Dec25
+Camera Trap,CT13,J10,Rimba Dait,0.75884,110.192267,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2,2025-07-25,2025-12-03,Apr25 - Dec25
+Camera Trap,CT13,J10,Rimba Dait,0.75884,110.192267,Mamalia,Sus barbatus,Babi Jenggot,VU,1,2025-07-03,2025-07-03,Apr25 - Dec25
+Camera Trap,CT16,G10,Ngayu Biru,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,13,2025-06-20,2025-12-01,Jun25 - Dec25
+Camera Trap,CT16,G10,Ngayu Biru,0.705602,110.191257,Mamalia,Manis javanica,Trenggiling,CR,1,2025-07-10,2025-07-10,Jun25 - Dec25
+Camera Trap,CT16,G10,Ngayu Biru,0.705602,110.191257,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,3,2025-06-22,2025-10-18,Jun25 - Dec25
+Camera Trap,CT24,M11,Sungai Senggolak,0.810436,110.225579,Mamalia,Macaca nemestrina,Beruk,EN,4,2026-03-11,2026-05-21,Mar26 - Aug26
+Camera Trap,CT25,N11,Air Tungguh,0.816997,110.218185,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,1,2026-05-05,2026-05-05,Mar26 - Aug26
+Camera Trap,CT25,N11,Air Tungguh,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,11,2026-03-10,2026-05-26,Mar26 - Aug26
+Camera Trap,CT25,N11,Air Tungguh,0.816997,110.218185,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2,2026-03-15,2026-03-21,Mar26 - Aug26
+Camera Trap,CT25,N11,Air Tungguh,0.816997,110.218185,Mamalia,Sus barbatus,Babi Jenggot,VU,1,2026-07-15,2026-07-15,Mar26 - Aug26
+Camera Trap,CT26,M11,Sungai Sengkurak,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2,2026-03-10,2026-03-11,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,6,2026-03-22,2026-08-05,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,4,2026-07-05,2026-07-14,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,38,2026-03-14,2026-07-26,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,4,2026-04-02,2026-07-13,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Aves,Rollulus rouloul,Puyuh Sengayan,VU,1,2026-04-29,2026-04-29,Mar26 - Aug26
+Camera Trap,CT27,M10,Bukit Serantai,0.801686,110.204878,Mamalia,Sus barbatus,Babi Jenggot,VU,1,2026-04-24,2026-04-24,Mar26 - Aug26
+Camera Trap,CT28,O19,Mabah Sepatung,0.846725,110.361609,Aves,Lophura ignata,Sempidan biru,VU,1,2026-05-30,2026-05-30,Mar26 - Aug26
+Camera Trap,CT28,O19,Mabah Sepatung,0.846725,110.361609,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,1,2026-06-13,2026-06-13,Mar26 - Aug26
+Camera Trap,L1,J10,Ombo Dait 1,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,4,2024-11-26,2025-02-03,Nov24 - Mar 25
+Camera Trap,L2,J10,Ombo Dait 2,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,5,2024-11-29,2025-02-15,Nov24 - Mar 25
+Camera Trap,L2,J10,Ombo Dait 2,0.750332,110.202905,Mamalia,Manis javanica,Trenggiling,CR,3,2024-12-16,2025-03-02,Nov24 - Mar 25
+Camera Trap,L2,J10,Ombo Dait 2,0.750332,110.202905,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,1,2025-02-27,2025-02-27,Nov24 - Mar 25
+Camera Trap,L3,L11,Meranas,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,43,2024-11-19,2024-12-29,Nov24 - Mar 25
+Camera Trap,L3,L11,Meranas,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2,2024-11-26,2024-12-18,Nov24 - Mar 25
+Camera Trap,L3,L11,Meranas,0.790896,110.209986,Mamalia,Pongo pygmaeus,Orangutan,CR,1,2024-12-21,2024-12-21,Nov24 - Mar 25
+Camera Trap,L3,L11,Meranas,0.790896,110.209986,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2,2024-11-25,2024-12-23,Nov24 - Mar 25
+Camera Trap,L4,L18,Sekajang,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,6,2024-11-24,2024-12-25,Nov24 - Mar 25

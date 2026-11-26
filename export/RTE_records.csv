@@ -1,0 +1,908 @@
+﻿Method,StationID,Grid,Site,Batch,Latitude,Longitude,Class,Species,LocalName,IUCN,Date,Detections
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Argusianus argus,Kuau Raja,VU,2025-12-06,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Argusianus argus,Kuau Raja,VU,2025-12-08,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Berenicornis comatus,White-crowned hornbill,EN,2025-12-06,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-05,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-05,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-05,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-06,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-06,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-07,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-07,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-07,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-08,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-08,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Chloropsis sonnerati,Greater Green Leafbird,EN,2025-12-05,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Mamalia,Hylobates sp,Gibbon,EN,2025-12-08,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Mamalia,Hylobates sp,Gibbon,EN,2025-12-10,1
+Bioacoustic,Bioacoustics Alat 1,J11,,Dec25_Alat1,0.748889,110.213111,Aves,Rhinoplax vigil,Helmeted Hornbill,EN,2025-12-10,1
+Bioacoustic,Bioacoustics Alat 2,H9,,Dec25_Alat2,0.71711,110.18946,Aves,Argusianus argus,Kuau Raja,VU,2025-12-07,1
+Bioacoustic,Bioacoustics Alat 2,H9,,Dec25_Alat2,0.71711,110.18946,Aves,Argusianus argus,Kuau Raja,VU,2025-12-10,1
+Bioacoustic,Bioacoustics Alat 2,H9,,Dec25_Alat2,0.71711,110.18946,Aves,Argusianus argus,Kuau Raja,VU,2025-12-15,1
+Bioacoustic,Bioacoustics Alat 2,H9,,Dec25_Alat2,0.71711,110.18946,Aves,Buceros rhinoceros,Rhinoceros hornbill,VU,2025-12-16,1
+Bioacoustic,Bioacoustics Alat 2,H9,,Dec25_Alat2,0.71711,110.18946,Mamalia,Hylobates sp,Gibbon,EN,2025-12-16,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-27,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-05-29,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-03,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-06-28,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-28,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-07-31,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-02,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-03,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-03,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-04,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-11,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-11,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-12,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-12,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-08-12,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-09-18,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Aves,Argusianus argus,Kuau Raja,VU,2025-09-18,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-03,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-03,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-04,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-04,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-20,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-21,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-09,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-15,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-10,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-10,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-17,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-17,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-17,0
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-06-02,1
+Camera Trap,CT01,N13,Sungai Sasi,Apr25 - Sep25,0.828442,110.248528,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-07-21,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Aves,Argusianus argus,Kuau Raja,VU,2025-12-08,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Aves,Argusianus argus,Kuau Raja,VU,2026-02-04,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Aves,Argusianus argus,Kuau Raja,VU,2026-02-04,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-10,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-10,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-17,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-29,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-29,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-05,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-05,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-05,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-13,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-13,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-13,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-13,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-18,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-18,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-20,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-20,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-20,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-30,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-30,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-30,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-30,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-05,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-05,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-05,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-05,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-10,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-10,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-10,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-10,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-15,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-15,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-19,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-20,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-20,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-21,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-21,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-21,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-25,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-27,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-28,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-28,0
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-28,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-28,1
+Camera Trap,CT03,I10,Rimba Dait Bawah,Dec25 - Mar26,0.734644,110.202735,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-02-17,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-06,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-27,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-30,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-25,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-03,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-09,1
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-09,0
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-09,0
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-09,0
+Camera Trap,CT05,L15,Bukit Onah,Apr25 - Sep25,0.786472,110.294118,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-07-17,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Aves,Argusianus argus,Kuau Raja,VU,2026-01-19,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-05-10,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-05-10,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-05-10,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-05-10,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-02,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-19,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-19,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-30,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-10,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-10,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-10,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-10,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-11,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-11,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-11,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-26,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-28,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-28,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-28,0
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-03,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-07,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-08,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-08,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-09,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-12,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-15,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-18,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-28,1
+Camera Trap,CT07,H9,Sungai Biru Atas,Dec25 - Mar26,0.717115,110.189454,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-01,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-05-24,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-05-24,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-05-24,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-17,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-18,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-18,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-18,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-25,1
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-25,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-25,0
+Camera Trap,CT07,L18,Bukit Sebauh,Apr25 - Sep25,0.795174,110.341311,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-06-25,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-12,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-17,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-21,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-21,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-22,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-22,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-26,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-31,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-31,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-31,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-31,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-31,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-07,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-07,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-07,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-07,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-09,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-09,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-09,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-16,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-17,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-17,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-17,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-01-17,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-08,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-15,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-20,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Macaca nemestrina,Beruk,EN,2026-02-20,0
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Manis javanica,Trenggiling,CR,2026-01-04,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-01-09,1
+Camera Trap,CT09,J11,Bukit Gentis,Dec25 - Mar26,0.748881,110.213122,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-02-04,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-24,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-26,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-26,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-26,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-26,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Aves,Argusianus argus,Kuau Raja,VU,2025-07-27,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Mamalia,Helarctos malayanus,Beruang Madu,VU,2025-07-07,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-16,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-11,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-11,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-12,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-12,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-29,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-29,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-11-14,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-01,0
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Manis javanica,Trenggiling,CR,2025-06-17,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2025-09-16,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Apr25 - Dec25,0.700816,110.244342,Mamalia,Sus barbatus,Babi Jenggot,VU,2025-07-31,1
+Camera Trap,CT10,G12,Bukit Sebawak Malam,Jun25 - Dec25,0.700816,110.244342,Mamalia,Sus barbatus,Babi Jenggot,VU,2025-08-21,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-07,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-07,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-13,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-13,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-17,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-17,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-19,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-19,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-19,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-19,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-19,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-20,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-21,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-26,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-06-26,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-08-10,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-08-10,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-09-17,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-09-17,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-09-17,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-09-21,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Aves,Argusianus argus,Kuau Raja,VU,2025-10-04,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Catopuma badia,Kucing Merah,EN,2025-07-09,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Catopuma badia,Kucing Merah,EN,2025-07-09,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-22,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-14,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-22,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-25,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-08,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-08,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-08,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-08,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-26,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-10-03,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-10-18,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-10-18,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-11-21,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-11-23,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-01,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-07-25,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-12-03,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Sus barbatus,Babi Jenggot,VU,2025-07-03,1
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Sus barbatus,Babi Jenggot,VU,2025-07-03,0
+Camera Trap,CT13,J10,Rimba Dait,Apr25 - Dec25,0.75884,110.192267,Mamalia,Sus barbatus,Babi Jenggot,VU,2025-07-03,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-20,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-20,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-20,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-20,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-06-29,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-24,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-07-24,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-08-18,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-02,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-02,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-02,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-14,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-28,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-28,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-09-29,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-10-24,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-10-24,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-11-13,0
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-11-13,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Macaca nemestrina,Beruk,EN,2025-12-01,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Manis javanica,Trenggiling,CR,2025-07-10,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-06-22,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-09-21,1
+Camera Trap,CT16,G10,Ngayu Biru,Jun25 - Dec25,0.705602,110.191257,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-10-18,1
+Camera Trap,CT24,M11,Sungai Senggolak,Mar26 - Aug26,0.810436,110.225579,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-11,1
+Camera Trap,CT24,M11,Sungai Senggolak,Mar26 - Aug26,0.810436,110.225579,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-15,1
+Camera Trap,CT24,M11,Sungai Senggolak,Mar26 - Aug26,0.810436,110.225579,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,1
+Camera Trap,CT24,M11,Sungai Senggolak,Mar26 - Aug26,0.810436,110.225579,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-21,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-05-05,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-10,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-08,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-12,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-12,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-12,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-12,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-12,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-25,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-25,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-25,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-25,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-25,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-07,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-09,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-09,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-09,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-09,0
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-15,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-03-15,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-03-21,1
+Camera Trap,CT25,N11,Air Tungguh,Mar26 - Aug26,0.816997,110.218185,Mamalia,Sus barbatus,Babi Jenggot,VU,2026-07-15,1
+Camera Trap,CT26,M11,Sungai Sengkurak,Mar26 - Aug26,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2026-03-10,1
+Camera Trap,CT26,M11,Sungai Sengkurak,Mar26 - Aug26,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2026-03-10,0
+Camera Trap,CT26,M11,Sungai Sengkurak,Mar26 - Aug26,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2026-03-10,0
+Camera Trap,CT26,M11,Sungai Sengkurak,Mar26 - Aug26,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2026-03-10,0
+Camera Trap,CT26,M11,Sungai Sengkurak,Mar26 - Aug26,0.79986,110.210558,Aves,Argusianus argus,Kuau Raja,VU,2026-03-11,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-03-22,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-04-14,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-23,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-05-27,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Argusianus argus,Kuau Raja,VU,2026-08-05,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-05,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-05,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-14,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-07-14,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-14,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-19,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-24,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-26,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-27,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-03-29,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-02,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-02,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-02,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-02,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-02,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-04,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-05,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-06,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-17,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-17,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-17,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-04-28,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-01,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-09,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-10,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-11,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-12,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-18,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-20,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-22,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-22,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-22,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-25,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-30,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-31,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-31,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-05-31,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-01,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-02,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-13,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-13,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-06-18,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-03,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-06,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-06,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-06,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-07,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-07,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-07,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-07,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-07,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-26,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Macaca nemestrina,Beruk,EN,2026-07-26,0
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-04-02,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-05-04,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-06-26,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2026-07-13,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2026-04-29,1
+Camera Trap,CT27,M10,Bukit Serantai,Mar26 - Aug26,0.801686,110.204878,Mamalia,Sus barbatus,Babi Jenggot,VU,2026-04-24,1
+Camera Trap,CT28,O19,Mabah Sepatung,Mar26 - Aug26,0.846725,110.361609,Aves,Lophura ignata,Sempidan biru,VU,2026-05-30,1
+Camera Trap,CT28,O19,Mabah Sepatung,Mar26 - Aug26,0.846725,110.361609,Mamalia,Macaca fascicularis,Monyet Ekor Panjang,EN,2026-06-13,1
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,1
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-28,1
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-17,1
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2025-02-03,1
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2025-02-03,0
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2025-02-03,0
+Camera Trap,L1,J10,Ombo Dait 1,Nov24 - Mar 25,0.751146,110.201682,Mamalia,Macaca nemestrina,Beruk,EN,2025-02-03,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-29,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-29,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-29,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-29,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-23,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-23,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-23,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-23,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-01-10,0
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Macaca nemestrina,Beruk,EN,2025-02-15,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Manis javanica,Trenggiling,CR,2024-12-16,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Manis javanica,Trenggiling,CR,2025-03-01,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Manis javanica,Trenggiling,CR,2025-03-02,1
+Camera Trap,L2,J10,Ombo Dait 2,Nov24 - Mar 25,0.750332,110.202905,Mamalia,Rheithrosciurus macrotis,Tupai Vampir,VU,2025-02-27,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-19,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-19,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-19,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-23,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-29,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-11-30,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-01,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-02,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-05,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-05,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-05,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-06,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-07,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-08,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-08,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-11,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-11,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-12,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-12,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-12,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-12,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-12,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-14,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-15,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-15,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-17,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-19,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-19,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-20,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-20,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-23,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-23,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-24,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-26,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-27,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Argusianus argus,Kuau Raja,VU,2024-12-29,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,0
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-18,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Mamalia,Pongo pygmaeus,Orangutan,CR,2024-12-21,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2024-11-25,1
+Camera Trap,L3,L11,Meranas,Nov24 - Mar 25,0.790896,110.209986,Aves,Rollulus rouloul,Puyuh Sengayan,VU,2024-12-23,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-24,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-24,0
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,0
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-26,0
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-11-29,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-01,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-20,1
+Camera Trap,L4,L18,Sekajang,Nov24 - Mar 25,0.795174,110.341311,Mamalia,Macaca nemestrina,Beruk,EN,2024-12-25,1

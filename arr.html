@@ -936,11 +936,12 @@ function statusCardHTML(){
       <div><span>Belum diintervensi</span><span>${fmt(o.belum)} ha <span class="im-n">(${fmtInt(o.lahanBelum)} petak)</span></span></div>
       ${o.lahanPupuk>0?`<div><span>Aplikasi pupuk</span><span>${fmtInt(o.aplikasi)} kali di ${fmtInt(o.lahanPupuk)} petak</span></div>`:''}
     </div></div>`;
+  const subOf=r=>r.prog==='Temb_MTL'&&r.tglRealisasi&&r.tglRealisasi<=end?'Temb_Reg':r.prog;
   const groups=STATUS_GROUPS.map(g=>{
     const list=cohort.filter(r=>g.subs.includes(r.prog));
     if(!list.length)return'';
     return`<div class="im-block">${row(g.key,g.label,statusStats(list,end),g,false)}
-      ${g.subs.map(p=>{const l=list.filter(r=>r.prog===p);return l.length?row(p,PROG_LABEL[p],statusStats(l,end),g,true):'';}).join('')}</div>`;
+      ${g.subs.map(p=>{const l=list.filter(r=>subOf(r)===p);return l.length?row(p,PROG_LABEL[p],statusStats(l,end),g,true):'';}).join('')}</div>`;
   }).join('');
   const sw=s=>STATUS_GROUPS.filter(g=>!s.only||s.only===g.key).map(g=>`<i class="im-sw" style="background:${s.bg(g)}"></i>`).join('');
   const lahanOf={both:all.lahanBoth,only:all.lahanDone-all.lahanBoth,lain:all.lahanLain,pupukOnly:all.lahanPupukOnly,belum:all.lahanBelum};
