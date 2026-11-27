@@ -204,17 +204,16 @@
     .wf-svg{display:block;margin:0 auto;user-select:none}
     .wf-svg text{font-size:10px;fill:#6A665B}
     .wf-svg .ax{font-size:9.5px;fill:#9C998C}
-    .wf-svg .tot{font-size:9.5px;font-weight:700;fill:#3A342C}
-    .wf-svg .blk{font-size:12px;font-weight:700;fill:#3A342C}
+    .wf-svg .tot{font-size:9px;font-weight:700;fill:#3A342C}
+    .wf-svg .stl{font-size:10.5px;font-weight:600;fill:#3A342C}
     .wf-svg .gl{stroke:#EDE7D8;stroke-width:1}
-    .wf-svg rect.c{cursor:pointer}
+    .wf-svg rect.c{cursor:pointer;stroke:#fff;stroke-width:.6}
     .wf-svg rect.c:hover{stroke:#3A342C;stroke-width:1.2}
-    .wf-svg .mk{pointer-events:none}
     .wf-svg .fade{opacity:.18}
-    .wf-svg .blkg{cursor:pointer}
-    .wf-svg .blkg .hit{fill:transparent}
-    .wf-svg .blkg:hover .blk,.wf-svg .blkg.on .blk{fill:#356760}
-    .wf-svg .blkg.on .hit{fill:#f3f3f3}
+    .wf-svg .stg{cursor:pointer}
+    .wf-svg .stg .hit{fill:transparent}
+    .wf-svg .stg:hover .stl,.wf-svg .stg.on .stl{fill:#356760;font-weight:700}
+    .wf-svg .stg.on .hit{fill:#f3f3f3}
     .cal-card{margin-top:16px;padding:16px 18px}
     .cal-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3)}
     .cal-leg i{width:10px;height:10px;border-radius:2px;margin-left:6px}
@@ -332,7 +331,7 @@
           </div>
           <div class="card wf-card">
             <div class="card-head">
-              <div class="card-lbl">Detections by block</div>
+              <div class="card-lbl">Detections by camera trap</div>
               <div class="cal-yrs" id="wfModes"></div>
             </div>
             <div class="wf-row">
@@ -757,41 +756,8 @@ const WF_LEG_ROW=21.5;
 const CLASS_MAP={mamalia:'Mammals',mammalia:'Mammals',aves:'Birds',reptilia:'Reptiles',amphibia:'Amphibians',insecta:'Insects'};
 const CLASS_COL={Mammals:'#0c7a7e',Birds:'#e8907e',Reptiles:'#f2c9ae',Amphibians:'#d6cf62',Insects:'#b07cc6'};
 const WF_MODES={iucn:'IUCN status',class:'Class',species:'Species'};
-const WF_S=9,WF_GAP=48,WF_L=44,WF_T=18,WF_B=44;
-let wfMode='iucn',wfSel=null,wfBlk=null,wfData=null,blocks=[];
-const blockCache=new Map();
-function inRing(x,y,ring){
-  let ins=false;
-  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
-    const [xi,yi]=ring[i],[xj,yj]=ring[j];
-    if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)ins=!ins;
-  }
-  return ins;
-}
-function blockOf(r){
-  const k=r.unit+'|'+r.site;
-  if(!blockCache.has(k)){
-    const b=blocks.find(b=>b.polys.some(p=>inRing(r.lon,r.lat,p[0])&&!p.slice(1).some(h=>inRing(r.lon,r.lat,h))));
-    blockCache.set(k,b?b.name:'Outside blocks');
-  }
-  return blockCache.get(k);
-}
-function wfMark(m,x,y,fill){
-  let h=fill.replace('#','');
-  if(h.length===3)h=h.split('').map(d=>d+d).join('');
-  const lum=(0.299*parseInt(h.slice(0,2),16)+0.587*parseInt(h.slice(2,4),16)+0.114*parseInt(h.slice(4,6),16))/255;
-  const c=lum>.72?'#6A665B':'#fff',a=`stroke="${c}" stroke-width="1.2" stroke-linecap="round" fill="none"`,cx=x+4,cy=y+4;
-  switch(m){
-    case 1:return`<circle class="mk" cx="${cx}" cy="${cy}" r="1.5" fill="${c}"/>`;
-    case 2:return`<path class="mk" d="M${x+1.8} ${y+6.2}L${x+6.2} ${y+1.8}" ${a}/>`;
-    case 3:return`<path class="mk" d="M${x+1.8} ${cy}H${x+6.2}" ${a}/>`;
-    case 4:return`<path class="mk" d="M${x+2} ${y+2}L${x+6} ${y+6}M${x+6} ${y+2}L${x+2} ${y+6}" ${a}/>`;
-    case 5:return`<path class="mk" d="M${cx} ${y+1.8}V${y+6.2}" ${a}/>`;
-    case 6:return`<circle class="mk" cx="${cx}" cy="${cy}" r="2" ${a}/>`;
-    case 7:return`<path class="mk" d="M${cx} ${y+1.8}V${y+6.2}M${x+1.8} ${cy}H${x+6.2}" ${a}/>`;
-    default:return'';
-  }
-}
+const ST_BW=18,ST_GAP=8,ST_L=40,ST_T=20,ST_PH=220,ST_B=66;
+let wfMode='iucn',wfSel=null,wfData=null;
 function wfScheme(rows,nTop){
   if(wfMode==='iucn'){
     const order=['EX','EW','CR','EN','VU','NT','LC','DD','NE'];
@@ -807,100 +773,93 @@ function wfScheme(rows,nTop){
   return{key:r=>{const k=r.species.toLowerCase();return top.includes(k)?k:'';},
     cats:[...top.map((k,i)=>({k,lbl:name.get(k),col:WF_PAL[i],it:true})),{k:'',lbl:'Other species',col:'#DCDACC'}]};
 }
-function renderWaffle(){
-  const body=document.getElementById('wfBody');
+function renderStack(){
+  const body=document.getElementById('wfBody'),leg=document.getElementById('wfLeg');
   document.getElementById('wfModes').innerHTML=Object.keys(WF_MODES).map(m=>`<button type="button" class="fpill${wfMode===m?' active':''}" data-wm="${m}">${WF_MODES[m]}</button>`).join('');
   const rows=allRows.filter(r=>r.indep>0&&isScientificName(r.species)&&matches(r.date));
-  if(!rows.length){wfData=null;wfBlk=null;const lg=document.getElementById('wfLeg');lg.innerHTML='';lg.style.height='';body.innerHTML='<div class="nw-empty">No camera trap detections in this period.</div>';return;}
-  const blkTot=new Map();
-  rows.forEach(r=>{const b=blockOf(r);blkTot.set(b,(blkTot.get(b)||0)+r.indep);});
-  const maxN=Math.max(...blkTot.values()),ticks=niceTicks(0,maxN,4),maxT=ticks[ticks.length-1];
-  const WF_W=Math.max(6,Math.ceil(Math.sqrt(maxN/1.2))),base=WF_T+Math.ceil(maxT/WF_W)*WF_S,H=base+WF_B;
+  if(!rows.length){wfData=null;leg.innerHTML='';leg.style.height='';body.innerHTML='<div class="nw-empty">No camera trap detections in this period.</div>';return;}
+  const H=ST_T+ST_PH+ST_B,base=ST_T+ST_PH;
   const nTop=Math.min(WF_PAL.length,Math.max(4,Math.floor((H-22)/WF_LEG_ROW)-1));
-  const {key,cats}=wfScheme(rows,nTop),ci=new Map(cats.map((c,i)=>[c.k,i])),byBlock=new Map();
+  const {key,cats}=wfScheme(rows,nTop),ci=new Map(cats.map((c,i)=>[c.k,i])),bySt=new Map();
   rows.forEach(r=>{
-    const s=blockOf(r);
-    let o=byBlock.get(s);
-    if(!o)byBlock.set(s,o={site:s,n:0,keys:new Set(),cells:[]});
-    o.keys.add(r.unit+'|'+r.site);
-    for(let k=0;k<r.indep;k++)o.cells.push({g:ci.get(key(r)),sp:r.species});
+    const k=r.unit+'|'+r.site,g=ci.get(key(r));
+    let o=bySt.get(k);
+    if(!o)bySt.set(k,o={k,unit:r.unit,site:r.site,n:0,cnt:new Map(),sp:new Map()});
+    o.cnt.set(g,(o.cnt.get(g)||0)+r.indep);
+    if(!o.sp.has(g))o.sp.set(g,new Set());
+    o.sp.get(g).add(r.species.toLowerCase());
     o.n+=r.indep;
   });
-  const outside=s=>s==='Outside blocks'?1:0;
-  const cols=[...byBlock.values()].sort((a,b)=>outside(a.site)-outside(b.site)||a.site.localeCompare(b.site,undefined,{numeric:true}));
-  cols.forEach(o=>o.cells.sort((a,b)=>a.g-b.g||a.sp.localeCompare(b.sp)));
-  const used=new Set(cols.flatMap(o=>o.cells.map(c=>c.g)));
-  if(wfBlk!=null&&!cols.some(o=>o.site===wfBlk))wfBlk=null;
+  const cols=[...bySt.values()].sort((a,b)=>a.unit.localeCompare(b.unit,undefined,{numeric:true})||a.site.localeCompare(b.site));
+  const used=new Set(cols.flatMap(o=>[...o.cnt.keys()]));
   wfData={cols,cats};
-  const leg=document.getElementById('wfLeg');
   leg.style.height=H+'px';
-  let mi=0;
-  cats.forEach((c,i)=>{if(used.has(i)){c.mk=mi%8;mi++;}});
-  const pinSp=spPinned()?N.sp[pin.i].k:null,selSt=pin&&pin.t==='s'?N.st[pin.i].k:null;
+  const pinSp=spPinned()?N.sp[pin.i].k:null,selSt=pin?(pin.t==='s'?N.st[pin.i].k:pin.s||null):null;
   const byCat=wfMode!=='species';
   if(byCat&&wfSel!=null&&(pinSp||!cats.some((c,i)=>c.k===wfSel&&used.has(i))))wfSel=null;
-  const hiKey=byCat?wfSel:pinSp;
-  const isHi=(c,cell)=>byCat?c.k===wfSel:cell?cell.sp.toLowerCase()===pinSp:c.k===pinSp;
-  leg.innerHTML=`<div class="wf-box">${cats.map((c,i)=>used.has(i)?`<span data-g="${i}" class="${hiKey!=null&&!isHi(c)?'off':''}${c.k===''&&!byCat?'':' clk'}"><svg class="sw" viewBox="0 0 8 8"><rect width="8" height="8" rx="1" fill="${c.col}"/>${wfMark(c.mk,0,0,c.col)}</svg>${c.it?`<em>${esc(c.lbl)}</em>`:esc(c.lbl)}</span>`:'').join('')}</div>`;
-  const colW=WF_W*WF_S,W=WF_L+cols.length*(colW+WF_GAP)-WF_GAP+10;
-  const Y=v=>base-v/WF_W*WF_S;
-  const axis=ticks.map(v=>`<line class="gl" x1="${WF_L-4}" x2="${W}" y1="${f1(Y(v))}" y2="${f1(Y(v))}"/><text class="ax" x="${WF_L-8}" y="${f1(Y(v))}" dy=".35em" text-anchor="end">${v}</text>`).join('');
+  const hiKey=byCat?wfSel:pinSp==null?null:cats.some(c=>c.k===pinSp)?pinSp:'';
+  leg.innerHTML=`<div class="wf-box">${cats.map((c,i)=>used.has(i)?`<span data-g="${i}" class="${hiKey!=null&&c.k!==hiKey?'off':''}${c.k===''&&!byCat?'':' clk'}"><svg class="sw" viewBox="0 0 8 8"><rect width="8" height="8" rx="1" fill="${c.col}"/></svg>${c.it?`<em>${esc(c.lbl)}</em>`:esc(c.lbl)}</span>`:'').join('')}</div>`;
+  const W=ST_L+cols.length*(ST_BW+ST_GAP)+10;
+  const Y=p=>base-p/100*ST_PH;
+  const axis=[0,25,50,75,100].map(v=>`<line class="gl" x1="${ST_L-4}" x2="${W}" y1="${f1(Y(v))}" y2="${f1(Y(v))}"/><text class="ax" x="${ST_L-8}" y="${f1(Y(v))}" dy=".35em" text-anchor="end">${v}%</text>`).join('');
   const bars=cols.map((o,j)=>{
-    const x0=WF_L+j*(colW+WF_GAP),cx=x0+colW/2,blkOff=wfBlk!=null&&o.site!==wfBlk,stOff=blkOff||!!selSt&&!o.keys.has(selSt);
-    const cells=o.cells.map((c,i)=>{
-      const cat=cats[c.g],fade=blkOff||(hiKey!=null?!isHi(cat,c):stOff);
-      const x=x0+(i%WF_W)*WF_S,y=base-(Math.floor(i/WF_W)+1)*WF_S+1;
-      return`<g${fade?' class="fade"':''}><rect class="c" data-j="${j}" data-i="${i}" x="${x}" y="${y}" width="${WF_S-1}" height="${WF_S-1}" rx="1" fill="${cat.col}"/>${wfMark(cat.mk,x,y,cat.col)}</g>`;
+    const x=ST_L+ST_GAP/2+j*(ST_BW+ST_GAP),cx=x+ST_BW/2,stOff=!!selSt&&o.k!==selSt;
+    let acc=0;
+    const segs=cats.map((cat,g)=>{
+      const n=o.cnt.get(g);
+      if(!n)return'';
+      const h=n/o.n*ST_PH,y=ST_T+acc,fade=hiKey!=null?cat.k!==hiKey:stOff;
+      acc+=h;
+      return`<rect class="c${fade?' fade':''}" data-j="${j}" data-g="${g}" x="${x}" y="${f1(y)}" width="${ST_BW}" height="${f1(h)}" fill="${cat.col}"/>`;
     }).join('');
-    return cells+`<text class="tot" x="${cx}" y="${base-Math.ceil(o.n/WF_W)*WF_S-5}" text-anchor="middle">${o.n}</text>`
-      +`<g class="blkg${stOff?' fade':''}${wfBlk===o.site?' on':''}" data-b="${j}"><rect class="hit" x="${x0-WF_GAP/2+2}" y="${base+4}" width="${colW+WF_GAP-4}" height="${WF_B-6}"/><text class="blk" x="${cx}" y="${base+18}" text-anchor="middle">${esc(o.site)}</text>`
-      +`<text class="ax" x="${cx}" y="${base+32}" text-anchor="middle">${o.keys.size} station${o.keys.size===1?'':'s'}</text></g>`;
+    const ly=base+10;
+    return segs+`<text class="tot${stOff?' fade':''}" x="${cx}" y="${ST_T-6}" text-anchor="middle">${o.n}</text>`
+      +`<g class="stg${stOff?' fade':''}${selSt===o.k?' on':''}" data-j="${j}"><rect class="hit" x="${x-ST_GAP/2}" y="${base+2}" width="${ST_BW+ST_GAP}" height="${ST_B-4}"/>`
+      +`<text class="stl" x="${cx}" y="${ly}" text-anchor="end" transform="rotate(-50 ${cx} ${ly})">${esc(trunc(o.unit,12))}</text></g>`;
   }).join('');
   body.innerHTML=`<svg class="wf-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${axis}${bars}</svg>`;
 }
-(function initWaffleEvents(){
+(function initStackEvents(){
   const body=document.getElementById('wfBody');
-  const cell=e=>{const r=e.target.closest('rect.c');return r&&wfData?{o:wfData.cols[+r.dataset.j],c:wfData.cols[+r.dataset.j].cells[+r.dataset.i]}:null;};
+  const seg=e=>{const r=e.target.closest('rect.c');return r&&wfData?{o:wfData.cols[+r.dataset.j],g:+r.dataset.g}:null;};
   body.addEventListener('mouseover',e=>{
-    const x=cell(e);
-    if(!x)return;
-    const {o,c}=x,cat=wfData.cats[c.g],inCat=o.cells.filter(z=>z.g===c.g),nCat=inCat.length;
-    const head=`<div class="tt-head"><strong>${esc(o.site)}</strong> · ${o.n} record${o.n===1?'':'s'}</div>`;
-    if(wfMode!=='species'){
-      const nSp=new Set(inCat.map(z=>z.sp.toLowerCase())).size;
-      showTip(head+`<div class="tt-row"><span>${esc(cat.lbl)}</span><b>${nCat} (${Math.round(nCat/o.n*100)}%)</b></div>`
-        +`<div class="tt-row"><span>Species</span><b>${nSp}</b></div>`,e);
+    const x=seg(e);
+    if(x){
+      const {o,g}=x,cat=wfData.cats[g],n=o.cnt.get(g),nSp=o.sp.get(g).size;
+      showTip(`<div class="tt-head"><strong>${esc(o.unit)}</strong> ${esc(o.site)} · ${o.n} record${o.n===1?'':'s'}</div>`
+        +`<div class="tt-row"><span>${cat.it?`<i>${esc(cat.lbl)}</i>`:esc(cat.lbl)}</span><b>${n} (${Math.round(n/o.n*100)}%)</b></div>`
+        +(cat.it?'':`<div class="tt-row"><span>Species</span><b>${nSp}</b></div>`),e);
       return;
     }
-    const nSp=o.cells.filter(z=>z.sp===c.sp).length;
-    showTip(head+(cat.it?'':`<div class="tt-row"><span>${esc(cat.lbl)}</span><b>${nCat}</b></div>`)
-      +`<div class="tt-row"><span><i>${esc(c.sp)}</i></span><b>${nSp}</b></div>`,e);
+    const s=e.target.closest('.stg');
+    if(s&&wfData){
+      const o=wfData.cols[+s.dataset.j];
+      showTip(`<div class="tt-head"><strong>${esc(o.unit)}</strong> ${esc(o.site)}</div><div class="tt-row"><span>Records</span><b>${o.n}</b></div>`,e);
+    }
   });
-  body.addEventListener('mousemove',e=>{if(e.target.closest('rect.c'))moveTip(e);else hideTip();});
+  body.addEventListener('mousemove',e=>{if(e.target.closest('rect.c,.stg'))moveTip(e);else hideTip();});
   body.addEventListener('mouseleave',hideTip);
-  const pick=(g,sp)=>{
+  const pick=g=>{
     if(!wfData)return;
     hideTip();
+    const k=wfData.cats[g].k;
     if(wfMode!=='species'){
-      const k=wfData.cats[g].k;
       wfSel=wfSel===k?null:k;
       if(spPinned()){pin=null;applyMark(null);renderPanel();}
       else renderDailyCard();
       return;
     }
-    const key=sp||wfData.cats[g].k;
-    const i=N?N.sp.findIndex(p=>p.k===key.toLowerCase()):-1;
+    const i=N&&k?N.sp.findIndex(p=>p.k===k):-1;
     if(i>=0)togglePin({t:'p',i});
   };
   body.addEventListener('click',e=>{
-    const x=cell(e);
-    if(x){pick(x.c.g,x.c.sp);return;}
-    const b=e.target.closest('[data-b]');
-    if(!b||!wfData)return;
-    const s=wfData.cols[+b.dataset.b].site;
-    wfBlk=wfBlk===s?null:s;
+    const x=seg(e);
+    if(x){pick(x.g);return;}
+    const s=e.target.closest('.stg');
+    if(!s||!wfData||!N)return;
     hideTip();
-    renderDailyCard();
+    const k=wfData.cols[+s.dataset.j].k;
+    stationClick(k,N.st.findIndex(st=>st.k===k));
   });
   document.getElementById('wfLeg').addEventListener('click',e=>{const s=e.target.closest('[data-g].clk');if(s)pick(+s.dataset.g);});
   document.getElementById('wfModes').addEventListener('click',e=>{
@@ -909,7 +868,7 @@ function renderWaffle(){
   });
 })();
 function renderDailyCard(){
-  if(N){renderSiteCard();renderWaffle();}
+  if(N){renderSiteCard();renderStack();}
   const body=document.getElementById('calBody');
   if(!body||!calStart)return;
   const spKey=pin&&pin.t==='p'?N.sp[pin.i].k:null;
@@ -917,8 +876,8 @@ function renderDailyCard(){
   const st=stKey?[...N.st,...N.idle].find(x=>x.k===stKey):null;
   const catSel=wfMode!=='species'&&wfSel!=null&&wfData?wfData.cats.find(c=>c.k===wfSel):null;
   const catKey=catSel?wfScheme(detRows,0).key:null;
-  const rows=detRows.filter(r=>(!spKey||r.species.toLowerCase()===spKey)&&(!stKey||r.unit+'|'+r.site===stKey)&&(!catSel||catKey(r)===wfSel)&&(wfBlk==null||blockOf(r)===wfBlk));
-  const deps=allDeps.filter(d=>(!stKey||d.k===stKey)&&(wfBlk==null||blockOf(d)===wfBlk));
+  const rows=detRows.filter(r=>(!spKey||r.species.toLowerCase()===spKey)&&(!stKey||r.unit+'|'+r.site===stKey)&&(!catSel||catKey(r)===wfSel));
+  const deps=allDeps.filter(d=>!stKey||d.k===stKey);
   calDeps=deps;
   calByDay=new Map();
   rows.forEach(r=>{const k=dayKey(r.date);if(!calByDay.has(k))calByDay.set(k,[]);calByDay.get(k).push(r);});
@@ -965,7 +924,7 @@ function renderDailyCard(){
     html+=`<div class="cal-year"><div class="cal-y">${y}</div><div class="cal-grid">${labels.join('')}${cells.join('')}${lines.join('')}</div></div>`;
   }
   body.innerHTML=html;
-  document.getElementById('calLbl').innerHTML='Daily detections'+(spKey?` · <em>${esc(N.sp[pin.i].name)}</em>`:'')+(catSel?` · ${esc(catSel.lbl)}`:'')+(wfBlk!=null&&!st?` · ${esc(wfBlk)}`:'')+(st?` · ${esc(st.unit)}${st.site?` ${esc(st.site)}`:''}`:'');
+  document.getElementById('calLbl').innerHTML='Daily detections'+(spKey?` · <em>${esc(N.sp[pin.i].name)}</em>`:'')+(catSel?` · ${esc(catSel.lbl)}`:'')+(st?` · ${esc(st.unit)}${st.site?` ${esc(st.site)}`:''}`:'');
   document.getElementById('calSum').textContent=lo?`${fmtShort(lo)} – ${fmtShort(hi)} · ${recs} record${recs===1?'':'s'} on ${detDays} day${detDays===1?'':'s'}`:'';
   closeCalPop();
 }
@@ -1256,10 +1215,6 @@ function hideTip(){tt.style.display='none';}
     ]);
     allRows=parseRows(Papa.parse(csv,{header:false,skipEmptyLines:true}).data);
     sites=siteCsv?parseSites(siteCsv):[];
-    blocks=(boundary&&boundary.features||[]).filter(f=>f.geometry).map(f=>({
-      name:String(f.properties&&f.properties.Name||'Block').replace(/^CMI\s+/i,''),
-      polys:f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]
-    }));
     const dates=allRows.map(r=>r.date).filter(Boolean);
     years=[...new Set(dates.map(d=>d.getFullYear()))].sort((a,b)=>a-b);
     document.getElementById('lastUpdated').textContent=dates.length?fmtDate(new Date(Math.max(...dates))):'–';
